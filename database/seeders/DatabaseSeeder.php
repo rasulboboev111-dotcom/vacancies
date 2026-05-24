@@ -27,6 +27,7 @@ class DatabaseSeeder extends Seeder
             BranchSeeder::class,
             EmployeeSeeder::class,
             RoleAndPermissionSeeder::class,
+            RotationSeeder::class,
         ]);
     }
 }

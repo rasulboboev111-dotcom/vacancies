@@ -1,7 +1,16 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { 
+    LayoutDashboard, 
+    Users, 
+    Building2, 
+    MapPin, 
+    FolderOpen, 
+    Briefcase, 
+    Clock, 
+    Plus
+} from '@lucide/vue';
 
 const props = defineProps({
     stats: {
@@ -14,24 +23,8 @@ const props = defineProps({
     },
 });
 
-const maleTotal = computed(() => {
-    const maleStat = props.stats.gender_stats.find(s => s.gender === 'Мужской');
-    return maleStat ? parseInt(maleStat.count) : 0;
-});
-
-const femaleTotal = computed(() => {
-    const femaleStat = props.stats.gender_stats.find(s => s.gender === 'Женский');
-    return femaleStat ? parseInt(femaleStat.count) : 0;
-});
-
-const genderRatio = computed(() => {
-    const total = maleTotal.value + femaleTotal.value;
-    if (total === 0) return 50;
-    return Math.round((maleTotal.value / total) * 100);
-});
-
 // Colors list for cards/distributions
-const colors = ['#6200EE', '#03DAC6', '#FF007F', '#FFB300', '#4CAF50', '#00BCD4'];
+const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 </script>
 
 <template>
@@ -39,148 +32,81 @@ const colors = ['#6200EE', '#03DAC6', '#FF007F', '#FFB300', '#4CAF50', '#00BCD4'
 
     <AuthenticatedLayout>
         <template #header>
-            Панель управления
+            <div class="d-flex align-center">
+                <LayoutDashboard class="mr-3 text-indigo-accent-2 h-6 w-6" />
+                <span>Панель управления</span>
+            </div>
         </template>
 
         <!-- KPI Cards -->
         <v-row class="mb-6">
-            <v-col cols="12" sm="6" md="3">
-                <v-card elevation="2" class="rounded-xl overflow-hidden pa-4 relative border-l-4 border-primary">
+            <v-col cols="12" sm="6">
+                <v-card elevation="0" class="rounded-xl pa-5 bg-gradient-indigo border-glow relative overflow-hidden transition-hover">
                     <div class="d-flex justify-between align-center">
                         <div>
-                            <span class="text-subtitle-2 text-grey-darken-1 font-weight-medium">Сотрудники</span>
-                            <h2 class="text-h4 font-weight-bold mt-1 text-primary">{{ stats.total_employees }}</h2>
+                            <span class="text-subtitle-2 text-white-50 font-weight-medium text-uppercase tracking-wider">Всего сотрудников</span>
+                            <h2 class="text-h3 font-weight-black mt-2 text-white">{{ stats.total_employees }}</h2>
                         </div>
-                        <v-avatar color="primary-lighten-5" rounded="lg" size="50">
-                            <v-icon icon="mdi-account-group" color="primary" size="large"></v-icon>
+                        <v-avatar color="white-10" rounded="xl" size="64" class="backdrop-blur">
+                            <Users class="text-white h-8 w-8" />
                         </v-avatar>
                     </div>
+                    <div class="glass-shine"></div>
                 </v-card>
             </v-col>
 
-            <v-col cols="12" sm="6" md="3">
-                <v-card elevation="2" class="rounded-xl overflow-hidden pa-4 relative border-l-4 border-info">
+            <v-col cols="12" sm="6">
+                <v-card elevation="0" class="rounded-xl pa-5 bg-gradient-emerald border-glow relative overflow-hidden transition-hover">
                     <div class="d-flex justify-between align-center">
                         <div>
-                            <span class="text-subtitle-2 text-grey-darken-1 font-weight-medium">Филиалы</span>
-                            <h2 class="text-h4 font-weight-bold mt-1 text-info">{{ stats.total_branches }}</h2>
+                            <span class="text-subtitle-2 text-white-50 font-weight-medium text-uppercase tracking-wider">Активные филиалы</span>
+                            <h2 class="text-h3 font-weight-black mt-2 text-white">{{ stats.total_branches }}</h2>
                         </div>
-                        <v-avatar color="info-lighten-5" rounded="lg" size="50">
-                            <v-icon icon="mdi-office-building" color="info" size="large"></v-icon>
+                        <v-avatar color="white-10" rounded="xl" size="64" class="backdrop-blur">
+                            <Building2 class="text-white h-8 w-8" />
                         </v-avatar>
                     </div>
-                </v-card>
-            </v-col>
-
-            <v-col cols="12" sm="6" md="3">
-                <v-card elevation="2" class="rounded-xl overflow-hidden pa-4 relative border-l-4 border-success">
-                    <div class="d-flex justify-between align-center">
-                        <div>
-                            <span class="text-subtitle-2 text-grey-darken-1 font-weight-medium">Мужчины</span>
-                            <h2 class="text-h4 font-weight-bold mt-1 text-success">{{ maleTotal }}</h2>
-                        </div>
-                        <v-avatar color="success-lighten-5" rounded="lg" size="50">
-                            <v-icon icon="mdi-gender-male" color="success" size="large"></v-icon>
-                        </v-avatar>
-                    </div>
-                </v-card>
-            </v-col>
-
-            <v-col cols="12" sm="6" md="3">
-                <v-card elevation="2" class="rounded-xl overflow-hidden pa-4 relative border-l-4 border-error">
-                    <div class="d-flex justify-between align-center">
-                        <div>
-                            <span class="text-subtitle-2 text-grey-darken-1 font-weight-medium">Женщины</span>
-                            <h2 class="text-h4 font-weight-bold mt-1 text-error">{{ femaleTotal }}</h2>
-                        </div>
-                        <v-avatar color="error-lighten-5" rounded="lg" size="50">
-                            <v-icon icon="mdi-gender-female" color="error" size="large"></v-icon>
-                        </v-avatar>
-                    </div>
+                    <div class="glass-shine"></div>
                 </v-card>
             </v-col>
         </v-row>
 
-        <!-- Branch Stats & Gender Balance -->
+        <!-- Branch Stats -->
         <v-row class="mb-6">
-            <!-- Branch Wise Count -->
-            <v-col cols="12" md="8">
-                <v-card elevation="2" class="rounded-xl pa-5 h-100">
-                    <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6">
-                        Распределение по филиалам
+            <v-col cols="12">
+                <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass h-100">
+                    <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
+                        <MapPin class="mr-2 text-indigo h-5 w-5" />
+                        Распределение сотрудников по филиалам
                     </v-card-title>
-                    <v-divider class="mb-4"></v-divider>
+                    <v-divider class="mb-5"></v-divider>
                     
-                    <v-list class="pa-0">
-                        <div v-for="(branch, index) in stats.branch_stats" :key="branch.id" class="mb-4">
-                            <div class="d-flex justify-space-between align-center mb-1">
-                                <div class="font-weight-medium text-body-1">
-                                    {{ branch.name }}
-                                    <v-chip size="x-small" color="primary" class="ml-2 font-weight-medium">{{ branch.code }}</v-chip>
+                    <v-row>
+                        <v-col v-for="(branch, index) in stats.branch_stats" :key="branch.id" cols="12" sm="6" md="4" class="mb-4">
+                            <v-card elevation="0" class="pa-4 rounded-lg bg-surface-glass border transition-hover h-100">
+                                <div class="d-flex justify-space-between align-center mb-3">
+                                    <div class="font-weight-bold text-subtitle-1 d-flex align-center text-grey-darken-4">
+                                        {{ branch.name }}
+                                        <v-chip size="x-small" color="indigo" class="ml-2 font-weight-bold text-uppercase">{{ branch.code }}</v-chip>
+                                    </div>
+                                    <div class="text-h6 font-weight-black text-indigo">
+                                        {{ branch.employees_count }} <span class="text-caption text-grey">чел.</span>
+                                    </div>
                                 </div>
-                                <div class="text-body-1 font-weight-bold">
-                                    {{ branch.employees_count }} чел.
+                                <v-progress-linear
+                                    :model-value="(branch.employees_count / (stats.total_employees || 1)) * 100"
+                                    color="indigo-accent-3"
+                                    height="8"
+                                    rounded
+                                    striped
+                                    class="mb-1"
+                                ></v-progress-linear>
+                                <div class="d-flex justify-end text-caption text-grey mt-2">
+                                    <span>Доля: {{ Math.round((branch.employees_count / (stats.total_employees || 1)) * 100) }}%</span>
                                 </div>
-                            </div>
-                            <v-progress-linear
-                                :model-value="(branch.employees_count / (stats.total_employees || 1)) * 100"
-                                color="primary"
-                                height="8"
-                                rounded
-                                class="mb-1"
-                            ></v-progress-linear>
-                            <div class="d-flex justify-start text-caption text-grey">
-                                <span class="mr-3">
-                                    <v-icon icon="mdi-gender-male" size="small" color="success" class="mr-1"></v-icon>
-                                    {{ branch.male_count }}
-                                </span>
-                                <span>
-                                    <v-icon icon="mdi-gender-female" size="small" color="error" class="mr-1"></v-icon>
-                                    {{ branch.female_count }}
-                                </span>
-                            </div>
-                        </div>
-                    </v-list>
-                </v-card>
-            </v-col>
-
-            <!-- Gender Balance Progress -->
-            <v-col cols="12" md="4">
-                <v-card elevation="2" class="rounded-xl pa-5 h-100 d-flex flex-column">
-                    <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6">
-                        Гендерный баланс
-                    </v-card-title>
-                    <v-divider class="mb-4"></v-divider>
-                    
-                    <div class="flex-grow-1 d-flex flex-column justify-center align-center py-6">
-                        <v-progress-circular
-                            :model-value="genderRatio"
-                            :size="150"
-                            :width="15"
-                            color="success"
-                            bg-color="error"
-                            class="mb-4"
-                        >
-                            <span class="text-h5 font-weight-bold">{{ genderRatio }}%</span>
-                        </v-progress-circular>
-
-                        <div class="w-100 mt-4 px-4">
-                            <div class="d-flex justify-space-between mb-2">
-                                <span class="d-flex align-center text-body-2 font-weight-medium">
-                                    <v-icon icon="mdi-circle" color="success" size="x-small" class="mr-2"></v-icon>
-                                    Мужчины
-                                </span>
-                                <span class="font-weight-bold text-body-2">{{ genderRatio }}%</span>
-                            </div>
-                            <div class="d-flex justify-space-between">
-                                <span class="d-flex align-center text-body-2 font-weight-medium">
-                                    <v-icon icon="mdi-circle" color="error" size="x-small" class="mr-2"></v-icon>
-                                    Женщины
-                                </span>
-                                <span class="font-weight-bold text-body-2">{{ 100 - genderRatio }}%</span>
-                            </div>
-                        </div>
-                    </div>
+                            </v-card>
+                        </v-col>
+                    </v-row>
                 </v-card>
             </v-col>
         </v-row>
@@ -188,42 +114,44 @@ const colors = ['#6200EE', '#03DAC6', '#FF007F', '#FFB300', '#4CAF50', '#00BCD4'
         <!-- Category & Type Splits & Activity Logs -->
         <v-row>
             <!-- Category and Type Splits -->
-            <v-col cols="12" md="6">
-                <v-card elevation="2" class="rounded-xl pa-5 mb-6">
-                    <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6">
+            <v-col cols="12" md="6" class="d-flex flex-column gap-6">
+                <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass mb-6">
+                    <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
+                        <FolderOpen class="mr-2 text-indigo h-5 w-5" />
                         Категории сотрудников
                     </v-card-title>
                     <v-divider class="mb-4"></v-divider>
                     
-                    <div v-for="(cat, idx) in stats.category_stats" :key="cat.category" class="mb-3">
-                        <div class="d-flex justify-space-between text-body-2 font-weight-medium mb-1">
-                            <span>{{ cat.category }}</span>
-                            <span>{{ cat.count }} ({{ Math.round((cat.count / (stats.total_employees || 1)) * 100) }}%)</span>
+                    <div v-for="(cat, idx) in stats.category_stats" :key="cat.category" class="mb-4">
+                        <div class="d-flex justify-space-between text-body-2 font-weight-bold mb-1">
+                            <span class="text-grey-darken-3">{{ cat.category }}</span>
+                            <span class="text-indigo">{{ cat.count }} чел. ({{ Math.round((cat.count / (stats.total_employees || 1)) * 100) }}%)</span>
                         </div>
                         <v-progress-linear
                             :model-value="(cat.count / (stats.total_employees || 1)) * 100"
                             :color="colors[idx % colors.length]"
-                            height="6"
+                            height="8"
                             rounded
                         ></v-progress-linear>
                     </div>
                 </v-card>
 
-                <v-card elevation="2" class="rounded-xl pa-5">
-                    <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6">
+                <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass">
+                    <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
+                        <Briefcase class="mr-2 text-indigo h-5 w-5" />
                         Тип занятости
                     </v-card-title>
                     <v-divider class="mb-4"></v-divider>
                     
-                    <div v-for="(type, idx) in stats.type_stats" :key="type.type" class="mb-3">
-                        <div class="d-flex justify-space-between text-body-2 font-weight-medium mb-1">
-                            <span>{{ type.type }}</span>
-                            <span>{{ type.count }} ({{ Math.round((type.count / (stats.total_employees || 1)) * 100) }}%)</span>
+                    <div v-for="(type, idx) in stats.type_stats" :key="type.type" class="mb-4">
+                        <div class="d-flex justify-space-between text-body-2 font-weight-bold mb-1">
+                            <span class="text-grey-darken-3">{{ type.type }}</span>
+                            <span class="text-indigo">{{ type.count }} чел. ({{ Math.round((type.count / (stats.total_employees || 1)) * 100) }}%)</span>
                         </div>
                         <v-progress-linear
                             :model-value="(type.count / (stats.total_employees || 1)) * 100"
                             :color="colors[(idx + 3) % colors.length]"
-                            height="6"
+                            height="8"
                             rounded
                         ></v-progress-linear>
                     </div>
@@ -232,13 +160,14 @@ const colors = ['#6200EE', '#03DAC6', '#FF007F', '#FFB300', '#4CAF50', '#00BCD4'
 
             <!-- Activity Logs -->
             <v-col cols="12" md="6">
-                <v-card elevation="2" class="rounded-xl pa-5 h-100">
-                    <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6">
+                <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass h-100">
+                    <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
+                        <Clock class="mr-2 text-indigo h-5 w-5" />
                         Последняя активность
                     </v-card-title>
-                    <v-divider class="mb-4"></v-divider>
+                    <v-divider class="mb-5"></v-divider>
                     
-                    <v-timeline density="compact" align="start">
+                    <v-timeline density="compact" align="start" class="activity-timeline">
                         <v-timeline-item
                             v-for="activity in recent_activities"
                             :key="activity.id"
@@ -246,15 +175,16 @@ const colors = ['#6200EE', '#03DAC6', '#FF007F', '#FFB300', '#4CAF50', '#00BCD4'
                             size="x-small"
                         >
                             <div class="mb-1">
-                                <span class="font-weight-bold text-body-2">{{ activity.causer_name }}</span>
-                                <span class="text-caption text-grey ml-2">{{ activity.created_at }}</span>
+                                <span class="font-weight-black text-subtitle-2 text-indigo-darken-2">{{ activity.causer_name }}</span>
+                                <v-chip size="x-small" :color="activity.event === 'created' ? 'success' : (activity.event === 'updated' ? 'primary' : 'error')" class="ml-2 px-2 text-uppercase font-weight-black" variant="tonal">{{ activity.event }}</v-chip>
+                                <span class="text-caption text-grey ml-auto d-inline-block">{{ activity.created_at }}</span>
                             </div>
-                            <div class="text-body-2 text-grey-darken-2">
+                            <div class="text-body-2 text-grey-darken-3 font-weight-medium bg-surface pa-2 rounded-lg border">
                                 {{ activity.description }}
                             </div>
                         </v-timeline-item>
                         <v-timeline-item v-if="recent_activities.length === 0" dot-color="grey" size="x-small">
-                            <div class="text-body-2 text-grey">Активностей пока не зарегистрировано.</div>
+                            <div class="text-body-2 text-grey font-weight-medium">Активностей пока не зарегистрировано.</div>
                         </v-timeline-item>
                     </v-timeline>
                 </v-card>
@@ -262,3 +192,70 @@ const colors = ['#6200EE', '#03DAC6', '#FF007F', '#FFB300', '#4CAF50', '#00BCD4'
         </v-row>
     </AuthenticatedLayout>
 </template>
+
+<style scoped>
+.bg-gradient-indigo {
+    background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%) !important;
+}
+.bg-gradient-emerald {
+    background: linear-gradient(135deg, #10b981 0%, #064e3b 100%) !important;
+}
+.bg-surface-glass {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(12px);
+}
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+.white-10 {
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+.backdrop-blur {
+    backdrop-filter: blur(4px);
+}
+.tracking-wider {
+    letter-spacing: 0.05em;
+}
+.border-glow {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.transition-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.transition-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px -10px rgba(79, 70, 229, 0.15), 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+.glass-shine {
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    transition: 0.75s;
+    pointer-events: none;
+}
+.v-card:hover .glass-shine {
+    left: 120%;
+}
+.activity-timeline {
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+.activity-timeline::-webkit-scrollbar {
+    width: 6px;
+}
+.activity-timeline::-webkit-scrollbar-track {
+    background: transparent;
+}
+.activity-timeline::-webkit-scrollbar-thumb {
+    background: rgba(79, 70, 229, 0.2);
+    border-radius: 3px;
+}
+.activity-timeline::-webkit-scrollbar-thumb:hover {
+    background: rgba(79, 70, 229, 0.4);
+}
+</style>

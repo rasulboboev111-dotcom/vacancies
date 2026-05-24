@@ -21,6 +21,10 @@ Route::get('/', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
+    Route::get('/employees/archive', [EmployeeController::class, 'archive'])->name('employees.archive');
+    Route::post('/employees/{employee}/rotate', [EmployeeController::class, 'rotate'])->name('employees.rotate');
+    Route::get('/rotations', [EmployeeController::class, 'rotationsIndex'])->name('rotations.index');
+    
     Route::resource('employees', EmployeeController::class)->except(['show', 'create', 'edit']);
     Route::resource('branches', BranchController::class)->except(['show', 'create', 'edit']);
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');

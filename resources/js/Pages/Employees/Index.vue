@@ -2,6 +2,23 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
+import { 
+    Users,
+    Search,
+    FilterX,
+    Plus,
+    Eye,
+    ArrowLeftRight,
+    Pencil,
+    Trash2,
+    UserX,
+    User,
+    Briefcase,
+    FileText,
+    UserPlus,
+    IdCard,
+    AlertCircle
+} from '@lucide/vue';
 
 const props = defineProps({
     employees: {
@@ -40,18 +57,34 @@ const editingEmployee = ref(null);
 const selectedEmployee = ref(null);
 const employeeToDelete = ref(null);
 
+// Form Tabs
+const activeTab = ref(0);
+
 const form = useForm({
     branch_id: null,
     category: '',
     type: '',
     full_name: '',
+    gender: '',
     position: '',
     structure: '',
     direct_manager: '',
     hire_date: '',
     dismissal_date: '',
+    birth_date: '',
+    nationality: '',
+    passport_number: '',
+    passport_start_date: '',
+    passport_end_date: '',
     passport_issued_by: '',
     inn: '',
+    sin: '',
+    address: '',
+    phone_number: '',
+    birth_place: '',
+    education: '',
+    specialty: '',
+    total_experience: '',
 });
 
 // Watch filters and perform Inertia reload on change
@@ -81,8 +114,8 @@ function resetFilters() {
 
 function openCreateDialog() {
     editingEmployee.value = null;
+    activeTab.value = 0;
     form.reset();
-    // Default to the first branch in user's list (if Branch Manager, it will be their branch)
     if (props.branches.length > 0) {
         form.branch_id = props.branches[0].id;
     }
@@ -92,17 +125,31 @@ function openCreateDialog() {
 
 function openEditDialog(employee) {
     editingEmployee.value = employee;
+    activeTab.value = 0;
     form.branch_id = employee.branch_id;
     form.category = employee.category;
     form.type = employee.type;
     form.full_name = employee.full_name;
+    form.gender = employee.gender || '';
     form.position = employee.position;
     form.structure = employee.structure;
     form.direct_manager = employee.direct_manager || '';
     form.hire_date = employee.hire_date ? employee.hire_date.substring(0, 10) : '';
     form.dismissal_date = employee.dismissal_date ? employee.dismissal_date.substring(0, 10) : '';
+    form.birth_date = employee.birth_date ? employee.birth_date.substring(0, 10) : '';
+    form.nationality = employee.nationality || '';
+    form.passport_number = employee.passport_number || '';
+    form.passport_start_date = employee.passport_start_date ? employee.passport_start_date.substring(0, 10) : '';
+    form.passport_end_date = employee.passport_end_date ? employee.passport_end_date.substring(0, 10) : '';
     form.passport_issued_by = employee.passport_issued_by || '';
     form.inn = employee.inn || '';
+    form.sin = employee.sin || '';
+    form.address = employee.address || '';
+    form.phone_number = employee.phone_number || '';
+    form.birth_place = employee.birth_place || '';
+    form.education = employee.education || '';
+    form.specialty = employee.specialty || '';
+    form.total_experience = employee.total_experience || '';
     form.clearErrors();
     createEditDialog.value = true;
 }
@@ -163,6 +210,36 @@ function formatDate(dateStr) {
     const date = new Date(dateStr);
     return date.toLocaleDateString('ru-RU');
 }
+
+// Rotation variables & functions
+const rotationDialog = ref(false);
+const rotationForm = useForm({
+    branch_id: null,
+    position: '',
+    structure: '',
+    rotation_date: new Date().toISOString().substring(0, 10),
+    reason: '',
+});
+
+function openRotationDialog(employee) {
+    selectedEmployee.value = employee;
+    rotationForm.branch_id = employee.branch_id;
+    rotationForm.position = employee.position;
+    rotationForm.structure = employee.structure;
+    rotationForm.rotation_date = new Date().toISOString().substring(0, 10);
+    rotationForm.reason = '';
+    rotationForm.clearErrors();
+    rotationDialog.value = true;
+}
+
+function submitRotation() {
+    rotationForm.post(route('employees.rotate', selectedEmployee.value.id), {
+        onSuccess: () => {
+            rotationDialog.value = false;
+            rotationForm.reset();
+        },
+    });
+}
 </script>
 
 <template>
@@ -170,27 +247,34 @@ function formatDate(dateStr) {
 
     <AuthenticatedLayout>
         <template #header>
-            Сотрудники
+            <div class="d-flex align-center">
+                <Users class="mr-3 text-indigo-accent-2 h-6 w-6" />
+                <span>Сотрудники</span>
+            </div>
         </template>
 
         <!-- Filters section -->
-        <v-card elevation="2" class="rounded-xl pa-5 mb-6">
+        <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass mb-6">
             <v-row class="align-center">
                 <!-- Search bar -->
                 <v-col cols="12" sm="4" md="3">
                     <v-text-field
                         v-model="search"
                         label="Поиск по ФИО, должности или ИНН"
-                        prepend-inner-icon="mdi-magnify"
                         variant="outlined"
                         density="comfortable"
                         rounded="lg"
                         hide-details
+                        class="bg-surface"
                         @keyup.enter="applyFilters"
-                    ></v-text-field>
+                    >
+                        <template v-slot:prepend-inner>
+                            <Search class="h-4 w-4 text-grey-darken-1 mr-1" />
+                        </template>
+                    </v-text-field>
                 </v-col>
 
-                <!-- Branch Filter (disabled for Branch Managers as they only see their own branch) -->
+                <!-- Branch Filter -->
                 <v-col cols="12" sm="3" md="2">
                     <v-select
                         v-model="branchId"
@@ -203,6 +287,7 @@ function formatDate(dateStr) {
                         rounded="lg"
                         hide-details
                         clearable
+                        class="bg-surface"
                         :disabled="$page.props.auth.user.roles.includes('Branch Manager')"
                     ></v-select>
                 </v-col>
@@ -218,6 +303,7 @@ function formatDate(dateStr) {
                         rounded="lg"
                         hide-details
                         clearable
+                        class="bg-surface"
                     ></v-select>
                 </v-col>
 
@@ -232,6 +318,7 @@ function formatDate(dateStr) {
                         rounded="lg"
                         hide-details
                         clearable
+                        class="bg-surface"
                     ></v-select>
                 </v-col>
 
@@ -241,20 +328,26 @@ function formatDate(dateStr) {
                         variant="tonal"
                         color="secondary"
                         rounded="lg"
-                        class="mr-2"
+                        class="mr-2 px-4 transition-hover-btn font-weight-bold"
                         @click="resetFilters"
                     >
+                        <template v-slot:prepend>
+                            <FilterX class="h-4 w-4 mr-1" />
+                        </template>
                         Сбросить
                     </v-btn>
                     
                     <v-btn
                         v-if="!$page.props.auth.user.roles.includes('Viewer')"
-                        color="primary"
-                        prepend-icon="mdi-plus"
+                        color="indigo"
                         rounded="lg"
                         elevation="2"
+                        class="px-4 bg-indigo transition-hover-btn font-weight-bold"
                         @click="openCreateDialog"
                     >
+                        <template v-slot:prepend>
+                            <Plus class="h-4 w-4 mr-1" />
+                        </template>
                         Добавить
                     </v-btn>
                 </v-col>
@@ -262,63 +355,84 @@ function formatDate(dateStr) {
         </v-card>
 
         <!-- Employee Table -->
-        <v-card elevation="2" class="rounded-xl overflow-hidden">
-            <v-table class="w-100">
+        <v-card elevation="0" class="rounded-xl border overflow-hidden bg-surface-glass">
+            <v-table class="w-100 table-modern">
                 <thead>
-                    <tr class="bg-grey-lighten-4">
-                        <th class="font-weight-bold text-subtitle-2 pa-4">ФИО</th>
-                        <th class="font-weight-bold text-subtitle-2 pa-4">Должность</th>
-                        <th class="font-weight-bold text-subtitle-2 pa-4">Филиал</th>
-                        <th class="font-weight-bold text-subtitle-2 pa-4">Категория</th>
-                        <th class="font-weight-bold text-subtitle-2 pa-4">Тип</th>
-                        <th class="font-weight-bold text-subtitle-2 pa-4">Дата приема</th>
-                        <th class="font-weight-bold text-subtitle-2 pa-4 text-center">Действия</th>
+                    <tr class="bg-indigo-lighten-5">
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">ФИО</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Должность</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Филиал</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Категория</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Тип</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Телефон</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Возраст</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Общий стаж</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo text-center">Действия</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="employee in employees.data" :key="employee.id">
-                        <td class="pa-4 font-weight-medium">{{ employee.full_name }}</td>
-                        <td class="pa-4">{{ employee.position }}</td>
+                    <tr v-for="employee in employees.data" :key="employee.id" class="employee-row">
+                        <td class="pa-4 font-weight-bold text-indigo-darken-3">{{ employee.full_name }}</td>
+                        <td class="pa-4 text-grey-darken-3 font-weight-medium">{{ employee.position }}</td>
                         <td class="pa-4">
-                            <v-chip size="small" color="primary" variant="tonal" class="font-weight-medium">
+                            <v-chip size="small" color="indigo" variant="flat" class="font-weight-bold">
                                 {{ employee.branch.name }}
                             </v-chip>
                         </td>
-                        <td class="pa-4">{{ employee.category }}</td>
-                        <td class="pa-4">{{ employee.type }}</td>
-                        <td class="pa-4">{{ formatDate(employee.hire_date) }}</td>
+                        <td class="pa-4"><v-chip size="small" color="secondary" variant="outlined">{{ employee.category }}</v-chip></td>
+                        <td class="pa-4"><v-chip size="small" color="teal" variant="tonal" class="font-weight-bold">{{ employee.type }}</v-chip></td>
+                        <td class="pa-4 text-body-2 font-weight-medium">{{ employee.phone_number || '-' }}</td>
+                        <td class="pa-4 text-body-2 font-weight-bold text-indigo">{{ employee.age ? employee.age + ' л.' : '-' }}</td>
+                        <td class="pa-4 text-body-2 font-weight-medium">{{ employee.total_experience || '-' }}</td>
                         <td class="pa-4 text-center">
                             <v-btn
-                                icon="mdi-eye"
                                 variant="text"
-                                color="info"
+                                color="indigo"
                                 size="small"
-                                class="mr-1"
+                                class="mr-1 hover-scale-btn"
                                 @click="openViewDialog(employee)"
-                            ></v-btn>
+                            >
+                                <Eye class="h-4 w-4" />
+                            </v-btn>
 
                             <v-btn
                                 v-if="!$page.props.auth.user.roles.includes('Viewer')"
-                                icon="mdi-pencil"
+                                variant="text"
+                                color="indigo"
+                                size="small"
+                                class="mr-1 hover-scale-btn"
+                                title="Ротация"
+                                @click="openRotationDialog(employee)"
+                            >
+                                <ArrowLeftRight class="h-4 w-4" />
+                            </v-btn>
+
+                            <v-btn
+                                v-if="!$page.props.auth.user.roles.includes('Viewer')"
                                 variant="text"
                                 color="primary"
                                 size="small"
-                                class="mr-1"
+                                class="mr-1 hover-scale-btn"
                                 @click="openEditDialog(employee)"
-                            ></v-btn>
+                            >
+                                <Pencil class="h-4 w-4" />
+                            </v-btn>
 
                             <v-btn
                                 v-if="!$page.props.auth.user.roles.includes('Viewer')"
-                                icon="mdi-delete"
                                 variant="text"
                                 color="error"
                                 size="small"
+                                class="hover-scale-btn"
                                 @click="openDeleteDialog(employee)"
-                            ></v-btn>
+                            >
+                                <Trash2 class="h-4 w-4" />
+                            </v-btn>
                         </td>
                     </tr>
                     <tr v-if="employees.data.length === 0">
-                        <td colspan="7" class="text-center py-8 text-grey">
+                        <td colspan="9" class="text-center py-10 text-grey text-h6 font-weight-medium bg-white">
+                            <UserX class="h-10 w-10 text-grey-lighten-1 mx-auto mb-2 opacity-50" /><br>
                             Сотрудники не найдены.
                         </td>
                     </tr>
@@ -328,7 +442,7 @@ function formatDate(dateStr) {
             <!-- Pagination Wrapper -->
             <v-divider></v-divider>
             <div class="d-flex justify-space-between align-center pa-4 bg-white">
-                <div class="text-caption text-grey">
+                <div class="text-caption text-grey font-weight-bold">
                     Показано {{ employees.from || 0 }} - {{ employees.to || 0 }} из {{ employees.total || 0 }} сотрудников
                 </div>
                 <v-pagination
@@ -338,234 +452,525 @@ function formatDate(dateStr) {
                     :total-visible="5"
                     density="comfortable"
                     rounded="lg"
+                    active-color="indigo"
                     @update:model-value="changePage"
                 ></v-pagination>
             </div>
         </v-card>
 
         <!-- View Details Dialog -->
-        <v-dialog v-model="viewDialog" max-width="600px">
-            <v-card v-if="selectedEmployee" class="rounded-xl pa-5">
-                <v-card-title class="font-weight-bold text-h5 px-0 pt-0 pb-4 d-flex justify-space-between align-center">
-                    Детали сотрудника
-                    <v-chip color="primary" variant="flat" size="small">{{ selectedEmployee.type }}</v-chip>
+        <v-dialog v-model="viewDialog" max-width="800px">
+            <v-card v-if="selectedEmployee" class="rounded-xl pa-6 border border-glow overflow-hidden relative">
+                <v-card-title class="font-weight-black text-h5 px-0 pt-0 pb-4 d-flex justify-space-between align-center text-indigo">
+                    <div class="d-flex align-center">
+                        <User class="mr-2 text-indigo h-6 w-6" />
+                        Детали сотрудника
+                    </div>
+                    <v-chip color="indigo" variant="flat" class="font-weight-bold" size="small">{{ selectedEmployee.type }}</v-chip>
                 </v-card-title>
-                <v-divider class="mb-4"></v-divider>
+                <v-divider class="mb-5"></v-divider>
                 
-                <v-card-text class="px-0 py-0">
-                    <v-row>
+                <v-card-text class="px-0 py-0 overflow-y-auto" style="max-height: 70vh;">
+                    <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
+                        <User class="h-5 w-5 mr-2" /> Основные и личные данные
+                    </div>
+                    <v-row class="mb-4">
                         <v-col cols="12" class="pb-2">
-                            <span class="text-caption text-grey d-block">ФИО</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.full_name }}</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">ФИО</span>
+                            <span class="text-body-1 font-weight-black text-indigo-darken-4">{{ selectedEmployee.full_name }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Пол</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.gender || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата рождения / Возраст</span>
+                            <span class="text-body-1 font-weight-bold">{{ formatDate(selectedEmployee.birth_date) }} ({{ selectedEmployee.age ? selectedEmployee.age + ' лет' : '-' }})</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Национальность</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.nationality || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Телефон</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.phone_number || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="8" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Адрес проживания</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.address || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Место рождения</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.birth_place || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Образование</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.education || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Специальность</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.specialty || '-' }}</span>
+                        </v-col>
+                    </v-row>
+
+                    <v-divider class="my-4"></v-divider>
+
+                    <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
+                        <Briefcase class="h-5 w-5 mr-2" /> Трудовая деятельность
+                    </div>
+                    <v-row class="mb-4">
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Должность</span>
+                            <span class="text-body-1 font-weight-bold text-indigo-darken-3">{{ selectedEmployee.position }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Подразделение</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.structure }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Филиал</span>
+                            <span class="text-body-1 font-weight-bold text-primary">{{ selectedEmployee.branch.name }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Категория</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.category }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Руководитель</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.direct_manager || 'Нет' }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Общий стаж работы</span>
+                            <span class="text-body-1 font-weight-bold text-teal font-weight-black">{{ selectedEmployee.total_experience || '-' }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block">Должность</span>
-                            <span class="text-body-1 font-weight-medium">{{ selectedEmployee.position }}</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата приема</span>
+                            <span class="text-body-1 font-weight-bold">{{ formatDate(selectedEmployee.hire_date) }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block">Подразделение</span>
-                            <span class="text-body-1 font-weight-medium">{{ selectedEmployee.structure }}</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата увольнения</span>
+                            <span class="text-body-1 font-weight-bold text-error">{{ formatDate(selectedEmployee.dismissal_date) }}</span>
+                        </v-col>
+                    </v-row>
+
+                    <v-divider class="my-4"></v-divider>
+
+                    <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
+                        <FileText class="h-5 w-5 mr-2" /> Паспортные данные и коды
+                    </div>
+                    <v-row class="mb-4">
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Номер паспорта</span>
+                            <span class="text-body-1 font-weight-bold font-mono">{{ selectedEmployee.passport_number || '-' }}</span>
                         </v-col>
 
-                        <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block">Филиал</span>
-                            <span class="text-body-1 font-weight-medium text-primary">{{ selectedEmployee.branch.name }}</span>
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Срок действия (С)</span>
+                            <span class="text-body-1 font-weight-bold">{{ formatDate(selectedEmployee.passport_start_date) }}</span>
                         </v-col>
 
-                        <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block">Категория</span>
-                            <span class="text-body-1 font-weight-medium">{{ selectedEmployee.category }}</span>
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Срок действия (По)</span>
+                            <span class="text-body-1 font-weight-bold">{{ formatDate(selectedEmployee.passport_end_date) }}</span>
                         </v-col>
 
-                        <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block">Руководитель</span>
-                            <span class="text-body-1 font-weight-medium">{{ selectedEmployee.direct_manager || 'Нет' }}</span>
+                        <v-col cols="12" sm="4" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">ИНН / РМА</span>
+                            <span class="text-body-1 font-weight-bold font-mono">{{ selectedEmployee.inn || '-' }}</span>
                         </v-col>
 
-                        <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block">ИНН</span>
-                            <span class="text-body-1 font-weight-medium font-mono">{{ selectedEmployee.inn || '-' }}</span>
+                        <v-col cols="12" sm="8" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">СИН (Код)</span>
+                            <span class="text-body-1 font-weight-bold font-mono">{{ selectedEmployee.sin || '-' }}</span>
                         </v-col>
 
-                        <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block">Дата приема</span>
-                            <span class="text-body-1 font-weight-medium">{{ formatDate(selectedEmployee.hire_date) }}</span>
-                        </v-col>
-
-                        <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block">Дата увольнения</span>
-                            <span class="text-body-1 font-weight-medium text-error">{{ formatDate(selectedEmployee.dismissal_date) }}</span>
-                        </v-col>
-
-                        <v-col cols="12" class="pt-2">
-                            <span class="text-caption text-grey d-block">Кем выдан паспорт</span>
-                            <span class="text-body-1 font-weight-medium text-wrap">{{ selectedEmployee.passport_issued_by || '-' }}</span>
+                        <v-col cols="12" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Кем выдан паспорт</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.passport_issued_by || '-' }}</span>
                         </v-col>
                     </v-row>
                 </v-card-text>
 
                 <v-card-actions class="px-0 pt-6">
                     <v-spacer></v-spacer>
-                    <v-btn color="primary" variant="flat" rounded="lg" @click="viewDialog = false">
+                    <v-btn color="indigo" variant="flat" class="bg-indigo px-5" rounded="lg" @click="viewDialog = false">
                         Закрыть
                     </v-btn>
                 </v-card-actions>
+                <div class="glass-shine"></div>
             </v-card>
         </v-dialog>
 
         <!-- Create / Edit Dialog -->
-        <v-dialog v-model="createEditDialog" max-width="700px" persistent>
-            <v-card class="rounded-xl pa-5">
-                <v-card-title class="font-weight-bold text-h6 px-2">
-                    {{ editingEmployee ? 'Редактировать сотрудника' : 'Добавить сотрудника' }}
+        <v-dialog v-model="createEditDialog" max-width="850px" persistent>
+            <v-card class="rounded-xl pa-6 border">
+                <v-card-title class="font-weight-black text-h5 px-2 text-indigo d-flex justify-space-between align-center">
+                    <span>{{ editingEmployee ? 'Редактировать сотрудника' : 'Добавить сотрудника' }}</span>
+                    <UserPlus class="h-6 w-6 text-indigo" />
                 </v-card-title>
-                
-                <v-card-text class="px-2 pt-4">
+                <v-divider class="mb-4"></v-divider>
+
+                <!-- Horizontal Tabs for neat grouping -->
+                <v-tabs v-model="activeTab" color="indigo" align-tabs="start" class="mb-4">
+                    <v-tab :value="0">
+                        <template v-slot:prepend>
+                            <User class="h-4 w-4 mr-1" />
+                        </template>
+                        Основное
+                    </v-tab>
+                    <v-tab :value="1">
+                        <template v-slot:prepend>
+                            <IdCard class="h-4 w-4 mr-1" />
+                        </template>
+                        Личные данные
+                    </v-tab>
+                    <v-tab :value="2">
+                        <template v-slot:prepend>
+                            <FileText class="h-4 w-4 mr-1" />
+                        </template>
+                        Документы и ИНН
+                    </v-tab>
+                </v-tabs>
+
+                <v-card-text class="px-2 pt-2">
                     <v-form @submit.prevent="submit">
-                        <v-row>
-                            <v-col cols="12" sm="6">
-                                <v-text-field
-                                    v-model="form.full_name"
-                                    label="ФИО сотрудника"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    required
-                                    :error-messages="form.errors.full_name"
-                                ></v-text-field>
-                            </v-col>
+                        <v-window v-model="activeTab">
+                            <!-- Tab 1: Основная трудовая информация -->
+                            <v-window-item :value="0">
+                                <v-row>
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.full_name"
+                                            label="ФИО сотрудника"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            required
+                                            :error-messages="form.errors.full_name"
+                                        ></v-text-field>
+                                    </v-col>
 
-                            <v-col cols="12" sm="6">
-                                <v-select
-                                    v-model="form.branch_id"
-                                    :items="branches"
-                                    item-title="name"
-                                    item-value="id"
-                                    label="Филиал"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    required
-                                    :error-messages="form.errors.branch_id"
-                                    :disabled="$page.props.auth.user.roles.includes('Branch Manager')"
-                                ></v-select>
-                            </v-col>
+                                    <v-col cols="12" sm="6">
+                                        <v-select
+                                            v-model="form.branch_id"
+                                            :items="branches"
+                                            item-title="name"
+                                            item-value="id"
+                                            label="Филиал"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            required
+                                            :error-messages="form.errors.branch_id"
+                                            :disabled="$page.props.auth.user.roles.includes('Branch Manager')"
+                                        ></v-select>
+                                    </v-col>
 
-                            <v-col cols="12" sm="6">
-                                <v-text-field
-                                    v-model="form.position"
-                                    label="Должность"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    required
-                                    :error-messages="form.errors.position"
-                                ></v-text-field>
-                            </v-col>
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.position"
+                                            label="Должность"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            required
+                                            :error-messages="form.errors.position"
+                                        ></v-text-field>
+                                    </v-col>
 
-                            <v-col cols="12" sm="6">
-                                <v-text-field
-                                    v-model="form.structure"
-                                    label="Подразделение / Отдел"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    required
-                                    :error-messages="form.errors.structure"
-                                ></v-text-field>
-                            </v-col>
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.structure"
+                                            label="Подразделение / Отдел (Сохтор)"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            required
+                                            :error-messages="form.errors.structure"
+                                        ></v-text-field>
+                                    </v-col>
 
-                            <v-col cols="12" sm="6">
-                                <v-text-field
-                                    v-model="form.category"
-                                    label="Категория"
-                                    placeholder="например, Руководство, Специалисты"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    required
-                                    :error-messages="form.errors.category"
-                                ></v-text-field>
-                            </v-col>
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.category"
+                                            label="Категория"
+                                            placeholder="например, Руководство, Специалисты"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            required
+                                            :error-messages="form.errors.category"
+                                        ></v-text-field>
+                                    </v-col>
 
-                            <v-col cols="12" sm="6">
-                                <v-text-field
-                                    v-model="form.type"
-                                    label="Тип занятости"
-                                    placeholder="например, Штатный, Контракт"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    required
-                                    :error-messages="form.errors.type"
-                                ></v-text-field>
-                            </v-col>
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.type"
+                                            label="Тип занятости"
+                                            placeholder="например, Штатный, Контракт"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            required
+                                            :error-messages="form.errors.type"
+                                        ></v-text-field>
+                                    </v-col>
 
-                            <v-col cols="12" sm="6">
-                                <v-text-field
-                                    v-model="form.direct_manager"
-                                    label="Непосредственный руководитель"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    :error-messages="form.errors.direct_manager"
-                                ></v-text-field>
-                            </v-col>
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.direct_manager"
+                                            label="Непосредственный руководитель"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.direct_manager"
+                                        ></v-text-field>
+                                    </v-col>
 
-                            <v-col cols="12" sm="6">
-                                <v-text-field
-                                    v-model="form.inn"
-                                    label="ИНН / РМА"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    :error-messages="form.errors.inn"
-                                ></v-text-field>
-                            </v-col>
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.total_experience"
+                                            label="Общий стаж работы"
+                                            placeholder="например, 12 солу 3 моҳ"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.total_experience"
+                                        ></v-text-field>
+                                    </v-col>
 
-                            <v-col cols="12" sm="6">
-                                <v-text-field
-                                    v-model="form.hire_date"
-                                    label="Дата приема"
-                                    type="date"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    required
-                                    :error-messages="form.errors.hire_date"
-                                ></v-text-field>
-                            </v-col>
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.hire_date"
+                                            label="Дата приема"
+                                            type="date"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            required
+                                            :error-messages="form.errors.hire_date"
+                                        ></v-text-field>
+                                    </v-col>
 
-                            <v-col cols="12" sm="6">
-                                <v-text-field
-                                    v-model="form.dismissal_date"
-                                    label="Дата увольнения"
-                                    type="date"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    :error-messages="form.errors.dismissal_date"
-                                ></v-text-field>
-                            </v-col>
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.dismissal_date"
+                                            label="Дата увольнения"
+                                            type="date"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.dismissal_date"
+                                        ></v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </v-window-item>
 
-                            <v-col cols="12">
-                                <v-textarea
-                                    v-model="form.passport_issued_by"
-                                    label="Кем выдан паспорт"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    rows="2"
-                                    :error-messages="form.errors.passport_issued_by"
-                                ></v-textarea>
-                            </v-col>
-                        </v-row>
+                            <!-- Tab 2: Личные данные -->
+                            <v-window-item :value="1">
+                                <v-row>
+                                    <v-col cols="12" sm="4">
+                                        <v-select
+                                            v-model="form.gender"
+                                            :items="['Мужской', 'Женский']"
+                                            label="Пол"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            required
+                                            :error-messages="form.errors.gender"
+                                        ></v-select>
+                                    </v-col>
+
+                                    <v-col cols="12" sm="4">
+                                        <v-text-field
+                                            v-model="form.birth_date"
+                                            label="Дата рождения"
+                                            type="date"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.birth_date"
+                                        ></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="12" sm="4">
+                                        <v-text-field
+                                            v-model="form.nationality"
+                                            label="Национальность"
+                                            placeholder="например, Тоҷик"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.nationality"
+                                        ></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.phone_number"
+                                            label="Номер телефона"
+                                            placeholder="например, 988080878"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.phone_number"
+                                        ></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.birth_place"
+                                            label="Место рождения"
+                                            placeholder="например, ш. Душанбе"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.birth_place"
+                                        ></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.education"
+                                            label="Образование"
+                                            placeholder="например, Олӣ (магистр)"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.education"
+                                        ></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.specialty"
+                                            label="Ихтисос (Специальность)"
+                                            placeholder="например, Барномасоз"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.specialty"
+                                        ></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="12">
+                                        <v-text-field
+                                            v-model="form.address"
+                                            label="Адрес проживания"
+                                            placeholder="город, улица, дом, кв."
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.address"
+                                        ></v-text-field>
+                                    </v-col>
+                                </v-row>
+                            </v-window-item>
+
+                            <!-- Tab 3: Паспорт и Коды -->
+                            <v-window-item :value="2">
+                                <v-row>
+                                    <v-col cols="12" sm="4">
+                                        <v-text-field
+                                            v-model="form.passport_number"
+                                            label="Номер паспорта"
+                                            placeholder="например, A05977277"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.passport_number"
+                                        ></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="12" sm="4">
+                                        <v-text-field
+                                            v-model="form.passport_start_date"
+                                            label="Срок действия (С)"
+                                            type="date"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.passport_start_date"
+                                        ></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="12" sm="4">
+                                        <v-text-field
+                                            v-model="form.passport_end_date"
+                                            label="Срок действия (По)"
+                                            type="date"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.passport_end_date"
+                                        ></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.inn"
+                                            label="ИНН / РМА"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.inn"
+                                        ></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="12" sm="6">
+                                        <v-text-field
+                                            v-model="form.sin"
+                                            label="СИН (Код)"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            :error-messages="form.errors.sin"
+                                        ></v-text-field>
+                                    </v-col>
+
+                                    <v-col cols="12">
+                                        <v-textarea
+                                            v-model="form.passport_issued_by"
+                                            label="Кем выдан паспорт (Мақоми шеносномадиҳанда)"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            rows="2"
+                                            :error-messages="form.errors.passport_issued_by"
+                                        ></v-textarea>
+                                    </v-col>
+                                </v-row>
+                            </v-window-item>
+                        </v-window>
                     </v-form>
                 </v-card-text>
 
                 <v-card-actions class="px-2 pt-4">
+                    <v-btn
+                        v-if="activeTab > 0"
+                        variant="tonal"
+                        color="indigo"
+                        rounded="lg"
+                        @click="activeTab--"
+                    >
+                        Назад
+                    </v-btn>
                     <v-spacer></v-spacer>
                     <v-btn
                         variant="text"
@@ -576,8 +981,20 @@ function formatDate(dateStr) {
                         Отмена
                     </v-btn>
                     <v-btn
-                        color="primary"
+                        v-if="activeTab < 2"
+                        color="indigo"
                         variant="flat"
+                        class="bg-indigo px-5"
+                        rounded="lg"
+                        @click="activeTab++"
+                    >
+                        Далее
+                    </v-btn>
+                    <v-btn
+                        v-else
+                        color="indigo"
+                        variant="flat"
+                        class="bg-indigo px-5"
                         rounded="lg"
                         @click="submit"
                         :loading="form.processing"
@@ -590,11 +1007,12 @@ function formatDate(dateStr) {
 
         <!-- Delete Confirmation Dialog -->
         <v-dialog v-model="deleteDialog" max-width="400px">
-            <v-card class="rounded-xl pa-4">
-                <v-card-title class="font-weight-bold text-h6 px-2 text-error">
+            <v-card class="rounded-xl pa-5 border">
+                <v-card-title class="font-weight-black text-h6 px-2 text-error d-flex align-center">
+                    <AlertCircle class="mr-2 text-error h-5 w-5" />
                     Подтверждение удаления
                 </v-card-title>
-                <v-card-text class="px-2 pt-2 text-body-1">
+                <v-card-text class="px-2 pt-3 text-body-1 text-grey-darken-3 font-weight-medium">
                     Вы уверены, что хотите удалить сотрудника <strong>{{ employeeToDelete?.full_name }}</strong>?
                 </v-card-text>
                 <v-card-actions class="px-2 pt-4">
@@ -611,6 +1029,7 @@ function formatDate(dateStr) {
                         color="error"
                         variant="flat"
                         rounded="lg"
+                        class="px-4"
                         @click="confirmDelete"
                         :loading="form.processing"
                     >
@@ -619,5 +1038,155 @@ function formatDate(dateStr) {
                 </v-card-actions>
             </v-card>
         </v-dialog>
+
+        <!-- Rotation Dialog -->
+        <v-dialog v-model="rotationDialog" max-width="600px" persistent>
+            <v-card class="rounded-xl pa-5 border">
+                <v-card-title class="font-weight-black text-h5 px-2 text-indigo d-flex justify-space-between align-center">
+                    <span>Провести ротацию</span>
+                    <ArrowLeftRight class="h-6 w-6 text-indigo" />
+                </v-card-title>
+                <v-divider class="mb-4"></v-divider>
+                
+                <v-card-text class="px-2 pt-2">
+                    <div class="mb-4 text-body-1 font-weight-bold">
+                        Сотрудник: <strong class="text-indigo-darken-3">{{ selectedEmployee?.full_name }}</strong>
+                    </div>
+
+                    <v-form @submit.prevent="submitRotation">
+                        <v-select
+                            v-model="rotationForm.branch_id"
+                            :items="branches"
+                            item-title="name"
+                            item-value="id"
+                            label="Новый филиал"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            required
+                            :error-messages="rotationForm.errors.branch_id"
+                            class="mb-3"
+                            :disabled="$page.props.auth.user.roles.includes('Branch Manager')"
+                        ></v-select>
+
+                        <v-text-field
+                            v-model="rotationForm.position"
+                            label="Новая должность"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            required
+                            :error-messages="rotationForm.errors.position"
+                            class="mb-3"
+                        ></v-text-field>
+
+                        <v-text-field
+                            v-model="rotationForm.structure"
+                            label="Новое подразделение / отдел (Сохтор)"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            required
+                            :error-messages="rotationForm.errors.structure"
+                            class="mb-3"
+                        ></v-text-field>
+
+                        <v-text-field
+                            v-model="rotationForm.rotation_date"
+                            label="Дата ротации"
+                            type="date"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            required
+                            :error-messages="rotationForm.errors.rotation_date"
+                            class="mb-3"
+                        ></v-text-field>
+
+                        <v-textarea
+                            v-model="rotationForm.reason"
+                            label="Причина / Основание ротации"
+                            placeholder="например, перевод в связи с продвижением или производственной необходимостью"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            rows="3"
+                            :error-messages="rotationForm.errors.reason"
+                        ></v-textarea>
+                    </v-form>
+                </v-card-text>
+
+                <v-card-actions class="px-2 pt-4">
+                    <v-spacer></v-spacer>
+                    <v-btn
+                        variant="text"
+                        rounded="lg"
+                        @click="rotationDialog = false"
+                        :disabled="rotationForm.processing"
+                    >
+                        Отмена
+                    </v-btn>
+                    <v-btn
+                        color="indigo"
+                        variant="flat"
+                        class="bg-indigo px-5"
+                        rounded="lg"
+                        @click="submitRotation"
+                        :loading="rotationForm.processing"
+                    >
+                        Выполнить
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </AuthenticatedLayout>
 </template>
+
+<style scoped>
+.bg-surface-glass {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(12px);
+}
+.table-modern {
+    border-radius: 12px;
+}
+.employee-row {
+    transition: all 0.2s ease-in-out;
+}
+.employee-row:hover {
+    background-color: rgba(79, 70, 229, 0.05) !important;
+}
+.transition-hover-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.transition-hover-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+.hover-scale-btn {
+    transition: all 0.2s ease;
+}
+.hover-scale-btn:hover {
+    transform: scale(1.15);
+}
+.font-mono {
+    font-family: monospace, Courier, monospace;
+}
+.border-glow {
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+.glass-shine {
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    transition: 0.75s;
+    pointer-events: none;
+}
+.v-card:hover .glass-shine {
+    left: 120%;
+}
+</style>

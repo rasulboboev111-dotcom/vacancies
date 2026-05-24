@@ -24,17 +24,11 @@ class DashboardController extends Controller
         $branchStats = Branch::withCount('employees')
             ->get()
             ->map(function ($branch) {
-                // Gender distribution in this branch
-                $maleCount = Employee::where('branch_id', $branch->id)->where('gender', 'Мужской')->count();
-                $femaleCount = Employee::where('branch_id', $branch->id)->where('gender', 'Женский')->count();
-                
                 return [
                     'id' => $branch->id,
                     'name' => $branch->name,
                     'code' => $branch->code,
                     'employees_count' => $branch->employees_count,
-                    'male_count' => $maleCount,
-                    'female_count' => $femaleCount,
                 ];
             });
 
@@ -46,11 +40,6 @@ class DashboardController extends Controller
         // Type distribution
         $typeStats = Employee::select('type', DB::raw('count(*) as count'))
             ->groupBy('type')
-            ->get();
-
-        // Gender distribution
-        $genderStats = Employee::select('gender', DB::raw('count(*) as count'))
-            ->groupBy('gender')
             ->get();
 
         // Recent activity logs
@@ -77,7 +66,6 @@ class DashboardController extends Controller
                 'branch_stats' => $branchStats,
                 'category_stats' => $categoryStats,
                 'type_stats' => $typeStats,
-                'gender_stats' => $genderStats,
             ],
             'recent_activities' => $recentActivities,
         ]);
