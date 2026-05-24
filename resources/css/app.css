@@ -2,6 +2,227 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================
+   PREMIUM MODERN DESIGN SYSTEM & VARIABLES
+   ========================================== */
+
+/* Universal Font family definition */
 * {
     font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important;
+    letter-spacing: -0.01em;
+}
+
+/* Base body styles */
+body {
+    background-color: #f8fafc;
+    transition: background-color 0.3s ease;
+}
+
+/* ==========================================
+   RESPONSIVE GRADIENT MESH BACKGROUND
+   ========================================== */
+.v-theme--light {
+    --bg-gradient-mesh: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+                        radial-gradient(at 50% 0%, rgba(20, 184, 166, 0.04) 0px, transparent 50%),
+                        radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.06) 0px, transparent 50%);
+    --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+    --border-color-glow: linear-gradient(to bottom right, rgba(255,255,255,0.5), rgba(255,255,255,0.1));
+}
+
+.v-theme--dark {
+    --bg-gradient-mesh: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+                        radial-gradient(at 50% 0%, rgba(20, 184, 166, 0.08) 0px, transparent 50%),
+                        radial-gradient(at 100% 0%, rgba(139, 92, 246, 0.12) 0px, transparent 50%);
+    --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1);
+    --border-color-glow: linear-gradient(to bottom right, rgba(255,255,255,0.15), rgba(255,255,255,0.02));
+}
+
+.bg-background {
+    background-image: var(--bg-gradient-mesh) !important;
+    background-attachment: fixed !important;
+    transition: background-image 0.3s ease;
+}
+
+/* ==========================================
+   GLASSMORPHISM & PREMIUM CARDS
+   ========================================== */
+.bg-surface-glass {
+    background: rgba(255, 255, 255, 0.65) !important;
+    backdrop-filter: blur(18px) saturate(125%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    box-shadow: var(--card-shadow) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.v-theme--dark .bg-surface-glass {
+    background: rgba(15, 23, 42, 0.65) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Border Glow Mask effect */
+.border-glow {
+    position: relative;
+}
+.border-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--border-color-glow);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* Interactive card hover */
+.transition-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.transition-hover:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.12), var(--card-shadow) !important;
+}
+
+/* Metallic gradient stats */
+.bg-gradient-indigo {
+    background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%) !important;
+    box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.3) !important;
+}
+.bg-gradient-emerald {
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
+    box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.3) !important;
+}
+
+/* ==========================================
+   NAVIGATION DRAWER & APP BAR GLOW
+   ========================================== */
+.v-navigation-drawer {
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(20px) !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+.v-theme--dark .v-navigation-drawer {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.v-app-bar {
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+.v-theme--dark .v-app-bar {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ==========================================
+   PREMIUM TABLES & DATATABLES
+   ========================================== */
+.v-table {
+    background: transparent !important;
+}
+.v-table .v-table__wrapper {
+    border-radius: 12px !important;
+    overflow: hidden;
+}
+.v-table th {
+    background-color: rgba(79, 70, 229, 0.05) !important;
+    color: #312e81 !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.72rem !important;
+    height: 48px !important;
+}
+.v-theme--dark .v-table th {
+    background-color: rgba(99, 102, 241, 0.12) !important;
+    color: #e0e7ff !important;
+}
+
+.v-table td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+    font-size: 0.85rem !important;
+    height: 52px !important;
+}
+.v-theme--dark .v-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+.employee-row {
+    transition: background-color 0.2s ease;
+}
+.employee-row:hover {
+    background-color: rgba(79, 70, 229, 0.04) !important;
+}
+.v-theme--dark .employee-row:hover {
+    background-color: rgba(99, 102, 241, 0.08) !important;
+}
+
+/* ==========================================
+   SLICK NATIVE SCROLLBARS
+   ========================================== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.2);
+    border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.4);
+}
+
+.v-theme--dark ::-webkit-scrollbar-thumb {
+    background: rgba(99, 102, 241, 0.3);
+}
+.v-theme--dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(99, 102, 241, 0.5);
+}
+
+/* ==========================================
+   MICRO-ANIMATIONS & INTERACTION STATES
+   ========================================== */
+.hover-scale-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.hover-scale-btn:hover {
+    transform: scale(1.08) !important;
+}
+.hover-scale-btn:active {
+    transform: scale(0.95) !important;
+}
+
+.transition-hover-btn {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    font-weight: 700 !important;
+}
+.transition-hover-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.35) !important;
+}
+.transition-hover-btn:active {
+    transform: translateY(0px) !important;
+}
+
+/* Elegant glass card shine effect */
+.glass-shine {
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+.v-card:hover .glass-shine {
+    left: 125%;
 }
