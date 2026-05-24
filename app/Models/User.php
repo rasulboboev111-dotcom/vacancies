@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -23,7 +24,16 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'branch_id',
     ];
+
+    /**
+     * Get the branch that the user belongs to.
+     */
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.
