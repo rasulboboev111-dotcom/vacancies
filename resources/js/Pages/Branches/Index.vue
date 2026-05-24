@@ -2,6 +2,16 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { 
+    Building2, 
+    Plus, 
+    MoreVertical, 
+    Pencil, 
+    Trash2, 
+    MapPin, 
+    Users, 
+    AlertTriangle 
+} from '@lucide/vue';
 
 const props = defineProps({
     branches: {
@@ -77,20 +87,26 @@ function confirmDelete() {
 
     <AuthenticatedLayout>
         <template #header>
-            Управление филиалами
+            <div class="d-flex align-center">
+                <Building2 class="mr-3 text-indigo-accent-2 h-6 w-6" />
+                <span>Управление филиалами</span>
+            </div>
         </template>
 
-        <!-- Search / Actions Bar -->
+        <!-- Action Bar -->
         <v-row class="mb-6 align-center">
             <v-col cols="12" class="d-flex justify-end">
                 <v-btn
                     v-if="$page.props.auth.user.roles.includes('Admin') || $page.props.auth.user.roles.includes('HR Manager')"
-                    color="primary"
-                    prepend-icon="mdi-plus"
+                    color="indigo"
                     rounded="lg"
                     elevation="2"
+                    class="px-5 bg-indigo transition-hover-btn font-weight-bold"
                     @click="openCreateDialog"
                 >
+                    <template v-slot:prepend>
+                        <Plus class="h-4 w-4 mr-1" />
+                    </template>
                     Добавить филиал
                 </v-btn>
             </v-col>
@@ -99,66 +115,79 @@ function confirmDelete() {
         <!-- Branches Grid -->
         <v-row>
             <v-col v-for="branch in branches" :key="branch.id" cols="12" sm="6" md="4">
-                <v-card elevation="2" class="rounded-xl overflow-hidden pa-4 h-100 d-flex flex-column">
-                    <div class="d-flex justify-space-between align-start mb-2">
+                <v-card elevation="0" class="rounded-xl border pa-5 h-100 d-flex flex-column bg-surface-glass transition-hover position-relative overflow-hidden">
+                    <div class="d-flex justify-space-between align-start mb-3">
                         <div>
-                            <v-chip color="primary" variant="flat" size="small" class="font-weight-medium mb-2">
+                            <v-chip color="indigo" variant="flat" size="small" class="font-weight-black text-uppercase tracking-wider mb-2">
                                 {{ branch.code }}
                             </v-chip>
-                            <h3 class="text-h6 font-weight-bold">{{ branch.name }}</h3>
+                            <h3 class="text-h6 font-weight-black text-indigo-darken-3">{{ branch.name }}</h3>
                         </div>
                         
                         <!-- Actions menu for Admin/HR Manager -->
                         <v-menu v-if="$page.props.auth.user.roles.includes('Admin') || $page.props.auth.user.roles.includes('HR Manager')">
-                            <template v-slot:activator="{ props }">
-                                <v-btn icon="mdi-dots-vertical" variant="text" size="small" v-bind="props"></v-btn>
+                            <template v-slot:activator="{ props: menuProps }">
+                                <v-btn icon variant="text" size="small" class="hover-scale-btn" v-bind="menuProps">
+                                    <MoreVertical class="h-4 w-4" />
+                                </v-btn>
                             </template>
-                            <v-list density="compact" rounded="lg">
+                            <v-list density="comfortable" rounded="xl" class="border py-1">
                                 <v-list-item
-                                    prepend-icon="mdi-pencil"
                                     title="Редактировать"
+                                    class="font-weight-bold"
                                     @click="openEditDialog(branch)"
-                                ></v-list-item>
+                                >
+                                    <template v-slot:prepend>
+                                        <Pencil class="h-4 w-4 mr-2 text-primary" />
+                                    </template>
+                                </v-list-item>
                                 <v-list-item
-                                    prepend-icon="mdi-delete"
                                     title="Удалить"
-                                    class="text-error"
+                                    class="text-error font-weight-bold"
                                     @click="openDeleteDialog(branch)"
-                                ></v-list-item>
+                                >
+                                    <template v-slot:prepend>
+                                        <Trash2 class="h-4 w-4 mr-2 text-error" />
+                                    </template>
+                                </v-list-item>
                             </v-list>
                         </v-menu>
                     </div>
 
-                    <p class="text-body-2 text-grey-darken-1 mb-4 flex-grow-1">
-                        <v-icon icon="mdi-map-marker" size="small" class="mr-1"></v-icon>
+                    <p class="text-body-2 text-grey-darken-2 mb-4 flex-grow-1 font-weight-medium d-flex align-center">
+                        <MapPin class="mr-2 h-4 w-4 text-indigo" />
                         {{ branch.address || 'Адрес не указан' }}
                     </p>
 
                     <v-divider class="my-3"></v-divider>
 
                     <div class="d-flex justify-space-between align-center">
-                        <span class="text-body-2 text-grey-darken-1 font-weight-medium">Сотрудники</span>
-                        <v-chip color="primary" variant="tonal" size="small" class="font-weight-bold">
+                        <span class="text-subtitle-2 text-grey font-weight-bold text-uppercase">Штат</span>
+                        <v-chip color="teal" variant="tonal" class="font-weight-black px-3" size="medium">
+                            <Users class="h-4 w-4 mr-1 text-teal" />
                             {{ branch.employees_count }} чел.
                         </v-chip>
                     </div>
+                    <div class="glass-shine"></div>
                 </v-card>
             </v-col>
 
             <v-col v-if="branches.length === 0" cols="12" class="text-center py-12">
-                <v-icon icon="mdi-office-building-off" size="x-large" color="grey" class="mb-2"></v-icon>
-                <div class="text-h6 text-grey">Филиалы не найдены.</div>
+                <Building2 class="h-12 w-12 text-grey mx-auto mb-2 opacity-50" />
+                <div class="text-h6 text-grey font-weight-medium">Филиалы не найдены.</div>
             </v-col>
         </v-row>
 
         <!-- Create / Edit Dialog -->
         <v-dialog v-model="dialog" max-width="500px" persistent>
-            <v-card class="rounded-xl pa-4">
-                <v-card-title class="font-weight-bold text-h6 px-2">
-                    {{ editingBranch ? 'Редактировать филиал' : 'Добавить филиал' }}
+            <v-card class="rounded-xl pa-5 border">
+                <v-card-title class="font-weight-black text-h5 px-2 text-indigo d-flex justify-space-between align-center">
+                    <span>{{ editingBranch ? 'Редактировать филиал' : 'Добавить филиал' }}</span>
+                    <Building2 class="h-6 w-6 text-indigo" />
                 </v-card-title>
+                <v-divider class="mb-4"></v-divider>
                 
-                <v-card-text class="px-2 pt-4">
+                <v-card-text class="px-2 pt-2">
                     <v-form @submit.prevent="submit">
                         <v-text-field
                             v-model="form.name"
@@ -205,8 +234,9 @@ function confirmDelete() {
                         Отмена
                     </v-btn>
                     <v-btn
-                        color="primary"
+                        color="indigo"
                         variant="flat"
+                        class="bg-indigo px-5"
                         rounded="lg"
                         @click="submit"
                         :loading="form.processing"
@@ -218,13 +248,18 @@ function confirmDelete() {
         </v-dialog>
 
         <!-- Delete Confirmation Dialog -->
-        <v-dialog v-model="deleteDialog" max-width="400px">
-            <v-card class="rounded-xl pa-4">
-                <v-card-title class="font-weight-bold text-h6 px-2 text-error">
+        <v-dialog v-model="deleteDialog" max-width="450px">
+            <v-card class="rounded-xl pa-5 border">
+                <v-card-title class="font-weight-black text-h6 px-2 text-error d-flex align-center">
+                    <AlertTriangle class="h-6 w-6 text-error mr-2" />
                     Подтверждение удаления
                 </v-card-title>
-                <v-card-text class="px-2 pt-2 text-body-1">
-                    Вы уверены, что хотите удалить филиал <strong>{{ branchToDelete?.name }}</strong>? Все связанные сотрудники будут также удалены!
+                <v-card-text class="px-2 pt-3 text-body-1 text-grey-darken-3 font-weight-medium">
+                    Вы уверены, что хотите удалить филиал <strong>{{ branchToDelete?.name }}</strong>?<br>
+                    <span class="text-error font-weight-bold d-block mt-2">
+                        <AlertTriangle class="h-4 w-4 text-error mr-1 inline" />
+                        Все связанные сотрудники будут также безвозвратно удалены!
+                    </span>
                 </v-card-text>
                 <v-card-actions class="px-2 pt-4">
                     <v-spacer></v-spacer>
@@ -240,6 +275,7 @@ function confirmDelete() {
                         color="error"
                         variant="flat"
                         rounded="lg"
+                        class="px-4"
                         @click="confirmDelete"
                         :loading="form.processing"
                     >
@@ -250,3 +286,47 @@ function confirmDelete() {
         </v-dialog>
     </AuthenticatedLayout>
 </template>
+
+<style scoped>
+.bg-surface-glass {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(12px);
+}
+.transition-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.transition-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px -10px rgba(79, 70, 229, 0.15);
+}
+.transition-hover-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.transition-hover-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+.hover-scale-btn {
+    transition: all 0.2s ease;
+}
+.hover-scale-btn:hover {
+    transform: scale(1.15);
+}
+.tracking-wider {
+    letter-spacing: 0.05em;
+}
+.glass-shine {
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    transition: 0.75s;
+    pointer-events: none;
+}
+.v-card:hover .glass-shine {
+    left: 120%;
+}
+</style>

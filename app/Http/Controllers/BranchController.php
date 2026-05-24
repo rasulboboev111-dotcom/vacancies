@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Branch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -15,7 +16,7 @@ class BranchController extends Controller
      */
     public function index(): Response
     {
-        $this->authorize('viewAny', Branch::class);
+        Gate::authorize('viewAny', Branch::class);
 
         $branches = Branch::withCount('employees')
             ->orderBy('name')
@@ -31,7 +32,7 @@ class BranchController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->authorize('create', Branch::class);
+        Gate::authorize('create', Branch::class);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -55,7 +56,7 @@ class BranchController extends Controller
      */
     public function update(Request $request, Branch $branch): RedirectResponse
     {
-        $this->authorize('update', $branch);
+        Gate::authorize('update', $branch);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -79,7 +80,7 @@ class BranchController extends Controller
      */
     public function destroy(Branch $branch): RedirectResponse
     {
-        $this->authorize('delete', $branch);
+        Gate::authorize('delete', $branch);
 
         $name = $branch->name;
         $code = $branch->code;

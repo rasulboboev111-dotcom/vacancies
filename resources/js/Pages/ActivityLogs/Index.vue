@@ -50,7 +50,7 @@ function changePage(page) {
 function getEventColor(event) {
     switch (event) {
         case 'created': return 'success';
-        case 'updated': return 'primary';
+        case 'updated': return 'indigo';
         case 'deleted': return 'error';
         default: return 'grey';
     }
@@ -75,11 +75,14 @@ function hasChanges(properties) {
 
     <AuthenticatedLayout>
         <template #header>
-            Лог действий (Аудит)
+            <div class="d-flex align-center">
+                <v-icon icon="mdi-history" class="mr-3 text-indigo-accent-2" size="large"></v-icon>
+                <span>Лог действий (Аудит)</span>
+            </div>
         </template>
 
         <!-- Filters section -->
-        <v-card elevation="2" class="rounded-xl pa-5 mb-6">
+        <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass mb-6">
             <v-row class="align-center">
                 <!-- Search bar -->
                 <v-col cols="12" sm="5">
@@ -91,6 +94,7 @@ function hasChanges(properties) {
                         density="comfortable"
                         rounded="lg"
                         hide-details
+                        class="bg-surface"
                         @keyup.enter="applyFilters"
                     ></v-text-field>
                 </v-col>
@@ -106,6 +110,7 @@ function hasChanges(properties) {
                         rounded="lg"
                         hide-details
                         clearable
+                        class="bg-surface"
                     >
                         <template v-slot:item="{ props, item }">
                             <v-list-item v-bind="props" :title="getEventText(item.raw)"></v-list-item>
@@ -123,6 +128,8 @@ function hasChanges(properties) {
                         color="secondary"
                         rounded="lg"
                         block
+                        class="transition-hover-btn"
+                        prepend-icon="mdi-filter-off-outline"
                         @click="resetFilters"
                     >
                         Сбросить фильтры
@@ -132,55 +139,56 @@ function hasChanges(properties) {
         </v-card>
 
         <!-- Timeline list -->
-        <v-card elevation="2" class="rounded-xl pa-5 mb-6">
-            <v-timeline density="compact" align="start">
+        <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass mb-6">
+            <v-timeline density="compact" align="start" class="activity-timeline">
                 <v-timeline-item
                     v-for="log in logs.data"
                     :key="log.id"
                     :dot-color="getEventColor(log.event)"
                     size="small"
-                    class="mb-4"
+                    class="mb-6"
                 >
                     <div class="d-flex justify-space-between align-center mb-1">
                         <div>
-                            <v-chip :color="getEventColor(log.event)" size="x-small" class="mr-2 font-weight-bold">
+                            <v-chip :color="getEventColor(log.event)" size="x-small" class="mr-2 font-weight-black text-uppercase px-2" variant="flat">
                                 {{ getEventText(log.event) }}
                             </v-chip>
-                            <span class="font-weight-bold text-subtitle-2">{{ log.causer_name }}</span>
+                            <span class="font-weight-black text-subtitle-2 text-indigo-darken-3">{{ log.causer_name }}</span>
                             <span class="text-caption text-grey ml-3">{{ log.created_at }}</span>
                         </div>
-                        <span class="text-caption font-weight-medium bg-grey-lighten-4 px-2 py-1 rounded text-grey">
+                        <v-chip size="x-small" color="secondary" variant="outlined" class="font-weight-medium">
                             {{ log.subject_type }}
-                        </span>
+                        </v-chip>
                     </div>
                     
-                    <div class="text-body-1 font-weight-medium text-grey-darken-3 mb-2">
+                    <div class="text-body-1 font-weight-bold text-grey-darken-3 mb-3 pl-1">
                         {{ log.description }}
                     </div>
 
                     <!-- Changes Diff details -->
-                    <v-expansion-panels v-if="hasChanges(log.properties)" class="elevation-0 border rounded-lg overflow-hidden">
+                    <v-expansion-panels v-if="hasChanges(log.properties)" class="elevation-0 border rounded-lg overflow-hidden max-width-diff bg-surface">
                         <v-expansion-panel elevation="0">
-                            <v-expansion-panel-title class="py-1 px-4 text-caption font-weight-medium text-grey">
+                            <v-expansion-panel-title class="py-2 px-4 text-caption font-weight-black text-grey-darken-1 d-flex align-center">
+                                <v-icon icon="mdi-file-compare" size="small" class="mr-2 text-indigo"></v-icon>
                                 Показать детали изменений
                             </v-expansion-panel-title>
                             <v-expansion-panel-text class="pa-0">
-                                <v-table density="compact" class="border-0">
+                                <v-table density="compact" class="border-0 table-diff">
                                     <thead>
-                                        <tr class="bg-grey-lighten-5">
-                                            <th class="font-weight-bold text-caption text-left pa-2">Поле</th>
-                                            <th v-if="log.properties.old" class="font-weight-bold text-caption text-left pa-2">Было</th>
-                                            <th class="font-weight-bold text-caption text-left pa-2">Стало</th>
+                                        <tr class="bg-indigo-lighten-5">
+                                            <th class="font-weight-black text-caption text-left pa-2 text-indigo text-uppercase">Поле</th>
+                                            <th v-if="log.properties.old" class="font-weight-black text-caption text-left pa-2 text-error text-uppercase">Было</th>
+                                            <th class="font-weight-black text-caption text-left pa-2 text-success text-uppercase">Стало</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="(val, key) in log.properties.attributes" :key="key">
-                                            <td class="font-weight-bold text-caption text-grey pa-2">{{ key }}</td>
-                                            <td v-if="log.properties.old" class="text-caption text-error bg-red-lighten-5 pa-2">
-                                                {{ log.properties.old[key] !== null ? log.properties.old[key] : 'пусто' }}
+                                            <td class="font-weight-bold text-caption text-grey-darken-2 pa-2 font-mono">{{ key }}</td>
+                                            <td v-if="log.properties.old" class="text-caption text-error bg-red-lighten-5 pa-2 font-weight-bold">
+                                                {{ log.properties.old[key] !== null && log.properties.old[key] !== '' ? log.properties.old[key] : 'пусто' }}
                                             </td>
-                                            <td class="text-caption text-success bg-green-lighten-5 pa-2">
-                                                {{ val !== null ? val : 'пусто' }}
+                                            <td class="text-caption text-success bg-green-lighten-5 pa-2 font-weight-bold">
+                                                {{ val !== null && val !== '' ? val : 'пусто' }}
                                             </td>
                                         </tr>
                                     </tbody>
@@ -191,14 +199,14 @@ function hasChanges(properties) {
                 </v-timeline-item>
                 
                 <v-timeline-item v-if="logs.data.length === 0" dot-color="grey" size="small">
-                    <div class="text-body-1 text-grey py-4">Логи действий отсутствуют.</div>
+                    <div class="text-body-1 text-grey font-weight-medium py-4">Логи действий отсутствуют.</div>
                 </v-timeline-item>
             </v-timeline>
 
             <!-- Pagination -->
             <v-divider class="my-4"></v-divider>
             <div class="d-flex justify-space-between align-center pa-2">
-                <div class="text-caption text-grey">
+                <div class="text-caption text-grey font-weight-bold">
                     Показано {{ logs.from || 0 }} - {{ logs.to || 0 }} из {{ logs.total || 0 }} логов
                 </div>
                 <v-pagination
@@ -208,9 +216,37 @@ function hasChanges(properties) {
                     :total-visible="5"
                     density="comfortable"
                     rounded="lg"
+                    active-color="indigo"
                     @update:model-value="changePage"
                 ></v-pagination>
             </div>
         </v-card>
     </AuthenticatedLayout>
 </template>
+
+<style scoped>
+.bg-surface-glass {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(12px);
+}
+.transition-hover-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.transition-hover-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+.max-width-diff {
+    max-width: 100%;
+}
+.table-diff {
+    border-radius: 8px;
+    overflow: hidden;
+}
+.font-mono {
+    font-family: monospace, Courier, monospace;
+}
+.activity-timeline {
+    padding-right: 8px;
+}
+</style>

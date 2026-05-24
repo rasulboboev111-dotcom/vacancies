@@ -2,6 +2,20 @@
 import { ref } from 'vue';
 import { useTheme } from 'vuetify';
 import { router } from '@inertiajs/vue3';
+import { 
+    LayoutDashboard, 
+    Users, 
+    GitFork, 
+    Archive, 
+    Building2, 
+    History, 
+    Sun, 
+    Moon, 
+    LogOut,
+    User,
+    Menu,
+    Shield
+} from '@lucide/vue';
 
 const drawer = ref(true);
 const theme = useTheme();
@@ -20,19 +34,20 @@ function logout() {
         <!-- Navigation Drawer -->
         <v-navigation-drawer
             v-model="drawer"
-            elevation="3"
-            class="border-r-0"
+            elevation="0"
+            class="border-r"
             color="surface"
+            width="260"
         >
-            <v-list-item class="py-5 bg-primary text-white">
+            <v-list-item class="py-5 text-white" style="background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%)">
                 <template v-slot:prepend>
-                    <v-icon size="x-large" icon="mdi-shield-account" class="mr-2"></v-icon>
+                    <Shield class="mr-3 h-6 w-6 text-white-50" />
                 </template>
-                <v-list-item-title class="text-h6 font-weight-bold">
-                    HR Vacancies
+                <v-list-item-title class="text-h6 font-weight-black tracking-wide">
+                    HR SYSTEM
                 </v-list-item-title>
-                <v-list-item-subtitle class="text-caption text-white opacity-70">
-                    Система управления
+                <v-list-item-subtitle class="text-caption text-white opacity-70 font-weight-medium">
+                    Управление кадрами
                 </v-list-item-subtitle>
             </v-list-item>
 
@@ -40,54 +55,96 @@ function logout() {
 
             <v-list density="comfortable" nav class="mt-4 px-2">
                 <v-list-item
-                    prepend-icon="mdi-view-dashboard"
                     title="Дашборд"
                     :active="route().current('dashboard')"
-                    color="primary"
+                    color="indigo"
                     rounded="lg"
                     class="mb-1"
                     @click="router.visit(route('dashboard'))"
-                ></v-list-item>
+                >
+                    <template v-slot:prepend>
+                        <LayoutDashboard class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
 
                 <v-list-item
-                    prepend-icon="mdi-account-group"
                     title="Сотрудники"
-                    :active="route().current('employees.*')"
-                    color="primary"
+                    :active="route().current('employees.index')"
+                    color="indigo"
                     rounded="lg"
                     class="mb-1"
                     @click="router.visit(route('employees.index'))"
-                ></v-list-item>
+                >
+                    <template v-slot:prepend>
+                        <Users class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
 
                 <v-list-item
-                    prepend-icon="mdi-office-building"
+                    title="Ротации"
+                    :active="route().current('rotations.index')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('rotations.index'))"
+                >
+                    <template v-slot:prepend>
+                        <GitFork class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    title="Архив (Пенсионеры)"
+                    :active="route().current('employees.archive')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('employees.archive'))"
+                >
+                    <template v-slot:prepend>
+                        <Archive class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
                     title="Филиалы"
                     :active="route().current('branches.*')"
-                    color="primary"
+                    color="indigo"
                     rounded="lg"
                     class="mb-1"
                     @click="router.visit(route('branches.index'))"
-                ></v-list-item>
+                >
+                    <template v-slot:prepend>
+                        <Building2 class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
 
                 <!-- Show only for Admin or HR Manager who has view audit logs permission or has role -->
                 <v-list-item
                     v-if="$page.props.auth.user.roles.includes('Admin') || $page.props.auth.user.roles.includes('HR Manager')"
-                    prepend-icon="mdi-history"
                     title="Логи действий"
                     :active="route().current('activity-logs.*')"
-                    color="primary"
+                    color="indigo"
                     rounded="lg"
                     class="mb-1"
                     @click="router.visit(route('activity-logs.index'))"
-                ></v-list-item>
+                >
+                    <template v-slot:prepend>
+                        <History class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
             </v-list>
         </v-navigation-drawer>
 
         <!-- AppBar / Header -->
-        <v-app-bar elevation="1" color="surface">
-            <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
+        <v-app-bar elevation="0" class="border-b" color="surface">
+            <template v-slot:prepend>
+                <v-btn icon class="ml-1" @click="drawer = !drawer">
+                    <Menu class="h-5 w-5" />
+                </v-btn>
+            </template>
             
-            <v-toolbar-title class="font-weight-medium">
+            <v-toolbar-title class="font-weight-bold text-indigo-darken-3 text-subtitle-1">
                 <slot name="header" />
             </v-toolbar-title>
 
@@ -95,32 +152,33 @@ function logout() {
 
             <!-- Theme Toggle -->
             <v-btn icon @click="toggleTheme" class="mr-2">
-                <v-icon :icon="theme.global.current.value.dark ? 'mdi-weather-sunny' : 'mdi-weather-night'"></v-icon>
+                <Sun v-if="theme.global.current.value.dark" class="h-5 w-5" />
+                <Moon v-else class="h-5 w-5" />
             </v-btn>
 
             <!-- User Menu -->
-            <v-menu min-width="200px" rounded="lg">
-                <template v-slot:activator="{ props }">
-                    <v-btn icon v-bind="props" class="mr-3">
-                        <v-avatar color="primary" size="38">
-                            <span class="text-white text-subtitle-1">
+            <v-menu min-width="200px" rounded="xl">
+                <template v-slot:activator="{ props: menuProps }">
+                    <v-btn icon v-bind="menuProps" class="mr-3 hover-scale-btn">
+                        <v-avatar color="indigo" size="38">
+                            <span class="text-white text-subtitle-1 font-weight-bold">
                                 {{ $page.props.auth.user.name.charAt(0).toUpperCase() }}
                             </span>
                         </v-avatar>
                     </v-btn>
                 </template>
-                <v-card class="mt-2">
-                    <v-card-text>
-                        <div class="mx-auto text-center py-2">
-                            <v-avatar color="primary" size="48" class="mb-2">
-                                <span class="text-white text-h5">
+                <v-card class="mt-2 border rounded-xl pa-3">
+                    <v-card-text class="pa-2">
+                        <div class="mx-auto text-center">
+                            <v-avatar color="indigo" size="48" class="mb-2">
+                                <span class="text-white text-h5 font-weight-bold">
                                     {{ $page.props.auth.user.name.charAt(0).toUpperCase() }}
                                 </span>
                             </v-avatar>
-                            <h4 class="font-weight-bold">{{ $page.props.auth.user.name }}</h4>
-                            <p class="text-caption text-grey mt-1">{{ $page.props.auth.user.email }}</p>
+                            <h4 class="font-weight-bold text-indigo-darken-4">{{ $page.props.auth.user.name }}</h4>
+                            <p class="text-caption text-grey mt-1 font-weight-medium">{{ $page.props.auth.user.email }}</p>
                             
-                            <v-chip size="small" color="primary" class="mt-2 font-weight-medium">
+                            <v-chip size="small" color="indigo" variant="tonal" class="mt-2 font-weight-black text-uppercase">
                                 {{ $page.props.auth.user.roles.join(', ') }}
                             </v-chip>
 
@@ -128,24 +186,28 @@ function logout() {
                             
                             <v-btn
                                 variant="text"
-                                prepend-icon="mdi-account"
                                 rounded="lg"
                                 block
-                                class="text-left justify-start"
+                                class="text-left justify-start font-weight-bold text-grey-darken-3"
                                 @click="router.visit(route('profile.edit'))"
                             >
+                                <template v-slot:prepend>
+                                    <User class="mr-2 h-4 w-4 text-indigo" />
+                                </template>
                                 Профиль
                             </v-btn>
                             
                             <v-btn
                                 variant="text"
                                 color="error"
-                                prepend-icon="mdi-logout"
                                 rounded="lg"
                                 block
-                                class="text-left justify-start mt-1"
+                                class="text-left justify-start mt-1 font-weight-bold"
                                 @click="logout"
                             >
+                                <template v-slot:prepend>
+                                    <LogOut class="mr-2 h-4 w-4" />
+                                </template>
                                 Выйти
                             </v-btn>
                         </div>
@@ -164,7 +226,7 @@ function logout() {
                         type="success"
                         variant="tonal"
                         closable
-                        class="mb-4"
+                        class="mb-4 rounded-lg font-weight-bold"
                     >
                         {{ $page.props.flash.success }}
                     </v-alert>
@@ -176,7 +238,7 @@ function logout() {
                         type="error"
                         variant="tonal"
                         closable
-                        class="mb-4"
+                        class="mb-4 rounded-lg font-weight-bold"
                     >
                         {{ $page.props.flash.error }}
                     </v-alert>
@@ -190,6 +252,19 @@ function logout() {
 
 <style scoped>
 .v-list-item--active {
-    font-weight: 600;
+    font-weight: 800 !important;
+}
+.v-list-item--active .nav-icon-color {
+    color: inherit !important;
+    opacity: 1 !important;
+}
+.hover-scale-btn {
+    transition: all 0.2s ease;
+}
+.hover-scale-btn:hover {
+    transform: scale(1.08);
+}
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.7) !important;
 }
 </style>

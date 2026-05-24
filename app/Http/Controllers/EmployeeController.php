@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\Employee;
+use App\Models\Rotation;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -17,7 +18,7 @@ class EmployeeController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
-        $query = Employee::with('branch');
+        $query = Employee::with('branch')->whereNull('dismissal_date');
 
         // Scoping for Branch Manager: only show employees of their branch
         if ($user->hasRole('Branch Manager')) {
@@ -82,13 +83,26 @@ class EmployeeController extends Controller
             'category' => 'required|string|max:255',
             'type' => 'required|string|max:255',
             'full_name' => 'required|string|max:255',
+            'gender' => 'required|string|in:Мужской,Женский',
             'position' => 'required|string|max:255',
             'structure' => 'required|string|max:255',
             'direct_manager' => 'nullable|string|max:255',
             'hire_date' => 'required|date',
             'dismissal_date' => 'nullable|date|after_or_equal:hire_date',
+            'birth_date' => 'nullable|date',
+            'nationality' => 'nullable|string|max:255',
+            'passport_number' => 'nullable|string|max:255',
+            'passport_start_date' => 'nullable|date',
+            'passport_end_date' => 'nullable|date',
             'passport_issued_by' => 'nullable|string|max:255',
             'inn' => 'nullable|string|max:50',
+            'sin' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|string|max:255',
+            'birth_place' => 'nullable|string|max:255',
+            'education' => 'nullable|string|max:255',
+            'specialty' => 'nullable|string|max:255',
+            'total_experience' => 'nullable|string|max:255',
         ]);
 
         // Branch Manager can only add employees to their own branch
@@ -124,13 +138,26 @@ class EmployeeController extends Controller
             'category' => 'required|string|max:255',
             'type' => 'required|string|max:255',
             'full_name' => 'required|string|max:255',
+            'gender' => 'required|string|in:Мужской,Женский',
             'position' => 'required|string|max:255',
             'structure' => 'required|string|max:255',
             'direct_manager' => 'nullable|string|max:255',
             'hire_date' => 'required|date',
             'dismissal_date' => 'nullable|date|after_or_equal:hire_date',
+            'birth_date' => 'nullable|date',
+            'nationality' => 'nullable|string|max:255',
+            'passport_number' => 'nullable|string|max:255',
+            'passport_start_date' => 'nullable|date',
+            'passport_end_date' => 'nullable|date',
             'passport_issued_by' => 'nullable|string|max:255',
             'inn' => 'nullable|string|max:50',
+            'sin' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|string|max:255',
+            'birth_place' => 'nullable|string|max:255',
+            'education' => 'nullable|string|max:255',
+            'specialty' => 'nullable|string|max:255',
+            'total_experience' => 'nullable|string|max:255',
         ]);
 
         // Branch Manager cannot transfer employee to another branch
@@ -170,5 +197,135 @@ class EmployeeController extends Controller
 
         return redirect()->route('employees.index')
             ->with('success', 'Сотрудник успешно удален.');
+    }
+
+    /**
+     * Display a listing of the dismissed/archived employees.
+     */
+    public function archive(Request $request): Response
+    {
+        $user = $request->user();
+        $query = Employee::with('branch')->whereNotNull('dismissal_date');
+
+        // Scoping for Branch Manager: only show employees of their branch
+        if ($user->hasRole('Branch Manager')) {
+            $branchId = $user->branch_id;
+            $query->where('branch_id', $branchId);
+        } elseif ($request->filled('branch_id')) {
+            $query->where('branch_id', $request->input('branch_id'));
+        }
+
+        // Searching
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('full_name', 'like', "%{$search}%")
+                  ->orWhere('position', 'like', "%{$search}%")
+                  ->orWhere('inn', 'like', "%{$search}%");
+            });
+        }
+
+        $employees = $query->latest('dismissal_date')->paginate(10)->withQueryString();
+
+        $branchesQuery = Branch::query();
+        if ($user->hasRole('Branch Manager')) {
+            $branchesQuery->where('id', $user->branch_id);
+        }
+        $branches = $branchesQuery->orderBy('name')->get();
+
+        return Inertia::render('Employees/Archive', [
+            'employees' => $employees,
+            'branches' => $branches,
+            'filters' => $request->only(['search', 'branch_id']),
+        ]);
+    }
+
+    /**
+     * Rotate the specified employee to a new branch, position, or structure.
+     */
+    public function rotate(Request $request, Employee $employee): RedirectResponse
+    {
+        $user = $request->user();
+
+        // Viewers cannot perform rotations
+        if ($user->hasRole('Viewer')) {
+            abort(403, 'Недостаточно прав.');
+        }
+
+        // Branch Manager can only rotate employees of their own branch
+        if ($user->hasRole('Branch Manager') && $employee->branch_id != $user->branch_id) {
+            abort(403, 'Вы можете проводить ротацию только сотрудников своего филиала.');
+        }
+
+        $validated = $request->validate([
+            'branch_id' => 'required|exists:branches,id',
+            'position' => 'required|string|max:255',
+            'structure' => 'required|string|max:255',
+            'rotation_date' => 'required|date',
+            'reason' => 'nullable|string|max:1000',
+        ]);
+
+        // Branch Manager cannot rotate employee to another branch
+        if ($user->hasRole('Branch Manager') && $validated['branch_id'] != $user->branch_id) {
+            abort(403, 'Вы не можете переводить сотрудников в другой филиал.');
+        }
+
+        // Save rotation log
+        Rotation::create([
+            'employee_id' => $employee->id,
+            'old_branch_id' => $employee->branch_id,
+            'new_branch_id' => $validated['branch_id'],
+            'old_position' => $employee->position,
+            'new_position' => $validated['position'],
+            'old_structure' => $employee->structure,
+            'new_structure' => $validated['structure'],
+            'rotation_date' => $validated['rotation_date'],
+            'reason' => $validated['reason'],
+        ]);
+
+        // Get old details for activity logging
+        $oldBranchName = $employee->branch->name;
+        $oldPosition = $employee->position;
+
+        // Update employee record
+        $employee->update([
+            'branch_id' => $validated['branch_id'],
+            'position' => $validated['position'],
+            'structure' => $validated['structure'],
+        ]);
+
+        // Log action
+        $newBranchName = Branch::find($validated['branch_id'])->name;
+        activity()
+            ->performedOn($employee)
+            ->event('updated')
+            ->log("Выполнена ротация сотрудника {$employee->full_name}. Переведен из {$oldBranchName} ({$oldPosition}) в {$newBranchName} ({$validated['position']})");
+
+        return redirect()->back()
+            ->with('success', 'Ротация сотрудника успешно проведена.');
+    }
+
+    /**
+     * Display a timeline/list of all rotations.
+     */
+    public function rotationsIndex(Request $request): Response
+    {
+        $user = $request->user();
+        $query = Rotation::with(['employee', 'oldBranch', 'newBranch']);
+
+        // Scoping for Branch Manager: only show rotations in their branch (either old or new)
+        if ($user->hasRole('Branch Manager')) {
+            $branchId = $user->branch_id;
+            $query->where(function ($q) use ($branchId) {
+                $q->where('old_branch_id', $branchId)
+                  ->orWhere('new_branch_id', $branchId);
+            });
+        }
+
+        $rotations = $query->latest('rotation_date')->paginate(15);
+
+        return Inertia::render('Rotations/Index', [
+            'rotations' => $rotations,
+        ]);
     }
 }
