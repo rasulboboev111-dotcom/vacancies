@@ -431,7 +431,7 @@ function submitRotation() {
                         </td>
                     </tr>
                     <tr v-if="employees.data.length === 0">
-                        <td colspan="9" class="text-center py-10 text-grey text-h6 font-weight-medium bg-white">
+                        <td colspan="9" class="text-center py-10 text-grey text-h6 font-weight-medium bg-surface">
                             <UserX class="h-10 w-10 text-grey-lighten-1 mx-auto mb-2 opacity-50" /><br>
                             Сотрудники не найдены.
                         </td>
@@ -441,7 +441,7 @@ function submitRotation() {
 
             <!-- Pagination Wrapper -->
             <v-divider></v-divider>
-            <div class="d-flex justify-space-between align-center pa-4 bg-white">
+            <div class="d-flex justify-space-between align-center pa-4 bg-surface">
                 <div class="text-caption text-grey font-weight-bold">
                     Показано {{ employees.from || 0 }} - {{ employees.to || 0 }} из {{ employees.total || 0 }} сотрудников
                 </div>

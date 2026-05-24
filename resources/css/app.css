@@ -119,7 +119,7 @@ body {
 }
 
 /* ==========================================
-   PREMIUM TABLES & DATATABLES
+   PREMIUM TABLES & DATATABLES + HORIZONTAL SCROLL
    ========================================== */
 .v-table {
     background: transparent !important;
@@ -128,6 +128,23 @@ body {
     border-radius: 12px !important;
     overflow: hidden;
 }
+
+.table-modern {
+    overflow-x: auto !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.table-modern table {
+    width: 100% !important;
+    min-width: 1200px !important; /* Force a comfortable width to guarantee horizontal scroll bar triggers on smaller screens */
+}
+
+.table-modern th,
+.table-modern td {
+    white-space: nowrap !important; /* Keep text cell strings on one line for luxurious horizontal scrolling layout */
+}
+
 .v-table th {
     background-color: rgba(79, 70, 229, 0.05) !important;
     color: #312e81 !important;
@@ -162,6 +179,45 @@ body {
 }
 
 /* ==========================================
+   DARK THEME CONTRAST & DYNAMIC OVERRIDES
+   ========================================== */
+.v-theme--dark .text-grey-darken-3,
+.v-theme--dark .text-grey-darken-4,
+.v-theme--dark .text-grey-darken-2 {
+    color: #e2e8f0 !important;
+}
+
+.v-theme--dark .text-indigo-darken-3,
+.v-theme--dark .text-indigo-darken-4 {
+    color: #c7d2fe !important; /* Light indigo accent for superior readability */
+}
+
+.v-theme--dark .bg-white {
+    background-color: #111827 !important; /* Dark surface color instead of blinding white */
+}
+
+.v-theme--dark .border {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.v-theme--dark .v-card {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.v-theme--dark .v-list {
+    background-color: #111827 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.v-theme--dark .v-list-item--active {
+    box-shadow: 0 4px 12px rgba(129, 140, 248, 0.15) !important;
+}
+
+.v-theme--dark .v-timeline-item {
+    color: #e2e8f0 !important;
+}
+
+/* ==========================================
    SLICK NATIVE SCROLLBARS
    ========================================== */
 ::-webkit-scrollbar {
@@ -180,10 +236,10 @@ body {
 }
 
 .v-theme--dark ::-webkit-scrollbar-thumb {
-    background: rgba(99, 102, 241, 0.3);
+    background: rgba(129, 140, 248, 0.3) !important;
 }
 .v-theme--dark ::-webkit-scrollbar-thumb:hover {
-    background: rgba(99, 102, 241, 0.5);
+    background: rgba(129, 140, 248, 0.5) !important;
 }
 
 /* ==========================================
