@@ -269,7 +269,7 @@ function submitRotation() {
                         @keyup.enter="applyFilters"
                     >
                         <template v-slot:prepend-inner>
-                            <Search class="h-4 w-4 text-grey-darken-1 mr-1" />
+                            <Search style="width: 16px; height: 16px; margin-right: 4px;" class="text-grey-darken-1" />
                         </template>
                     </v-text-field>
                 </v-col>
@@ -332,7 +332,7 @@ function submitRotation() {
                         @click="resetFilters"
                     >
                         <template v-slot:prepend>
-                            <FilterX class="h-4 w-4 mr-1" />
+                            <FilterX style="width: 16px; height: 16px; margin-right: 4px;" />
                         </template>
                         Сбросить
                     </v-btn>
@@ -346,7 +346,7 @@ function submitRotation() {
                         @click="openCreateDialog"
                     >
                         <template v-slot:prepend>
-                            <Plus class="h-4 w-4 mr-1" />
+                            <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
                         </template>
                         Добавить
                     </v-btn>
@@ -392,7 +392,7 @@ function submitRotation() {
                                 class="mr-1 hover-scale-btn"
                                 @click="openViewDialog(employee)"
                             >
-                                <Eye class="h-4 w-4" />
+                                <Eye style="width: 16px; height: 16px;" />
                             </v-btn>
 
                             <v-btn
@@ -404,7 +404,7 @@ function submitRotation() {
                                 title="Ротация"
                                 @click="openRotationDialog(employee)"
                             >
-                                <ArrowLeftRight class="h-4 w-4" />
+                                <ArrowLeftRight style="width: 16px; height: 16px;" />
                             </v-btn>
 
                             <v-btn
@@ -415,7 +415,7 @@ function submitRotation() {
                                 class="mr-1 hover-scale-btn"
                                 @click="openEditDialog(employee)"
                             >
-                                <Pencil class="h-4 w-4" />
+                                <Pencil style="width: 16px; height: 16px;" />
                             </v-btn>
 
                             <v-btn
@@ -426,7 +426,7 @@ function submitRotation() {
                                 class="hover-scale-btn"
                                 @click="openDeleteDialog(employee)"
                             >
-                                <Trash2 class="h-4 w-4" />
+                                <Trash2 style="width: 16px; height: 16px;" />
                             </v-btn>
                         </td>
                     </tr>
@@ -460,19 +460,26 @@ function submitRotation() {
 
         <!-- View Details Dialog -->
         <v-dialog v-model="viewDialog" max-width="800px">
-            <v-card v-if="selectedEmployee" class="rounded-xl pa-6 border border-glow overflow-hidden relative">
-                <v-card-title class="font-weight-black text-h5 px-0 pt-0 pb-4 d-flex justify-space-between align-center text-indigo">
-                    <div class="d-flex align-center">
-                        <User class="mr-2 text-indigo h-6 w-6" />
-                        Детали сотрудника
+            <v-card v-if="selectedEmployee" class="rounded-xl overflow-hidden" elevation="8">
+                <!-- Premium Gradient Header -->
+                <div style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); padding: 20px 28px;">
+                    <div class="d-flex align-center justify-space-between">
+                        <div class="d-flex align-center">
+                            <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
+                                <User style="width: 22px; height: 22px; color: white;" />
+                            </v-avatar>
+                            <div class="ml-4">
+                                <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Детали сотрудника</div>
+                                <div style="color: white; font-size: 1.1rem; font-weight: 800;">{{ selectedEmployee.full_name }}</div>
+                            </div>
+                        </div>
+                        <v-chip color="white" variant="flat" class="font-weight-bold" size="small" style="color: #4338ca;">{{ selectedEmployee.type }}</v-chip>
                     </div>
-                    <v-chip color="indigo" variant="flat" class="font-weight-bold" size="small">{{ selectedEmployee.type }}</v-chip>
-                </v-card-title>
-                <v-divider class="mb-5"></v-divider>
+                </div>
                 
                 <v-card-text class="px-0 py-0 overflow-y-auto" style="max-height: 70vh;">
                     <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <User class="h-5 w-5 mr-2" /> Основные и личные данные
+                        <User style="width: 20px; height: 20px; margin-right: 8px;" /> Основные и личные данные
                     </div>
                     <v-row class="mb-4">
                         <v-col cols="12" class="pb-2">
@@ -524,7 +531,7 @@ function submitRotation() {
                     <v-divider class="my-4"></v-divider>
 
                     <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <Briefcase class="h-5 w-5 mr-2" /> Трудовая деятельность
+                        <Briefcase style="width: 20px; height: 20px; margin-right: 8px;" /> Трудовая деятельность
                     </div>
                     <v-row class="mb-4">
                         <v-col cols="12" sm="4" class="py-2">
@@ -571,7 +578,7 @@ function submitRotation() {
                     <v-divider class="my-4"></v-divider>
 
                     <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <FileText class="h-5 w-5 mr-2" /> Паспортные данные и коды
+                        <FileText style="width: 20px; height: 20px; margin-right: 8px;" /> Паспортные данные и коды
                     </div>
                     <v-row class="mb-4">
                         <v-col cols="12" sm="4" class="py-2">
@@ -618,36 +625,43 @@ function submitRotation() {
 
         <!-- Create / Edit Dialog -->
         <v-dialog v-model="createEditDialog" max-width="850px" persistent>
-            <v-card class="rounded-xl pa-6 border">
-                <v-card-title class="font-weight-black text-h5 px-2 text-indigo d-flex justify-space-between align-center">
-                    <span>{{ editingEmployee ? 'Редактировать сотрудника' : 'Добавить сотрудника' }}</span>
-                    <UserPlus class="h-6 w-6 text-indigo" />
-                </v-card-title>
-                <v-divider class="mb-4"></v-divider>
+            <v-card class="rounded-xl overflow-hidden" elevation="8">
+                <!-- Premium Gradient Header -->
+                <div style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); padding: 20px 28px;">
+                    <div class="d-flex align-center">
+                        <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
+                            <UserPlus style="width: 22px; height: 22px; color: white;" />
+                        </v-avatar>
+                        <div class="ml-4">
+                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">{{ editingEmployee ? 'Редактирование' : 'Новый сотрудник' }}</div>
+                            <div style="color: white; font-size: 1.1rem; font-weight: 800;">{{ editingEmployee ? form.full_name || 'Редактировать сотрудника' : 'Добавить сотрудника' }}</div>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Horizontal Tabs for neat grouping -->
-                <v-tabs v-model="activeTab" color="indigo" align-tabs="start" class="mb-4">
+                <v-tabs v-model="activeTab" color="indigo" align-tabs="start" class="px-4 pt-2">
                     <v-tab :value="0">
                         <template v-slot:prepend>
-                            <User class="h-4 w-4 mr-1" />
+                            <User style="width: 16px; height: 16px; margin-right: 4px;" />
                         </template>
                         Основное
                     </v-tab>
                     <v-tab :value="1">
                         <template v-slot:prepend>
-                            <IdCard class="h-4 w-4 mr-1" />
+                            <IdCard style="width: 16px; height: 16px; margin-right: 4px;" />
                         </template>
                         Личные данные
                     </v-tab>
                     <v-tab :value="2">
                         <template v-slot:prepend>
-                            <FileText class="h-4 w-4 mr-1" />
+                            <FileText style="width: 16px; height: 16px; margin-right: 4px;" />
                         </template>
                         Документы и ИНН
                     </v-tab>
                 </v-tabs>
 
-                <v-card-text class="px-2 pt-2">
+                <v-card-text class="px-6 pt-4 overflow-y-auto" style="max-height: 62vh;">
                     <v-form @submit.prevent="submit">
                         <v-window v-model="activeTab">
                             <!-- Tab 1: Основная трудовая информация -->
@@ -1006,22 +1020,33 @@ function submitRotation() {
         </v-dialog>
 
         <!-- Delete Confirmation Dialog -->
-        <v-dialog v-model="deleteDialog" max-width="400px">
-            <v-card class="rounded-xl pa-5 border">
-                <v-card-title class="font-weight-black text-h6 px-2 text-error d-flex align-center">
-                    <AlertCircle class="mr-2 text-error h-5 w-5" />
-                    Подтверждение удаления
-                </v-card-title>
-                <v-card-text class="px-2 pt-3 text-body-1 text-grey-darken-3 font-weight-medium">
-                    Вы уверены, что хотите удалить сотрудника <strong>{{ employeeToDelete?.full_name }}</strong>?
+        <v-dialog v-model="deleteDialog" max-width="440px">
+            <v-card class="rounded-xl overflow-hidden" elevation="8">
+                <!-- Red Gradient Header -->
+                <div style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 20px 24px;">
+                    <div class="d-flex align-center">
+                        <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
+                            <AlertCircle style="width: 22px; height: 22px; color: white;" />
+                        </v-avatar>
+                        <div class="ml-3">
+                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Подтверждение</div>
+                            <div style="color: white; font-size: 1.05rem; font-weight: 800;">Удаление сотрудника</div>
+                        </div>
+                    </div>
+                </div>
+                <v-card-text class="pa-6 text-body-1 text-grey-darken-3 font-weight-medium">
+                    Вы уверены, что хотите удалить сотрудника <strong class="text-red-darken-2">{{ employeeToDelete?.full_name }}</strong>? Это действие необратимо.
                 </v-card-text>
-                <v-card-actions class="px-2 pt-4">
-                    <v-spacer></v-spacer>
+                <v-divider></v-divider>
+                <v-card-actions class="pa-5 d-flex justify-end" style="gap: 12px;">
                     <v-btn
-                        variant="text"
+                        variant="tonal"
+                        color="grey"
                         rounded="lg"
+                        size="large"
                         @click="deleteDialog = false"
                         :disabled="form.processing"
+                        class="px-6 font-weight-bold"
                     >
                         Отмена
                     </v-btn>
@@ -1029,10 +1054,15 @@ function submitRotation() {
                         color="error"
                         variant="flat"
                         rounded="lg"
-                        class="px-4"
+                        size="large"
+                        class="px-6 font-weight-bold"
                         @click="confirmDelete"
                         :loading="form.processing"
+                        style="box-shadow: 0 8px 20px -6px rgba(239, 68, 68, 0.4);"
                     >
+                        <template v-slot:prepend>
+                            <Trash2 style="width: 18px; height: 18px;" />
+                        </template>
                         Удалить
                     </v-btn>
                 </v-card-actions>
@@ -1040,19 +1070,24 @@ function submitRotation() {
         </v-dialog>
 
         <!-- Rotation Dialog -->
-        <v-dialog v-model="rotationDialog" max-width="600px" persistent>
-            <v-card class="rounded-xl pa-5 border">
-                <v-card-title class="font-weight-black text-h5 px-2 text-indigo d-flex justify-space-between align-center">
-                    <span>Провести ротацию</span>
-                    <ArrowLeftRight class="h-6 w-6 text-indigo" />
-                </v-card-title>
-                <v-divider class="mb-4"></v-divider>
-                
-                <v-card-text class="px-2 pt-2">
-                    <div class="mb-4 text-body-1 font-weight-bold">
-                        Сотрудник: <strong class="text-indigo-darken-3">{{ selectedEmployee?.full_name }}</strong>
+        <v-dialog v-model="rotationDialog" max-width="620px" persistent>
+            <v-card class="rounded-xl overflow-hidden" elevation="8">
+                <!-- Premium Gradient Header -->
+                <div style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); padding: 24px 28px;">
+                    <div class="d-flex align-center justify-space-between">
+                        <div class="d-flex align-center">
+                            <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
+                                <ArrowLeftRight style="width: 22px; height: 22px; color: white;" />
+                            </v-avatar>
+                            <div class="ml-4">
+                                <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Ротация кадров</div>
+                                <div style="color: white; font-size: 1.1rem; font-weight: 800;">{{ selectedEmployee?.full_name }}</div>
+                            </div>
+                        </div>
                     </div>
+                </div>
 
+                <v-card-text class="pa-6 overflow-y-auto" style="max-height: 60vh;">
                     <v-form @submit.prevent="submitRotation">
                         <v-select
                             v-model="rotationForm.branch_id"
@@ -1065,7 +1100,7 @@ function submitRotation() {
                             rounded="lg"
                             required
                             :error-messages="rotationForm.errors.branch_id"
-                            class="mb-3"
+                            class="mb-4"
                             :disabled="$page.props.auth.user.roles.includes('Branch Manager')"
                         ></v-select>
 
@@ -1077,7 +1112,7 @@ function submitRotation() {
                             rounded="lg"
                             required
                             :error-messages="rotationForm.errors.position"
-                            class="mb-3"
+                            class="mb-4"
                         ></v-text-field>
 
                         <v-text-field
@@ -1088,7 +1123,7 @@ function submitRotation() {
                             rounded="lg"
                             required
                             :error-messages="rotationForm.errors.structure"
-                            class="mb-3"
+                            class="mb-4"
                         ></v-text-field>
 
                         <v-text-field
@@ -1100,7 +1135,7 @@ function submitRotation() {
                             rounded="lg"
                             required
                             :error-messages="rotationForm.errors.rotation_date"
-                            class="mb-3"
+                            class="mb-4"
                         ></v-text-field>
 
                         <v-textarea
@@ -1116,25 +1151,34 @@ function submitRotation() {
                     </v-form>
                 </v-card-text>
 
-                <v-card-actions class="px-2 pt-4">
-                    <v-spacer></v-spacer>
+                <v-divider></v-divider>
+
+                <v-card-actions class="pa-5 d-flex justify-end" style="gap: 12px;">
                     <v-btn
-                        variant="text"
+                        variant="tonal"
+                        color="grey"
                         rounded="lg"
+                        size="large"
                         @click="rotationDialog = false"
                         :disabled="rotationForm.processing"
+                        class="px-6 font-weight-bold"
                     >
                         Отмена
                     </v-btn>
                     <v-btn
                         color="indigo"
                         variant="flat"
-                        class="bg-indigo px-5"
                         rounded="lg"
+                        size="large"
                         @click="submitRotation"
                         :loading="rotationForm.processing"
+                        class="px-6 font-weight-bold"
+                        style="box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);"
                     >
-                        Выполнить
+                        <template v-slot:prepend>
+                            <ArrowLeftRight style="width: 18px; height: 18px;" />
+                        </template>
+                        Выполнить ротацию
                     </v-btn>
                 </v-card-actions>
             </v-card>

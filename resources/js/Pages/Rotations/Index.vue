@@ -29,7 +29,7 @@ function formatDate(dateStr) {
     <AuthenticatedLayout>
         <template #header>
             <div class="d-flex align-center">
-                <GitFork class="mr-3 text-indigo-accent-2 h-6 w-6" />
+                <GitFork style="width: 24px; height: 24px; margin-right: 12px;" class="text-indigo-accent-2" />
                 <span>История ротаций и должностных перемещений</span>
             </div>
         </template>
@@ -50,7 +50,7 @@ function formatDate(dateStr) {
                                 {{ rotation.employee ? rotation.employee.full_name : 'Сотрудник удален' }}
                             </span>
                             <span class="text-caption text-grey ml-3 d-inline-flex align-center">
-                                <Clock class="h-3 w-3 mr-1 text-grey" />
+                                <Clock style="width: 12px; height: 12px; margin-right: 4px;" class="text-grey" />
                                 {{ formatDate(rotation.rotation_date) }}
                             </span>
                         </div>
@@ -78,8 +78,8 @@ function formatDate(dateStr) {
 
                         <v-col cols="12" md="2" class="d-flex justify-center align-center py-2">
                             <v-avatar color="indigo-lighten-5" size="40" class="border">
-                                <ArrowRight class="h-4 w-4 text-indigo hidden-sm-and-down" />
-                                <ArrowDown class="h-4 w-4 text-indigo hidden-md-and-up" />
+                                <ArrowRight style="width: 16px; height: 16px;" class="text-indigo hidden-sm-and-down" />
+                                <ArrowDown style="width: 16px; height: 16px;" class="text-indigo hidden-md-and-up" />
                             </v-avatar>
                         </v-col>
 
@@ -102,7 +102,7 @@ function formatDate(dateStr) {
                     <!-- Reason box -->
                     <div v-if="rotation.reason" class="text-body-2 text-grey-darken-3 font-weight-medium bg-indigo-lighten-5 pa-3 rounded-lg border pl-4 border-l-4 border-indigo mt-3">
                         <span class="d-flex align-center text-caption text-indigo font-weight-bold text-uppercase mb-1">
-                            <Info class="h-4 w-4 mr-1 text-indigo" />
+                            <Info style="width: 16px; height: 16px; margin-right: 4px;" class="text-indigo" />
                             Основание / Причина ротации:
                         </span>
                         {{ rotation.reason }}
@@ -111,7 +111,7 @@ function formatDate(dateStr) {
                 
                 <v-timeline-item v-if="rotations.data.length === 0" dot-color="grey" size="small">
                     <div class="text-body-1 text-grey font-weight-medium py-4 text-center">
-                        <GitFork class="h-10 w-10 text-grey mx-auto mb-2 opacity-50" />
+                        <GitFork style="width: 40px; height: 40px; margin: 0 auto 8px; opacity: 0.5;" class="text-grey" />
                         Ротаций в системе пока не зарегистрировано.
                     </div>
                 </v-timeline-item>

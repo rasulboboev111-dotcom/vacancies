@@ -47,8 +47,8 @@ const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
                             <span class="text-subtitle-2 text-white-50 font-weight-medium text-uppercase tracking-wider">Всего сотрудников</span>
                             <h2 class="text-h3 font-weight-black mt-2 text-white">{{ stats.total_employees }}</h2>
                         </div>
-                        <v-avatar color="white-10" rounded="xl" size="64" class="backdrop-blur">
-                            <Users class="text-white h-8 w-8" />
+                        <v-avatar rounded="xl" size="64" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px);">
+                            <Users style="width: 32px; height: 32px; color: white;" />
                         </v-avatar>
                     </div>
                     <div class="glass-shine"></div>
@@ -62,8 +62,8 @@ const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
                             <span class="text-subtitle-2 text-white-50 font-weight-medium text-uppercase tracking-wider">Активные филиалы</span>
                             <h2 class="text-h3 font-weight-black mt-2 text-white">{{ stats.total_branches }}</h2>
                         </div>
-                        <v-avatar color="white-10" rounded="xl" size="64" class="backdrop-blur">
-                            <Building2 class="text-white h-8 w-8" />
+                        <v-avatar rounded="xl" size="64" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px);">
+                            <Building2 style="width: 32px; height: 32px; color: white;" />
                         </v-avatar>
                     </div>
                     <div class="glass-shine"></div>
@@ -76,7 +76,7 @@ const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
             <v-col cols="12">
                 <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass h-100">
                     <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
-                        <MapPin class="mr-2 text-indigo h-5 w-5" />
+                        <MapPin style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" />
                         Распределение сотрудников по филиалам
                     </v-card-title>
                     <v-divider class="mb-5"></v-divider>
@@ -117,7 +117,7 @@ const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
             <v-col cols="12" md="6" class="d-flex flex-column gap-6">
                 <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass mb-6">
                     <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
-                        <FolderOpen class="mr-2 text-indigo h-5 w-5" />
+                        <FolderOpen style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" />
                         Категории сотрудников
                     </v-card-title>
                     <v-divider class="mb-4"></v-divider>
@@ -138,7 +138,7 @@ const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
 
                 <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass">
                     <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
-                        <Briefcase class="mr-2 text-indigo h-5 w-5" />
+                        <Briefcase style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" />
                         Тип занятости
                     </v-card-title>
                     <v-divider class="mb-4"></v-divider>
@@ -162,7 +162,7 @@ const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
             <v-col cols="12" md="6">
                 <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass h-100">
                     <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
-                        <Clock class="mr-2 text-indigo h-5 w-5" />
+                        <Clock style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" />
                         Последняя активность
                     </v-card-title>
                     <v-divider class="mb-5"></v-divider>

@@ -6,10 +6,15 @@
    PREMIUM MODERN DESIGN SYSTEM & VARIABLES
    ========================================== */
 
-/* Universal Font family definition */
-* {
-    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important;
+/* Universal Font family definition - Cascade cleanly to prevent legend and notched outline bugs in Vuetify inputs */
+html, body, .v-application {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     letter-spacing: -0.01em;
+}
+
+/* Apply premium typography strictly to text and interactive containers */
+.v-btn, .v-card, .v-dialog, .v-table, .v-list, .v-field, .v-label, .v-tabs, input, select, textarea, button {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important;
 }
 
 /* Base body styles */
@@ -124,25 +129,17 @@ body {
 .v-table {
     background: transparent !important;
 }
+/* Table wrapper – enable proper horizontal scroll via Vuetify's own wrapper */
 .v-table .v-table__wrapper {
     border-radius: 12px !important;
-    overflow: hidden;
-}
-
-.table-modern {
     overflow-x: auto !important;
-    display: block !important;
-    width: 100% !important;
+    overflow-y: visible !important;
 }
 
-.table-modern table {
-    width: 100% !important;
-    min-width: 1200px !important; /* Force a comfortable width to guarantee horizontal scroll bar triggers on smaller screens */
-}
-
+/* Prevent columns from collapsing – keep text on one line */
 .table-modern th,
 .table-modern td {
-    white-space: nowrap !important; /* Keep text cell strings on one line for luxurious horizontal scrolling layout */
+    white-space: nowrap !important;
 }
 
 .v-table th {
@@ -281,4 +278,32 @@ body {
 }
 .v-card:hover .glass-shine {
     left: 125%;
+}
+
+/* ==========================================
+   PREMIUM DIALOG OVERLAYS
+   ========================================== */
+.v-overlay__scrim {
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+/* Form field focus accents */
+.v-field--focused .v-field__outline {
+    border-color: #6366f1 !important;
+}
+
+/* Dark theme dialog card overrides */
+.v-theme--dark .v-dialog .v-card {
+    background-color: #1e293b !important;
+}
+
+.v-theme--dark .v-dialog .v-card .v-card-text {
+    color: #e2e8f0 !important;
+}
+
+/* Premium filter cards */
+.v-theme--dark .v-text-field .v-field,
+.v-theme--dark .v-select .v-field {
+    background: rgba(30, 41, 59, 0.8) !important;
 }

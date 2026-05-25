@@ -88,7 +88,7 @@ function confirmDelete() {
     <AuthenticatedLayout>
         <template #header>
             <div class="d-flex align-center">
-                <Building2 class="mr-3 text-indigo-accent-2 h-6 w-6" />
+                <Building2 style="width: 24px; height: 24px; margin-right: 12px;" class="text-indigo-accent-2" />
                 <span>Управление филиалами</span>
             </div>
         </template>
@@ -105,7 +105,7 @@ function confirmDelete() {
                     @click="openCreateDialog"
                 >
                     <template v-slot:prepend>
-                        <Plus class="h-4 w-4 mr-1" />
+                        <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
                     </template>
                     Добавить филиал
                 </v-btn>
@@ -128,7 +128,7 @@ function confirmDelete() {
                         <v-menu v-if="$page.props.auth.user.roles.includes('Admin') || $page.props.auth.user.roles.includes('HR Manager')">
                             <template v-slot:activator="{ props: menuProps }">
                                 <v-btn icon variant="text" size="small" class="hover-scale-btn" v-bind="menuProps">
-                                    <MoreVertical class="h-4 w-4" />
+                                    <MoreVertical style="width: 16px; height: 16px;" />
                                 </v-btn>
                             </template>
                             <v-list density="comfortable" rounded="xl" class="border py-1">
@@ -138,7 +138,7 @@ function confirmDelete() {
                                     @click="openEditDialog(branch)"
                                 >
                                     <template v-slot:prepend>
-                                        <Pencil class="h-4 w-4 mr-2 text-primary" />
+                                        <Pencil style="width: 16px; height: 16px; margin-right: 8px;" class="text-primary" />
                                     </template>
                                 </v-list-item>
                                 <v-list-item
@@ -147,7 +147,7 @@ function confirmDelete() {
                                     @click="openDeleteDialog(branch)"
                                 >
                                     <template v-slot:prepend>
-                                        <Trash2 class="h-4 w-4 mr-2 text-error" />
+                                        <Trash2 style="width: 16px; height: 16px; margin-right: 8px;" class="text-error" />
                                     </template>
                                 </v-list-item>
                             </v-list>
@@ -155,7 +155,7 @@ function confirmDelete() {
                     </div>
 
                     <p class="text-body-2 text-grey-darken-2 mb-4 flex-grow-1 font-weight-medium d-flex align-center">
-                        <MapPin class="mr-2 h-4 w-4 text-indigo" />
+                        <MapPin style="width: 16px; height: 16px; margin-right: 8px;" class="text-indigo" />
                         {{ branch.address || 'Адрес не указан' }}
                     </p>
 
@@ -164,7 +164,7 @@ function confirmDelete() {
                     <div class="d-flex justify-space-between align-center">
                         <span class="text-subtitle-2 text-grey font-weight-bold text-uppercase">Штат</span>
                         <v-chip color="teal" variant="tonal" class="font-weight-black px-3" size="medium">
-                            <Users class="h-4 w-4 mr-1 text-teal" />
+                            <Users style="width: 16px; height: 16px; margin-right: 4px;" class="text-teal" />
                             {{ branch.employees_count }} чел.
                         </v-chip>
                     </div>
@@ -173,21 +173,27 @@ function confirmDelete() {
             </v-col>
 
             <v-col v-if="branches.length === 0" cols="12" class="text-center py-12">
-                <Building2 class="h-12 w-12 text-grey mx-auto mb-2 opacity-50" />
+                <Building2 style="width: 48px; height: 48px; margin: 0 auto 8px; opacity: 0.5;" class="text-grey" />
                 <div class="text-h6 text-grey font-weight-medium">Филиалы не найдены.</div>
             </v-col>
         </v-row>
 
-        <!-- Create / Edit Dialog -->
-        <v-dialog v-model="dialog" max-width="500px" persistent>
-            <v-card class="rounded-xl pa-5 border">
-                <v-card-title class="font-weight-black text-h5 px-2 text-indigo d-flex justify-space-between align-center">
-                    <span>{{ editingBranch ? 'Редактировать филиал' : 'Добавить филиал' }}</span>
-                    <Building2 class="h-6 w-6 text-indigo" />
-                </v-card-title>
-                <v-divider class="mb-4"></v-divider>
+        <v-dialog v-model="dialog" max-width="520px" persistent>
+            <v-card class="rounded-xl overflow-hidden" elevation="8">
+                <!-- Premium Gradient Header -->
+                <div style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); padding: 20px 24px;">
+                    <div class="d-flex align-center">
+                        <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
+                            <Building2 style="width: 22px; height: 22px; color: white;" />
+                        </v-avatar>
+                        <div class="ml-4">
+                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">{{ editingBranch ? 'Редактирование' : 'Новый филиал' }}</div>
+                            <div style="color: white; font-size: 1.1rem; font-weight: 800;">{{ editingBranch ? form.name || 'Филиал' : 'Добавить филиал' }}</div>
+                        </div>
+                    </div>
+                </div>
                 
-                <v-card-text class="px-2 pt-2">
+                <v-card-text class="pa-6">
                     <v-form @submit.prevent="submit">
                         <v-text-field
                             v-model="form.name"
@@ -197,7 +203,7 @@ function confirmDelete() {
                             rounded="lg"
                             required
                             :error-messages="form.errors.name"
-                            class="mb-3"
+                            class="mb-4"
                         ></v-text-field>
 
                         <v-text-field
@@ -208,7 +214,7 @@ function confirmDelete() {
                             rounded="lg"
                             required
                             :error-messages="form.errors.code"
-                            class="mb-3"
+                            class="mb-4"
                         ></v-text-field>
 
                         <v-text-field
@@ -218,28 +224,33 @@ function confirmDelete() {
                             density="comfortable"
                             rounded="lg"
                             :error-messages="form.errors.address"
-                            class="mb-3"
                         ></v-text-field>
                     </v-form>
                 </v-card-text>
 
-                <v-card-actions class="px-2 pt-4">
-                    <v-spacer></v-spacer>
+                <v-divider></v-divider>
+
+                <v-card-actions class="pa-5 d-flex justify-end" style="gap: 12px;">
                     <v-btn
-                        variant="text"
+                        variant="tonal"
+                        color="grey"
                         rounded="lg"
+                        size="large"
                         @click="dialog = false"
                         :disabled="form.processing"
+                        class="px-6 font-weight-bold"
                     >
                         Отмена
                     </v-btn>
                     <v-btn
                         color="indigo"
                         variant="flat"
-                        class="bg-indigo px-5"
                         rounded="lg"
+                        size="large"
                         @click="submit"
                         :loading="form.processing"
+                        class="px-6 font-weight-bold"
+                        style="box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);"
                     >
                         Сохранить
                     </v-btn>
@@ -247,27 +258,37 @@ function confirmDelete() {
             </v-card>
         </v-dialog>
 
-        <!-- Delete Confirmation Dialog -->
-        <v-dialog v-model="deleteDialog" max-width="450px">
-            <v-card class="rounded-xl pa-5 border">
-                <v-card-title class="font-weight-black text-h6 px-2 text-error d-flex align-center">
-                    <AlertTriangle class="h-6 w-6 text-error mr-2" />
-                    Подтверждение удаления
-                </v-card-title>
-                <v-card-text class="px-2 pt-3 text-body-1 text-grey-darken-3 font-weight-medium">
-                    Вы уверены, что хотите удалить филиал <strong>{{ branchToDelete?.name }}</strong>?<br>
-                    <span class="text-error font-weight-bold d-block mt-2">
-                        <AlertTriangle class="h-4 w-4 text-error mr-1 inline" />
-                        Все связанные сотрудники будут также безвозвратно удалены!
-                    </span>
+        <v-dialog v-model="deleteDialog" max-width="460px">
+            <v-card class="rounded-xl overflow-hidden" elevation="8">
+                <!-- Red Gradient Header -->
+                <div style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 20px 24px;">
+                    <div class="d-flex align-center">
+                        <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
+                            <AlertTriangle style="width: 22px; height: 22px; color: white;" />
+                        </v-avatar>
+                        <div class="ml-3">
+                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Подтверждение</div>
+                            <div style="color: white; font-size: 1.05rem; font-weight: 800;">Удаление филиала</div>
+                        </div>
+                    </div>
+                </div>
+                <v-card-text class="pa-6 text-body-1 text-grey-darken-3 font-weight-medium">
+                    Вы уверены, что хотите удалить филиал <strong class="text-red-darken-2">{{ branchToDelete?.name }}</strong>?
+                    <div class="mt-3 pa-3 rounded-lg d-flex align-center" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2);">
+                        <AlertTriangle style="width: 18px; height: 18px; margin-right: 8px; color: #ef4444; flex-shrink: 0;" />
+                        <span class="text-error font-weight-bold text-body-2">Все связанные сотрудники будут также безвозвратно удалены!</span>
+                    </div>
                 </v-card-text>
-                <v-card-actions class="px-2 pt-4">
-                    <v-spacer></v-spacer>
+                <v-divider></v-divider>
+                <v-card-actions class="pa-5 d-flex justify-end" style="gap: 12px;">
                     <v-btn
-                        variant="text"
+                        variant="tonal"
+                        color="grey"
                         rounded="lg"
+                        size="large"
                         @click="deleteDialog = false"
                         :disabled="form.processing"
+                        class="px-6 font-weight-bold"
                     >
                         Отмена
                     </v-btn>
@@ -275,10 +296,15 @@ function confirmDelete() {
                         color="error"
                         variant="flat"
                         rounded="lg"
-                        class="px-4"
+                        size="large"
+                        class="px-6 font-weight-bold"
                         @click="confirmDelete"
                         :loading="form.processing"
+                        style="box-shadow: 0 8px 20px -6px rgba(239, 68, 68, 0.4);"
                     >
+                        <template v-slot:prepend>
+                            <Trash2 style="width: 18px; height: 18px;" />
+                        </template>
                         Удалить
                     </v-btn>
                 </v-card-actions>
