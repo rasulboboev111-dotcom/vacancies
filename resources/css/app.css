@@ -308,19 +308,47 @@ body {
     background: rgba(30, 41, 59, 0.8) !important;
 }
 
-/* Fix floating labels notch lines overlapping */
+/* Fix floating labels notch lines overlapping and prevent text clipping */
 .v-field--variant-outlined .v-label.v-field-label--floating,
 .v-field--variant-outlined.v-field--active .v-label {
     background: #ffffff !important;
     padding: 0 6px !important;
-    margin-top: 2px !important;
+    transform: translateY(-50%) scale(0.75) !important;
+    top: 0 !important;
     opacity: 1 !important;
+    margin-top: 0 !important;
+    height: auto !important;
 }
 
 .v-theme--dark .v-field--variant-outlined .v-label.v-field-label--floating,
 .v-theme--dark .v-field--variant-outlined.v-field--active .v-label {
     background: #1e293b !important; /* Matches dark theme card background */
     padding: 0 6px !important;
-    margin-top: 2px !important;
+    transform: translateY(-50%) scale(0.75) !important;
+    top: 0 !important;
     opacity: 1 !important;
+    margin-top: 0 !important;
+    height: auto !important;
+}
+
+/* Force first letter of labels to be capitalized globally */
+.v-label::first-letter {
+    text-transform: uppercase !important;
+}
+
+/* Premium tabs adjustments - ensure tabs never squash or overlap */
+.v-tab {
+    min-width: 140px !important;
+    margin-right: 8px !important;
+    padding: 0 16px !important;
+    text-transform: none !important;
+    font-weight: 700 !important;
+    letter-spacing: normal !important;
+}
+.v-tab--selected {
+    background: rgba(99, 102, 241, 0.05) !important;
+    border-radius: 8px 8px 0 0 !important;
+}
+.v-theme--dark .v-tab--selected {
+    background: rgba(129, 140, 248, 0.1) !important;
 }

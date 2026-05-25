@@ -640,7 +640,7 @@ function submitRotation() {
                 </div>
 
                 <!-- Horizontal Tabs for neat grouping -->
-                <v-tabs v-model="activeTab" color="indigo" align-tabs="start" class="px-4 pt-2">
+                <v-tabs v-model="activeTab" color="indigo" align-tabs="start" class="px-4 pt-2" show-arrows>
                     <v-tab :value="0">
                         <div class="d-flex align-center">
                             <User style="width: 16px; height: 16px; margin-right: 6px;" />
