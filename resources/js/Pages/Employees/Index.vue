@@ -257,96 +257,100 @@ function submitRotation() {
         <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass mb-6">
             <v-row class="align-center">
                 <!-- Search bar -->
-                <v-col cols="12" sm="4" md="3">
+                <v-col cols="12" sm="12" md="3">
                     <v-text-field
                         v-model="search"
-                        label="Поиск по ФИО, должности или ИНН"
-                        variant="outlined"
+                        placeholder="Поиск по ФИО, должности..."
+                        variant="solo"
                         density="comfortable"
                         rounded="lg"
+                        flat
                         hide-details
-                        class="bg-surface"
+                        class="premium-field"
                         @keyup.enter="applyFilters"
                     >
                         <template v-slot:prepend-inner>
-                            <Search style="width: 16px; height: 16px; margin-right: 4px;" class="text-grey-darken-1" />
+                            <Search style="width: 18px; height: 18px; opacity: 0.5;" />
                         </template>
                     </v-text-field>
                 </v-col>
 
                 <!-- Branch Filter -->
-                <v-col cols="12" sm="3" md="2">
+                <v-col cols="12" sm="4" md="2">
                     <v-select
                         v-model="branchId"
                         :items="branches"
                         item-title="name"
                         item-value="id"
                         label="Филиал"
-                        variant="outlined"
+                        variant="solo"
                         density="comfortable"
                         rounded="lg"
+                        flat
                         hide-details
                         clearable
-                        class="bg-surface"
+                        class="premium-field"
                         :disabled="$page.props.auth.user.roles.includes('Branch Manager')"
                     ></v-select>
                 </v-col>
 
                 <!-- Category Filter -->
-                <v-col cols="12" sm="3" md="2">
+                <v-col cols="12" sm="4" md="2">
                     <v-select
                         v-model="category"
                         :items="categories"
                         label="Категория"
-                        variant="outlined"
+                        variant="solo"
                         density="comfortable"
                         rounded="lg"
+                        flat
                         hide-details
                         clearable
-                        class="bg-surface"
+                        class="premium-field"
                     ></v-select>
                 </v-col>
 
                 <!-- Employment Type Filter -->
-                <v-col cols="12" sm="2" md="2">
+                <v-col cols="12" sm="4" md="2">
                     <v-select
                         v-model="type"
                         :items="types"
                         label="Тип занятости"
-                        variant="outlined"
+                        variant="solo"
                         density="comfortable"
                         rounded="lg"
+                        flat
                         hide-details
                         clearable
-                        class="bg-surface"
+                        class="premium-field"
                     ></v-select>
                 </v-col>
 
                 <!-- Action buttons -->
-                <v-col cols="12" sm="6" md="3" class="d-flex justify-end gap-2">
+                <v-col cols="12" sm="12" md="3" class="d-flex align-center justify-md-end justify-center gap-2">
                     <v-btn
-                        variant="tonal"
-                        color="secondary"
+                        variant="flat"
                         rounded="lg"
-                        class="mr-2 px-4 transition-hover-btn font-weight-bold"
+                        class="px-4 transition-hover-btn font-weight-bold"
+                        style="background: rgba(99, 102, 241, 0.08) !important; color: #4f46e5 !important; border: 1px solid rgba(99, 102, 241, 0.15) !important;"
                         @click="resetFilters"
                     >
                         <template v-slot:prepend>
-                            <FilterX style="width: 16px; height: 16px; margin-right: 4px;" />
+                            <FilterX style="width: 16px; height: 16px; color: #4f46e5;" />
                         </template>
                         Сбросить
                     </v-btn>
                     
                     <v-btn
                         v-if="!$page.props.auth.user.roles.includes('Viewer')"
-                        color="indigo"
+                        variant="flat"
                         rounded="lg"
-                        elevation="2"
-                        class="px-4 bg-indigo transition-hover-btn font-weight-bold"
+                        class="px-5 transition-hover-btn font-weight-bold text-white"
+                        style="background: #4f46e5 !important; color: #ffffff !important; box-shadow: 0 4px 14px -4px rgba(79, 70, 229, 0.45) !important;"
                         @click="openCreateDialog"
                     >
                         <template v-slot:prepend>
-                            <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
+                            <Plus style="width: 18px; height: 18px; color: #ffffff;" />
                         </template>
                         Добавить
                     </v-btn>
