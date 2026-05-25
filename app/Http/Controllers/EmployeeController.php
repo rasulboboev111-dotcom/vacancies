@@ -284,7 +284,7 @@ class EmployeeController extends Controller
         ]);
 
         // Get old details for activity logging
-        $oldBranchName = $employee->branch->name;
+        $oldBranchName = $employee->branch?->name ?? 'Неизвестный филиал';
         $oldPosition = $employee->position;
 
         // Update employee record
@@ -295,7 +295,7 @@ class EmployeeController extends Controller
         ]);
 
         // Log action
-        $newBranchName = Branch::find($validated['branch_id'])->name;
+        $newBranchName = Branch::find($validated['branch_id'])?->name ?? 'Неизвестный филиал';
         activity()
             ->performedOn($employee)
             ->event('updated')

@@ -1,6 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import { 
     GitFork, 
     Clock, 
@@ -20,6 +20,10 @@ function formatDate(dateStr) {
     if (!dateStr) return '-';
     const date = new Date(dateStr);
     return date.toLocaleDateString('ru-RU');
+}
+
+function changePage(page) {
+    router.get(route('rotations.index'), { page }, { preserveState: true });
 }
 </script>
 

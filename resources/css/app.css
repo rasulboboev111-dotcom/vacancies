@@ -467,8 +467,7 @@ body {
 .v-theme--dark .v-field--variant-outlined:hover .v-label {
     color: #cbd5e1 !important;
 }
-.v-theme--dark .v-field--variant-outlined .v-label.v-field-label--floating,
-.v-theme--dark .v-field--variant-outlined.v-label.v-field-label--floating {
+.v-theme--dark .v-field--variant-outlined .v-label.v-field-label--floating {
     color: #f1f5f9 !important;
     background: transparent !important;
 }
