@@ -1336,6 +1336,7 @@ function submitRotation() {
                             density="comfortable"
                             rounded="lg"
                             rows="3"
+                            persistent-placeholder
                             :error-messages="rotationForm.errors.reason"
                         ></v-textarea>
                     </v-form>
