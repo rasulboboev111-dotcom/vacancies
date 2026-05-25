@@ -372,9 +372,9 @@ body {
 .v-field input, 
 .v-field select, 
 .v-field textarea,
-.v-field__input,
 .v-field__input input,
-.v-field__input select {
+.v-field__input select,
+.v-field__input textarea {
     border: none !important;
     outline: none !important;
     box-shadow: none !important;
@@ -383,6 +383,100 @@ body {
     -moz-appearance: none !important;
     appearance: none !important;
 }
+
+/* Custom modern styling for standard outlined fields (Variant 2: Contrast background) */
+.v-field--variant-outlined {
+    background-color: #F2F4F7 !important; /* Soft gray-blue background */
+    border-radius: 8px !important;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.v-field--variant-outlined .v-field__outline__start,
+.v-field--variant-outlined .v-field__outline__notch,
+.v-field--variant-outlined .v-field__outline__end {
+    border-color: transparent !important; /* Hide idle border lines */
+    border-style: solid !important;
+    transition: border-color 0.15s ease !important;
+}
+
+/* Hover state */
+.v-field--variant-outlined:hover {
+    background-color: #EAECEF !important; /* Slightly darker background on hover */
+}
+
+/* Focused state */
+.v-field--variant-outlined.v-field--focused {
+    background-color: #ffffff !important; /* Crisp white background when active */
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12) !important; /* Soft indigo focus glow */
+}
+.v-field--focused .v-field__outline {
+    --v-field-border-width: 2px !important;
+}
+.v-field--variant-outlined.v-field--focused .v-field__outline__start,
+.v-field--variant-outlined.v-field--focused .v-field__outline__notch,
+.v-field--variant-outlined.v-field--focused .v-field__outline__end {
+    border-color: #4f46e5 !important; /* Clean primary indigo border on focus */
+}
+
+/* Outlined input labels visibility overrides (Text on top) */
+.v-field--variant-outlined .v-label {
+    color: #556376 !important; /* Clearly visible dark gray label when idle */
+    opacity: 0.95 !important;
+}
+.v-field--variant-outlined:hover .v-label {
+    color: #1e293b !important;
+}
+
+/* Floating labels (text on top) */
+.v-field--variant-outlined .v-label.v-field-label--floating,
+.v-field--variant-outlined.v-field--active .v-label {
+    color: #1e293b !important; /* High-contrast dark slate for high readability */
+    opacity: 1 !important;
+    font-weight: 700 !important; /* Bolder for premium contrast */
+    background: transparent !important; /* Transparent when idle to blend with gray background */
+    padding: 0 6px !important;
+}
+
+/* Focused labels */
+.v-field--variant-outlined.v-field--focused .v-label.v-field-label--floating {
+    color: #4f46e5 !important; /* Highlight when active/focused */
+    background: #ffffff !important; /* White background to cover the active border line */
+}
+
+/* Dark theme overrides for standard outlined fields */
+.v-theme--dark .v-field--variant-outlined {
+    background-color: #0f172a !important; /* Dark slate background */
+}
+.v-theme--dark .v-field--variant-outlined:hover {
+    background-color: #090d16 !important;
+}
+.v-theme--dark .v-field--variant-outlined.v-field--focused {
+    background-color: #1e293b !important; /* Match dark dialog background on focus */
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2) !important;
+}
+.v-theme--dark .v-field--variant-outlined.v-field--focused .v-field__outline__start,
+.v-theme--dark .v-field--variant-outlined.v-field--focused .v-field__outline__notch,
+.v-theme--dark .v-field--variant-outlined.v-field--focused .v-field__outline__end {
+    border-color: #818cf8 !important;
+}
+
+/* Dark theme overrides for labels */
+.v-theme--dark .v-field--variant-outlined .v-label {
+    color: #94a3b8 !important;
+}
+.v-theme--dark .v-field--variant-outlined:hover .v-label {
+    color: #cbd5e1 !important;
+}
+.v-theme--dark .v-field--variant-outlined .v-label.v-field-label--floating,
+.v-theme--dark .v-field--variant-outlined.v-label.v-field-label--floating {
+    color: #f1f5f9 !important;
+    background: transparent !important;
+}
+.v-theme--dark .v-field--variant-outlined.v-field--focused .v-label.v-field-label--floating {
+    color: #818cf8 !important;
+    background: #1e293b !important; /* Match dark dialog background on focus */
+}
+
 
 /* Ensure perfect vertical alignment and height for premium input fields */
 .premium-field {
