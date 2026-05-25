@@ -117,7 +117,7 @@ function openCreateDialog() {
     activeTab.value = 0;
     form.reset();
     if (props.branches.length > 0) {
-        form.branch_id = props.branches[0].id;
+        form.branch_id = Number(props.branches[0].id);
     }
     form.clearErrors();
     createEditDialog.value = true;
@@ -126,7 +126,7 @@ function openCreateDialog() {
 function openEditDialog(employee) {
     editingEmployee.value = employee;
     activeTab.value = 0;
-    form.branch_id = employee.branch_id;
+    form.branch_id = employee.branch_id ? Number(employee.branch_id) : null;
     form.category = employee.category;
     form.type = employee.type;
     form.full_name = employee.full_name;
@@ -223,7 +223,7 @@ const rotationForm = useForm({
 
 function openRotationDialog(employee) {
     selectedEmployee.value = employee;
-    rotationForm.branch_id = employee.branch_id;
+    rotationForm.branch_id = employee.branch_id ? Number(employee.branch_id) : null;
     rotationForm.position = employee.position;
     rotationForm.structure = employee.structure;
     rotationForm.rotation_date = new Date().toISOString().substring(0, 10);
@@ -642,22 +642,22 @@ function submitRotation() {
                 <!-- Horizontal Tabs for neat grouping -->
                 <v-tabs v-model="activeTab" color="indigo" align-tabs="start" class="px-4 pt-2">
                     <v-tab :value="0">
-                        <template v-slot:prepend>
-                            <User style="width: 16px; height: 16px; margin-right: 4px;" />
-                        </template>
-                        Основное
+                        <div class="d-flex align-center">
+                            <User style="width: 16px; height: 16px; margin-right: 6px;" />
+                            <span>Основное</span>
+                        </div>
                     </v-tab>
                     <v-tab :value="1">
-                        <template v-slot:prepend>
-                            <IdCard style="width: 16px; height: 16px; margin-right: 4px;" />
-                        </template>
-                        Личные данные
+                        <div class="d-flex align-center">
+                            <IdCard style="width: 16px; height: 16px; margin-right: 6px;" />
+                            <span>Личные данные</span>
+                        </div>
                     </v-tab>
                     <v-tab :value="2">
-                        <template v-slot:prepend>
-                            <FileText style="width: 16px; height: 16px; margin-right: 4px;" />
-                        </template>
-                        Документы и ИНН
+                        <div class="d-flex align-center">
+                            <FileText style="width: 16px; height: 16px; margin-right: 6px;" />
+                            <span>Документы и ИНН</span>
+                        </div>
                     </v-tab>
                 </v-tabs>
 
