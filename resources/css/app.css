@@ -307,3 +307,20 @@ body {
 .v-theme--dark .v-select .v-field {
     background: rgba(30, 41, 59, 0.8) !important;
 }
+
+/* Fix floating labels notch lines overlapping */
+.v-field--variant-outlined .v-label.v-field-label--floating,
+.v-field--variant-outlined.v-field--active .v-label {
+    background: #ffffff !important;
+    padding: 0 6px !important;
+    margin-top: 2px !important;
+    opacity: 1 !important;
+}
+
+.v-theme--dark .v-field--variant-outlined .v-label.v-field-label--floating,
+.v-theme--dark .v-field--variant-outlined.v-field--active .v-label {
+    background: #1e293b !important; /* Matches dark theme card background */
+    padding: 0 6px !important;
+    margin-top: 2px !important;
+    opacity: 1 !important;
+}
