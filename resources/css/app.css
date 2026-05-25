@@ -308,27 +308,103 @@ body {
     background: rgba(30, 41, 59, 0.8) !important;
 }
 
-/* Fix floating labels notch lines overlapping and prevent text clipping */
-.v-field--variant-outlined .v-label.v-field-label--floating,
-.v-field--variant-outlined.v-field--active .v-label {
-    background: #ffffff !important;
-    padding: 0 6px !important;
-    transform: translateY(-50%) scale(0.75) !important;
-    top: 0 !important;
-    opacity: 1 !important;
-    margin-top: 0 !important;
-    height: auto !important;
+/* ==========================================
+   FIX: FLOATING LABELS & DIALOG SCROLL CONTAINERS
+   ==========================================
+   Outlined fields use a native legend notch gap. To prevent the floating
+   labels of the first row from being clipped by overflow:hidden/auto
+   containers, we simply ensure there is ample padding-top space above the first row.
+   ========================================== */
+
+/* Add safe top padding inside all dialog cards to prevent floating labels from hitting boundaries */
+.v-dialog .v-card-text {
+    padding-top: 28px !important;
 }
 
-.v-theme--dark .v-field--variant-outlined .v-label.v-field-label--floating,
-.v-theme--dark .v-field--variant-outlined.v-field--active .v-label {
-    background: #1e293b !important; /* Matches dark theme card background */
-    padding: 0 6px !important;
-    transform: translateY(-50%) scale(0.75) !important;
-    top: 0 !important;
-    opacity: 1 !important;
-    margin-top: 0 !important;
-    height: auto !important;
+/* Add safe top padding to window items since they have overflow:hidden by default */
+.v-window-item {
+    padding-top: 16px !important;
+}
+.v-window-item .v-row {
+    padding-top: 8px !important;
+}
+
+/* ==========================================
+   PREMIUM SLEEK UNIFIED INPUT FIELDS
+   ========================================== */
+.premium-field {
+    border-radius: 12px !important;
+    transition: all 0.2s ease !important;
+}
+.premium-field .v-field {
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.premium-field .v-field:hover {
+    border-color: rgba(99, 102, 241, 0.35) !important;
+    background: #ffffff !important;
+}
+.premium-field.v-field--focused .v-field {
+    border-color: rgba(99, 102, 241, 0.6) !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08), 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Dark mode premium fields */
+.v-theme--dark .premium-field .v-field {
+    background: rgba(30, 41, 59, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.v-theme--dark .premium-field .v-field:hover {
+    border-color: rgba(129, 140, 248, 0.4) !important;
+    background: rgba(30, 41, 59, 0.9) !important;
+}
+.v-theme--dark .premium-field.v-field--focused .v-field {
+    border-color: rgba(129, 140, 248, 0.7) !important;
+    background: rgba(15, 23, 42, 0.85) !important;
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.15), 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Explicitly hide native browser borders, outlines, shadows, and default styling on all Vuetify input elements */
+.v-field input, 
+.v-field select, 
+.v-field textarea,
+.v-field__input,
+.v-field__input input,
+.v-field__input select {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+}
+
+/* Ensure perfect vertical alignment and height for premium input fields */
+.premium-field {
+    height: 44px !important;
+}
+.premium-field .v-field {
+    min-height: 44px !important;
+    height: 44px !important;
+}
+.premium-field .v-field__input {
+    min-height: 44px !important;
+    height: 44px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* Ensure all buttons inside filter sections match the exact input field height */
+.bg-surface-glass .v-btn {
+    height: 44px !important;
+    min-height: 44px !important;
 }
 
 /* Force first letter of labels to be capitalized globally */

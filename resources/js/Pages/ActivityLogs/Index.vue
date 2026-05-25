@@ -91,35 +91,37 @@ function hasChanges(properties) {
         <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass mb-6">
             <v-row class="align-center">
                 <!-- Search bar -->
-                <v-col cols="12" sm="5">
+                <v-col cols="12" sm="12" md="5">
                     <v-text-field
                         v-model="search"
-                        label="Поиск по описанию действия"
-                        variant="outlined"
+                        placeholder="Поиск по описанию действия..."
+                        variant="solo"
                         density="comfortable"
                         rounded="lg"
+                        flat
                         hide-details
-                        class="bg-surface"
+                        class="premium-field"
                         @keyup.enter="applyFilters"
                     >
                         <template v-slot:prepend-inner>
-                            <Search style="width: 16px; height: 16px; margin-right: 4px;" class="text-grey-darken-1" />
+                            <Search style="width: 18px; height: 18px; opacity: 0.5;" />
                         </template>
                     </v-text-field>
                 </v-col>
 
                 <!-- Event Filter -->
-                <v-col cols="12" sm="4">
+                <v-col cols="12" sm="8" md="4">
                     <v-select
                         v-model="eventFilter"
                         :items="['created', 'updated', 'deleted']"
                         label="Тип действия"
-                        variant="outlined"
+                        variant="solo"
                         density="comfortable"
                         rounded="lg"
+                        flat
                         hide-details
                         clearable
-                        class="bg-surface"
+                        class="premium-field"
                     >
                         <template v-slot:item="{ props, item }">
                             <v-list-item v-bind="props" :title="getEventText(item.raw)"></v-list-item>
@@ -131,19 +133,18 @@ function hasChanges(properties) {
                 </v-col>
 
                 <!-- Reset button -->
-                <v-col cols="12" sm="3" class="d-flex justify-end">
+                <v-col cols="12" sm="4" md="3" class="d-flex align-center justify-md-end justify-center">
                     <v-btn
-                        variant="tonal"
-                        color="secondary"
+                        variant="flat"
                         rounded="lg"
-                        block
-                        class="transition-hover-btn font-weight-bold"
+                        class="transition-hover-btn font-weight-bold w-100"
+                        style="background: rgba(99, 102, 241, 0.08) !important; color: #4f46e5 !important; border: 1px solid rgba(99, 102, 241, 0.15) !important;"
                         @click="resetFilters"
                     >
                         <template v-slot:prepend>
-                            <FilterX style="width: 16px; height: 16px; margin-right: 4px;" />
+                            <FilterX style="width: 16px; height: 16px; color: #4f46e5;" />
                         </template>
-                        Сбросить фильтры
+                        Сбросить
                     </v-btn>
                 </v-col>
             </v-row>

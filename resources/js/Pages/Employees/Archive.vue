@@ -95,54 +95,54 @@ function formatDate(dateStr) {
         <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass mb-6">
             <v-row class="align-center">
                 <!-- Search bar -->
-                <v-col cols="12" sm="5" md="4">
+                <v-col cols="12" sm="12" md="5">
                     <v-text-field
                         v-model="search"
-                        label="Поиск по ФИО, должности или ИНН"
-                        variant="outlined"
+                        placeholder="Поиск по ФИО, должности или ИНН..."
+                        variant="solo"
                         density="comfortable"
                         rounded="lg"
+                        flat
                         hide-details
-                        class="bg-surface"
+                        class="premium-field"
                         @keyup.enter="applyFilters"
                     >
                         <template v-slot:prepend-inner>
-                            <Search style="width: 16px; height: 16px; margin-right: 4px;" class="text-grey" />
+                            <Search style="width: 18px; height: 18px; opacity: 0.5;" />
                         </template>
                     </v-text-field>
                 </v-col>
 
                 <!-- Branch Filter -->
-                <v-col cols="12" sm="4" md="3">
+                <v-col cols="12" sm="8" md="4">
                     <v-select
                         v-model="branchId"
                         :items="branches"
                         item-title="name"
                         item-value="id"
                         label="Филиал"
-                        variant="outlined"
+                        variant="solo"
                         density="comfortable"
                         rounded="lg"
+                        flat
                         hide-details
                         clearable
-                        class="bg-surface"
+                        class="premium-field"
                         :disabled="$page.props.auth.user.roles.includes('Branch Manager')"
                     ></v-select>
                 </v-col>
 
-                <v-spacer></v-spacer>
-
                 <!-- Action buttons -->
-                <v-col cols="12" sm="3" class="d-flex justify-end">
+                <v-col cols="12" sm="4" md="3" class="d-flex align-center justify-md-end justify-center">
                     <v-btn
-                        variant="tonal"
-                        color="secondary"
+                        variant="flat"
                         rounded="lg"
-                        class="px-4 transition-hover-btn w-100 font-weight-bold"
+                        class="px-5 transition-hover-btn font-weight-bold w-100"
+                        style="background: rgba(99, 102, 241, 0.08) !important; color: #4f46e5 !important; border: 1px solid rgba(99, 102, 241, 0.15) !important;"
                         @click="resetFilters"
                     >
                         <template v-slot:prepend>
-                            <FilterX style="width: 16px; height: 16px; margin-right: 4px;" />
+                            <FilterX style="width: 16px; height: 16px; color: #4f46e5;" />
                         </template>
                         Сбросить
                     </v-btn>
