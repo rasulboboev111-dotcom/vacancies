@@ -17,7 +17,17 @@ import {
     FileText,
     UserPlus,
     IdCard,
-    AlertCircle
+    AlertCircle,
+    Phone,
+    MapPin,
+    Calendar,
+    Globe,
+    BookOpen,
+    Award,
+    Network,
+    Layers,
+    UserCheck,
+    Clock
 } from '@lucide/vue';
 
 const props = defineProps({
@@ -463,7 +473,7 @@ function submitRotation() {
         </v-card>
 
         <!-- View Details Dialog -->
-        <v-dialog v-model="viewDialog" max-width="800px">
+        <v-dialog v-model="viewDialog" max-width="850px">
             <v-card v-if="selectedEmployee" class="rounded-xl overflow-hidden" elevation="8">
                 <!-- Premium Gradient Header -->
                 <div style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); padding: 20px 28px;">
@@ -481,145 +491,321 @@ function submitRotation() {
                     </div>
                 </div>
                 
-                <v-card-text class="px-0 py-0 overflow-y-auto" style="max-height: 70vh;">
-                    <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <User style="width: 20px; height: 20px; margin-right: 8px;" /> Основные и личные данные
-                    </div>
-                    <v-row class="mb-4">
-                        <v-col cols="12" class="pb-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">ФИО</span>
-                            <span class="text-body-1 font-weight-black text-indigo-darken-4">{{ selectedEmployee.full_name }}</span>
-                        </v-col>
+                <v-card-text class="pa-6 overflow-y-auto" style="max-height: 72vh; background-color: #f8fafc;">
+                    <!-- Section 1: Personal Data -->
+                    <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
+                        <div class="d-flex align-center text-subtitle-1 font-weight-black text-indigo-darken-4 mb-4">
+                            <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                                <User style="width: 16px; height: 16px;" />
+                            </v-avatar>
+                            Основные и личные данные
+                        </div>
+                        <v-row>
+                            <v-col cols="12" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <User style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">ФИО</span>
+                                        <span class="text-body-1 font-weight-black text-indigo-darken-4">{{ selectedEmployee.full_name }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Пол</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.gender || '-' }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Users style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Пол</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.gender || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата рождения / Возраст</span>
-                            <span class="text-body-1 font-weight-bold">{{ formatDate(selectedEmployee.birth_date) }} ({{ selectedEmployee.age ? selectedEmployee.age + ' лет' : '-' }})</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Calendar style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Дата рождения / Возраст</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ formatDate(selectedEmployee.birth_date) }} ({{ selectedEmployee.age ? selectedEmployee.age + ' лет' : '-' }})</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Национальность</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.nationality || '-' }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Globe style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Национальность</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.nationality || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Телефон</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.phone_number || '-' }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Phone style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Телефон</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.phone_number || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="8" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Адрес проживания</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.address || '-' }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="8" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <MapPin style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Адрес проживания</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.address || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Место рождения</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.birth_place || '-' }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <MapPin style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Место рождения</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.birth_place || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Образование</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.education || '-' }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <BookOpen style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Образование</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.education || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Специальность</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.specialty || '-' }}</span>
-                        </v-col>
-                    </v-row>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Award style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Специальность</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.specialty || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
+                        </v-row>
+                    </v-card>
 
-                    <v-divider class="my-4"></v-divider>
+                    <!-- Section 2: Professional Data -->
+                    <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
+                        <div class="d-flex align-center text-subtitle-1 font-weight-black text-indigo-darken-4 mb-4">
+                            <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                                <Briefcase style="width: 16px; height: 16px;" />
+                            </v-avatar>
+                            Трудовая деятельность
+                        </div>
+                        <v-row>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Briefcase style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Должность</span>
+                                        <span class="text-body-2 font-weight-black text-indigo-darken-3">{{ selectedEmployee.position }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                    <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <Briefcase style="width: 20px; height: 20px; margin-right: 8px;" /> Трудовая деятельность
-                    </div>
-                    <v-row class="mb-4">
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Должность</span>
-                            <span class="text-body-1 font-weight-bold text-indigo-darken-3">{{ selectedEmployee.position }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Network style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Подразделение</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.structure }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Подразделение</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.structure }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <MapPin style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Филиал</span>
+                                        <span class="text-body-2 font-weight-bold text-indigo-accent-3 font-weight-black">{{ selectedEmployee.branch?.name || 'Удаленный филиал' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Филиал</span>
-                            <span class="text-body-1 font-weight-bold text-primary">{{ selectedEmployee.branch.name }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Layers style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Категория</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.category }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Категория</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.category }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <UserCheck style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Руководитель</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.direct_manager || 'Нет' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Руководитель</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.direct_manager || 'Нет' }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-teal-lighten-5 text-teal d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Clock style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Общий стаж работы</span>
+                                        <span class="text-body-2 font-weight-black text-teal-darken-3 font-weight-bold">{{ selectedEmployee.total_experience || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Общий стаж работы</span>
-                            <span class="text-body-1 font-weight-bold text-teal font-weight-black">{{ selectedEmployee.total_experience || '-' }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="6" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Calendar style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Дата приема</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ formatDate(selectedEmployee.hire_date) }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата приема</span>
-                            <span class="text-body-1 font-weight-bold">{{ formatDate(selectedEmployee.hire_date) }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="6" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-red-lighten-5 text-error d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Calendar style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Дата увольнения</span>
+                                        <span class="text-body-2 font-weight-bold text-error font-weight-black">{{ formatDate(selectedEmployee.dismissal_date) }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
+                        </v-row>
+                    </v-card>
 
-                        <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата увольнения</span>
-                            <span class="text-body-1 font-weight-bold text-error">{{ formatDate(selectedEmployee.dismissal_date) }}</span>
-                        </v-col>
-                    </v-row>
+                    <!-- Section 3: Passport & Identifiers -->
+                    <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
+                        <div class="d-flex align-center text-subtitle-1 font-weight-black text-indigo-darken-4 mb-4">
+                            <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                                <FileText style="width: 16px; height: 16px;" />
+                            </v-avatar>
+                            Паспортные данные и коды
+                        </div>
+                        <v-row>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <IdCard style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Номер паспорта</span>
+                                        <span class="text-body-2 font-weight-bold font-mono text-slate-800">{{ selectedEmployee.passport_number || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                    <v-divider class="my-4"></v-divider>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Calendar style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Срок действия (С)</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ formatDate(selectedEmployee.passport_start_date) }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                    <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <FileText style="width: 20px; height: 20px; margin-right: 8px;" /> Паспортные данные и коды
-                    </div>
-                    <v-row class="mb-4">
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Номер паспорта</span>
-                            <span class="text-body-1 font-weight-bold font-mono">{{ selectedEmployee.passport_number || '-' }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Calendar style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Срок действия (По)</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ formatDate(selectedEmployee.passport_end_date) }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Срок действия (С)</span>
-                            <span class="text-body-1 font-weight-bold">{{ formatDate(selectedEmployee.passport_start_date) }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <FileText style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">ИНН / РМА</span>
+                                        <span class="text-body-2 font-weight-bold font-mono text-slate-800">{{ selectedEmployee.inn || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Срок действия (По)</span>
-                            <span class="text-body-1 font-weight-bold">{{ formatDate(selectedEmployee.passport_end_date) }}</span>
-                        </v-col>
+                            <v-col cols="12" sm="8" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <FileText style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">СИН (Код)</span>
+                                        <span class="text-body-2 font-weight-bold font-mono text-slate-800">{{ selectedEmployee.sin || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">ИНН / РМА</span>
-                            <span class="text-body-1 font-weight-bold font-mono">{{ selectedEmployee.inn || '-' }}</span>
-                        </v-col>
-
-                        <v-col cols="12" sm="8" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">СИН (Код)</span>
-                            <span class="text-body-1 font-weight-bold font-mono">{{ selectedEmployee.sin || '-' }}</span>
-                        </v-col>
-
-                        <v-col cols="12" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Кем выдан паспорт</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.passport_issued_by || '-' }}</span>
-                        </v-col>
-                    </v-row>
+                            <v-col cols="12" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <UserCheck style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Кем выдан паспорт</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.passport_issued_by || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
+                        </v-row>
+                    </v-card>
                 </v-card-text>
 
-                <v-card-actions class="px-0 pt-6">
-                    <v-spacer></v-spacer>
-                    <v-btn color="indigo" variant="flat" class="bg-indigo px-5" rounded="lg" @click="viewDialog = false">
+                <v-divider></v-divider>
+
+                <v-card-actions class="px-6 py-4 bg-white d-flex justify-end">
+                    <v-btn color="indigo" variant="flat" size="large" class="bg-indigo px-6 font-weight-bold" rounded="lg" style="box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);" @click="viewDialog = false">
                         Закрыть
                     </v-btn>
                 </v-card-actions>
@@ -1191,6 +1377,22 @@ function submitRotation() {
 </template>
 
 <style scoped>
+.info-field {
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    background-color: #f8fafc !important;
+    transition: all 0.2s ease-in-out;
+}
+.info-field:hover {
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+.v-theme--dark .info-field {
+    border-color: rgba(51, 65, 85, 0.8) !important;
+    background-color: #1e293b !important;
+}
+.v-theme--dark .info-field:hover {
+    border-color: #475569 !important;
+}
 .bg-surface-glass {
     background: rgba(255, 255, 255, 0.7) !important;
     backdrop-filter: blur(12px);
