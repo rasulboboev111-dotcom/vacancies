@@ -2,6 +2,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
+import { 
+    History, 
+    Search, 
+    FilterX, 
+    FileCode
+} from '@lucide/vue';
 
 const props = defineProps({
     logs: {
@@ -76,7 +82,7 @@ function hasChanges(properties) {
     <AuthenticatedLayout>
         <template #header>
             <div class="d-flex align-center">
-                <v-icon icon="mdi-history" class="mr-3 text-indigo-accent-2" size="large"></v-icon>
+                <History style="width: 24px; height: 24px; margin-right: 12px;" class="text-indigo-accent-2" />
                 <span>Лог действий (Аудит)</span>
             </div>
         </template>
@@ -89,14 +95,17 @@ function hasChanges(properties) {
                     <v-text-field
                         v-model="search"
                         label="Поиск по описанию действия"
-                        prepend-inner-icon="mdi-magnify"
                         variant="outlined"
                         density="comfortable"
                         rounded="lg"
                         hide-details
                         class="bg-surface"
                         @keyup.enter="applyFilters"
-                    ></v-text-field>
+                    >
+                        <template v-slot:prepend-inner>
+                            <Search style="width: 16px; height: 16px; margin-right: 4px;" class="text-grey-darken-1" />
+                        </template>
+                    </v-text-field>
                 </v-col>
 
                 <!-- Event Filter -->
@@ -128,10 +137,12 @@ function hasChanges(properties) {
                         color="secondary"
                         rounded="lg"
                         block
-                        class="transition-hover-btn"
-                        prepend-icon="mdi-filter-off-outline"
+                        class="transition-hover-btn font-weight-bold"
                         @click="resetFilters"
                     >
+                        <template v-slot:prepend>
+                            <FilterX style="width: 16px; height: 16px; margin-right: 4px;" />
+                        </template>
                         Сбросить фильтры
                     </v-btn>
                 </v-col>
@@ -169,7 +180,7 @@ function hasChanges(properties) {
                     <v-expansion-panels v-if="hasChanges(log.properties)" class="elevation-0 border rounded-lg overflow-hidden max-width-diff bg-surface">
                         <v-expansion-panel elevation="0">
                             <v-expansion-panel-title class="py-2 px-4 text-caption font-weight-black text-grey-darken-1 d-flex align-center">
-                                <v-icon icon="mdi-file-compare" size="small" class="mr-2 text-indigo"></v-icon>
+                                <FileCode style="width: 16px; height: 16px; margin-right: 8px;" class="text-indigo" />
                                 Показать детали изменений
                             </v-expansion-panel-title>
                             <v-expansion-panel-text class="pa-0">

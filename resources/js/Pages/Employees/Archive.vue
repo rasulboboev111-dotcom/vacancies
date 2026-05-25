@@ -87,10 +87,8 @@ function formatDate(dateStr) {
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="d-flex align-center">
-                <Archive class="mr-3 text-indigo-accent-2 h-6 w-6" />
+                <Archive style="width: 24px; height: 24px; margin-right: 12px;" class="text-indigo-accent-2" />
                 <span>Архив сотрудников (Уволенные / Пенсионеры)</span>
-            </div>
         </template>
 
         <!-- Filters section -->
@@ -109,7 +107,7 @@ function formatDate(dateStr) {
                         @keyup.enter="applyFilters"
                     >
                         <template v-slot:prepend-inner>
-                            <Search class="h-4 w-4 text-grey" />
+                            <Search style="width: 16px; height: 16px; margin-right: 4px;" class="text-grey" />
                         </template>
                     </v-text-field>
                 </v-col>
@@ -144,7 +142,7 @@ function formatDate(dateStr) {
                         @click="resetFilters"
                     >
                         <template v-slot:prepend>
-                            <FilterX class="h-4 w-4 mr-1" />
+                            <FilterX style="width: 16px; height: 16px; margin-right: 4px;" />
                         </template>
                         Сбросить
                     </v-btn>
@@ -187,13 +185,13 @@ function formatDate(dateStr) {
                                 class="hover-scale-btn"
                                 @click="openViewDialog(employee)"
                             >
-                                <Eye class="h-4 w-4" />
+                                <Eye style="width: 16px; height: 16px;" />
                             </v-btn>
                         </td>
                     </tr>
                     <tr v-if="employees.data.length === 0">
                         <td colspan="7" class="text-center py-10 text-grey text-h6 font-weight-medium bg-surface">
-                            <FolderOpen class="h-10 w-10 text-grey mx-auto mb-2 opacity-50" />
+                            <FolderOpen style="width: 40px; height: 40px; margin: 0 auto 8px; opacity: 0.5;" class="text-grey" />
                             Архивные сотрудники не найдены.
                         </td>
                     </tr>
@@ -221,19 +219,26 @@ function formatDate(dateStr) {
 
         <!-- View Details Dialog -->
         <v-dialog v-model="viewDialog" max-width="800px">
-            <v-card v-if="selectedEmployee" class="rounded-xl pa-6 border border-glow overflow-hidden relative">
-                <v-card-title class="font-weight-black text-h5 px-0 pt-0 pb-4 d-flex justify-space-between align-center text-indigo">
-                    <div class="d-flex align-center">
-                        <FileText class="mr-2 h-6 w-6 text-indigo" />
-                        Детали архивного дела
+            <v-card v-if="selectedEmployee" class="rounded-xl overflow-hidden" elevation="8">
+                <!-- Premium Gradient Header (Secondary/Error theme for Archive) -->
+                <div style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%); padding: 20px 28px;">
+                    <div class="d-flex align-center justify-space-between">
+                        <div class="d-flex align-center">
+                            <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
+                                <FileText style="width: 22px; height: 22px; color: white;" />
+                            </v-avatar>
+                            <div class="ml-4">
+                                <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Детали архивного дела</div>
+                                <div style="color: white; font-size: 1.1rem; font-weight: 800;">{{ selectedEmployee.full_name }}</div>
+                            </div>
+                        </div>
+                        <v-chip color="error" variant="flat" class="font-weight-bold" size="small">В АРХИВЕ</v-chip>
                     </div>
-                    <v-chip color="error" variant="flat" class="font-weight-bold text-uppercase" size="small">В архиве</v-chip>
-                </v-card-title>
-                <v-divider class="mb-5"></v-divider>
+                </div>
                 
                 <v-card-text class="px-0 py-0 overflow-y-auto" style="max-height: 70vh;">
                     <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <User class="mr-1 h-5 w-5 text-indigo" /> Основные и личные данные
+                        <User style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> Основные и личные данные
                     </div>
                     <v-row class="mb-4">
                         <v-col cols="12" class="pb-2">
@@ -270,7 +275,7 @@ function formatDate(dateStr) {
                     <v-divider class="my-4"></v-divider>
 
                     <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <Briefcase class="mr-1 h-5 w-5 text-indigo" /> Сведения об увольнении / выходе на пенсию
+                        <Briefcase style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> Сведения об увольнении / выходе на пенсию
                     </div>
                     <v-row class="mb-4">
                         <v-col cols="12" sm="4" class="py-2">
@@ -307,7 +312,7 @@ function formatDate(dateStr) {
                     <v-divider class="my-4"></v-divider>
 
                     <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <Key class="mr-1 h-5 w-5 text-indigo" /> ИНН и документы
+                        <Key style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> ИНН и документы
                     </div>
                     <v-row class="mb-4">
                         <v-col cols="12" sm="4" class="py-2">
