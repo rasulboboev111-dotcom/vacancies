@@ -138,11 +138,11 @@ function hasChanges(properties) {
                         variant="flat"
                         rounded="lg"
                         class="transition-hover-btn font-weight-bold w-100"
-                        style="background: rgba(99, 102, 241, 0.08) !important; color: #4f46e5 !important; border: 1px solid rgba(99, 102, 241, 0.15) !important;"
+                        style="background: rgba(0, 156, 241, 0.08) !important; color: #009cf1 !important; border: 1px solid rgba(0, 156, 241, 0.15) !important;"
                         @click="resetFilters"
                     >
                         <template v-slot:prepend>
-                            <FilterX style="width: 16px; height: 16px; color: #4f46e5;" />
+                            <FilterX style="width: 16px; height: 16px; color: #009cf1;" />
                         </template>
                         Сбросить
                     </v-btn>
@@ -246,7 +246,7 @@ function hasChanges(properties) {
 }
 .transition-hover-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 156, 241, 0.2);
 }
 .max-width-diff {
     max-width: 100%;

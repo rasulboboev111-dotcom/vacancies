@@ -24,7 +24,7 @@ const props = defineProps({
 });
 
 // Colors list for cards/distributions
-const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#0f2d88', '#EC4899'];
 </script>
 
 <template>
@@ -195,7 +195,7 @@ const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
 
 <style scoped>
 .bg-gradient-indigo {
-    background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%) !important;
+    background: linear-gradient(135deg, #009cf1 0%, #0f2d88 100%) !important;
 }
 .bg-gradient-emerald {
     background: linear-gradient(135deg, #10b981 0%, #064e3b 100%) !important;
@@ -224,7 +224,7 @@ const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
 }
 .transition-hover:hover {
     transform: translateY(-4px);
-    box-shadow: 0 15px 35px -10px rgba(79, 70, 229, 0.15), 0 5px 15px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 15px 35px -10px rgba(0, 156, 241, 0.15), 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 .glass-shine {
     position: absolute;
@@ -252,10 +252,10 @@ const colors = ['#6366F1', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
     background: transparent;
 }
 .activity-timeline::-webkit-scrollbar-thumb {
-    background: rgba(79, 70, 229, 0.2);
+    background: rgba(0, 156, 241, 0.2);
     border-radius: 3px;
 }
 .activity-timeline::-webkit-scrollbar-thumb:hover {
-    background: rgba(79, 70, 229, 0.4);
+    background: rgba(0, 156, 241, 0.4);
 }
 </style>
