@@ -23,11 +23,11 @@ import { ShieldCheck } from '@lucide/vue';
                 <!-- Logo & Brand -->
                 <div class="flex flex-col items-center mb-8">
                     <Link href="/" class="flex flex-col items-center group">
-                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/20 transform group-hover:scale-105 transition-transform duration-300">
-                            <ShieldCheck style="width: 32px; height: 32px; color: white;" />
+                        <div class="px-6 py-4 rounded-2xl bg-white flex items-center justify-center shadow-lg shadow-indigo-500/20 transform group-hover:scale-105 transition-transform duration-300">
+                            <img src="https://tojiktelecom.tj/logonew.svg" style="height: 48px; width: auto; object-fit: contain;" alt="Tojiktelecom" />
                         </div>
-                        <span class="mt-4 text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400">VACANCY FLOW</span>
-                        <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest mt-1 opacity-80">Portal Authentication</span>
+                        <span class="mt-4 text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400">TOJIKTELECOM</span>
+                        <span class="text-xs text-indigo-400 font-bold uppercase tracking-widest mt-1 opacity-80">HR-Портал</span>
                     </Link>
                 </div>
 
@@ -35,8 +35,8 @@ import { ShieldCheck } from '@lucide/vue';
             </div>
 
             <!-- Footer Meta -->
-            <div class="mt-8 text-center text-xs text-slate-500 font-medium">
-                &copy; 2026 Vacancy Flow. Все права защищены.
+            <div class="mt-8 text-center text-xs text-slate-500 font-medium font-bold">
+                &copy; 2026 ЗАО "Тоҷиктелеком". Все права защищены.
             </div>
         </div>
     </div>
