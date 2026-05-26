@@ -23,14 +23,6 @@ const vuetify = createVuetify({
                     surface: '#FFFFFF',
                 },
             },
-            dark: {
-                colors: {
-                    primary: '#818CF8',
-                    secondary: '#2DD4BF',
-                    background: '#0B0F19',
-                    surface: '#111827',
-                },
-            },
         },
     },
 });
