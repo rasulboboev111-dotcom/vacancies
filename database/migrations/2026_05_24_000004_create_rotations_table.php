@@ -24,14 +24,7 @@ return new class extends Migration
             $table->string('reason')->nullable();
             $table->timestamps();
 
-            // Explicit indexes for PostgreSQL performance
-            $table->index('employee_id');
-            $table->index('old_branch_id');
-            $table->index('new_branch_id');
-            $table->index('old_position_id');
-            $table->index('new_position_id');
-            $table->index('old_structure_id');
-            $table->index('new_structure_id');
+            // Explicit indexes for non-FK columns
             $table->index('rotation_date');
         });
     }
