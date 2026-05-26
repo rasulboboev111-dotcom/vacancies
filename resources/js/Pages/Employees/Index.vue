@@ -229,8 +229,17 @@ function changePage(page) {
 
 function formatDate(dateStr) {
     if (!dateStr) return '-';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString('ru-RU');
+        }
+    }
     const date = new Date(dateStr);
-    return date.toLocaleDateString('ru-RU');
+    if (!isNaN(date.getTime()) && dateStr.toString().includes('-')) {
+        return date.toLocaleDateString('ru-RU');
+    }
+    return dateStr;
 }
 
 // Rotation variables & functions
@@ -396,7 +405,7 @@ function submitRotation() {
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Тип</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Телефон</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Возраст</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Общий стаж</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Дата трудоустройства с</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo text-center">Действия</th>
                     </tr>
                 </thead>
@@ -413,7 +422,7 @@ function submitRotation() {
                         <td class="pa-4"><v-chip size="small" color="teal" variant="tonal" class="font-weight-bold">{{ employee.employment_type?.name || '-' }}</v-chip></td>
                         <td class="pa-4 text-body-2 font-weight-medium">{{ employee.phone_number || '-' }}</td>
                         <td class="pa-4 text-body-2 font-weight-bold text-indigo">{{ employee.age ? employee.age + ' л.' : '-' }}</td>
-                        <td class="pa-4 text-body-2 font-weight-medium">{{ employee.total_experience || '-' }}</td>
+                        <td class="pa-4 text-body-2 font-weight-medium">{{ formatDate(employee.total_experience) }}</td>
                         <td class="pa-4 text-center">
                             <v-btn
                                 variant="text"
@@ -702,8 +711,8 @@ function submitRotation() {
                                         <Clock style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Общий стаж работы</span>
-                                        <span class="text-body-2 font-weight-black text-teal-darken-3 font-weight-bold">{{ selectedEmployee.total_experience || '-' }}</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Дата трудоустройства с</span>
+                                        <span class="text-body-2 font-weight-black text-teal-darken-3 font-weight-bold">{{ formatDate(selectedEmployee.total_experience) }}</span>
                                     </div>
                                 </div>
                             </v-col>
@@ -979,7 +988,8 @@ function submitRotation() {
                                     <v-col cols="12" sm="6">
                                         <v-text-field
                                             v-model="form.total_experience"
-                                            label="Общий стаж работы"
+                                            label="Дата трудоустройства с"
+                                            type="date"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
