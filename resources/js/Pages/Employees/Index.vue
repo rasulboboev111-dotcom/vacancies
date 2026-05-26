@@ -404,7 +404,7 @@ function submitRotation() {
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Категория</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Тип</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Телефон</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Возраст</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Дата рождения</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Дата трудоустройства с</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo text-center">Действия</th>
                     </tr>
@@ -421,7 +421,7 @@ function submitRotation() {
                         <td class="pa-4"><v-chip size="small" color="secondary" variant="outlined">{{ employee.category?.name || '-' }}</v-chip></td>
                         <td class="pa-4"><v-chip size="small" color="teal" variant="tonal" class="font-weight-bold">{{ employee.employment_type?.name || '-' }}</v-chip></td>
                         <td class="pa-4 text-body-2 font-weight-medium">{{ employee.phone_number || '-' }}</td>
-                        <td class="pa-4 text-body-2 font-weight-bold text-indigo">{{ employee.age ? employee.age + ' л.' : '-' }}</td>
+                        <td class="pa-4 text-body-2 font-weight-bold text-indigo">{{ formatDate(employee.birth_date) }}</td>
                         <td class="pa-4 text-body-2 font-weight-medium">{{ formatDate(employee.employment_start_date) }}</td>
                         <td class="pa-4 text-center">
                             <v-btn
