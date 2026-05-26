@@ -39,13 +39,7 @@ return new class extends Migration
             $table->date('employment_start_date')->nullable();
             $table->timestamps();
 
-            // Explicit indexes for Postgres optimization
-            $table->index('branch_id');
-            $table->index('category_id');
-            $table->index('type_id');
-            $table->index('position_id');
-            $table->index('structure_id');
-            $table->index('manager_id');
+            // Explicit indexes for non-FK columns
             $table->index('full_name');
             $table->index('dismissal_date');
         });
