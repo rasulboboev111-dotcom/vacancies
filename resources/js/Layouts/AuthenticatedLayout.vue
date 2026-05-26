@@ -12,7 +12,8 @@ import {
     LogOut,
     User,
     Menu,
-    Shield
+    Shield,
+    Briefcase
 } from '@lucide/vue';
 
 const drawer = ref(true);
@@ -109,6 +110,19 @@ function logout() {
                 >
                     <template v-slot:prepend>
                         <Building2 class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    title="Должности"
+                    :active="route().current('positions.*')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('positions.index'))"
+                >
+                    <template v-slot:prepend>
+                        <Briefcase class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
                     </template>
                 </v-list-item>
 
