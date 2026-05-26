@@ -106,7 +106,7 @@ const form = useForm({
     birth_place: '',
     education: '',
     specialty: '',
-    total_experience: '',
+    employment_start_date: '',
 });
 
 // Watch filters and perform Inertia reload on change
@@ -171,7 +171,7 @@ function openEditDialog(employee) {
     form.birth_place = employee.birth_place || '';
     form.education = employee.education || '';
     form.specialty = employee.specialty || '';
-    form.total_experience = employee.total_experience || '';
+    form.employment_start_date = employee.employment_start_date || '';
     form.clearErrors();
     createEditDialog.value = true;
 }
@@ -422,7 +422,7 @@ function submitRotation() {
                         <td class="pa-4"><v-chip size="small" color="teal" variant="tonal" class="font-weight-bold">{{ employee.employment_type?.name || '-' }}</v-chip></td>
                         <td class="pa-4 text-body-2 font-weight-medium">{{ employee.phone_number || '-' }}</td>
                         <td class="pa-4 text-body-2 font-weight-bold text-indigo">{{ employee.age ? employee.age + ' л.' : '-' }}</td>
-                        <td class="pa-4 text-body-2 font-weight-medium">{{ formatDate(employee.total_experience) }}</td>
+                        <td class="pa-4 text-body-2 font-weight-medium">{{ formatDate(employee.employment_start_date) }}</td>
                         <td class="pa-4 text-center">
                             <v-btn
                                 variant="text"
@@ -712,7 +712,7 @@ function submitRotation() {
                                     </div>
                                     <div>
                                         <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Дата трудоустройства с</span>
-                                        <span class="text-body-2 font-weight-black text-teal-darken-3 font-weight-bold">{{ formatDate(selectedEmployee.total_experience) }}</span>
+                                        <span class="text-body-2 font-weight-black text-teal-darken-3 font-weight-bold">{{ formatDate(selectedEmployee.employment_start_date) }}</span>
                                     </div>
                                 </div>
                             </v-col>
@@ -987,13 +987,13 @@ function submitRotation() {
 
                                     <v-col cols="12" sm="6">
                                         <v-text-field
-                                            v-model="form.total_experience"
+                                            v-model="form.employment_start_date"
                                             label="Дата трудоустройства с"
                                             type="date"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
-                                            :error-messages="form.errors.total_experience"
+                                            :error-messages="form.errors.employment_start_date"
                                         ></v-text-field>
                                     </v-col>
 
