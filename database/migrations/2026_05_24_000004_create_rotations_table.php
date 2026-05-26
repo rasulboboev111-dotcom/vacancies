@@ -16,10 +16,10 @@ return new class extends Migration
             $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
             $table->foreignId('old_branch_id')->nullable()->constrained('branches')->nullOnDelete();
             $table->foreignId('new_branch_id')->constrained('branches')->cascadeOnDelete();
-            $table->string('old_position');
-            $table->string('new_position');
-            $table->string('old_structure');
-            $table->string('new_structure');
+            $table->foreignId('old_position_id')->nullable()->constrained('positions')->nullOnDelete();
+            $table->foreignId('new_position_id')->nullable()->constrained('positions')->nullOnDelete();
+            $table->foreignId('old_structure_id')->nullable()->constrained('structures')->nullOnDelete();
+            $table->foreignId('new_structure_id')->nullable()->constrained('structures')->nullOnDelete();
             $table->date('rotation_date');
             $table->string('reason')->nullable();
             $table->timestamps();

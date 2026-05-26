@@ -167,13 +167,13 @@ function formatDate(dateStr) {
                 <tbody>
                     <tr v-for="employee in employees.data" :key="employee.id" class="employee-row">
                         <td class="pa-4 font-weight-bold text-indigo-darken-3">{{ employee.full_name }}</td>
-                        <td class="pa-4 text-grey-darken-3 font-weight-medium">{{ employee.position }}</td>
+                        <td class="pa-4 text-grey-darken-3 font-weight-medium">{{ employee.position?.name || '-' }}</td>
                         <td class="pa-4">
                             <v-chip size="small" color="indigo" variant="flat" class="font-weight-bold">
-                                {{ employee.branch.name }}
+                                {{ employee.branch?.name }}
                             </v-chip>
                         </td>
-                        <td class="pa-4"><v-chip size="small" color="secondary" variant="outlined">{{ employee.category }}</v-chip></td>
+                        <td class="pa-4"><v-chip size="small" color="secondary" variant="outlined">{{ employee.category?.name || '-' }}</v-chip></td>
                         <td class="pa-4 text-body-2 font-weight-medium">{{ formatDate(employee.hire_date) }}</td>
                         <td class="pa-4 text-body-2 font-weight-bold text-error">{{ formatDate(employee.dismissal_date) }}</td>
                         <td class="pa-4 text-center">
@@ -280,17 +280,17 @@ function formatDate(dateStr) {
                     <v-row class="mb-4">
                         <v-col cols="12" sm="4" class="py-2">
                             <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Должность перед уходом</span>
-                            <span class="text-body-1 font-weight-bold text-indigo-darken-3">{{ selectedEmployee.position }}</span>
+                            <span class="text-body-1 font-weight-bold text-indigo-darken-3">{{ selectedEmployee.position?.name || '-' }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="4" class="py-2">
                             <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Подразделение</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.structure }}</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.structure?.name || '-' }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="4" class="py-2">
                             <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Бывший филиал</span>
-                            <span class="text-body-1 font-weight-bold text-primary">{{ selectedEmployee.branch.name }}</span>
+                            <span class="text-body-1 font-weight-bold text-primary">{{ selectedEmployee.branch?.name || '-' }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="6" class="py-2">
