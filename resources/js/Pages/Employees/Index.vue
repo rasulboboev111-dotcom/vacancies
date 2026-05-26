@@ -47,6 +47,18 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    positions: {
+        type: Array,
+        required: true,
+    },
+    structures: {
+        type: Array,
+        required: true,
+    },
+    managers: {
+        type: Array,
+        required: true,
+    },
     filters: {
         type: Object,
         required: true,
@@ -55,8 +67,8 @@ const props = defineProps({
 
 const search = ref(props.filters.search || '');
 const branchId = ref(props.filters.branch_id || null);
-const category = ref(props.filters.category || null);
-const type = ref(props.filters.type || null);
+const categoryId = ref(props.filters.category_id || null);
+const typeId = ref(props.filters.type_id || null);
 
 // Dialog controllers
 const createEditDialog = ref(false);
@@ -72,13 +84,13 @@ const activeTab = ref(0);
 
 const form = useForm({
     branch_id: null,
-    category: '',
-    type: '',
+    category_id: null,
+    type_id: null,
     full_name: '',
     gender: '',
-    position: '',
-    structure: '',
-    direct_manager: '',
+    position_id: null,
+    structure_id: null,
+    manager_id: null,
     hire_date: '',
     dismissal_date: '',
     birth_date: '',
@@ -98,7 +110,7 @@ const form = useForm({
 });
 
 // Watch filters and perform Inertia reload on change
-watch([branchId, category, type], () => {
+watch([branchId, categoryId, typeId], () => {
     applyFilters();
 });
 
@@ -106,8 +118,8 @@ function applyFilters() {
     router.get(route('employees.index'), {
         search: search.value || undefined,
         branch_id: branchId.value || undefined,
-        category: category.value || undefined,
-        type: type.value || undefined,
+        category_id: categoryId.value || undefined,
+        type_id: typeId.value || undefined,
     }, {
         preserveState: true,
         replace: true,
@@ -117,8 +129,8 @@ function applyFilters() {
 function resetFilters() {
     search.value = '';
     branchId.value = null;
-    category.value = null;
-    type.value = null;
+    categoryId.value = null;
+    typeId.value = null;
     router.get(route('employees.index'));
 }
 
@@ -137,13 +149,13 @@ function openEditDialog(employee) {
     editingEmployee.value = employee;
     activeTab.value = 0;
     form.branch_id = employee.branch_id ? Number(employee.branch_id) : null;
-    form.category = employee.category;
-    form.type = employee.type;
+    form.category_id = employee.category_id ? Number(employee.category_id) : null;
+    form.type_id = employee.type_id ? Number(employee.type_id) : null;
     form.full_name = employee.full_name;
     form.gender = employee.gender || '';
-    form.position = employee.position;
-    form.structure = employee.structure;
-    form.direct_manager = employee.direct_manager || '';
+    form.position_id = employee.position_id ? Number(employee.position_id) : null;
+    form.structure_id = employee.structure_id ? Number(employee.structure_id) : null;
+    form.manager_id = employee.manager_id ? Number(employee.manager_id) : null;
     form.hire_date = employee.hire_date ? employee.hire_date.substring(0, 10) : '';
     form.dismissal_date = employee.dismissal_date ? employee.dismissal_date.substring(0, 10) : '';
     form.birth_date = employee.birth_date ? employee.birth_date.substring(0, 10) : '';
@@ -208,8 +220,8 @@ function changePage(page) {
         page: page,
         search: search.value || undefined,
         branch_id: branchId.value || undefined,
-        category: category.value || undefined,
-        type: type.value || undefined,
+        category_id: categoryId.value || undefined,
+        type_id: typeId.value || undefined,
     }, {
         preserveState: true,
     });
@@ -225,8 +237,8 @@ function formatDate(dateStr) {
 const rotationDialog = ref(false);
 const rotationForm = useForm({
     branch_id: null,
-    position: '',
-    structure: '',
+    position_id: null,
+    structure_id: null,
     rotation_date: new Date().toISOString().substring(0, 10),
     reason: '',
 });
@@ -234,8 +246,8 @@ const rotationForm = useForm({
 function openRotationDialog(employee) {
     selectedEmployee.value = employee;
     rotationForm.branch_id = employee.branch_id ? Number(employee.branch_id) : null;
-    rotationForm.position = employee.position;
-    rotationForm.structure = employee.structure;
+    rotationForm.position_id = employee.position_id ? Number(employee.position_id) : null;
+    rotationForm.structure_id = employee.structure_id ? Number(employee.structure_id) : null;
     rotationForm.rotation_date = new Date().toISOString().substring(0, 10);
     rotationForm.reason = '';
     rotationForm.clearErrors();
@@ -307,8 +319,10 @@ function submitRotation() {
                 <!-- Category Filter -->
                 <v-col cols="12" sm="4" md="2">
                     <v-select
-                        v-model="category"
+                        v-model="categoryId"
                         :items="categories"
+                        item-title="name"
+                        item-value="id"
                         label="Категория"
                         variant="solo"
                         density="comfortable"
@@ -323,8 +337,10 @@ function submitRotation() {
                 <!-- Employment Type Filter -->
                 <v-col cols="12" sm="4" md="2">
                     <v-select
-                        v-model="type"
+                        v-model="typeId"
                         :items="types"
+                        item-title="name"
+                        item-value="id"
                         label="Тип занятости"
                         variant="solo"
                         density="comfortable"
@@ -387,14 +403,14 @@ function submitRotation() {
                 <tbody>
                     <tr v-for="employee in employees.data" :key="employee.id" class="employee-row">
                         <td class="pa-4 font-weight-bold text-indigo-darken-3">{{ employee.full_name }}</td>
-                        <td class="pa-4 text-grey-darken-3 font-weight-medium">{{ employee.position }}</td>
+                        <td class="pa-4 text-grey-darken-3 font-weight-medium">{{ employee.position?.name || '-' }}</td>
                         <td class="pa-4">
                             <v-chip size="small" color="indigo" variant="flat" class="font-weight-bold">
-                                {{ employee.branch.name }}
+                                {{ employee.branch?.name }}
                             </v-chip>
                         </td>
-                        <td class="pa-4"><v-chip size="small" color="secondary" variant="outlined">{{ employee.category }}</v-chip></td>
-                        <td class="pa-4"><v-chip size="small" color="teal" variant="tonal" class="font-weight-bold">{{ employee.type }}</v-chip></td>
+                        <td class="pa-4"><v-chip size="small" color="secondary" variant="outlined">{{ employee.category?.name || '-' }}</v-chip></td>
+                        <td class="pa-4"><v-chip size="small" color="teal" variant="tonal" class="font-weight-bold">{{ employee.employment_type?.name || '-' }}</v-chip></td>
                         <td class="pa-4 text-body-2 font-weight-medium">{{ employee.phone_number || '-' }}</td>
                         <td class="pa-4 text-body-2 font-weight-bold text-indigo">{{ employee.age ? employee.age + ' л.' : '-' }}</td>
                         <td class="pa-4 text-body-2 font-weight-medium">{{ employee.total_experience || '-' }}</td>
@@ -627,7 +643,7 @@ function submitRotation() {
                                     </div>
                                     <div>
                                         <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Должность</span>
-                                        <span class="text-body-2 font-weight-black text-indigo-darken-3">{{ selectedEmployee.position }}</span>
+                                        <span class="text-body-2 font-weight-black text-indigo-darken-3">{{ selectedEmployee.position?.name || '-' }}</span>
                                     </div>
                                 </div>
                             </v-col>
@@ -639,7 +655,7 @@ function submitRotation() {
                                     </div>
                                     <div>
                                         <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Подразделение</span>
-                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.structure }}</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.structure?.name || '-' }}</span>
                                     </div>
                                 </div>
                             </v-col>
@@ -663,7 +679,7 @@ function submitRotation() {
                                     </div>
                                     <div>
                                         <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Категория</span>
-                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.category }}</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.category?.name || '-' }}</span>
                                     </div>
                                 </div>
                             </v-col>
@@ -675,7 +691,7 @@ function submitRotation() {
                                     </div>
                                     <div>
                                         <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Руководитель</span>
-                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.direct_manager || 'Нет' }}</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.manager?.full_name || 'Нет' }}</span>
                                     </div>
                                 </div>
                             </v-col>
@@ -886,71 +902,84 @@ function submitRotation() {
                                     </v-col>
 
                                     <v-col cols="12" sm="6">
-                                        <v-text-field
-                                            v-model="form.position"
+                                        <v-autocomplete
+                                            v-model="form.position_id"
+                                            :items="positions"
+                                            item-title="name"
+                                            item-value="id"
                                             label="Должность"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
                                             required
-                                            :error-messages="form.errors.position"
-                                        ></v-text-field>
+                                            :error-messages="form.errors.position_id"
+                                        ></v-autocomplete>
                                     </v-col>
 
                                     <v-col cols="12" sm="6">
-                                        <v-text-field
-                                            v-model="form.structure"
+                                        <v-autocomplete
+                                            v-model="form.structure_id"
+                                            :items="structures"
+                                            item-title="name"
+                                            item-value="id"
                                             label="Подразделение / Отдел (Сохтор)"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
                                             required
-                                            :error-messages="form.errors.structure"
-                                        ></v-text-field>
+                                            :error-messages="form.errors.structure_id"
+                                        ></v-autocomplete>
                                     </v-col>
 
                                     <v-col cols="12" sm="6">
-                                        <v-text-field
-                                            v-model="form.category"
+                                        <v-select
+                                            v-model="form.category_id"
+                                            :items="categories"
+                                            item-title="name"
+                                            item-value="id"
                                             label="Категория"
-                                            placeholder="например, Руководство, Специалисты"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
                                             required
-                                            :error-messages="form.errors.category"
-                                        ></v-text-field>
+                                            :error-messages="form.errors.category_id"
+                                        ></v-select>
                                     </v-col>
 
                                     <v-col cols="12" sm="6">
-                                        <v-text-field
-                                            v-model="form.type"
+                                        <v-select
+                                            v-model="form.type_id"
+                                            :items="types"
+                                            item-title="name"
+                                            item-value="id"
                                             label="Тип занятости"
-                                            placeholder="например, Штатный, Контракт"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
                                             required
-                                            :error-messages="form.errors.type"
-                                        ></v-text-field>
+                                            :error-messages="form.errors.type_id"
+                                        ></v-select>
                                     </v-col>
 
                                     <v-col cols="12" sm="6">
-                                        <v-text-field
-                                            v-model="form.direct_manager"
+                                        <v-autocomplete
+                                            v-model="form.manager_id"
+                                            :items="managers"
+                                            item-title="full_name"
+                                            item-value="id"
                                             label="Непосредственный руководитель"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
-                                            :error-messages="form.errors.direct_manager"
-                                        ></v-text-field>
+                                            clearable
+                                            :error-messages="form.errors.manager_id"
+                                        ></v-autocomplete>
                                     </v-col>
 
                                     <v-col cols="12" sm="6">
                                         <v-text-field
                                             v-model="form.total_experience"
                                             label="Общий стаж работы"
-                                            placeholder="например, 12 солу 3 моҳ"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1017,7 +1046,6 @@ function submitRotation() {
                                         <v-text-field
                                             v-model="form.nationality"
                                             label="Национальность"
-                                            placeholder="например, Тоҷик"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1029,7 +1057,6 @@ function submitRotation() {
                                         <v-text-field
                                             v-model="form.phone_number"
                                             label="Номер телефона"
-                                            placeholder="например, 988080878"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1041,7 +1068,6 @@ function submitRotation() {
                                         <v-text-field
                                             v-model="form.birth_place"
                                             label="Место рождения"
-                                            placeholder="например, ш. Душанбе"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1053,7 +1079,6 @@ function submitRotation() {
                                         <v-text-field
                                             v-model="form.education"
                                             label="Образование"
-                                            placeholder="например, Олӣ (магистр)"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1065,7 +1090,6 @@ function submitRotation() {
                                         <v-text-field
                                             v-model="form.specialty"
                                             label="Ихтисос (Специальность)"
-                                            placeholder="например, Барномасоз"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1077,7 +1101,6 @@ function submitRotation() {
                                         <v-text-field
                                             v-model="form.address"
                                             label="Адрес проживания"
-                                            placeholder="город, улица, дом, кв."
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1094,7 +1117,6 @@ function submitRotation() {
                                         <v-text-field
                                             v-model="form.passport_number"
                                             label="Номер паспорта"
-                                            placeholder="например, A05977277"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1294,27 +1316,33 @@ function submitRotation() {
                             :disabled="$page.props.auth.user.roles.includes('Branch Manager')"
                         ></v-select>
 
-                        <v-text-field
-                            v-model="rotationForm.position"
+                        <v-autocomplete
+                            v-model="rotationForm.position_id"
+                            :items="positions"
+                            item-title="name"
+                            item-value="id"
                             label="Новая должность"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
                             required
-                            :error-messages="rotationForm.errors.position"
+                            :error-messages="rotationForm.errors.position_id"
                             class="mb-4"
-                        ></v-text-field>
+                        ></v-autocomplete>
 
-                        <v-text-field
-                            v-model="rotationForm.structure"
+                        <v-autocomplete
+                            v-model="rotationForm.structure_id"
+                            :items="structures"
+                            item-title="name"
+                            item-value="id"
                             label="Новое подразделение / отдел (Сохтор)"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
                             required
-                            :error-messages="rotationForm.errors.structure"
+                            :error-messages="rotationForm.errors.structure_id"
                             class="mb-4"
-                        ></v-text-field>
+                        ></v-autocomplete>
 
                         <v-text-field
                             v-model="rotationForm.rotation_date"
@@ -1331,12 +1359,10 @@ function submitRotation() {
                         <v-textarea
                             v-model="rotationForm.reason"
                             label="Причина / Основание ротации"
-                            placeholder="например, перевод в связи с продвижением или производственной необходимостью"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
                             rows="3"
-                            persistent-placeholder
                             :error-messages="rotationForm.errors.reason"
                         ></v-textarea>
                     </v-form>
