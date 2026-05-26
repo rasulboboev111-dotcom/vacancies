@@ -17,13 +17,18 @@ class EmployeeController extends Controller
      */
     public function index(Request $request): Response
     {
+        \Illuminate\Support\Facades\Gate::authorize('viewAny', Employee::class);
+
         $user = $request->user();
         $query = Employee::with(['branch', 'category', 'employmentType', 'position', 'structure', 'manager'])->whereNull('dismissal_date');
 
-        // Scoping for Branch Manager: only show employees of their branch
-        if ($user->hasRole('Branch Manager')) {
-            $branchId = $user->branch_id;
-            $query->where('branch_id', $branchId);
+        // Scoping for non-admins: restrict by branch_id
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id !== null) {
+                $query->where('branch_id', $user->branch_id);
+            } else {
+                $query->whereRaw('1=0');
+            }
         } elseif ($request->filled('branch_id')) {
             $query->where('branch_id', $request->input('branch_id'));
         }
@@ -55,17 +60,34 @@ class EmployeeController extends Controller
 
         // Get branches list for filters / forms
         $branchesQuery = Branch::query();
-        if ($user->hasRole('Branch Manager')) {
-            $branchesQuery->where('id', $user->branch_id);
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id !== null) {
+                $branchesQuery->where('id', $user->branch_id);
+            } else {
+                $branchesQuery->whereRaw('1=0');
+            }
         }
         $branches = $branchesQuery->orderBy('name')->get();
 
         // Get lookup tables
-        $categories = \App\Models\Category::orderBy('name')->get();
-        $types = \App\Models\EmploymentType::orderBy('name')->get();
-        $positions = \App\Models\Position::orderBy('name')->get();
-        $structures = \App\Models\Structure::orderBy('name')->get();
-        $managers = Employee::orderBy('full_name')->get(['id', 'full_name']);
+        if (!$user->hasRole('Admin') && $user->branch_id === null) {
+            $categories = collect();
+            $types = collect();
+            $positions = collect();
+            $structures = collect();
+            $managers = collect();
+        } else {
+            $categories = \App\Models\Category::orderBy('name')->get();
+            $types = \App\Models\EmploymentType::orderBy('name')->get();
+            $positions = \App\Models\Position::orderBy('name')->get();
+            $structures = \App\Models\Structure::orderBy('name')->get();
+            
+            if (!$user->hasRole('Admin')) {
+                $managers = Employee::where('branch_id', $user->branch_id)->orderBy('full_name')->get(['id', 'full_name']);
+            } else {
+                $managers = Employee::orderBy('full_name')->get(['id', 'full_name']);
+            }
+        }
 
         return Inertia::render('Employees/Index', [
             'employees' => $employees,
@@ -113,9 +135,14 @@ class EmployeeController extends Controller
             'employment_start_date' => 'nullable|date',
         ]);
 
-        // Branch Manager can only add employees to their own branch
-        if ($user->hasRole('Branch Manager') && $validated['branch_id'] != $user->branch_id) {
-            abort(403, 'Вы можете добавлять сотрудников только в свой филиал.');
+        // Non-admin can only add employees to their own branch
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id === null) {
+                abort(403, 'У вас нет прав для добавления сотрудников.');
+            }
+            if ($validated['branch_id'] != $user->branch_id) {
+                abort(403, 'Вы можете добавлять сотрудников только в свой филиал.');
+            }
         }
 
         $employee = Employee::create($validated);
@@ -137,9 +164,11 @@ class EmployeeController extends Controller
     {
         $user = $request->user();
 
-        // Branch Manager can only update employees of their own branch
-        if ($user->hasRole('Branch Manager') && $employee->branch_id != $user->branch_id) {
-            abort(403, 'Вы можете редактировать сотрудников только своего филиала.');
+        // Non-admin can only update employees of their own branch
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id === null || $employee->branch_id != $user->branch_id) {
+                abort(403, 'Вы можете редактировать сотрудников только своего филиала.');
+            }
         }
 
         $validated = $request->validate([
@@ -169,8 +198,8 @@ class EmployeeController extends Controller
             'employment_start_date' => 'nullable|date',
         ]);
 
-        // Branch Manager cannot transfer employee to another branch
-        if ($user->hasRole('Branch Manager') && $validated['branch_id'] != $user->branch_id) {
+        // Non-admin cannot transfer employee to another branch
+        if (!$user->hasRole('Admin') && $validated['branch_id'] != $user->branch_id) {
             abort(403, 'Вы не можете переводить сотрудников в другой филиал.');
         }
 
@@ -192,9 +221,11 @@ class EmployeeController extends Controller
     {
         $user = $request->user();
 
-        // Branch Manager can only delete employees of their own branch
-        if ($user->hasRole('Branch Manager') && $employee->branch_id != $user->branch_id) {
-            abort(403, 'Вы можете удалять сотрудников только своего филиала.');
+        // Non-admin can only delete employees of their own branch
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id === null || $employee->branch_id != $user->branch_id) {
+                abort(403, 'Вы можете удалять сотрудников только своего филиала.');
+            }
         }
 
         $fullName = $employee->full_name;
@@ -216,10 +247,13 @@ class EmployeeController extends Controller
         $user = $request->user();
         $query = Employee::with(['branch', 'category', 'employmentType', 'position', 'structure', 'manager'])->whereNotNull('dismissal_date');
 
-        // Scoping for Branch Manager: only show employees of their branch
-        if ($user->hasRole('Branch Manager')) {
-            $branchId = $user->branch_id;
-            $query->where('branch_id', $branchId);
+        // Scoping for non-admins
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id !== null) {
+                $query->where('branch_id', $user->branch_id);
+            } else {
+                $query->whereRaw('1=0');
+            }
         } elseif ($request->filled('branch_id')) {
             $query->where('branch_id', $request->input('branch_id'));
         }
@@ -239,8 +273,12 @@ class EmployeeController extends Controller
         $employees = $query->latest('dismissal_date')->paginate(10)->withQueryString();
 
         $branchesQuery = Branch::query();
-        if ($user->hasRole('Branch Manager')) {
-            $branchesQuery->where('id', $user->branch_id);
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id !== null) {
+                $branchesQuery->where('id', $user->branch_id);
+            } else {
+                $branchesQuery->whereRaw('1=0');
+            }
         }
         $branches = $branchesQuery->orderBy('name')->get();
 
@@ -263,9 +301,11 @@ class EmployeeController extends Controller
             abort(403, 'Недостаточно прав.');
         }
 
-        // Branch Manager can only rotate employees of their own branch
-        if ($user->hasRole('Branch Manager') && $employee->branch_id != $user->branch_id) {
-            abort(403, 'Вы можете проводить ротацию только сотрудников своего филиала.');
+        // Non-admin can only rotate employees of their own branch
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id === null || $employee->branch_id != $user->branch_id) {
+                abort(403, 'Вы можете проводить ротацию только сотрудников своего филиала.');
+            }
         }
 
         $validated = $request->validate([
@@ -276,8 +316,8 @@ class EmployeeController extends Controller
             'reason' => 'nullable|string|max:1000',
         ]);
 
-        // Branch Manager cannot rotate employee to another branch
-        if ($user->hasRole('Branch Manager') && $validated['branch_id'] != $user->branch_id) {
+        // Non-admin cannot rotate employee to another branch
+        if (!$user->hasRole('Admin') && $validated['branch_id'] != $user->branch_id) {
             abort(403, 'Вы не можете переводить сотрудников в другой филиал.');
         }
 
@@ -325,13 +365,17 @@ class EmployeeController extends Controller
         $user = $request->user();
         $query = Rotation::with(['employee', 'oldBranch', 'newBranch', 'oldPosition', 'newPosition', 'oldStructure', 'newStructure']);
 
-        // Scoping for Branch Manager: only show rotations in their branch (either old or new)
-        if ($user->hasRole('Branch Manager')) {
-            $branchId = $user->branch_id;
-            $query->where(function ($q) use ($branchId) {
-                $q->where('old_branch_id', $branchId)
-                  ->orWhere('new_branch_id', $branchId);
-            });
+        // Scoping for non-admins: show rotations in their branch (either old or new)
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id !== null) {
+                $branchId = $user->branch_id;
+                $query->where(function ($q) use ($branchId) {
+                    $q->where('old_branch_id', $branchId)
+                      ->orWhere('new_branch_id', $branchId);
+                });
+            } else {
+                $query->whereRaw('1=0');
+            }
         }
 
         $rotations = $query->latest('rotation_date')->paginate(15);

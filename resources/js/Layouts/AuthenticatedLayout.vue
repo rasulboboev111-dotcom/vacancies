@@ -126,6 +126,21 @@ function logout() {
                     </template>
                 </v-list-item>
 
+                <!-- Show only for Admin -->
+                <v-list-item
+                    v-if="$page.props.auth.user.roles.includes('Admin')"
+                    title="Пользователи"
+                    :active="route().current('users.*')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('users.index'))"
+                >
+                    <template v-slot:prepend>
+                        <Shield class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
                 <!-- Show only for Admin or HR Manager who has view audit logs permission or has role -->
                 <v-list-item
                     v-if="$page.props.auth.user.roles.includes('Admin') || $page.props.auth.user.roles.includes('HR Manager')"
@@ -194,7 +209,7 @@ function logout() {
                             <p class="text-caption text-grey mt-1 font-weight-medium">{{ $page.props.auth.user.email }}</p>
                             
                             <v-chip size="small" color="indigo" variant="tonal" class="mt-2 font-weight-black text-uppercase">
-                                {{ $page.props.auth.user.roles.join(', ') }}
+                                {{ $page.props.auth.user.roles.length > 0 ? $page.props.auth.user.roles.join(', ') : 'Нет роли' }}
                             </v-chip>
 
                             <v-divider class="my-3"></v-divider>
