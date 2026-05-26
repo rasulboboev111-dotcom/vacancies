@@ -36,8 +36,18 @@ return new class extends Migration
             $table->string('birth_place')->nullable();
             $table->string('education')->nullable();
             $table->string('specialty')->nullable();
-            $table->string('total_experience')->nullable();
+            $table->date('employment_start_date')->nullable();
             $table->timestamps();
+
+            // Explicit indexes for Postgres optimization
+            $table->index('branch_id');
+            $table->index('category_id');
+            $table->index('type_id');
+            $table->index('position_id');
+            $table->index('structure_id');
+            $table->index('manager_id');
+            $table->index('full_name');
+            $table->index('dismissal_date');
         });
     }
 

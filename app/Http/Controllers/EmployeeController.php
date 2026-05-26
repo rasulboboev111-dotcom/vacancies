@@ -110,7 +110,7 @@ class EmployeeController extends Controller
             'birth_place' => 'nullable|string|max:255',
             'education' => 'nullable|string|max:255',
             'specialty' => 'nullable|string|max:255',
-            'total_experience' => 'nullable|string|max:255',
+            'employment_start_date' => 'nullable|date',
         ]);
 
         // Branch Manager can only add employees to their own branch
@@ -166,7 +166,7 @@ class EmployeeController extends Controller
             'birth_place' => 'nullable|string|max:255',
             'education' => 'nullable|string|max:255',
             'specialty' => 'nullable|string|max:255',
-            'total_experience' => 'nullable|string|max:255',
+            'employment_start_date' => 'nullable|date',
         ]);
 
         // Branch Manager cannot transfer employee to another branch

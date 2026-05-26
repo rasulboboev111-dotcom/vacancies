@@ -40,7 +40,7 @@ class Employee extends Model
                 'birth_place',
                 'education',
                 'specialty',
-                'total_experience',
+                'employment_start_date',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
@@ -70,7 +70,7 @@ class Employee extends Model
         'birth_place',
         'education',
         'specialty',
-        'total_experience',
+        'employment_start_date',
     ];
 
     protected $casts = [
@@ -79,6 +79,7 @@ class Employee extends Model
         'birth_date' => 'date',
         'passport_start_date' => 'date',
         'passport_end_date' => 'date',
+        'employment_start_date' => 'date',
     ];
 
     protected $appends = ['age'];

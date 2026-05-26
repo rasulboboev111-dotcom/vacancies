@@ -49,7 +49,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'ш. Душанбе',
                 'education' => 'Олӣ (магистр)',
                 'specialty' => 'Муҳандиси техникӣ',
-                'total_experience' => '12 солу 3 моҳ',
+                'employment_start_date' => '2009-01-15',
             ],
             [
                 'branch_id' => $dsh->id,
@@ -75,7 +75,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'в. Суғд',
                 'education' => 'Олӣ (бакалавр)',
                 'specialty' => 'Иқтисоддон',
-                'total_experience' => '17 солу 11 моҳ',
+                'employment_start_date' => '2001-07-24',
             ],
             [
                 'branch_id' => $dsh->id,
@@ -101,7 +101,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'в. Хатлон',
                 'education' => 'Олӣ (магистр)',
                 'specialty' => 'Барномасоз',
-                'total_experience' => '11 солу 10 моҳ',
+                'employment_start_date' => '2008-04-10',
             ],
             [
                 'branch_id' => $dsh->id,
@@ -127,7 +127,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'ш. Ваҳдат',
                 'education' => 'Олӣ (бакалавр)',
                 'specialty' => 'Ҳуқуқшинос',
-                'total_experience' => '15 солу 2 моҳ',
+                'employment_start_date' => '2003-07-01',
             ],
             
             // Khujand
@@ -155,7 +155,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'в. Суғд',
                 'education' => 'Олӣ (магистр)',
                 'specialty' => 'Муҳандиси техникӣ',
-                'total_experience' => '16 солу 5 моҳ',
+                'employment_start_date' => '2000-08-10',
             ],
             [
                 'branch_id' => $kjd->id,
@@ -181,7 +181,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'н. Б.Гафуров',
                 'education' => 'Олӣ (бакалавр)',
                 'specialty' => 'Иқтисоддон',
-                'total_experience' => '5 солу 9 моҳ',
+                'employment_start_date' => '2016-11-15',
             ],
 
             // Bokhtar
@@ -209,7 +209,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'г. Бохтар',
                 'education' => 'Олӣ (магистр)',
                 'specialty' => 'Менеджер',
-                'total_experience' => '8 солу 2 моҳ',
+                'employment_start_date' => '2012-09-20',
             ],
 
             // Kulob
@@ -237,7 +237,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'г. Куляб',
                 'education' => 'Олӣ (бакалавр)',
                 'specialty' => 'Муҳандис',
-                'total_experience' => '14 солу 1 моҳ',
+                'employment_start_date' => '2005-03-01',
             ],
 
             // Khorugh
@@ -265,7 +265,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'ВМКБ',
                 'education' => 'Олӣ (бакалавр)',
                 'specialty' => 'Иқтисоддон',
-                'total_experience' => '7 солу 6 моҳ',
+                'employment_start_date' => '2015-04-15',
             ],
         ];
 

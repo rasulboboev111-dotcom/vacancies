@@ -294,9 +294,9 @@ function formatDate(dateStr) {
                             <span class="text-body-1 font-weight-bold text-error font-weight-black">{{ formatDate(selectedEmployee.dismissal_date) }}</span>
                         </v-col>
 
-                        <v-col cols="12" class="py-2" v-if="selectedEmployee.total_experience">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Общий стаж работы</span>
-                            <span class="text-body-1 font-weight-bold text-teal">{{ selectedEmployee.total_experience }}</span>
+                        <v-col cols="12" class="py-2" v-if="selectedEmployee.employment_start_date">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата трудоустройства с</span>
+                            <span class="text-body-1 font-weight-bold text-teal">{{ formatDate(selectedEmployee.employment_start_date) }}</span>
                         </v-col>
                     </v-row>
 
