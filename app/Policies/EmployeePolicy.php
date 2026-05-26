@@ -12,7 +12,11 @@ class EmployeePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('view employees') || $user->hasRole('Admin');
+        if ($user->hasRole('Admin')) {
+            return true;
+        }
+
+        return $user->branch_id !== null && $user->hasPermissionTo('view employees');
     }
 
     /**
@@ -20,15 +24,15 @@ class EmployeePolicy
      */
     public function view(User $user, Employee $employee): bool
     {
-        if (!$user->hasPermissionTo('view employees') && !$user->hasRole('Admin')) {
+        if ($user->hasRole('Admin')) {
+            return true;
+        }
+
+        if ($user->branch_id === null || !$user->hasPermissionTo('view employees')) {
             return false;
         }
 
-        if ($user->hasRole('Branch Manager')) {
-            return $employee->branch_id === $user->branch_id;
-        }
-
-        return true;
+        return $employee->branch_id === $user->branch_id;
     }
 
     /**
@@ -36,7 +40,11 @@ class EmployeePolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('create employees') || $user->hasRole('Admin');
+        if ($user->hasRole('Admin')) {
+            return true;
+        }
+
+        return $user->branch_id !== null && $user->hasPermissionTo('create employees');
     }
 
     /**
@@ -44,15 +52,15 @@ class EmployeePolicy
      */
     public function update(User $user, Employee $employee): bool
     {
-        if (!$user->hasPermissionTo('edit employees') && !$user->hasRole('Admin')) {
+        if ($user->hasRole('Admin')) {
+            return true;
+        }
+
+        if ($user->branch_id === null || !$user->hasPermissionTo('edit employees')) {
             return false;
         }
 
-        if ($user->hasRole('Branch Manager')) {
-            return $employee->branch_id === $user->branch_id;
-        }
-
-        return true;
+        return $employee->branch_id === $user->branch_id;
     }
 
     /**
@@ -60,14 +68,14 @@ class EmployeePolicy
      */
     public function delete(User $user, Employee $employee): bool
     {
-        if (!$user->hasPermissionTo('delete employees') && !$user->hasRole('Admin')) {
+        if ($user->hasRole('Admin')) {
+            return true;
+        }
+
+        if ($user->branch_id === null || !$user->hasPermissionTo('delete employees')) {
             return false;
         }
 
-        if ($user->hasRole('Branch Manager')) {
-            return $employee->branch_id === $user->branch_id;
-        }
-
-        return true;
+        return $employee->branch_id === $user->branch_id;
     }
 }

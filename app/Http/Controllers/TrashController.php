@@ -26,11 +26,17 @@ class TrashController extends Controller
         // Build query for branches
         $branchesQuery = Branch::onlyTrashed();
 
-        // Scope to current branch for Branch Manager
-        if ($user->hasRole('Branch Manager')) {
-            $employeesQuery->where('branch_id', $user->branch_id);
-            $usersQuery->where('branch_id', $user->branch_id);
-            $branchesQuery->where('id', $user->branch_id);
+        // Scope to current branch for non-admins
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id !== null) {
+                $employeesQuery->where('branch_id', $user->branch_id);
+                $branchesQuery->where('id', $user->branch_id);
+            } else {
+                $employeesQuery->whereRaw('1=0');
+                $branchesQuery->whereRaw('1=0');
+            }
+            // Non-admins cannot see soft-deleted users
+            $usersQuery->whereRaw('1=0');
         }
 
         return Inertia::render('Trash/Index', [
@@ -52,8 +58,10 @@ class TrashController extends Controller
 
         $employee = Employee::onlyTrashed()->findOrFail($id);
 
-        if ($user->hasRole('Branch Manager') && $employee->branch_id != $user->branch_id) {
-            abort(403, 'Вы можете восстанавливать только сотрудников своего филиала.');
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id === null || $employee->branch_id != $user->branch_id) {
+                abort(403, 'Вы можете восстанавливать только сотрудников своего филиала.');
+            }
         }
 
         $employee->restore();
@@ -73,8 +81,10 @@ class TrashController extends Controller
 
         $employee = Employee::onlyTrashed()->findOrFail($id);
 
-        if ($user->hasRole('Branch Manager') && $employee->branch_id != $user->branch_id) {
-            abort(403, 'Вы можете удалять сотрудников только своего филиала.');
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id === null || $employee->branch_id != $user->branch_id) {
+                abort(403, 'Вы можете удалять сотрудников только своего филиала.');
+            }
         }
 
         $fullName = $employee->full_name;
@@ -89,7 +99,7 @@ class TrashController extends Controller
     public function restoreBranch(Request $request, $id): RedirectResponse
     {
         $user = $request->user();
-        if (!$user->hasRole('Super Admin') && !$user->hasRole('Admin') && $user->hasRole('Branch Manager')) {
+        if (!$user->hasRole('Admin')) {
             abort(403, 'У вас нет прав для восстановления филиалов.');
         }
 
@@ -105,7 +115,7 @@ class TrashController extends Controller
     public function forceDeleteBranch(Request $request, $id): RedirectResponse
     {
         $user = $request->user();
-        if (!$user->hasRole('Super Admin') && !$user->hasRole('Admin')) {
+        if (!$user->hasRole('Admin')) {
             abort(403, 'У вас нет прав для окончательного удаления филиалов.');
         }
 
@@ -123,22 +133,14 @@ class TrashController extends Controller
         return redirect()->back()->with('success', "Филиал '{$name}' был окончательно удален из базы данных.");
     }
 
-    /**
-     * Restore the specified soft-deleted user.
-     */
     public function restoreUser(Request $request, $id): RedirectResponse
     {
         $user = $request->user();
-        if ($user->hasRole('Viewer')) {
+        if (!$user->hasRole('Admin')) {
             abort(403, 'Недостаточно прав.');
         }
 
         $targetUser = User::onlyTrashed()->findOrFail($id);
-
-        if ($user->hasRole('Branch Manager') && $targetUser->branch_id != $user->branch_id) {
-            abort(403, 'Вы можете восстанавливать только пользователей своего филиала.');
-        }
-
         $targetUser->restore();
 
         return redirect()->back()->with('success', "Пользователь '{$targetUser->name}' успешно восстановлен.");
@@ -150,7 +152,7 @@ class TrashController extends Controller
     public function forceDeleteUser(Request $request, $id): RedirectResponse
     {
         $user = $request->user();
-        if (!$user->hasRole('Super Admin') && !$user->hasRole('Admin')) {
+        if (!$user->hasRole('Admin')) {
             abort(403, 'У вас нет прав для окончательного удаления пользователей.');
         }
 

@@ -14,13 +14,22 @@ class BranchController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         Gate::authorize('viewAny', Branch::class);
 
-        $branches = Branch::withCount('employees')
-            ->orderBy('name')
-            ->get();
+        $user = $request->user();
+        $query = Branch::withCount('employees');
+
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id !== null) {
+                $query->where('id', $user->branch_id);
+            } else {
+                $query->whereRaw('1=0');
+            }
+        }
+
+        $branches = $query->orderBy('name')->get();
 
         return Inertia::render('Branches/Index', [
             'branches' => $branches,

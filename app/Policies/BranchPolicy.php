@@ -12,7 +12,11 @@ class BranchPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasPermissionTo('view branches') || $user->hasRole('Admin');
+        if ($user->hasRole('Admin')) {
+            return true;
+        }
+
+        return $user->branch_id !== null && $user->hasPermissionTo('view branches');
     }
 
     /**
@@ -20,7 +24,15 @@ class BranchPolicy
      */
     public function view(User $user, Branch $branch): bool
     {
-        return $user->hasPermissionTo('view branches') || $user->hasRole('Admin');
+        if ($user->hasRole('Admin')) {
+            return true;
+        }
+
+        if ($user->branch_id === null || !$user->hasPermissionTo('view branches')) {
+            return false;
+        }
+
+        return $branch->id === $user->branch_id;
     }
 
     /**
@@ -28,7 +40,11 @@ class BranchPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasPermissionTo('create branches') || $user->hasRole('Admin');
+        if ($user->hasRole('Admin')) {
+            return true;
+        }
+
+        return $user->branch_id !== null && $user->hasPermissionTo('create branches');
     }
 
     /**
@@ -36,7 +52,15 @@ class BranchPolicy
      */
     public function update(User $user, Branch $branch): bool
     {
-        return $user->hasPermissionTo('edit branches') || $user->hasRole('Admin');
+        if ($user->hasRole('Admin')) {
+            return true;
+        }
+
+        if ($user->branch_id === null || !$user->hasPermissionTo('edit branches')) {
+            return false;
+        }
+
+        return $branch->id === $user->branch_id;
     }
 
     /**
@@ -44,6 +68,14 @@ class BranchPolicy
      */
     public function delete(User $user, Branch $branch): bool
     {
-        return $user->hasPermissionTo('delete branches') || $user->hasRole('Admin');
+        if ($user->hasRole('Admin')) {
+            return true;
+        }
+
+        if ($user->branch_id === null || !$user->hasPermissionTo('delete branches')) {
+            return false;
+        }
+
+        return $branch->id === $user->branch_id;
     }
 }

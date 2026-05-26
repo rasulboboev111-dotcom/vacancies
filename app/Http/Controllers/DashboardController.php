@@ -16,13 +16,45 @@ class DashboardController extends Controller
      */
     public function index(): Response
     {
+        $user = auth()->user();
+
         // Total stats
-        $totalEmployees = Employee::count();
-        $totalBranches = Branch::count();
+        $totalEmployees = Employee::query();
+        $totalBranches = Branch::query();
+
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id !== null) {
+                $totalEmployees->where('branch_id', $user->branch_id);
+                $totalBranches->where('id', $user->branch_id);
+            } else {
+                $totalEmployees->whereRaw('1=0');
+                $totalBranches->whereRaw('1=0');
+            }
+        }
+
+        $totalEmployeesCount = $totalEmployees->count();
+        $totalBranchesCount = $totalBranches->count();
 
         // Branch distribution
-        $branchStats = Branch::withCount('employees')
-            ->get()
+        $branchStatsQuery = Branch::withCount(['employees' => function($q) use ($user) {
+            if (!$user->hasRole('Admin')) {
+                if ($user->branch_id !== null) {
+                    $q->where('branch_id', $user->branch_id);
+                } else {
+                    $q->whereRaw('1=0');
+                }
+            }
+        }]);
+
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id !== null) {
+                $branchStatsQuery->where('id', $user->branch_id);
+            } else {
+                $branchStatsQuery->whereRaw('1=0');
+            }
+        }
+
+        $branchStats = $branchStatsQuery->orderBy('name')->get()
             ->map(function ($branch) {
                 return [
                     'id' => $branch->id,
@@ -33,20 +65,57 @@ class DashboardController extends Controller
             });
 
         // Category distribution
-        $categoryStats = Employee::leftJoin('categories', 'employees.category_id', '=', 'categories.id')
-            ->select(DB::raw("COALESCE(categories.name, 'Не указано') as category"), DB::raw('count(*) as count'))
-            ->groupBy(DB::raw("COALESCE(categories.name, 'Не указано')"))
-            ->get();
+        $categoryStatsQuery = Employee::leftJoin('categories', 'employees.category_id', '=', 'categories.id')
+            ->select(DB::raw("COALESCE(categories.name, 'Не указано') as category"), DB::raw('count(*) as count'));
+
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id !== null) {
+                $categoryStatsQuery->where('employees.branch_id', $user->branch_id);
+            } else {
+                $categoryStatsQuery->whereRaw('1=0');
+            }
+        }
+
+        $categoryStats = $categoryStatsQuery->groupBy(DB::raw("COALESCE(categories.name, 'Не указано')"))->get();
 
         // Type distribution
-        $typeStats = Employee::leftJoin('employment_types', 'employees.type_id', '=', 'employment_types.id')
-            ->select(DB::raw("COALESCE(employment_types.name, 'Не указано') as type"), DB::raw('count(*) as count'))
-            ->groupBy(DB::raw("COALESCE(employment_types.name, 'Не указано')"))
-            ->get();
+        $typeStatsQuery = Employee::leftJoin('employment_types', 'employees.type_id', '=', 'employment_types.id')
+            ->select(DB::raw("COALESCE(employment_types.name, 'Не указано') as type"), DB::raw('count(*) as count'));
+
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id !== null) {
+                $typeStatsQuery->where('employees.branch_id', $user->branch_id);
+            } else {
+                $typeStatsQuery->whereRaw('1=0');
+            }
+        }
+
+        $typeStats = $typeStatsQuery->groupBy(DB::raw("COALESCE(employment_types.name, 'Не указано')"))->get();
 
         // Recent activity logs
-        $recentActivities = Activity::with('causer')
-            ->latest()
+        $recentActivitiesQuery = Activity::with('causer');
+
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id !== null) {
+                $recentActivitiesQuery->where(function($q) use ($user) {
+                    $q->where('causer_id', $user->id)
+                      ->orWhere(function($subQ) use ($user) {
+                          $subQ->where('subject_type', Employee::class)
+                               ->whereIn('subject_id', function($subQuery) use ($user) {
+                                   $subQuery->select('id')->from('employees')->where('branch_id', $user->branch_id);
+                                });
+                      })
+                      ->orWhere(function($subQ) use ($user) {
+                          $subQ->where('subject_type', Branch::class)
+                               ->where('subject_id', $user->branch_id);
+                      });
+                });
+            } else {
+                $recentActivitiesQuery->whereRaw('1=0');
+            }
+        }
+
+        $recentActivities = $recentActivitiesQuery->latest()
             ->limit(10)
             ->get()
             ->map(function ($activity) {
@@ -63,8 +132,8 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard', [
             'stats' => [
-                'total_employees' => $totalEmployees,
-                'total_branches' => $totalBranches,
+                'total_employees' => $totalEmployeesCount,
+                'total_branches' => $totalBranchesCount,
                 'branch_stats' => $branchStats,
                 'category_stats' => $categoryStats,
                 'type_stats' => $typeStats,

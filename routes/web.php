@@ -7,6 +7,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TrashController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -30,6 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('employees', EmployeeController::class)->except(['show', 'create', 'edit']);
     Route::resource('branches', BranchController::class)->except(['show', 'create', 'edit']);
     Route::resource('positions', PositionController::class)->except(['show', 'create', 'edit']);
+    Route::resource('users', UserController::class)->except(['show', 'create', 'edit']);
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
 
     // Trash / Recycle Bin

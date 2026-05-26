@@ -15,13 +15,27 @@ class PositionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         Gate::authorize('viewAny', Position::class);
 
-        $positions = Position::withCount('employees')
-            ->orderBy('name')
-            ->get();
+        $user = $request->user();
+        
+        $query = Position::withCount(['employees' => function ($q) use ($user) {
+            if (!$user->hasRole('Admin')) {
+                if ($user->branch_id !== null) {
+                    $q->where('branch_id', $user->branch_id);
+                } else {
+                    $q->whereRaw('1=0');
+                }
+            }
+        }]);
+
+        if (!$user->hasRole('Admin') && $user->branch_id === null) {
+            $query->whereRaw('1=0');
+        }
+
+        $positions = $query->orderBy('name')->get();
 
         return Inertia::render('Positions/Index', [
             'positions' => $positions,
