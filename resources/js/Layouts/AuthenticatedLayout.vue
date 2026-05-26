@@ -1,6 +1,5 @@
 <script setup>
 import { ref } from 'vue';
-import { useTheme } from 'vuetify';
 import { router } from '@inertiajs/vue3';
 import { 
     LayoutDashboard, 
@@ -9,8 +8,6 @@ import {
     Archive, 
     Building2, 
     History, 
-    Sun, 
-    Moon, 
     LogOut,
     User,
     Menu,
@@ -18,11 +15,6 @@ import {
 } from '@lucide/vue';
 
 const drawer = ref(true);
-const theme = useTheme();
-
-function toggleTheme() {
-    theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark';
-}
 
 function logout() {
     router.post(route('logout'));
@@ -149,12 +141,6 @@ function logout() {
             </v-toolbar-title>
 
             <v-spacer></v-spacer>
-
-            <!-- Theme Toggle -->
-            <v-btn icon @click="toggleTheme" class="mr-2">
-                <Sun v-if="theme.global.current.value.dark" class="h-5 w-5" />
-                <Moon v-else class="h-5 w-5" />
-            </v-btn>
 
             <!-- User Menu -->
             <v-menu min-width="200px" rounded="xl">
