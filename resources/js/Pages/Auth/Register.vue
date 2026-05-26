@@ -22,11 +22,11 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Register" />
+        <Head title="Регистрация" />
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="name" value="Name" />
+                <InputLabel for="name" value="Имя" />
 
                 <TextInput
                     id="name"
@@ -36,13 +36,14 @@ const submit = () => {
                     required
                     autofocus
                     autocomplete="name"
+                    placeholder="Введите ваше имя"
                 />
 
                 <InputError class="mt-2" :message="form.errors.name" />
             </div>
 
             <div class="mt-4">
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="Электронная почта" />
 
                 <TextInput
                     id="email"
@@ -51,13 +52,14 @@ const submit = () => {
                     v-model="form.email"
                     required
                     autocomplete="username"
+                    placeholder="example@mail.ru"
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="Пароль" />
 
                 <TextInput
                     id="password"
@@ -66,6 +68,7 @@ const submit = () => {
                     v-model="form.password"
                     required
                     autocomplete="new-password"
+                    placeholder="••••••••"
                 />
 
                 <InputError class="mt-2" :message="form.errors.password" />
@@ -74,7 +77,7 @@ const submit = () => {
             <div class="mt-4">
                 <InputLabel
                     for="password_confirmation"
-                    value="Confirm Password"
+                    value="Подтверждение пароля"
                 />
 
                 <TextInput
@@ -84,6 +87,7 @@ const submit = () => {
                     v-model="form.password_confirmation"
                     required
                     autocomplete="new-password"
+                    placeholder="••••••••"
                 />
 
                 <InputError
@@ -92,20 +96,20 @@ const submit = () => {
                 />
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
+            <div class="mt-6 flex items-center justify-between">
                 <Link
                     :href="route('login')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    class="rounded-md text-sm text-slate-400 hover:text-white transition-colors duration-200"
                 >
-                    Already registered?
+                    Уже зарегистрированы?
                 </Link>
 
                 <PrimaryButton
-                    class="ms-4"
+                    class="ms-4 px-6 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold transition-all duration-300"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Register
+                    Зарегистрироваться
                 </PrimaryButton>
             </div>
         </form>

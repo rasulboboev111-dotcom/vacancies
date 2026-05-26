@@ -216,10 +216,10 @@ function formatDate(dateStr) {
         <v-dialog v-model="viewDialog" max-width="800px" scrollable>
             <v-card v-if="selectedEmployee" class="rounded-2xl border" style="overflow: hidden;">
                 <!-- Header -->
-                <div class="pa-6 text-white d-flex align-center justify-space-between" style="background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%)">
+                <div class="pa-6 text-white d-flex align-center justify-space-between" style="background: linear-gradient(135deg, #009cf1 0%, #0f2d88 100%)">
                     <div class="d-flex align-center">
                         <v-avatar color="white" size="48" class="mr-4 shadow-sm">
-                            <User style="width: 24px; height: 24px; color: #4f46e5;" />
+                            <User style="width: 24px; height: 24px; color: #009cf1;" />
                         </v-avatar>
                         <div>
                             <div class="text-h6 font-weight-black">{{ selectedEmployee.full_name }}</div>

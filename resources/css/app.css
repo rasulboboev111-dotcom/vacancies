@@ -521,3 +521,39 @@ body {
 .v-theme--dark .v-tab--selected {
     background: rgba(0, 156, 241, 0.1) !important;
 }
+
+/* ==========================================
+   GLOBAL BRAND COLOR OVERRIDES
+   ========================================== */
+/* Match any element that has inline gradients with indigo colors and replace them with Tojiktelecom gradient */
+[style*="linear-gradient(135deg, #4f46e5"],
+[style*="linear-gradient(135deg, #6366f1"],
+[style*="linear-gradient(135deg, #6366f1 0%, #4338ca 100%)"],
+[style*="linear-gradient(135deg, #4f46e5 0%, #312e81 100%)"],
+[style*="background: linear-gradient(135deg, #4f46e5"],
+[style*="background: linear-gradient(135deg, #6366f1"] {
+    background: linear-gradient(135deg, #009cf1 0%, #0f2d88 100%) !important;
+}
+
+/* Override tailwind indigo styles globally */
+.bg-indigo {
+    background-color: #009cf1 !important;
+}
+.text-indigo {
+    color: #009cf1 !important;
+}
+.text-indigo-darken-3 {
+    color: #0284c7 !important;
+}
+.text-indigo-darken-4 {
+    color: #0f2d88 !important;
+}
+.bg-indigo-lighten-5 {
+    background-color: #e0f2fe !important;
+}
+.border-indigo {
+    border-color: #009cf1 !important;
+}
+.text-indigo-accent-2 {
+    color: #009cf1 !important;
+}

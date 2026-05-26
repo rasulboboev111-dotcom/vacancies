@@ -367,11 +367,11 @@ function submitRotation() {
                         variant="flat"
                         rounded="lg"
                         class="px-4 transition-hover-btn font-weight-bold"
-                        style="background: rgba(99, 102, 241, 0.08) !important; color: #4f46e5 !important; border: 1px solid rgba(99, 102, 241, 0.15) !important;"
+                        style="background: rgba(0, 156, 241, 0.08) !important; color: #009cf1 !important; border: 1px solid rgba(0, 156, 241, 0.15) !important;"
                         @click="resetFilters"
                     >
                         <template v-slot:prepend>
-                            <FilterX style="width: 16px; height: 16px; color: #4f46e5;" />
+                            <FilterX style="width: 16px; height: 16px; color: #009cf1;" />
                         </template>
                         Сбросить
                     </v-btn>
@@ -381,7 +381,7 @@ function submitRotation() {
                         variant="flat"
                         rounded="lg"
                         class="px-5 transition-hover-btn font-weight-bold text-white"
-                        style="background: #4f46e5 !important; color: #ffffff !important; box-shadow: 0 4px 14px -4px rgba(79, 70, 229, 0.45) !important;"
+                        style="background: #009cf1 !important; color: #ffffff !important; box-shadow: 0 4px 14px -4px rgba(0, 156, 241, 0.45) !important;"
                         @click="openCreateDialog"
                     >
                         <template v-slot:prepend>

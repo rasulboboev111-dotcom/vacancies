@@ -31,7 +31,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Log in" />
+        <Head title="Вход в систему" />
 
         <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
             {{ status }}
@@ -39,7 +39,7 @@ const submit = () => {
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="Электронная почта" />
 
                 <TextInput
                     id="email"
@@ -49,13 +49,14 @@ const submit = () => {
                     required
                     autofocus
                     autocomplete="username"
+                    placeholder="example@mail.ru"
                 />
 
                 <InputError class="mt-2" :message="form.errors.email" />
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="Пароль" />
 
                 <TextInput
                     id="password"
@@ -64,35 +65,36 @@ const submit = () => {
                     v-model="form.password"
                     required
                     autocomplete="current-password"
+                    placeholder="••••••••"
                 />
 
                 <InputError class="mt-2" :message="form.errors.password" />
             </div>
 
             <div class="mt-4 block">
-                <label class="flex items-center">
+                <label class="flex items-center cursor-pointer select-none">
                     <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600"
-                        >Remember me</span
+                    <span class="ms-2 text-sm text-slate-300 font-semibold"
+                        >Запомнить меня</span
                     >
                 </label>
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
+            <div class="mt-6 flex items-center justify-between">
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    class="rounded-md text-sm text-slate-400 hover:text-white transition-colors duration-200"
                 >
-                    Forgot your password?
+                    Забыли пароль?
                 </Link>
 
                 <PrimaryButton
-                    class="ms-4"
+                    class="ms-4 px-6 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold transition-all duration-300"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Log in
+                    Войти
                 </PrimaryButton>
             </div>
         </form>
