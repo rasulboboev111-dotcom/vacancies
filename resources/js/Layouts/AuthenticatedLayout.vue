@@ -8,6 +8,7 @@ import {
     Archive, 
     Building2, 
     History, 
+    Trash2,
     LogOut,
     User,
     Menu,
@@ -123,6 +124,20 @@ function logout() {
                 >
                     <template v-slot:prepend>
                         <History class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    v-if="!$page.props.auth.user.roles.includes('Viewer')"
+                    title="Корзина"
+                    :active="route().current('trash.*')"
+                    color="red"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('trash.index'))"
+                >
+                    <template v-slot:prepend>
+                        <Trash2 class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
                     </template>
                 </v-list-item>
             </v-list>
