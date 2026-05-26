@@ -33,13 +33,15 @@ class DashboardController extends Controller
             });
 
         // Category distribution
-        $categoryStats = Employee::select('category', DB::raw('count(*) as count'))
-            ->groupBy('category')
+        $categoryStats = Employee::leftJoin('categories', 'employees.category_id', '=', 'categories.id')
+            ->select(DB::raw("COALESCE(categories.name, 'Не указано') as category"), DB::raw('count(*) as count'))
+            ->groupBy(DB::raw("COALESCE(categories.name, 'Не указано')"))
             ->get();
 
         // Type distribution
-        $typeStats = Employee::select('type', DB::raw('count(*) as count'))
-            ->groupBy('type')
+        $typeStats = Employee::leftJoin('employment_types', 'employees.type_id', '=', 'employment_types.id')
+            ->select(DB::raw("COALESCE(employment_types.name, 'Не указано') as type"), DB::raw('count(*) as count'))
+            ->groupBy(DB::raw("COALESCE(employment_types.name, 'Не указано')"))
             ->get();
 
         // Recent activity logs

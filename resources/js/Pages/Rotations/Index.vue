@@ -69,10 +69,10 @@ function changePage(page) {
                             <v-card elevation="0" class="pa-3 rounded-lg border bg-surface-darken text-center border-l-4 border-error">
                                 <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Прежнее назначение</span>
                                 <div class="font-weight-bold text-body-2 text-indigo-darken-2 mt-1">
-                                    {{ rotation.old_position }}
+                                    {{ rotation.old_position?.name || '-' }}
                                 </div>
                                 <div class="text-caption text-grey-darken-3 font-weight-medium">
-                                    {{ rotation.old_structure }}
+                                    {{ rotation.old_structure?.name || '-' }}
                                 </div>
                                 <v-chip size="x-small" color="error" variant="tonal" class="mt-2 font-weight-bold text-uppercase">
                                     {{ rotation.old_branch ? rotation.old_branch.name : 'Удаленный филиал' }}
@@ -91,10 +91,10 @@ function changePage(page) {
                             <v-card elevation="0" class="pa-3 rounded-lg border bg-surface-darken text-center border-l-4 border-success">
                                 <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Новое назначение</span>
                                 <div class="font-weight-bold text-body-2 text-indigo-darken-4 mt-1">
-                                    {{ rotation.new_position }}
+                                    {{ rotation.new_position?.name || '-' }}
                                 </div>
                                 <div class="text-caption text-grey-darken-3 font-weight-medium">
-                                    {{ rotation.new_structure }}
+                                    {{ rotation.new_structure?.name || '-' }}
                                 </div>
                                 <v-chip size="x-small" color="success" variant="tonal" class="mt-2 font-weight-bold text-uppercase">
                                     {{ rotation.new_branch ? rotation.new_branch.name : 'Удаленный филиал' }}

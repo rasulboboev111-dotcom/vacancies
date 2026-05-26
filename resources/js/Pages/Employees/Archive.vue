@@ -77,8 +77,17 @@ function changePage(page) {
 
 function formatDate(dateStr) {
     if (!dateStr) return '-';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString('ru-RU');
+        }
+    }
     const date = new Date(dateStr);
-    return date.toLocaleDateString('ru-RU');
+    if (!isNaN(date.getTime()) && dateStr.toString().includes('-')) {
+        return date.toLocaleDateString('ru-RU');
+    }
+    return dateStr;
 }
 </script>
 
@@ -87,77 +96,67 @@ function formatDate(dateStr) {
 
     <AuthenticatedLayout>
         <template #header>
+            <div class="d-flex align-center">
                 <Archive style="width: 24px; height: 24px; margin-right: 12px;" class="text-indigo-accent-2" />
-                <span>Архив сотрудников (Уволенные / Пенсионеры)</span>
+                <span>Архив уволенных сотрудников</span>
+            </div>
         </template>
 
-        <!-- Filters section -->
-        <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass mb-6">
-            <v-row class="align-center">
-                <!-- Search bar -->
-                <v-col cols="12" sm="12" md="5">
+        <!-- Main Card -->
+        <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass mb-6">
+            <!-- Search & Filters -->
+            <v-row class="mb-6 align-center">
+                <v-col cols="12" md="6">
                     <v-text-field
                         v-model="search"
-                        placeholder="Поиск по ФИО, должности или ИНН..."
-                        variant="solo"
+                        prepend-inner-icon="mdi-magnify"
+                        label="Поиск по ФИО, ИНН или должности..."
+                        variant="outlined"
                         density="comfortable"
                         rounded="lg"
-                        flat
                         hide-details
-                        class="premium-field"
-                        @keyup.enter="applyFilters"
-                    >
-                        <template v-slot:prepend-inner>
-                            <Search style="width: 18px; height: 18px; opacity: 0.5;" />
-                        </template>
-                    </v-text-field>
+                        clearable
+                        color="indigo"
+                        class="search-field"
+                    ></v-text-field>
                 </v-col>
-
-                <!-- Branch Filter -->
-                <v-col cols="12" sm="8" md="4">
+                <v-col cols="12" md="4" v-if="!$page.props.auth.user.roles.includes('Branch Manager')">
                     <v-select
                         v-model="branchId"
                         :items="branches"
                         item-title="name"
                         item-value="id"
-                        label="Филиал"
-                        variant="solo"
+                        label="Фильтровать по бывшему филиалу"
+                        variant="outlined"
                         density="comfortable"
                         rounded="lg"
-                        flat
                         hide-details
                         clearable
-                        class="premium-field"
-                        :disabled="$page.props.auth.user.roles.includes('Branch Manager')"
+                        color="indigo"
                     ></v-select>
                 </v-col>
-
-                <!-- Action buttons -->
-                <v-col cols="12" sm="4" md="3" class="d-flex align-center justify-md-end justify-center">
+                <v-col cols="12" md="2" class="d-flex justify-end">
                     <v-btn
-                        variant="flat"
+                        variant="tonal"
+                        color="error"
                         rounded="lg"
-                        class="px-5 transition-hover-btn font-weight-bold w-100"
-                        style="background: rgba(99, 102, 241, 0.08) !important; color: #4f46e5 !important; border: 1px solid rgba(99, 102, 241, 0.15) !important;"
+                        block
+                        class="filter-reset-btn"
                         @click="resetFilters"
                     >
-                        <template v-slot:prepend>
-                            <FilterX style="width: 16px; height: 16px; color: #4f46e5;" />
-                        </template>
                         Сбросить
                     </v-btn>
                 </v-col>
             </v-row>
-        </v-card>
 
-        <!-- Archive Table -->
-        <v-card elevation="0" class="rounded-xl border overflow-hidden bg-surface-glass">
-            <v-table class="w-100 table-modern">
+            <!-- Table -->
+            <v-table class="table-modern border rounded-xl overflow-hidden">
                 <thead>
-                    <tr class="bg-indigo-lighten-5">
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">ФИО</th>
+                    <tr>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">ФИО сотрудника</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Бывший филиал</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Должность</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Филиал</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Подразделение</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Категория</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Дата приема</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Дата ухода</th>
@@ -166,41 +165,37 @@ function formatDate(dateStr) {
                 </thead>
                 <tbody>
                     <tr v-for="employee in employees.data" :key="employee.id" class="employee-row">
-                        <td class="pa-4 font-weight-bold text-indigo-darken-3">{{ employee.full_name }}</td>
-                        <td class="pa-4 text-grey-darken-3 font-weight-medium">{{ employee.position }}</td>
-                        <td class="pa-4">
-                            <v-chip size="small" color="indigo" variant="flat" class="font-weight-bold">
-                                {{ employee.branch.name }}
-                            </v-chip>
-                        </td>
-                        <td class="pa-4"><v-chip size="small" color="secondary" variant="outlined">{{ employee.category }}</v-chip></td>
+                        <td class="pa-4 font-weight-bold text-indigo-darken-4">{{ employee.full_name }}</td>
+                        <td class="pa-4 text-body-2">{{ employee.branch?.name || '-' }}</td>
+                        <td class="pa-4 text-body-2 font-weight-medium text-slate-800">{{ employee.position?.name || '-' }}</td>
+                        <td class="pa-4 text-body-2 text-slate-700">{{ employee.structure?.name || '-' }}</td>
+                        <td class="pa-4"><v-chip size="small" color="secondary" variant="outlined">{{ employee.category?.name || '-' }}</v-chip></td>
                         <td class="pa-4 text-body-2 font-weight-medium">{{ formatDate(employee.hire_date) }}</td>
                         <td class="pa-4 text-body-2 font-weight-bold text-error">{{ formatDate(employee.dismissal_date) }}</td>
                         <td class="pa-4 text-center">
                             <v-btn
+                                color="indigo"
                                 icon
                                 variant="text"
-                                color="indigo"
                                 size="small"
-                                class="hover-scale-btn"
                                 @click="openViewDialog(employee)"
+                                class="hover-scale-btn"
                             >
-                                <Eye style="width: 16px; height: 16px;" />
+                                <Eye style="width: 18px; height: 18px;" />
                             </v-btn>
                         </td>
                     </tr>
                     <tr v-if="employees.data.length === 0">
-                        <td colspan="7" class="text-center py-10 text-grey text-h6 font-weight-medium bg-surface">
-                            <FolderOpen style="width: 40px; height: 40px; margin: 0 auto 8px; opacity: 0.5;" class="text-grey" />
-                            Архивные сотрудники не найдены.
+                        <td colspan="8" class="text-center py-8 text-grey font-weight-medium">
+                            Сотрудников в архиве не найдено.
                         </td>
                     </tr>
                 </tbody>
             </v-table>
 
-            <!-- Pagination Wrapper -->
-            <v-divider></v-divider>
-            <div class="d-flex justify-space-between align-center pa-4 bg-surface">
+            <!-- Pagination -->
+            <v-divider class="my-4"></v-divider>
+            <div class="d-flex justify-space-between align-center pa-2">
                 <div class="text-caption text-grey font-weight-bold">
                     Показано {{ employees.from || 0 }} - {{ employees.to || 0 }} из {{ employees.total || 0 }} архивных сотрудников
                 </div>
@@ -217,42 +212,38 @@ function formatDate(dateStr) {
             </div>
         </v-card>
 
-        <!-- View Details Dialog -->
-        <v-dialog v-model="viewDialog" max-width="800px">
-            <v-card v-if="selectedEmployee" class="rounded-xl overflow-hidden" elevation="8">
-                <!-- Premium Gradient Header (Secondary/Error theme for Archive) -->
-                <div style="background: linear-gradient(135deg, #475569 0%, #1e293b 100%); padding: 20px 28px;">
-                    <div class="d-flex align-center justify-space-between">
-                        <div class="d-flex align-center">
-                            <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
-                                <FileText style="width: 22px; height: 22px; color: white;" />
-                            </v-avatar>
-                            <div class="ml-4">
-                                <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Детали архивного дела</div>
-                                <div style="color: white; font-size: 1.1rem; font-weight: 800;">{{ selectedEmployee.full_name }}</div>
-                            </div>
+        <!-- View Dialog -->
+        <v-dialog v-model="viewDialog" max-width="800px" scrollable>
+            <v-card v-if="selectedEmployee" class="rounded-2xl border" style="overflow: hidden;">
+                <!-- Header -->
+                <div class="pa-6 text-white d-flex align-center justify-space-between" style="background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%)">
+                    <div class="d-flex align-center">
+                        <v-avatar color="white" size="48" class="mr-4 shadow-sm">
+                            <User style="width: 24px; height: 24px; color: #4f46e5;" />
+                        </v-avatar>
+                        <div>
+                            <div class="text-h6 font-weight-black">{{ selectedEmployee.full_name }}</div>
+                            <div class="text-caption text-white opacity-85 mt-0.5 font-weight-bold text-uppercase">ИНН: {{ selectedEmployee.inn || '-' }}</div>
                         </div>
-                        <v-chip color="error" variant="flat" class="font-weight-bold" size="small">В АРХИВЕ</v-chip>
                     </div>
+                    <v-chip color="error" variant="flat" class="font-weight-black text-uppercase shadow-sm">Уволен(а)</v-chip>
                 </div>
-                
-                <v-card-text class="px-0 py-0 overflow-y-auto" style="max-height: 70vh;">
+
+                <v-divider></v-divider>
+
+                <!-- Body content -->
+                <v-card-text class="pa-6 bg-slate-50" style="max-height: 60vh;">
                     <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <User style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> Основные и личные данные
+                        <IdCard style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> Личная информация
                     </div>
                     <v-row class="mb-4">
-                        <v-col cols="12" class="pb-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">ФИО</span>
-                            <span class="text-body-1 font-weight-black text-indigo-darken-4">{{ selectedEmployee.full_name }}</span>
-                        </v-col>
-
                         <v-col cols="12" sm="4" class="py-2">
                             <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Пол</span>
                             <span class="text-body-1 font-weight-bold">{{ selectedEmployee.gender || '-' }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата рождения / Возраст</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата рождения</span>
                             <span class="text-body-1 font-weight-bold">{{ formatDate(selectedEmployee.birth_date) }} ({{ selectedEmployee.age ? selectedEmployee.age + ' лет' : '-' }})</span>
                         </v-col>
 
@@ -261,12 +252,27 @@ function formatDate(dateStr) {
                             <span class="text-body-1 font-weight-bold">{{ selectedEmployee.nationality || '-' }}</span>
                         </v-col>
 
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Телефон</span>
+                        <v-col cols="12" sm="6" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Номер телефона</span>
                             <span class="text-body-1 font-weight-bold">{{ selectedEmployee.phone_number || '-' }}</span>
                         </v-col>
 
-                        <v-col cols="12" sm="8" class="py-2">
+                        <v-col cols="12" sm="6" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Место рождения</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.birth_place || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="6" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Образование</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.education || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="12" sm="6" class="py-2">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Специальность</span>
+                            <span class="text-body-1 font-weight-bold text-indigo">{{ selectedEmployee.specialty || '-' }}</span>
+                        </v-col>
+
+                        <v-col cols="12" class="py-2">
                             <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Адрес проживания</span>
                             <span class="text-body-1 font-weight-bold">{{ selectedEmployee.address || '-' }}</span>
                         </v-col>
@@ -275,24 +281,9 @@ function formatDate(dateStr) {
                     <v-divider class="my-4"></v-divider>
 
                     <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <Briefcase style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> Сведения об увольнении / выходе на пенсию
+                        <Briefcase style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> Сведения об увольнении
                     </div>
                     <v-row class="mb-4">
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Должность перед уходом</span>
-                            <span class="text-body-1 font-weight-bold text-indigo-darken-3">{{ selectedEmployee.position }}</span>
-                        </v-col>
-
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Подразделение</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.structure }}</span>
-                        </v-col>
-
-                        <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Бывший филиал</span>
-                            <span class="text-body-1 font-weight-bold text-primary">{{ selectedEmployee.branch.name }}</span>
-                        </v-col>
-
                         <v-col cols="12" sm="6" class="py-2">
                             <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата приема на работу</span>
                             <span class="text-body-1 font-weight-bold text-success">{{ formatDate(selectedEmployee.hire_date) }}</span>
@@ -303,13 +294,11 @@ function formatDate(dateStr) {
                             <span class="text-body-1 font-weight-bold text-error font-weight-black">{{ formatDate(selectedEmployee.dismissal_date) }}</span>
                         </v-col>
 
-                        <v-col cols="12" class="py-2" v-if="selectedEmployee.total_experience">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Общий стаж работы</span>
-                            <span class="text-body-1 font-weight-bold text-teal">{{ selectedEmployee.total_experience }}</span>
+                        <v-col cols="12" class="py-2" v-if="selectedEmployee.employment_start_date">
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата трудоустройства с</span>
+                            <span class="text-body-1 font-weight-bold text-teal">{{ formatDate(selectedEmployee.employment_start_date) }}</span>
                         </v-col>
                     </v-row>
-
-                    <v-divider class="my-4"></v-divider>
 
                     <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
                         <Key style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> ИНН и документы

@@ -48,4 +48,43 @@ import { ShieldCheck } from '@lucide/vue';
     0%, 100% { opacity: 0.8; }
     50% { opacity: 1; transform: scale(1.02); }
 }
+
+/* Premium form element styling for auth pages */
+:deep(label) {
+    color: #cbd5e1 !important;
+    font-weight: 600 !important;
+}
+
+:deep(input[type="email"]),
+:deep(input[type="password"]),
+:deep(input[type="text"]) {
+    background-color: rgba(15, 23, 42, 0.7) !important;
+    border-color: rgba(51, 65, 85, 0.9) !important;
+    color: #ffffff !important;
+    padding: 0.625rem 0.875rem !important;
+    font-size: 0.875rem !important;
+    line-height: 1.25rem !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+:deep(input[type="email"]:focus),
+:deep(input[type="password"]:focus),
+:deep(input[type="text"]:focus) {
+    border-color: #6366f1 !important;
+    background-color: rgba(15, 23, 42, 0.9) !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25), 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+:deep(span.text-gray-600) {
+    color: #cbd5e1 !important;
+}
+
+:deep(a.text-gray-600) {
+    color: #a5b4fc !important;
+    transition: color 0.15s ease !important;
+}
+
+:deep(a.text-gray-600:hover) {
+    color: #c7d2fe !important;
+}
 </style>

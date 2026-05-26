@@ -4,6 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\Branch;
 use App\Models\Employee;
+use App\Models\Category;
+use App\Models\EmploymentType;
+use App\Models\Position;
+use App\Models\Structure;
 use Illuminate\Database\Seeder;
 
 class EmployeeSeeder extends Seeder
@@ -45,7 +49,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'ш. Душанбе',
                 'education' => 'Олӣ (магистр)',
                 'specialty' => 'Муҳандиси техникӣ',
-                'total_experience' => '12 солу 3 моҳ',
+                'employment_start_date' => '2009-01-15',
             ],
             [
                 'branch_id' => $dsh->id,
@@ -71,7 +75,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'в. Суғд',
                 'education' => 'Олӣ (бакалавр)',
                 'specialty' => 'Иқтисоддон',
-                'total_experience' => '17 солу 11 моҳ',
+                'employment_start_date' => '2001-07-24',
             ],
             [
                 'branch_id' => $dsh->id,
@@ -97,7 +101,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'в. Хатлон',
                 'education' => 'Олӣ (магистр)',
                 'specialty' => 'Барномасоз',
-                'total_experience' => '11 солу 10 моҳ',
+                'employment_start_date' => '2008-04-10',
             ],
             [
                 'branch_id' => $dsh->id,
@@ -123,7 +127,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'ш. Ваҳдат',
                 'education' => 'Олӣ (бакалавр)',
                 'specialty' => 'Ҳуқуқшинос',
-                'total_experience' => '15 солу 2 моҳ',
+                'employment_start_date' => '2003-07-01',
             ],
             
             // Khujand
@@ -151,7 +155,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'в. Суғд',
                 'education' => 'Олӣ (магистр)',
                 'specialty' => 'Муҳандиси техникӣ',
-                'total_experience' => '16 солу 5 моҳ',
+                'employment_start_date' => '2000-08-10',
             ],
             [
                 'branch_id' => $kjd->id,
@@ -177,7 +181,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'н. Б.Гафуров',
                 'education' => 'Олӣ (бакалавр)',
                 'specialty' => 'Иқтисоддон',
-                'total_experience' => '5 солу 9 моҳ',
+                'employment_start_date' => '2016-11-15',
             ],
 
             // Bokhtar
@@ -205,7 +209,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'г. Бохтар',
                 'education' => 'Олӣ (магистр)',
                 'specialty' => 'Менеджер',
-                'total_experience' => '8 солу 2 моҳ',
+                'employment_start_date' => '2012-09-20',
             ],
 
             // Kulob
@@ -233,7 +237,7 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'г. Куляб',
                 'education' => 'Олӣ (бакалавр)',
                 'specialty' => 'Муҳандис',
-                'total_experience' => '14 солу 1 моҳ',
+                'employment_start_date' => '2005-03-01',
             ],
 
             // Khorugh
@@ -261,12 +265,80 @@ class EmployeeSeeder extends Seeder
                 'birth_place' => 'ВМКБ',
                 'education' => 'Олӣ (бакалавр)',
                 'specialty' => 'Иқтисоддон',
-                'total_experience' => '7 солу 6 моҳ',
+                'employment_start_date' => '2015-04-15',
             ],
         ];
 
-        foreach ($employees as $employee) {
-            Employee::create($employee);
+        // Create unique lookup records
+        $categoriesList = [];
+        $typesList = [];
+        $positionsList = [];
+        $structuresList = [];
+
+        foreach ($employees as $emp) {
+            if (!empty($emp['category'])) $categoriesList[] = $emp['category'];
+            if (!empty($emp['type'])) $typesList[] = $emp['type'];
+            if (!empty($emp['position'])) $positionsList[] = $emp['position'];
+            if (!empty($emp['structure'])) $structuresList[] = $emp['structure'];
+        }
+
+        $categoriesMap = [];
+        foreach (array_unique($categoriesList) as $name) {
+            $cat = Category::firstOrCreate(['name' => $name]);
+            $categoriesMap[$name] = $cat->id;
+        }
+
+        $typesMap = [];
+        foreach (array_unique($typesList) as $name) {
+            $t = EmploymentType::firstOrCreate(['name' => $name]);
+            $typesMap[$name] = $t->id;
+        }
+
+        $positionsMap = [];
+        foreach (array_unique($positionsList) as $name) {
+            $p = Position::firstOrCreate(['name' => $name]);
+            $positionsMap[$name] = $p->id;
+        }
+
+        $structuresMap = [];
+        foreach (array_unique($structuresList) as $name) {
+            $s = Structure::firstOrCreate(['name' => $name]);
+            $structuresMap[$name] = $s->id;
+        }
+
+        // Insert employees
+        $createdEmployees = [];
+        $employeeManagerMapping = [];
+
+        foreach ($employees as $emp) {
+            $employeeData = $emp;
+
+            $employeeData['category_id'] = $categoriesMap[$emp['category']] ?? null;
+            $employeeData['type_id'] = $typesMap[$emp['type']] ?? null;
+            $employeeData['position_id'] = $positionsMap[$emp['position']] ?? null;
+            $employeeData['structure_id'] = $structuresMap[$emp['structure']] ?? null;
+
+            unset($employeeData['category']);
+            unset($employeeData['type']);
+            unset($employeeData['position']);
+            unset($employeeData['structure']);
+            unset($employeeData['direct_manager']);
+
+            $newEmployee = Employee::create($employeeData);
+            $createdEmployees[$newEmployee->full_name] = $newEmployee;
+
+            if (!empty($emp['direct_manager'])) {
+                $employeeManagerMapping[$newEmployee->id] = $emp['direct_manager'];
+            }
+        }
+
+        // Resolve managers
+        foreach ($employeeManagerMapping as $employeeId => $managerName) {
+            if (isset($createdEmployees[$managerName])) {
+                Employee::where('id', $employeeId)->update([
+                    'manager_id' => $createdEmployees[$managerName]->id
+                ]);
+            }
         }
     }
 }

@@ -14,13 +14,13 @@ return new class extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
-            $table->string('category');
-            $table->string('type');
+            $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->foreignId('type_id')->nullable()->constrained('employment_types')->nullOnDelete();
             $table->string('full_name');
             $table->string('gender');
-            $table->string('position');
-            $table->string('structure');
-            $table->string('direct_manager')->nullable();
+            $table->foreignId('position_id')->nullable()->constrained('positions')->nullOnDelete();
+            $table->foreignId('structure_id')->nullable()->constrained('structures')->nullOnDelete();
+            $table->foreignId('manager_id')->nullable()->constrained('employees')->nullOnDelete();
             $table->date('hire_date');
             $table->date('dismissal_date')->nullable();
             $table->date('birth_date')->nullable();
@@ -36,8 +36,12 @@ return new class extends Migration
             $table->string('birth_place')->nullable();
             $table->string('education')->nullable();
             $table->string('specialty')->nullable();
-            $table->string('total_experience')->nullable();
+            $table->date('employment_start_date')->nullable();
             $table->timestamps();
+
+            // Explicit indexes for non-FK columns
+            $table->index('full_name');
+            $table->index('dismissal_date');
         });
     }
 
