@@ -35,11 +35,24 @@ class PositionController extends Controller
     {
         Gate::authorize('create', Position::class);
 
+        $request->merge([
+            'name' => trim($request->name)
+        ]);
+
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:positions,name',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    $exists = \App\Models\Position::whereRaw('LOWER(TRIM(name)) = ?', [strtolower(trim($value))])->exists();
+                    if ($exists) {
+                        $fail('Такая должность уже существует в базе данных.');
+                    }
+                },
+            ],
         ], [
             'name.required' => 'Название должности обязательно для заполнения.',
-            'name.unique' => 'Такая должность уже существует в базе данных.',
             'name.max' => 'Название должности слишком длинное.',
         ]);
 
@@ -61,11 +74,26 @@ class PositionController extends Controller
     {
         Gate::authorize('update', $position);
 
+        $request->merge([
+            'name' => trim($request->name)
+        ]);
+
         $validated = $request->validate([
-            'name' => "required|string|max:255|unique:positions,name,{$position->id}",
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) use ($position) {
+                    $exists = \App\Models\Position::whereRaw('LOWER(TRIM(name)) = ?', [strtolower(trim($value))])
+                        ->where('id', '!=', $position->id)
+                        ->exists();
+                    if ($exists) {
+                        $fail('Такая должность уже существует в базе данных.');
+                    }
+                },
+            ],
         ], [
             'name.required' => 'Название должности обязательно для заполнения.',
-            'name.unique' => 'Такая должность уже существует в базе данных.',
             'name.max' => 'Название должности слишком длинное.',
         ]);
 
