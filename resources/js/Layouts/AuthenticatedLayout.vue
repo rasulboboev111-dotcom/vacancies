@@ -35,10 +35,10 @@ function logout() {
         >
             <v-list-item class="py-5 text-white" style="background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%)">
                 <template v-slot:prepend>
-                    <Shield class="mr-3 h-6 w-6 text-white-50" />
+                    <img src="https://tojiktelecom.tj/logonew.svg" class="mr-3" style="height: 32px; width: auto; max-width: 60px; filter: brightness(0) invert(1);" alt="Tojiktelecom" />
                 </template>
                 <v-list-item-title class="text-h6 font-weight-black tracking-wide">
-                    HR SYSTEM
+                    TOJIKTELECOM
                 </v-list-item-title>
                 <v-list-item-subtitle class="text-caption text-white opacity-70 font-weight-medium">
                     Управление кадрами
