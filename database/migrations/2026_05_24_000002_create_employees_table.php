@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete();
-            $table->foreignId('type_id')->nullable()->constrained('employment_types')->nullOnDelete();
+            $table->string('employment_type')->default('штатный');
             $table->string('full_name');
             $table->string('gender');
             $table->foreignId('position_id')->nullable()->constrained('positions')->nullOnDelete();

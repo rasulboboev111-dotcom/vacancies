@@ -79,8 +79,7 @@ class DashboardController extends Controller
         $categoryStats = $categoryStatsQuery->groupBy(DB::raw("COALESCE(categories.name, 'Не указано')"))->get();
 
         // Type distribution
-        $typeStatsQuery = Employee::leftJoin('employment_types', 'employees.type_id', '=', 'employment_types.id')
-            ->select(DB::raw("COALESCE(employment_types.name, 'Не указано') as type"), DB::raw('count(*) as count'));
+        $typeStatsQuery = Employee::select('employment_type as type', DB::raw('count(*) as count'));
 
         if (!$user->hasRole('Admin')) {
             if ($user->branch_id !== null) {
@@ -90,7 +89,15 @@ class DashboardController extends Controller
             }
         }
 
-        $typeStats = $typeStatsQuery->groupBy(DB::raw("COALESCE(employment_types.name, 'Не указано')"))->get();
+        $typeStats = $typeStatsQuery->groupBy('employment_type')
+            ->get()
+            ->map(function ($stat) {
+                $enum = \App\Enums\EmploymentType::tryFrom($stat->type);
+                return [
+                    'type' => $enum ? $enum->label() : 'Не указано',
+                    'count' => $stat->count,
+                ];
+            });
 
         // Recent activity logs
         $recentActivitiesQuery = Activity::with('causer');
