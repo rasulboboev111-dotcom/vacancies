@@ -15,7 +15,7 @@ return new class extends Migration
             $table->index('deleted_at');
             $table->index('branch_id');
             $table->index('category_id');
-            $table->index('type_id');
+            $table->index('employment_type');
             $table->index('position_id');
             $table->index('structure_id');
             $table->index('manager_id');
@@ -52,7 +52,7 @@ return new class extends Migration
             $table->dropIndex(['deleted_at']);
             $table->dropIndex(['branch_id']);
             $table->dropIndex(['category_id']);
-            $table->dropIndex(['type_id']);
+            $table->dropIndex(['employment_type']);
             $table->dropIndex(['position_id']);
             $table->dropIndex(['structure_id']);
             $table->dropIndex(['manager_id']);

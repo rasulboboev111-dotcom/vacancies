@@ -20,7 +20,7 @@ class Employee extends Model
             ->logOnly([
                 'branch_id',
                 'category_id',
-                'type_id',
+                'employment_type',
                 'full_name',
                 'gender',
                 'position_id',
@@ -50,7 +50,7 @@ class Employee extends Model
     protected $fillable = [
         'branch_id',
         'category_id',
-        'type_id',
+        'employment_type',
         'full_name',
         'gender',
         'position_id',
@@ -83,7 +83,7 @@ class Employee extends Model
         'employment_start_date' => 'date',
     ];
 
-    protected $appends = ['age'];
+    protected $appends = ['age', 'type_id'];
 
     /**
      * Get employee's age based on birth date.
@@ -113,11 +113,25 @@ class Employee extends Model
     }
 
     /**
-     * Get the employment type that the employee belongs to.
+     * Virtual attribute for employment_type to return object compatibility structure
+     * so that employee.employment_type?.name works in the Vue frontend.
      */
-    public function employmentType(): BelongsTo
+    public function getEmploymentTypeAttribute($value): ?array
     {
-        return $this->belongsTo(EmploymentType::class, 'type_id');
+        $enum = \App\Enums\EmploymentType::tryFrom($value);
+        return $enum ? [
+            'id' => $enum->value,
+            'name' => $enum->label(),
+        ] : null;
+    }
+
+    /**
+     * Virtual attribute to return the raw enum string as type_id
+     * so that employee.type_id matches frontend form values.
+     */
+    public function getTypeIdAttribute(): ?string
+    {
+        return $this->attributes['employment_type'] ?? null;
     }
 
     /**

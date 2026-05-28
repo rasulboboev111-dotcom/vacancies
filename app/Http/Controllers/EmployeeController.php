@@ -20,7 +20,7 @@ class EmployeeController extends Controller
         \Illuminate\Support\Facades\Gate::authorize('viewAny', Employee::class);
 
         $user = $request->user();
-        $query = Employee::with(['branch', 'category', 'employmentType', 'position', 'structure', 'manager'])->whereNull('dismissal_date');
+        $query = Employee::with(['branch', 'category', 'position', 'structure', 'manager'])->whereNull('dismissal_date');
 
         // Scoping for non-admins: restrict by branch_id
         if (!$user->hasRole('Admin')) {
@@ -52,7 +52,7 @@ class EmployeeController extends Controller
 
         // Filtering by type_id
         if ($request->filled('type_id')) {
-            $query->where('type_id', $request->input('type_id'));
+            $query->where('employment_type', $request->input('type_id'));
         }
 
         // Get employees with pagination
@@ -78,7 +78,10 @@ class EmployeeController extends Controller
             $managers = collect();
         } else {
             $categories = \App\Models\Category::orderBy('name')->get();
-            $types = \App\Models\EmploymentType::orderBy('name')->get();
+            $types = collect(\App\Enums\EmploymentType::cases())->map(fn($t) => [
+                'id' => $t->value,
+                'name' => $t->label()
+            ]);
             $positions = \App\Models\Position::orderBy('name')->get();
             $structures = \App\Models\Structure::orderBy('name')->get();
             
@@ -111,7 +114,7 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'branch_id' => 'required|exists:branches,id',
             'category_id' => 'required|exists:categories,id',
-            'type_id' => 'required|exists:employment_types,id',
+            'type_id' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\EmploymentType::class)],
             'full_name' => 'required|string|max:255',
             'gender' => 'required|string|in:Мужской,Женский',
             'position_id' => 'required|exists:positions,id',
@@ -145,6 +148,9 @@ class EmployeeController extends Controller
             }
         }
 
+        $validated['employment_type'] = $validated['type_id'];
+        unset($validated['type_id']);
+
         $employee = Employee::create($validated);
         $employee->load('position');
 
@@ -174,7 +180,7 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'branch_id' => 'required|exists:branches,id',
             'category_id' => 'required|exists:categories,id',
-            'type_id' => 'required|exists:employment_types,id',
+            'type_id' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\EmploymentType::class)],
             'full_name' => 'required|string|max:255',
             'gender' => 'required|string|in:Мужской,Женский',
             'position_id' => 'required|exists:positions,id',
@@ -202,6 +208,9 @@ class EmployeeController extends Controller
         if (!$user->hasRole('Admin') && $validated['branch_id'] != $user->branch_id) {
             abort(403, 'Вы не можете переводить сотрудников в другой филиал.');
         }
+
+        $validated['employment_type'] = $validated['type_id'];
+        unset($validated['type_id']);
 
         $employee->update($validated);
 
@@ -245,7 +254,7 @@ class EmployeeController extends Controller
     public function archive(Request $request): Response
     {
         $user = $request->user();
-        $query = Employee::with(['branch', 'category', 'employmentType', 'position', 'structure', 'manager'])->whereNotNull('dismissal_date');
+        $query = Employee::with(['branch', 'category', 'position', 'structure', 'manager'])->whereNotNull('dismissal_date');
 
         // Scoping for non-admins
         if (!$user->hasRole('Admin')) {

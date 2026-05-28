@@ -20,7 +20,7 @@ class TrashController extends Controller
         $user = $request->user();
 
         // Build query for employees
-        $employeesQuery = Employee::onlyTrashed()->with(['branch', 'category', 'employmentType', 'position', 'structure', 'manager']);
+        $employeesQuery = Employee::onlyTrashed()->with(['branch', 'category', 'position', 'structure', 'manager']);
         // Build query for users
         $usersQuery = User::onlyTrashed()->with('branch');
         // Build query for branches
