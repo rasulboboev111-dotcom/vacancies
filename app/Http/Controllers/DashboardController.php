@@ -50,13 +50,13 @@ class DashboardController extends Controller
 
         // Category distribution
         $categoryStatsQuery = Employee::leftJoin('categories', 'employees.category_id', '=', 'categories.id')
-            ->select(DB::raw("COALESCE(categories.name, 'Не указано') as category"), DB::raw('count(*) as count'));
+            ->select(DB::raw("COALESCE(categories.name, 'Зикр нашудааст') as category"), DB::raw('count(*) as count'));
 
         if (!$user->hasRole('Admin') && $user->branch_id === null) {
             $categoryStatsQuery->whereRaw('1=0');
         }
 
-        $categoryStats = $categoryStatsQuery->groupBy(DB::raw("COALESCE(categories.name, 'Не указано')"))->get();
+        $categoryStats = $categoryStatsQuery->groupBy(DB::raw("COALESCE(categories.name, 'Зикр нашудааст')"))->get();
 
         // Type distribution
         $typeStatsQuery = Employee::select('employment_type as type', DB::raw('count(*) as count'));
@@ -70,7 +70,7 @@ class DashboardController extends Controller
             ->map(function ($stat) {
                 $enum = \App\Enums\EmploymentType::tryFrom($stat->type);
                 return [
-                    'type' => $enum ? $enum->label() : 'Не указано',
+                    'type' => $enum ? $enum->label() : 'Зикр нашудааст',
                     'count' => $stat->count,
                 ];
             });
@@ -134,7 +134,7 @@ class DashboardController extends Controller
                     'description' => $activity->description,
                     'subject_type' => class_basename($activity->subject_type),
                     'event' => $activity->event,
-                    'causer_name' => $activity->causer ? $activity->causer->name : 'Система',
+                    'causer_name' => $activity->causer ? $activity->causer->name : 'Низом',
                     'properties' => $activity->properties,
                     'created_at' => $activity->created_at->format('d.m.Y H:i'),
                 ];

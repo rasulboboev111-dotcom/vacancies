@@ -22,11 +22,11 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Регистрация" />
+        <Head title="Бақайдгирӣ" />
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="name" value="Имя" />
+                <InputLabel for="name" value="Ном" />
 
                 <TextInput
                     id="name"
@@ -36,14 +36,14 @@ const submit = () => {
                     required
                     autofocus
                     autocomplete="name"
-                    placeholder="Введите ваше имя"
+                    placeholder="Номи худро ворид кунед"
                 />
 
                 <InputError class="mt-2" :message="form.errors.name" />
             </div>
 
             <div class="mt-4">
-                <InputLabel for="email" value="Электронная почта" />
+                <InputLabel for="email" value="Почтаи электронӣ" />
 
                 <TextInput
                     id="email"
@@ -59,7 +59,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Пароль" />
+                <InputLabel for="password" value="Парол" />
 
                 <TextInput
                     id="password"
@@ -77,7 +77,7 @@ const submit = () => {
             <div class="mt-4">
                 <InputLabel
                     for="password_confirmation"
-                    value="Подтверждение пароля"
+                    value="Тасдиқи парол"
                 />
 
                 <TextInput
@@ -101,7 +101,7 @@ const submit = () => {
                     :href="route('login')"
                     class="rounded-md text-sm text-slate-400 hover:text-white transition-colors duration-200"
                 >
-                    Уже зарегистрированы?
+                    Аллакай ҳисоб доред?
                 </Link>
 
                 <PrimaryButton
@@ -109,7 +109,7 @@ const submit = () => {
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Зарегистрироваться
+                    Сабти ном
                 </PrimaryButton>
             </div>
         </form>

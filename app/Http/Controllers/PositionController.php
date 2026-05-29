@@ -61,13 +61,13 @@ class PositionController extends Controller
                 function ($attribute, $value, $fail) {
                     $exists = \App\Models\Position::whereRaw('LOWER(TRIM(name)) = ?', [strtolower(trim($value))])->exists();
                     if ($exists) {
-                        $fail('Такая должность уже существует в базе данных.');
+                        $fail('Чунин вазифа аллакай дар пойгоҳи додаҳо мавҷуд аст.');
                     }
                 },
             ],
         ], [
-            'name.required' => 'Название должности обязательно для заполнения.',
-            'name.max' => 'Название должности слишком длинное.',
+            'name.required' => 'Номи вазифа ҳатмист.',
+            'name.max' => 'Номи вазифа хеле дароз аст.',
         ]);
 
         $position = Position::create($validated);
@@ -75,10 +75,10 @@ class PositionController extends Controller
         activity()
             ->performedOn($position)
             ->event('created')
-            ->log("Создана новая должность: {$position->name}");
+            ->log("Вазифаи нав эҷод шуд: {$position->name}");
 
         return redirect()->route('positions.index')
-            ->with('success', "Должность '{$position->name}' успешно создана.");
+            ->with('success', "Вазифаи '{$position->name}' бомуваффақият эҷод шуд.");
     }
 
     /**
@@ -102,13 +102,13 @@ class PositionController extends Controller
                         ->where('id', '!=', $position->id)
                         ->exists();
                     if ($exists) {
-                        $fail('Такая должность уже существует в базе данных.');
+                        $fail('Чунин вазифа аллакай дар пойгоҳи додаҳо мавҷуд аст.');
                     }
                 },
             ],
         ], [
-            'name.required' => 'Название должности обязательно для заполнения.',
-            'name.max' => 'Название должности слишком длинное.',
+            'name.required' => 'Номи вазифа ҳатмист.',
+            'name.max' => 'Номи вазифа хеле дароз аст.',
         ]);
 
         $oldName = $position->name;
@@ -117,10 +117,10 @@ class PositionController extends Controller
         activity()
             ->performedOn($position)
             ->event('updated')
-            ->log("Обновлено название должности: с '{$oldName}' на '{$position->name}'");
+            ->log("Номи вазифа навсозӣ шуд: аз '{$oldName}' ба '{$position->name}'");
 
         return redirect()->route('positions.index')
-            ->with('success', "Должность '{$position->name}' успешно обновлена.");
+            ->with('success', "Вазифаи '{$position->name}' бомуваффақият навсозӣ шуд.");
     }
 
     /**
@@ -133,7 +133,7 @@ class PositionController extends Controller
         // Safety check: Prevent deletion if any active or soft-deleted employee is linked to this position
         $employeeCount = Employee::withTrashed()->where('position_id', $position->id)->count();
         if ($employeeCount > 0) {
-            return redirect()->back()->with('error', "Невозможно удалить должность '{$position->name}', так как она назначена сотрудникам ({$employeeCount} чел.). Сначала переведите их на другую должность.");
+            return redirect()->back()->with('error', "Вазифаи '{$position->name}'-ро нест кардан мумкин нест, зеро он ба кормандон таъин шудааст ({$employeeCount} нафар). Аввал онҳоро ба вазифаи дигар гузаронед.");
         }
 
         $name = $position->name;
@@ -141,9 +141,9 @@ class PositionController extends Controller
 
         activity()
             ->event('deleted')
-            ->log("Удалена должность: {$name}");
+            ->log("Вазифа нест карда шуд: {$name}");
 
         return redirect()->route('positions.index')
-            ->with('success', "Должность '{$name}' успешно удалена.");
+            ->with('success', "Вазифаи '{$name}' бомуваффақият нест карда шуд.");
     }
 }

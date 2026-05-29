@@ -48,20 +48,20 @@ class TrashController extends Controller
     {
         $user = $request->user();
         if (!$user->can('delete employees')) {
-            abort(403, 'Недостаточно прав.');
+            abort(403, 'Ҳуқуқ нокифоя аст.');
         }
 
         $employee = Employee::onlyTrashed()->findOrFail($id);
 
         if (!$user->hasRole('Admin')) {
             if ($user->branch_id === null || $employee->branch_id != $user->branch_id) {
-                abort(403, 'Вы можете восстанавливать только сотрудников своего филиала.');
+                abort(403, 'Шумо метавонед танҳо кормандони филиали худро барқарор кунед.');
             }
         }
 
         $employee->restore();
 
-        return redirect()->back()->with('success', "Сотрудник '{$employee->full_name}' успешно восстановлен.");
+        return redirect()->back()->with('success', "Корманд '{$employee->full_name}' бомуваффақият барқарор карда шуд.");
     }
 
     /**
@@ -71,21 +71,21 @@ class TrashController extends Controller
     {
         $user = $request->user();
         if (!$user->can('delete employees')) {
-            abort(403, 'Недостаточно прав.');
+            abort(403, 'Ҳуқуқ нокифоя аст.');
         }
 
         $employee = Employee::onlyTrashed()->findOrFail($id);
 
         if (!$user->hasRole('Admin')) {
             if ($user->branch_id === null || $employee->branch_id != $user->branch_id) {
-                abort(403, 'Вы можете удалять сотрудников только своего филиала.');
+                abort(403, 'Шумо метавонед кормандони танҳо филиали худро нест кунед.');
             }
         }
 
         $fullName = $employee->full_name;
         $employee->forceDelete();
 
-        return redirect()->back()->with('success', "Сотрудник '{$fullName}' был окончательно удален из базы данных.");
+        return redirect()->back()->with('success', "Корманд '{$fullName}' аз пойгоҳи додаҳо ба таври қатъӣ нест карда шуд.");
     }
 
     /**
@@ -95,13 +95,13 @@ class TrashController extends Controller
     {
         $user = $request->user();
         if (!$user->hasRole('Admin')) {
-            abort(403, 'У вас нет прав для восстановления филиалов.');
+            abort(403, 'Шумо барои барқарор кардани филиалҳо ҳуқуқ надоред.');
         }
 
         $branch = Branch::onlyTrashed()->findOrFail($id);
         $branch->restore();
 
-        return redirect()->back()->with('success', "Филиал '{$branch->name}' успешно восстановлен.");
+        return redirect()->back()->with('success', "Филиал '{$branch->name}' бомуваффақият барқарор карда шуд.");
     }
 
     /**
@@ -111,7 +111,7 @@ class TrashController extends Controller
     {
         $user = $request->user();
         if (!$user->hasRole('Admin')) {
-            abort(403, 'У вас нет прав для окончательного удаления филиалов.');
+            abort(403, 'Шумо барои нест кардани қатъии филиалҳо ҳуқуқ надоред.');
         }
 
         $branch = Branch::onlyTrashed()->findOrFail($id);
@@ -119,26 +119,26 @@ class TrashController extends Controller
         // Safety check: Prevent force deleting branch if active or soft-deleted employees are linked to it
         $employeeCount = Employee::withTrashed()->where('branch_id', $id)->count();
         if ($employeeCount > 0) {
-            return redirect()->back()->with('error', "Невозможно окончательно удалить филиал '{$branch->name}', так как к нему привязаны сотрудники ({$employeeCount} чел.). Сначала переместите или удалите их.");
+            return redirect()->back()->with('error', "Филиали '{$branch->name}'-ро ба таври қатъӣ нест кардан мумкин нест, зеро ба он кормандон вобаста шудаанд ({$employeeCount} нафар). Аввал онҳоро интиқол диҳед ё нест кунед.");
         }
 
         $name = $branch->name;
         $branch->forceDelete();
 
-        return redirect()->back()->with('success', "Филиал '{$name}' был окончательно удален из базы данных.");
+        return redirect()->back()->with('success', "Филиал '{$name}' аз пойгоҳи додаҳо ба таври қатъӣ нест карда шуд.");
     }
 
     public function restoreUser(Request $request, $id): RedirectResponse
     {
         $user = $request->user();
         if (!$user->hasRole('Admin')) {
-            abort(403, 'Недостаточно прав.');
+            abort(403, 'Ҳуқуқ нокифоя аст.');
         }
 
         $targetUser = User::onlyTrashed()->findOrFail($id);
         $targetUser->restore();
 
-        return redirect()->back()->with('success', "Пользователь '{$targetUser->name}' успешно восстановлен.");
+        return redirect()->back()->with('success', "Корбар '{$targetUser->name}' бомуваффақият барқарор карда шуд.");
     }
 
     /**
@@ -148,18 +148,18 @@ class TrashController extends Controller
     {
         $user = $request->user();
         if (!$user->hasRole('Admin')) {
-            abort(403, 'У вас нет прав для окончательного удаления пользователей.');
+            abort(403, 'Шумо барои нест кардани қатъии корбарон ҳуқуқ надоред.');
         }
 
         $targetUser = User::onlyTrashed()->findOrFail($id);
 
         if ($user->id === $targetUser->id) {
-            return redirect()->back()->with('error', 'Вы не можете удалить окончательно свой собственный аккаунт.');
+            return redirect()->back()->with('error', 'Шумо наметавонед аккаунти худро ба таври қатъӣ нест кунед.');
         }
 
         $name = $targetUser->name;
         $targetUser->forceDelete();
 
-        return redirect()->back()->with('success', "Пользователь '{$name}' был окончательно удален из системы.");
+        return redirect()->back()->with('success', "Корбар '{$name}' аз низом ба таври қатъӣ нест карда шуд.");
     }
 }

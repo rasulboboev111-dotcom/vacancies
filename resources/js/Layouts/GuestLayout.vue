@@ -35,7 +35,7 @@ import { Link } from '@inertiajs/vue3';
 
             <!-- Footer Meta -->
             <div class="mt-8 text-center text-xs text-slate-400 font-semibold">
-                &copy; 2026 ЗАО "Тоҷиктелеком". Все права защищены.
+                &copy; 2026 ҶСП "Тоҷиктелеком". Ҳамаи ҳуқуқҳо ҳифз шудаанд.
             </div>
         </div>
     </div>

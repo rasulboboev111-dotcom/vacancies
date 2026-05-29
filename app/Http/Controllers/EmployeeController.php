@@ -131,10 +131,10 @@ class EmployeeController extends Controller
         // Non-admin can only add employees to their own branch
         if (!$user->hasRole('Admin')) {
             if ($user->branch_id === null) {
-                abort(403, 'У вас нет прав для добавления сотрудников.');
+                abort(403, 'Шумо барои илова кардани кормандон ҳуқуқ надоред.');
             }
             if ($validated['branch_id'] != $user->branch_id) {
-                abort(403, 'Вы можете добавлять сотрудников только в свой филиал.');
+                abort(403, 'Шумо метавонед кормандонро танҳо ба филиали худ илова кунед.');
             }
         }
 
@@ -147,10 +147,10 @@ class EmployeeController extends Controller
         activity()
             ->performedOn($employee)
             ->event('created')
-            ->log("Добавлен сотрудник: {$employee->full_name} на должность " . ($employee->position?->name ?? 'Неизвестная должность'));
+            ->log("Корманд илова шуд: {$employee->full_name} ба вазифаи " . ($employee->position?->name ?? 'Вазифаи номаълум'));
 
         return redirect()->route('employees.index')
-            ->with('success', 'Сотрудник успешно добавлен.');
+            ->with('success', 'Корманд бомуваффақият илова шуд.');
     }
 
     /**
@@ -165,7 +165,7 @@ class EmployeeController extends Controller
         // Non-admin can only update employees of their own branch
         if (!$user->hasRole('Admin')) {
             if ($user->branch_id === null || $employee->branch_id != $user->branch_id) {
-                abort(403, 'Вы можете редактировать сотрудников только своего филиала.');
+                abort(403, 'Шумо метавонед кормандони танҳо филиали худро таҳрир кунед.');
             }
         }
 
@@ -198,7 +198,7 @@ class EmployeeController extends Controller
 
         // Non-admin cannot transfer employee to another branch
         if (!$user->hasRole('Admin') && $validated['branch_id'] != $user->branch_id) {
-            abort(403, 'Вы не можете переводить сотрудников в другой филиал.');
+            abort(403, 'Шумо наметавонед кормандонро ба филиали дигар гузаронед.');
         }
 
         $validated['employment_type'] = $validated['type_id'];
@@ -209,10 +209,10 @@ class EmployeeController extends Controller
         activity()
             ->performedOn($employee)
             ->event('updated')
-            ->log("Обновлена информация о сотруднике: {$employee->full_name}");
+            ->log("Маълумоти корманд навсозӣ шуд: {$employee->full_name}");
 
         return redirect()->route('employees.index')
-            ->with('success', 'Сотрудник успешно обновлен.');
+            ->with('success', 'Корманд бомуваффақият навсозӣ шуд.');
     }
 
     /**
@@ -227,7 +227,7 @@ class EmployeeController extends Controller
         // Non-admin can only delete employees of their own branch
         if (!$user->hasRole('Admin')) {
             if ($user->branch_id === null || $employee->branch_id != $user->branch_id) {
-                abort(403, 'Вы можете удалять сотрудников только своего филиала.');
+                abort(403, 'Шумо метавонед кормандони танҳо филиали худро нест кунед.');
             }
         }
 
@@ -236,10 +236,10 @@ class EmployeeController extends Controller
 
         activity()
             ->event('deleted')
-            ->log("Удален сотрудник: {$fullName}");
+            ->log("Корманд нест карда шуд: {$fullName}");
 
         return redirect()->route('employees.index')
-            ->with('success', 'Сотрудник успешно удален.');
+            ->with('success', 'Корманд бомуваффақият нест карда шуд.');
     }
 
     /**
@@ -295,7 +295,7 @@ class EmployeeController extends Controller
         // Non-admin can only rotate employees of their own branch
         if (!$user->hasRole('Admin')) {
             if ($user->branch_id === null || $employee->branch_id != $user->branch_id) {
-                abort(403, 'Вы можете проводить ротацию только сотрудников своего филиала.');
+                abort(403, 'Шумо метавонед танҳо кормандони филиали худро ротатсия кунед.');
             }
         }
 
@@ -309,7 +309,7 @@ class EmployeeController extends Controller
 
         // Non-admin cannot rotate employee to another branch
         if (!$user->hasRole('Admin') && $validated['branch_id'] != $user->branch_id) {
-            abort(403, 'Вы не можете переводить сотрудников в другой филиал.');
+            abort(403, 'Шумо наметавонед кормандонро ба филиали дигар гузаронед.');
         }
 
         // Save rotation log
@@ -326,8 +326,8 @@ class EmployeeController extends Controller
         ]);
 
         // Get old details for activity logging
-        $oldBranchName = $employee->branch?->name ?? 'Неизвестный филиал';
-        $oldPosition = $employee->position?->name ?? 'Неизвестная должность';
+        $oldBranchName = $employee->branch?->name ?? 'Филиали номаълум';
+        $oldPosition = $employee->position?->name ?? 'Вазифаи номаълум';
 
         // Update employee record
         $employee->update([
@@ -337,15 +337,15 @@ class EmployeeController extends Controller
         ]);
 
         // Log action
-        $newBranchName = Branch::find($validated['branch_id'])?->name ?? 'Неизвестный филиал';
-        $newPositionName = \App\Models\Position::find($validated['position_id'])?->name ?? 'Неизвестная должность';
+        $newBranchName = Branch::find($validated['branch_id'])?->name ?? 'Филиали номаълум';
+        $newPositionName = \App\Models\Position::find($validated['position_id'])?->name ?? 'Вазифаи номаълум';
         activity()
             ->performedOn($employee)
             ->event('updated')
-            ->log("Выполнена ротация сотрудника {$employee->full_name}. Переведен из {$oldBranchName} ({$oldPosition}) в {$newBranchName} ({$newPositionName})");
+            ->log("Ротатсияи корманд {$employee->full_name} анҷом дода шуд. Аз {$oldBranchName} ({$oldPosition}) ба {$newBranchName} ({$newPositionName}) гузаронида шуд");
 
         return redirect()->back()
-            ->with('success', 'Ротация сотрудника успешно проведена.');
+            ->with('success', 'Ротатсияи корманд бомуваффақият анҷом дода шуд.');
     }
 
     /**

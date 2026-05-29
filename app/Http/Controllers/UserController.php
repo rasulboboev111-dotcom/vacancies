@@ -22,7 +22,7 @@ class UserController extends Controller
     {
         $user = $request->user();
         if (!$user->hasRole('Admin')) {
-            abort(403, 'Недостаточно прав.');
+            abort(403, 'Ҳуқуқ нокифоя аст.');
         }
 
         $query = User::with(['branch', 'roles']);
@@ -46,7 +46,7 @@ class UserController extends Controller
                 'name' => $role->name,
                 'label' => match ($role->name) {
                     User::ROLE_ADMIN => 'Админ',
-                    User::ROLE_USER => 'Пользователь',
+                    User::ROLE_USER => 'Корбар',
                     default => $role->name,
                 },
             ])
@@ -67,7 +67,7 @@ class UserController extends Controller
     {
         $currentUser = $request->user();
         if (!$currentUser->hasRole('Admin')) {
-            abort(403, 'Недостаточно прав.');
+            abort(403, 'Ҳуқуқ нокифоя аст.');
         }
 
         $request->merge([
@@ -84,7 +84,7 @@ class UserController extends Controller
                 function ($attribute, $value, $fail) {
                     $exists = User::whereRaw('LOWER(TRIM(email)) = ?', [$value])->exists();
                     if ($exists) {
-                        $fail('Пользователь с таким email уже существует.');
+                        $fail('Корбар бо чунин почтаи электронӣ аллакай мавҷуд аст.');
                     }
                 },
             ],
@@ -96,12 +96,12 @@ class UserController extends Controller
             ],
             'role' => ['required', 'string', Rule::in([User::ROLE_ADMIN, User::ROLE_USER])],
         ], [
-            'email.required' => 'Email обязателен для заполнения.',
-            'email.email' => 'Неверный формат email.',
-            'password.required' => 'Пароль обязателен для заполнения.',
-            'password.confirmed' => 'Пароли не совпадают.',
-            'role.required' => 'Роль обязательна для заполнения.',
-            'branch_id.required' => 'Для роли «Пользователь» необходимо указать филиал.',
+            'email.required' => 'Почтаи электронӣ ҳатмист.',
+            'email.email' => 'Формати почтаи электронӣ нодуруст аст.',
+            'password.required' => 'Парол ҳатмист.',
+            'password.confirmed' => 'Паролҳо мувофиқат намекунанд.',
+            'role.required' => 'Нақш ҳатмист.',
+            'branch_id.required' => 'Барои нақши «Корбар» бояд филиал зикр карда шавад.',
         ]);
 
         $branchId = $validated['role'] === User::ROLE_ADMIN ? null : $validated['branch_id'];
@@ -118,10 +118,10 @@ class UserController extends Controller
         activity()
             ->performedOn($user)
             ->event('created')
-            ->log("Создан пользователь: {$user->name} ({$user->email}), роль: {$validated['role']}");
+            ->log("Корбар эҷод шуд: {$user->name} ({$user->email}), нақш: {$validated['role']}");
 
         return redirect()->route('users.index')
-            ->with('success', 'Пользователь успешно создан.');
+            ->with('success', 'Корбар бомуваффақият эҷод шуд.');
     }
 
     /**
@@ -131,7 +131,7 @@ class UserController extends Controller
     {
         $currentUser = $request->user();
         if (!$currentUser->hasRole('Admin')) {
-            abort(403, 'Недостаточно прав.');
+            abort(403, 'Ҳуқуқ нокифоя аст.');
         }
 
         $request->merge([
@@ -150,7 +150,7 @@ class UserController extends Controller
                         ->where('id', '!=', $user->id)
                         ->exists();
                     if ($exists) {
-                        $fail('Пользователь с таким email уже существует.');
+                        $fail('Корбар бо чунин почтаи электронӣ аллакай мавҷуд аст.');
                     }
                 },
             ],
@@ -162,11 +162,11 @@ class UserController extends Controller
             ],
             'role' => ['required', 'string', Rule::in([User::ROLE_ADMIN, User::ROLE_USER])],
         ], [
-            'email.required' => 'Email обязателен для заполнения.',
-            'email.email' => 'Неверный формат email.',
-            'password.confirmed' => 'Пароли не совпадают.',
-            'role.required' => 'Роль обязательна для заполнения.',
-            'branch_id.required' => 'Для роли «Пользователь» необходимо указать филиал.',
+            'email.required' => 'Почтаи электронӣ ҳатмист.',
+            'email.email' => 'Формати почтаи электронӣ нодуруст аст.',
+            'password.confirmed' => 'Паролҳо мувофиқат намекунанд.',
+            'role.required' => 'Нақш ҳатмист.',
+            'branch_id.required' => 'Барои нақши «Корбар» бояд филиал зикр карда шавад.',
         ]);
 
         $updateData = [
@@ -187,10 +187,10 @@ class UserController extends Controller
         activity()
             ->performedOn($user)
             ->event('updated')
-            ->log("Обновлен пользователь: {$user->name} ({$user->email}), роль: {$validated['role']}");
+            ->log("Корбар навсозӣ шуд: {$user->name} ({$user->email}), нақш: {$validated['role']}");
 
         return redirect()->route('users.index')
-            ->with('success', 'Пользователь успешно обновлен.');
+            ->with('success', 'Корбар бомуваффақият навсозӣ шуд.');
     }
 
     /**
@@ -200,11 +200,11 @@ class UserController extends Controller
     {
         $currentUser = $request->user();
         if (!$currentUser->hasRole('Admin')) {
-            abort(403, 'Недостаточно прав.');
+            abort(403, 'Ҳуқуқ нокифоя аст.');
         }
 
         if ($currentUser->id === $user->id) {
-            return redirect()->back()->with('error', 'Вы не можете удалить собственный аккаунт.');
+            return redirect()->back()->with('error', 'Шумо наметавонед аккаунти худро нест кунед.');
         }
 
         $name = $user->name;
@@ -213,9 +213,9 @@ class UserController extends Controller
 
         activity()
             ->event('deleted')
-            ->log("Удален пользователь: {$name} ({$email})");
+            ->log("Корбар нест карда шуд: {$name} ({$email})");
 
         return redirect()->route('users.index')
-            ->with('success', 'Пользователь успешно удален.');
+            ->with('success', 'Корбар бомуваффақият нест карда шуд.');
     }
 }

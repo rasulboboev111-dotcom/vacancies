@@ -31,7 +31,7 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Вход в систему" />
+        <Head title="Ба система ворид шавед" />
 
         <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
             {{ status }}
@@ -39,7 +39,7 @@ const submit = () => {
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="email" value="Электронная почта" />
+                <InputLabel for="email" value="Почтаи электронӣ" />
 
                 <TextInput
                     id="email"
@@ -56,7 +56,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Пароль" />
+                <InputLabel for="password" value="Парол" />
 
                 <TextInput
                     id="password"
@@ -75,7 +75,7 @@ const submit = () => {
                 <label class="flex items-center cursor-pointer select-none">
                     <Checkbox name="remember" v-model:checked="form.remember" />
                     <span class="ms-2 text-sm text-slate-300 font-semibold"
-                        >Запомнить меня</span
+                        >Маро дар хотир нигоҳ доред</span
                     >
                 </label>
             </div>
@@ -86,7 +86,7 @@ const submit = () => {
                     :href="route('password.request')"
                     class="rounded-md text-sm text-slate-400 hover:text-white transition-colors duration-200"
                 >
-                    Забыли пароль?
+                    Паролро фаромӯш кардед?
                 </Link>
 
                 <PrimaryButton
@@ -94,7 +94,7 @@ const submit = () => {
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
-                    Войти
+                    Ворид шудан
                 </PrimaryButton>
             </div>
         </form>

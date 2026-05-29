@@ -30,9 +30,9 @@ const selectedBranchId = ref(props.filters.branch_id != null ? Number(props.filt
 const selectedStatus = ref(props.filters.status ?? null);
 
 const statusOptions = [
-    { value: null, title: 'Все статусы' },
-    { value: 'open', title: 'Открытые' },
-    { value: 'closed', title: 'Закрытые' },
+    { value: null, title: 'Ҳамаи ҳолатҳо' },
+    { value: 'open', title: 'Вакансияҳои кушода' },
+    { value: 'closed', title: 'Вакансияҳои баста' },
 ];
 
 const branchOptions = computed(() =>
@@ -176,13 +176,13 @@ function confirmDelete() {
 </script>
 
 <template>
-    <Head title="Вакансии" />
+    <Head title="Вакансияҳо" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="d-flex align-center">
                 <DoorOpen style="width: 24px; height: 24px; margin-right: 12px;" class="text-indigo-accent-2" />
-                <span>Управление вакансиями</span>
+                <span>Идоракунии вакансияҳо</span>
             </div>
         </template>
 
@@ -190,7 +190,7 @@ function confirmDelete() {
             <v-col v-if="isAdmin" cols="12" md="4">
                 <v-select
                     v-model="selectedBranchId"
-                    :items="[{ id: null, title: 'Все филиалы' }, ...branchOptions]"
+                    :items="[{ id: null, title: 'Ҳамаи филиалҳо' }, ...branchOptions]"
                     item-title="title"
                     item-value="id"
                     label="Филиал"
@@ -206,7 +206,7 @@ function confirmDelete() {
                     :items="statusOptions"
                     item-title="title"
                     item-value="value"
-                    label="Статус"
+                    label="Ҳолат"
                     variant="outlined"
                     density="comfortable"
                     rounded="lg"
@@ -225,7 +225,7 @@ function confirmDelete() {
                     <template v-slot:prepend>
                         <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
                     </template>
-                    Добавить вакансию
+                    Илова кардани вакансия
                 </v-btn>
             </v-col>
         </v-row>
@@ -234,13 +234,13 @@ function confirmDelete() {
             <v-table v-if="vacancies.length > 0" hover>
                 <thead>
                     <tr>
-                        <th class="font-weight-bold text-grey-darken-3">Должность / Название</th>
-                        <th class="font-weight-bold text-grey-darken-3">Структура / Отдел</th>
+                        <th class="font-weight-bold text-grey-darken-3">Вазифа / Ном</th>
+                        <th class="font-weight-bold text-grey-darken-3">Сохтор / Шуъба</th>
                         <th v-if="isAdmin" class="font-weight-bold text-grey-darken-3">Филиал</th>
-                        <th class="font-weight-bold text-grey-darken-3">График</th>
-                        <th class="font-weight-bold text-grey-darken-3">Оклад</th>
-                        <th class="font-weight-bold text-grey-darken-3">Статус</th>
-                        <th class="font-weight-bold text-grey-darken-3 text-right">Действия</th>
+                        <th class="font-weight-bold text-grey-darken-3">Ҷадвали корӣ</th>
+                        <th class="font-weight-bold text-grey-darken-3">Маош</th>
+                        <th class="font-weight-bold text-grey-darken-3">Ҳолат</th>
+                        <th class="font-weight-bold text-grey-darken-3 text-right">Амалҳо</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -268,7 +268,7 @@ function confirmDelete() {
                                 variant="tonal"
                                 class="font-weight-bold text-uppercase"
                             >
-                                {{ vacancy.status === 'open' ? 'Открыта' : 'Закрыта' }}
+                                {{ vacancy.status === 'open' ? 'Кушода' : 'Баста' }}
                             </v-chip>
                         </td>
                         <td class="text-right">
@@ -277,7 +277,7 @@ function confirmDelete() {
                                 icon
                                 variant="text"
                                 size="small"
-                                :title="vacancy.status === 'open' ? 'Закрыть вакансию' : 'Открыть вакансию'"
+                                :title="vacancy.status === 'open' ? 'Бастани вакансия' : 'Кушодани вакансия'"
                                 @click="toggleStatus(vacancy)"
                             >
                                 <Lock v-if="vacancy.status === 'open'" style="width: 18px; height: 18px;" class="text-grey-darken-1" />
@@ -288,7 +288,7 @@ function confirmDelete() {
                                 icon
                                 variant="text"
                                 size="small"
-                                title="Редактировать"
+                                title="Таҳрир"
                                 @click="openEditDialog(vacancy)"
                             >
                                 <Pencil style="width: 18px; height: 18px;" class="text-indigo" />
@@ -298,7 +298,7 @@ function confirmDelete() {
                                 icon
                                 variant="text"
                                 size="small"
-                                title="Удалить"
+                                title="Нест кардан"
                                 @click="openDeleteDialog(vacancy)"
                             >
                                 <Trash2 style="width: 18px; height: 18px;" class="text-error" />
@@ -310,7 +310,7 @@ function confirmDelete() {
 
             <div v-else class="text-center py-12">
                 <DoorOpen style="width: 48px; height: 48px; margin: 0 auto 8px; opacity: 0.5;" class="text-grey" />
-                <div class="text-h6 text-grey font-weight-medium">Вакансии не найдены.</div>
+                <div class="text-h6 text-grey font-weight-medium">Вакансияҳо ёфт нашуданд.</div>
             </div>
         </v-card>
 
@@ -324,10 +324,10 @@ function confirmDelete() {
                         </v-avatar>
                         <div class="ml-4">
                             <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">
-                                {{ editing ? 'Редактирование' : 'Новая вакансия' }}
+                                {{ editing ? 'Таҳрир' : 'Вакансияи нав' }}
                             </div>
                             <div style="color: white; font-size: 1.1rem; font-weight: 800;">
-                                {{ editing ? form.title || 'Вакансия' : 'Добавить вакансию' }}
+                                {{ editing ? form.title || 'Вакансия' : 'Илова кардани вакансия' }}
                             </div>
                         </div>
                     </div>
@@ -347,11 +347,12 @@ function confirmDelete() {
                             rounded="lg"
                             :error-messages="form.errors.branch_id"
                             class="mb-4"
+
                         />
 
                         <v-text-field
                             v-model="form.title"
-                            label="Должность / Название вакансии"
+                            label="Вазифа / Номи вакансия"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -367,7 +368,7 @@ function confirmDelete() {
                                     :items="positions"
                                     item-title="name"
                                     item-value="id"
-                                    label="Должность (справочник)"
+                                    label="Вазифа (маълумотнома)"
                                     variant="outlined"
                                     density="comfortable"
                                     rounded="lg"
@@ -382,7 +383,7 @@ function confirmDelete() {
                                     :items="structures"
                                     item-title="name"
                                     item-value="id"
-                                    label="Структура"
+                                    label="Сохтор"
                                     variant="outlined"
                                     density="comfortable"
                                     rounded="lg"
@@ -397,7 +398,7 @@ function confirmDelete() {
                                     :items="departmentOptions"
                                     item-title="name"
                                     item-value="id"
-                                    label="Отдел"
+                                    label="Шуъба"
                                     variant="outlined"
                                     density="comfortable"
                                     rounded="lg"
@@ -412,7 +413,7 @@ function confirmDelete() {
                                     :items="employmentTypes"
                                     item-title="label"
                                     item-value="value"
-                                    label="Тип занятости"
+                                    label="Намуди шуғл"
                                     variant="outlined"
                                     density="comfortable"
                                     rounded="lg"
@@ -424,7 +425,7 @@ function confirmDelete() {
                             <v-col cols="12" md="6">
                                 <v-text-field
                                     v-model="form.schedule"
-                                    label="График"
+                                    label="Ҷадвали корӣ"
                                     variant="outlined"
                                     density="comfortable"
                                     rounded="lg"
@@ -435,7 +436,7 @@ function confirmDelete() {
                             <v-col cols="12" md="6">
                                 <v-text-field
                                     v-model="form.salary"
-                                    label="Оклад"
+                                    label="Маош"
                                     variant="outlined"
                                     density="comfortable"
                                     rounded="lg"
@@ -447,7 +448,7 @@ function confirmDelete() {
 
                         <v-textarea
                             v-model="form.requirements"
-                            label="Требования к кандидату"
+                            label="Талабот ба номзад"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -459,7 +460,7 @@ function confirmDelete() {
 
                         <v-textarea
                             v-model="form.description"
-                            label="Описание / Дополнительно"
+                            label="Тавсиф / Иловагӣ"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -473,7 +474,7 @@ function confirmDelete() {
                             <v-col cols="12" md="6">
                                 <v-text-field
                                     v-model="form.opened_at"
-                                    label="Дата открытия"
+                                    label="Санаи кушодашавӣ"
                                     type="date"
                                     variant="outlined"
                                     density="comfortable"
@@ -484,10 +485,10 @@ function confirmDelete() {
                             <v-col v-if="editing" cols="12" md="6">
                                 <v-select
                                     v-model="form.status"
-                                    :items="[{ value: 'open', title: 'Открыта' }, { value: 'closed', title: 'Закрыта' }]"
+                                    :items="[{ value: 'open', title: 'Кушода' }, { value: 'closed', title: 'Баста' }]"
                                     item-title="title"
                                     item-value="value"
-                                    label="Статус"
+                                    label="Ҳолат"
                                     variant="outlined"
                                     density="comfortable"
                                     rounded="lg"
@@ -501,10 +502,10 @@ function confirmDelete() {
 
                 <v-card-actions class="pa-5 d-flex justify-end" style="gap: 12px;">
                     <v-btn variant="tonal" color="grey" rounded="lg" size="large" :disabled="form.processing" class="px-6 font-weight-bold" @click="dialog = false">
-                        Отмена
+                        Бекор кардан
                     </v-btn>
                     <v-btn color="indigo" variant="flat" rounded="lg" size="large" :loading="form.processing" class="px-6 font-weight-bold" @click="submit">
-                        Сохранить
+                        Захира кардан
                     </v-btn>
                 </v-card-actions>
             </v-card>
@@ -519,24 +520,24 @@ function confirmDelete() {
                             <AlertTriangle style="width: 22px; height: 22px; color: white;" />
                         </v-avatar>
                         <div class="ml-3">
-                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Подтверждение</div>
-                            <div style="color: white; font-size: 1.05rem; font-weight: 800;">Удаление вакансии</div>
+                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Тасдиқ</div>
+                            <div style="color: white; font-size: 1.05rem; font-weight: 800;">Нест кардани вакансия</div>
                         </div>
                     </div>
                 </div>
                 <v-card-text class="pa-6 text-body-1 text-grey-darken-3 font-weight-medium">
-                    Вы уверены, что хотите удалить вакансию <strong class="text-red-darken-2">{{ vacancyToDelete?.title }}</strong>?
+                    Шумо мутмаин ҳастед, ки мехоҳед вакансияи <strong class="text-red-darken-2">{{ vacancyToDelete?.title }}</strong>-ро нест кунед?
                 </v-card-text>
                 <v-divider />
                 <v-card-actions class="pa-5 d-flex justify-end" style="gap: 12px;">
                     <v-btn variant="tonal" color="grey" rounded="lg" size="large" class="px-6 font-weight-bold" @click="deleteDialog = false">
-                        Отмена
+                        Бекор кардан
                     </v-btn>
                     <v-btn color="error" variant="flat" rounded="lg" size="large" class="px-6 font-weight-bold" @click="confirmDelete">
                         <template v-slot:prepend>
                             <Trash2 style="width: 18px; height: 18px;" />
                         </template>
-                        Удалить
+                        Нест кардан
                     </v-btn>
                 </v-card-actions>
             </v-card>

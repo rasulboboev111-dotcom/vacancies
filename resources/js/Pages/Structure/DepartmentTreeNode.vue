@@ -49,7 +49,7 @@ const emit = defineEmits(['edit', 'delete', 'add-child']);
                     size="small"
                     class="font-weight-bold"
                 >
-                    {{ department.children_count }} подотд.
+                    {{ department.children_count }} зершуъба
                 </v-chip>
             </div>
 
@@ -59,7 +59,7 @@ const emit = defineEmits(['edit', 'delete', 'add-child']);
                     icon
                     variant="text"
                     size="small"
-                    title="Добавить подотдел"
+                    title="Илова кардани зершуъба"
                     @click="emit('add-child', department.id)"
                 >
                     <Plus style="width: 16px; height: 16px;" />
@@ -74,7 +74,7 @@ const emit = defineEmits(['edit', 'delete', 'add-child']);
                     <v-list density="comfortable" rounded="xl" class="border py-1">
                         <v-list-item
                             v-if="canManage(department)"
-                            title="Редактировать"
+                            title="Таҳрир"
                             class="font-weight-bold"
                             @click="emit('edit', department)"
                         >
@@ -84,7 +84,7 @@ const emit = defineEmits(['edit', 'delete', 'add-child']);
                         </v-list-item>
                         <v-list-item
                             v-if="canDelete(department)"
-                            title="Удалить"
+                            title="Нест кардан"
                             class="text-error font-weight-bold"
                             :disabled="department.children_count > 0"
                             @click="emit('delete', department)"

@@ -136,10 +136,10 @@ class VacancyController extends Controller
         activity()
             ->performedOn($vacancy)
             ->event('created')
-            ->log("Создана вакансия: {$vacancy->title}");
+            ->log("Вакансия эҷод шуд: {$vacancy->title}");
 
         return redirect()->route('vacancies.index', $this->indexParams($request, $branchId))
-            ->with('success', 'Вакансия успешно создана.');
+            ->with('success', 'Вакансия бомуваффақият эҷод шуд.');
     }
 
     /**
@@ -175,10 +175,10 @@ class VacancyController extends Controller
         activity()
             ->performedOn($vacancy)
             ->event('updated')
-            ->log("Обновлена вакансия: {$vacancy->title}");
+            ->log("Вакансия навсозӣ шуд: {$vacancy->title}");
 
         return redirect()->route('vacancies.index', $this->indexParams($request, $branchId))
-            ->with('success', 'Вакансия успешно обновлена.');
+            ->with('success', 'Вакансия бомуваффақият навсозӣ шуд.');
     }
 
     /**
@@ -195,10 +195,10 @@ class VacancyController extends Controller
 
         activity()
             ->event('deleted')
-            ->log("Удалена вакансия: {$title}");
+            ->log("Вакансия нест карда шуд: {$title}");
 
         return redirect()->route('vacancies.index', $this->indexParams($request, $branchId))
-            ->with('success', 'Вакансия успешно удалена.');
+            ->with('success', 'Вакансия бомуваффақият нест карда шуд.');
     }
 
     private function resolveBranchId(Request $request, $user): int
@@ -243,16 +243,16 @@ class VacancyController extends Controller
             'opened_at' => ['nullable', 'date'],
         ], [], [
             'branch_id' => 'филиал',
-            'department_id' => 'отдел',
-            'position_id' => 'должность',
-            'structure_id' => 'структура',
-            'title' => 'название',
-            'employment_type' => 'тип занятости',
-            'requirements' => 'требования',
-            'schedule' => 'график',
-            'salary' => 'оклад',
-            'description' => 'описание',
-            'opened_at' => 'дата открытия',
+            'department_id' => 'шуъба',
+            'position_id' => 'вазифа',
+            'structure_id' => 'сохтор',
+            'title' => 'ном',
+            'employment_type' => 'намуди шуғл',
+            'requirements' => 'талабот',
+            'schedule' => 'ҷадвал',
+            'salary' => 'маош',
+            'description' => 'тавсиф',
+            'opened_at' => 'санаи кушодашавӣ',
         ]);
     }
 
