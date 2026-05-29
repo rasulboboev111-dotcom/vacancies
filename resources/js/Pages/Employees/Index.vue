@@ -1226,7 +1226,7 @@ function submitRotation() {
                         v-if="activeTab < 2"
                         color="indigo"
                         variant="flat"
-                        class="bg-indigo px-5"
+                        class="bg-indigo px-5 text-white"
                         rounded="lg"
                         @click="activeTab++"
                     >
@@ -1236,7 +1236,7 @@ function submitRotation() {
                         v-else
                         color="indigo"
                         variant="flat"
-                        class="bg-indigo px-5"
+                        class="bg-indigo px-5 text-white"
                         rounded="lg"
                         @click="submit"
                         :loading="form.processing"
