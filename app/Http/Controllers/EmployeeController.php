@@ -116,7 +116,7 @@ class EmployeeController extends Controller
             'full_name' => 'required|string|max:255',
             'gender' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\Gender::class)],
             'position_id' => 'required|exists:positions,id',
-            'structure_id' => 'required|exists:structures,id',
+            'structure_id' => 'nullable|exists:structures,id',
             'department_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('departments', 'id')->where('branch_id', (int) $request->input('branch_id'))->whereNull('deleted_at')],
             'manager_id' => 'nullable|exists:employees,id',
             'hire_date' => 'required|date',
@@ -185,7 +185,7 @@ class EmployeeController extends Controller
             'full_name' => 'required|string|max:255',
             'gender' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\Gender::class)],
             'position_id' => 'required|exists:positions,id',
-            'structure_id' => 'required|exists:structures,id',
+            'structure_id' => 'nullable|exists:structures,id',
             'department_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('departments', 'id')->where('branch_id', (int) $request->input('branch_id'))->whereNull('deleted_at')],
             'manager_id' => 'nullable|exists:employees,id',
             'hire_date' => 'required|date',
@@ -312,7 +312,7 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'branch_id' => 'required|exists:branches,id',
             'position_id' => 'required|exists:positions,id',
-            'structure_id' => 'required|exists:structures,id',
+            'structure_id' => 'nullable|exists:structures,id',
             'rotation_date' => 'required|date',
             'reason' => 'nullable|string|max:1000',
         ]);

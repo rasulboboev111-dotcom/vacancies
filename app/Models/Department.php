@@ -61,6 +61,11 @@ class Department extends Model
         return $this->hasMany(Department::class, 'parent_id');
     }
 
+    public function employees(): HasMany
+    {
+        return $this->hasMany(Employee::class);
+    }
+
     public function ancestors(): Collection
     {
         $ancestors = new Collection();
