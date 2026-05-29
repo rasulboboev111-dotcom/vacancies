@@ -28,11 +28,7 @@ class EmployeePolicy
             return true;
         }
 
-        if ($user->branch_id === null || !$user->hasPermissionTo('view employees')) {
-            return false;
-        }
-
-        return $employee->branch_id === $user->branch_id;
+        return $user->branch_id !== null && $user->hasPermissionTo('view employees');
     }
 
     /**

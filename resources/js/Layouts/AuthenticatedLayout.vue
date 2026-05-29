@@ -141,9 +141,8 @@ function logout() {
                     </template>
                 </v-list-item>
 
-                <!-- Show only for Admin or HR Manager who has view audit logs permission or has role -->
                 <v-list-item
-                    v-if="$page.props.auth.user.roles.includes('Admin') || $page.props.auth.user.roles.includes('HR Manager')"
+                    v-if="$page.props.auth.user.roles.includes('Admin')"
                     title="Логи действий"
                     :active="route().current('activity-logs.*')"
                     color="indigo"
@@ -157,7 +156,7 @@ function logout() {
                 </v-list-item>
 
                 <v-list-item
-                    v-if="!$page.props.auth.user.roles.includes('Viewer')"
+                    v-if="$page.props.auth.user.permissions.includes('delete employees')"
                     title="Корзина"
                     :active="route().current('trash.*')"
                     color="red"

@@ -21,12 +21,8 @@ class BranchController extends Controller
         $user = $request->user();
         $query = Branch::withCount('employees');
 
-        if (!$user->hasRole('Admin')) {
-            if ($user->branch_id !== null) {
-                $query->where('id', $user->branch_id);
-            } else {
-                $query->whereRaw('1=0');
-            }
+        if ($user->branch_id === null && !$user->hasRole('Admin')) {
+            $query->whereRaw('1=0');
         }
 
         $branches = $query->orderBy('name')->get();

@@ -28,11 +28,7 @@ class BranchPolicy
             return true;
         }
 
-        if ($user->branch_id === null || !$user->hasPermissionTo('view branches')) {
-            return false;
-        }
-
-        return $branch->id === $user->branch_id;
+        return $user->branch_id !== null && $user->hasPermissionTo('view branches');
     }
 
     /**

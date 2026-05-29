@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { 
     Shield, 
     Plus, 
@@ -120,24 +120,28 @@ function confirmDelete() {
     }
 }
 
+const roleLabels = {
+    Admin: 'Админ',
+    User: 'Пользователь',
+};
+
 const getRoleLabel = (roleName) => {
     if (!roleName) return 'Нет роли';
-    const rolesMap = {
-        'Admin': 'Администратор',
-        'HR Manager': 'HR-Менеджер',
-        'Branch Manager': 'Руководитель филиала',
-        'Viewer': 'Наблюдатель'
-    };
-    return rolesMap[roleName] || roleName;
+    return roleLabels[roleName] ?? roleName;
 };
+
+const roleOptions = computed(() =>
+    (props.roles ?? []).map((role) => ({
+        value: role.name,
+        title: role.label ?? getRoleLabel(role.name),
+    }))
+);
 
 const getRoleColor = (roleName) => {
     if (!roleName) return 'grey';
     const colorsMap = {
         'Admin': 'red',
-        'HR Manager': 'indigo',
-        'Branch Manager': 'teal',
-        'Viewer': 'blue-grey'
+        'User': 'indigo',
     };
     return colorsMap[roleName] || 'grey';
 };
@@ -390,9 +394,9 @@ const formatDate = (dateString) => {
                         <!-- Role Field -->
                         <v-select
                             v-model="form.role"
-                            :items="roles"
-                            item-title="name"
-                            item-value="name"
+                            :items="roleOptions"
+                            item-title="title"
+                            item-value="value"
                             label="Роль пользователя"
                             variant="outlined"
                             density="comfortable"
@@ -404,12 +408,6 @@ const formatDate = (dateString) => {
                         >
                             <template v-slot:prepend-inner>
                                 <Shield style="width: 18px; height: 18px;" class="text-grey mr-2" />
-                            </template>
-                            <template v-slot:item="{ props, item }">
-                                <v-list-item v-bind="props" :title="getRoleLabel(item.value)"></v-list-item>
-                            </template>
-                            <template v-slot:selection="{ item }">
-                                {{ getRoleLabel(item.value) }}
                             </template>
                         </v-select>
 
@@ -427,7 +425,8 @@ const formatDate = (dateString) => {
                             color="indigo"
                             :error-messages="form.errors.branch_id"
                             clearable
-                            placeholder="Все филиалы (Администратор/HR)"
+                            :required="form.role === 'User'"
+                            placeholder="Обязательно для роли «Пользователь»"
                         >
                             <template v-slot:prepend-inner>
                                 <Building2 style="width: 18px; height: 18px;" class="text-grey mr-2" />

@@ -35,14 +35,19 @@ const page = usePage();
 const currentUser = computed(() => page.props.auth.user);
 const userRoles = computed(() => currentUser.value?.roles || []);
 
-// Role checks
-const isAdminOrSuperAdmin = computed(() => {
-    return userRoles.value.includes('Super Admin') || userRoles.value.includes('Admin');
+const isAdmin = computed(() => userRoles.value.includes('Admin'));
+
+const canManageEmployees = computed(() => {
+    return currentUser.value?.permissions?.includes('delete employees') ?? false;
 });
 
-const isViewer = computed(() => {
-    return userRoles.value.includes('Viewer');
-});
+const canManageTrashedEmployee = (employee) => {
+    const user = currentUser.value;
+    if (!user) return false;
+    if (user.roles?.includes('Admin')) return true;
+    if (!canManageEmployees.value) return false;
+    return Number(employee.branch_id) === Number(user.branch_id);
+};
 
 // Active tab
 const tab = ref('employees');
@@ -288,7 +293,7 @@ function formatDate(dateStr) {
                                 <td class="pa-4 text-center">
                                     <div class="d-flex justify-center g-2">
                                         <v-btn
-                                            v-if="!isViewer"
+                                            v-if="canManageTrashedEmployee(employee)"
                                             color="success"
                                             variant="tonal"
                                             size="small"
@@ -302,7 +307,7 @@ function formatDate(dateStr) {
                                             Вернуть
                                         </v-btn>
                                         <v-btn
-                                            v-if="!isViewer"
+                                            v-if="canManageTrashedEmployee(employee)"
                                             color="error"
                                             variant="tonal"
                                             size="small"
@@ -371,7 +376,7 @@ function formatDate(dateStr) {
                                 </td>
                                 <td class="pa-4 text-center">
                                     <div class="d-flex justify-center g-2">
-                                        <template v-if="isAdminOrSuperAdmin">
+                                        <template v-if="isAdmin">
                                             <v-btn
                                                 color="success"
                                                 variant="tonal"
@@ -467,7 +472,7 @@ function formatDate(dateStr) {
                                 <td class="pa-4 text-center">
                                     <div class="d-flex justify-center g-2">
                                         <v-btn
-                                            v-if="!isViewer"
+                                            v-if="canManageEmployees"
                                             color="success"
                                             variant="tonal"
                                             size="small"
@@ -481,9 +486,9 @@ function formatDate(dateStr) {
                                             Вернуть
                                         </v-btn>
                                         
-                                        <!-- Only Admin or Super Admin can force delete users -->
+                                        <!-- Only Admin can force delete users -->
                                         <v-btn
-                                            v-if="isAdminOrSuperAdmin && currentUser.id !== usr.id"
+                                            v-if="isAdmin && currentUser.id !== usr.id"
                                             color="error"
                                             variant="tonal"
                                             size="small"
@@ -497,7 +502,7 @@ function formatDate(dateStr) {
                                             Стереть
                                         </v-btn>
                                         <span v-else-if="currentUser.id === usr.id" class="text-caption text-grey">Текущий сеанс</span>
-                                        <span v-else-if="isViewer" class="text-caption text-grey">Только просмотр</span>
+                                        <span v-else-if="!canManageEmployees" class="text-caption text-grey">Только просмотр</span>
                                         <span v-else class="text-caption text-grey font-weight-medium">Только для Админа</span>
                                     </div>
                                 </td>

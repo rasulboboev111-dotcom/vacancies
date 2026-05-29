@@ -40,7 +40,7 @@ class PositionPolicy
             return true;
         }
 
-        return $user->branch_id !== null && $user->hasRole('HR Manager');
+        return false;
     }
 
     /**
@@ -52,7 +52,7 @@ class PositionPolicy
             return true;
         }
 
-        return $user->branch_id !== null && $user->hasRole('HR Manager');
+        return false;
     }
 
     /**

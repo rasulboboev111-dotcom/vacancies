@@ -120,7 +120,7 @@ function formatDate(dateStr) {
                         class="search-field"
                     ></v-text-field>
                 </v-col>
-                <v-col cols="12" md="4" v-if="!$page.props.auth.user.roles.includes('Branch Manager')">
+                <v-col cols="12" md="4" v-if="$page.props.auth.user.permissions.includes('view employees')">
                     <v-select
                         v-model="branchId"
                         :items="branches"

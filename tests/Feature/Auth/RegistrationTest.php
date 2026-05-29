@@ -18,8 +18,7 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
-        // Create Viewer role required by default registration assignment
-        \Spatie\Permission\Models\Role::create(['name' => 'Viewer']);
+        \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'User']);
 
         $response = $this->post('/register', [
             'name' => 'Test User',

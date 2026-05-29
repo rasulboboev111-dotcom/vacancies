@@ -26,16 +26,11 @@ class TrashController extends Controller
         // Build query for branches
         $branchesQuery = Branch::onlyTrashed();
 
-        // Scope to current branch for non-admins
         if (!$user->hasRole('Admin')) {
-            if ($user->branch_id !== null) {
-                $employeesQuery->where('branch_id', $user->branch_id);
-                $branchesQuery->where('id', $user->branch_id);
-            } else {
+            if ($user->branch_id === null) {
                 $employeesQuery->whereRaw('1=0');
                 $branchesQuery->whereRaw('1=0');
             }
-            // Non-admins cannot see soft-deleted users
             $usersQuery->whereRaw('1=0');
         }
 
@@ -52,7 +47,7 @@ class TrashController extends Controller
     public function restoreEmployee(Request $request, $id): RedirectResponse
     {
         $user = $request->user();
-        if ($user->hasRole('Viewer')) {
+        if (!$user->can('delete employees')) {
             abort(403, 'Недостаточно прав.');
         }
 
@@ -75,7 +70,7 @@ class TrashController extends Controller
     public function forceDeleteEmployee(Request $request, $id): RedirectResponse
     {
         $user = $request->user();
-        if ($user->hasRole('Viewer')) {
+        if (!$user->can('delete employees')) {
             abort(403, 'Недостаточно прав.');
         }
 

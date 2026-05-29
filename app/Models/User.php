@@ -13,8 +13,22 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
+    public const ROLE_ADMIN = 'Admin';
+
+    public const ROLE_USER = 'User';
+
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles, SoftDeletes;
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(self::ROLE_ADMIN);
+    }
+
+    public function isBranchUser(): bool
+    {
+        return $this->hasRole(self::ROLE_USER);
+    }
 
     /**
      * The attributes that are mass assignable.
