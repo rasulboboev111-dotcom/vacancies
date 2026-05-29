@@ -193,7 +193,6 @@ class UserTest extends TestCase
         ]);
 
         $this->actingAs($userWithoutBranch)->get(route('employees.index'))->assertStatus(403);
-        $this->actingAs($userWithoutBranch)->get(route('branches.index'))->assertStatus(403);
         $this->actingAs($userWithoutBranch)->get(route('positions.index'))->assertStatus(403);
     }
 

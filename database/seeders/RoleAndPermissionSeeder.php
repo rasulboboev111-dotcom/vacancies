@@ -33,6 +33,14 @@ class RoleAndPermissionSeeder extends Seeder
             'create employees',
             'edit employees',
             'delete employees',
+            'view departments',
+            'create departments',
+            'edit departments',
+            'delete departments',
+            'view vacancies',
+            'create vacancies',
+            'edit vacancies',
+            'delete vacancies',
             'view audit logs',
         ];
 
@@ -52,6 +60,14 @@ class RoleAndPermissionSeeder extends Seeder
             'create employees',
             'edit employees',
             'delete employees',
+            'view departments',
+            'create departments',
+            'edit departments',
+            'delete departments',
+            'view vacancies',
+            'create vacancies',
+            'edit vacancies',
+            'delete vacancies',
         ]);
 
         $this->removeLegacyRoles();

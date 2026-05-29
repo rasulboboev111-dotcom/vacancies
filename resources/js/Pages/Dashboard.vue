@@ -7,9 +7,11 @@ import {
     Building2, 
     MapPin, 
     FolderOpen, 
-    Briefcase, 
-    Clock, 
-    Plus
+    Briefcase,
+    Clock,
+    Plus,
+    DoorOpen,
+    CheckCircle2
 } from '@lucide/vue';
 
 const props = defineProps({
@@ -40,7 +42,7 @@ const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#0f2d88', '#EC4899'
 
         <!-- KPI Cards -->
         <v-row class="mb-6">
-            <v-col cols="12" sm="6">
+            <v-col cols="12" sm="6" md="3">
                 <v-card elevation="0" class="rounded-xl pa-5 bg-gradient-indigo border-glow relative overflow-hidden transition-hover">
                     <div class="d-flex justify-between align-center">
                         <div>
@@ -55,7 +57,7 @@ const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#0f2d88', '#EC4899'
                 </v-card>
             </v-col>
 
-            <v-col cols="12" sm="6">
+            <v-col cols="12" sm="6" md="3">
                 <v-card elevation="0" class="rounded-xl pa-5 bg-gradient-emerald border-glow relative overflow-hidden transition-hover">
                     <div class="d-flex justify-between align-center">
                         <div>
@@ -67,6 +69,75 @@ const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#0f2d88', '#EC4899'
                         </v-avatar>
                     </div>
                     <div class="glass-shine"></div>
+                </v-card>
+            </v-col>
+
+            <v-col cols="12" sm="6" md="3">
+                <v-card elevation="0" class="rounded-xl pa-5 bg-gradient-amber border-glow relative overflow-hidden transition-hover">
+                    <div class="d-flex justify-between align-center">
+                        <div>
+                            <span class="text-subtitle-2 text-white-50 font-weight-medium text-uppercase tracking-wider">Открытые вакансии</span>
+                            <h2 class="text-h3 font-weight-black mt-2 text-white">{{ stats.open_vacancies }}</h2>
+                        </div>
+                        <v-avatar rounded="xl" size="64" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px);">
+                            <DoorOpen style="width: 32px; height: 32px; color: white;" />
+                        </v-avatar>
+                    </div>
+                    <div class="glass-shine"></div>
+                </v-card>
+            </v-col>
+
+            <v-col cols="12" sm="6" md="3">
+                <v-card elevation="0" class="rounded-xl pa-5 bg-gradient-slate border-glow relative overflow-hidden transition-hover">
+                    <div class="d-flex justify-between align-center">
+                        <div>
+                            <span class="text-subtitle-2 text-white-50 font-weight-medium text-uppercase tracking-wider">Закрытые вакансии</span>
+                            <h2 class="text-h3 font-weight-black mt-2 text-white">{{ stats.closed_vacancies }}</h2>
+                        </div>
+                        <v-avatar rounded="xl" size="64" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px);">
+                            <CheckCircle2 style="width: 32px; height: 32px; color: white;" />
+                        </v-avatar>
+                    </div>
+                    <div class="glass-shine"></div>
+                </v-card>
+            </v-col>
+        </v-row>
+
+        <!-- Vacancies by branch -->
+        <v-row class="mb-6">
+            <v-col cols="12">
+                <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass">
+                    <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
+                        <Briefcase style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" />
+                        Вакансии по филиалам
+                    </v-card-title>
+                    <v-divider class="mb-5"></v-divider>
+
+                    <v-row v-if="stats.vacancy_by_branch && stats.vacancy_by_branch.length > 0">
+                        <v-col v-for="branch in stats.vacancy_by_branch" :key="branch.id" cols="12" sm="6" md="4" class="mb-2">
+                            <v-card elevation="0" class="pa-4 rounded-lg bg-surface-glass border transition-hover h-100">
+                                <div class="d-flex justify-space-between align-center mb-3">
+                                    <div class="font-weight-bold text-subtitle-1 d-flex align-center text-grey-darken-4">
+                                        {{ branch.name }}
+                                        <v-chip v-if="branch.code" size="x-small" color="indigo" class="ml-2 font-weight-bold text-uppercase">{{ branch.code }}</v-chip>
+                                    </div>
+                                </div>
+                                <div class="d-flex" style="gap: 12px;">
+                                    <div class="flex-grow-1 text-center pa-3 rounded-lg" style="background: rgba(245, 158, 11, 0.1);">
+                                        <div class="text-h5 font-weight-black" style="color: #d97706;">{{ branch.open }}</div>
+                                        <div class="text-caption font-weight-bold text-grey-darken-1">Открытые</div>
+                                    </div>
+                                    <div class="flex-grow-1 text-center pa-3 rounded-lg" style="background: rgba(100, 116, 139, 0.1);">
+                                        <div class="text-h5 font-weight-black text-grey-darken-2">{{ branch.closed }}</div>
+                                        <div class="text-caption font-weight-bold text-grey-darken-1">Закрытые</div>
+                                    </div>
+                                </div>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+                    <div v-else class="text-center py-8 text-grey font-weight-medium">
+                        Вакансий пока нет.
+                    </div>
                 </v-card>
             </v-col>
         </v-row>
@@ -199,6 +270,12 @@ const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#0f2d88', '#EC4899'
 }
 .bg-gradient-emerald {
     background: linear-gradient(135deg, #10b981 0%, #064e3b 100%) !important;
+}
+.bg-gradient-amber {
+    background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%) !important;
+}
+.bg-gradient-slate {
+    background: linear-gradient(135deg, #64748b 0%, #1e293b 100%) !important;
 }
 .bg-surface-glass {
     background: rgba(255, 255, 255, 0.7) !important;
