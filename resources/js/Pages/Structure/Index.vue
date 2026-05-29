@@ -664,7 +664,7 @@ function confirmDeleteBranch() {
                         rounded="lg"
                         size="large"
                         :loading="deptForm.processing"
-                        class="px-6 font-weight-bold"
+                        class="px-6 font-weight-bold text-white"
                         style="box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);"
                         @click="submitDepartment"
                     >
@@ -803,7 +803,7 @@ function confirmDeleteBranch() {
                         size="large"
                         @click="submitBranch"
                         :loading="branchForm.processing"
-                        class="px-6 font-weight-bold"
+                        class="px-6 font-weight-bold text-white"
                         style="box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);"
                     >
                         Захира кардан

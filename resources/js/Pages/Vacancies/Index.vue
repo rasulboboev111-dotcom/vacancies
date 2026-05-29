@@ -504,7 +504,7 @@ function confirmDelete() {
                     <v-btn variant="tonal" color="grey" rounded="lg" size="large" :disabled="form.processing" class="px-6 font-weight-bold" @click="dialog = false">
                         Бекор кардан
                     </v-btn>
-                    <v-btn color="indigo" variant="flat" rounded="lg" size="large" :loading="form.processing" class="px-6 font-weight-bold" @click="submit">
+                    <v-btn color="indigo" variant="flat" rounded="lg" size="large" :loading="form.processing" class="px-6 font-weight-bold text-white" @click="submit">
                         Захира кардан
                     </v-btn>
                 </v-card-actions>
