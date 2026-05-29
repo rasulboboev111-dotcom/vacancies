@@ -239,7 +239,7 @@ function formatDate(dateStr) {
                     <v-row class="mb-4">
                         <v-col cols="12" sm="4" class="py-2">
                             <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Пол</span>
-                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.gender || '-' }}</span>
+                            <span class="text-body-1 font-weight-bold">{{ selectedEmployee.gender_label || '-' }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="4" class="py-2">

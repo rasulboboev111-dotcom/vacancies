@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Gender;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -75,6 +76,7 @@ class Employee extends Model
     ];
 
     protected $casts = [
+        'gender' => Gender::class,
         'hire_date' => 'date',
         'dismissal_date' => 'date',
         'birth_date' => 'date',
@@ -83,7 +85,7 @@ class Employee extends Model
         'employment_start_date' => 'date',
     ];
 
-    protected $appends = ['age', 'type_id'];
+    protected $appends = ['age', 'type_id', 'gender_label'];
 
     /**
      * Get employee's age based on birth date.
@@ -94,6 +96,15 @@ class Employee extends Model
             return null;
         }
         return Carbon::parse($this->birth_date)->age;
+    }
+
+    /**
+     * Human-readable gender label (e.g. "Мужской") for the frontend,
+     * derived from the canonical Gender enum value stored in the column.
+     */
+    public function getGenderLabelAttribute(): ?string
+    {
+        return $this->gender?->label();
     }
 
     /**
