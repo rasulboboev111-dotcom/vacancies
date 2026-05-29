@@ -8,13 +8,13 @@
 
 /* Universal Font family definition - Cascade cleanly to prevent legend and notched outline bugs in Vuetify inputs */
 html, body, .v-application {
-    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-family: 'Montserrat', sans-serif;
     letter-spacing: -0.01em;
 }
 
 /* Apply premium typography strictly to text and interactive containers */
 .v-btn, .v-card, .v-dialog, .v-table, .v-list, .v-field, .v-label, .v-tabs, input, select, textarea, button {
-    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important;
+    font-family: 'Montserrat', sans-serif !important;
 }
 
 /* Base body styles */
@@ -27,19 +27,15 @@ body {
    RESPONSIVE GRADIENT MESH BACKGROUND
    ========================================== */
 .v-theme--light {
-    --bg-gradient-mesh: radial-gradient(at 0% 0%, rgba(0, 156, 241, 0.06) 0px, transparent 50%),
-                        radial-gradient(at 50% 0%, rgba(15, 45, 136, 0.04) 0px, transparent 50%),
-                        radial-gradient(at 100% 0%, rgba(52, 205, 254, 0.06) 0px, transparent 50%);
+    --bg-gradient-mesh: none;
     --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
-    --border-color-glow: linear-gradient(to bottom right, rgba(255,255,255,0.5), rgba(255,255,255,0.1));
+    --border-color-glow: rgba(255, 255, 255, 0.4);
 }
 
 .v-theme--dark {
-    --bg-gradient-mesh: radial-gradient(at 0% 0%, rgba(0, 156, 241, 0.12) 0px, transparent 50%),
-                        radial-gradient(at 50% 0%, rgba(15, 45, 136, 0.08) 0px, transparent 50%),
-                        radial-gradient(at 100% 0%, rgba(52, 205, 254, 0.12) 0px, transparent 50%);
+    --bg-gradient-mesh: none;
     --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1);
-    --border-color-glow: linear-gradient(to bottom right, rgba(255,255,255,0.15), rgba(255,255,255,0.02));
+    --border-color-glow: rgba(255, 255, 255, 0.08);
 }
 
 .bg-background {
@@ -90,13 +86,13 @@ body {
     box-shadow: 0 20px 40px -15px rgba(0, 156, 241, 0.12), var(--card-shadow) !important;
 }
 
-/* Metallic gradient stats */
+/* Flat brand stat surfaces */
 .bg-gradient-indigo {
-    background: linear-gradient(135deg, #009cf1 0%, #0f2d88 100%) !important;
+    background: #0f2d88 !important;
     box-shadow: 0 10px 30px -10px rgba(0, 156, 241, 0.3) !important;
 }
 .bg-gradient-emerald {
-    background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
+    background: #059669 !important;
     box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.3) !important;
 }
 
@@ -264,20 +260,9 @@ body {
     transform: translateY(0px) !important;
 }
 
-/* Elegant glass card shine effect */
+/* Glass card shine effect removed (no gradients) */
 .glass-shine {
-    position: absolute;
-    top: 0;
-    left: -50%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0) 100%);
-    transform: skewX(-25deg);
-    transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    pointer-events: none;
-}
-.v-card:hover .glass-shine {
-    left: 125%;
+    display: none !important;
 }
 
 /* ==========================================
@@ -525,14 +510,11 @@ body {
 /* ==========================================
    GLOBAL BRAND COLOR OVERRIDES
    ========================================== */
-/* Match any element that has inline gradients with indigo colors and replace them with Tojiktelecom gradient */
+/* Safety net: flatten any leftover inline indigo gradients to the solid brand navy */
 [style*="linear-gradient(135deg, #4f46e5"],
 [style*="linear-gradient(135deg, #6366f1"],
-[style*="linear-gradient(135deg, #6366f1 0%, #4338ca 100%)"],
-[style*="linear-gradient(135deg, #4f46e5 0%, #312e81 100%)"],
-[style*="background: linear-gradient(135deg, #4f46e5"],
-[style*="background: linear-gradient(135deg, #6366f1"] {
-    background: linear-gradient(135deg, #009cf1 0%, #0f2d88 100%) !important;
+[style*="linear-gradient(135deg, #009cf1 0%, #0f2d88"] {
+    background: #0f2d88 !important;
 }
 
 /* Override tailwind indigo styles globally */

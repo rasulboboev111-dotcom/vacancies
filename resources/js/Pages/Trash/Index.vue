@@ -530,9 +530,9 @@ function formatDate(dateStr) {
                 <div 
                     class="pa-6 text-white d-flex align-center justify-space-between" 
                     :style="{ 
-                        background: dialogAction === 'restore' 
-                            ? 'linear-gradient(135deg, #10b981 0%, #047857 100%)' 
-                            : 'linear-gradient(135deg, #f43f5e 0%, #be123c 100%)' 
+                        background: dialogAction === 'restore'
+                            ? '#059669'
+                            : '#e11d48'
                     }"
                 >
                     <div class="d-flex align-center">
@@ -586,7 +586,7 @@ function formatDate(dateStr) {
     backdrop-filter: blur(12px);
 }
 .dashboard-header-card {
-    background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%) !important;
+    background: #e11d48 !important;
     box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.3) !important;
 }
 .header-card-glow {
@@ -595,7 +595,7 @@ function formatDate(dateStr) {
     right: -10%;
     width: 300px;
     height: 300px;
-    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 70%);
+    background: transparent;
     border-radius: 50%;
     pointer-events: none;
 }
@@ -626,7 +626,7 @@ function formatDate(dateStr) {
     left: -50%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0) 100%);
+    background: transparent;
     transform: skewX(-25deg);
     transition: 0.75s;
     pointer-events: none;

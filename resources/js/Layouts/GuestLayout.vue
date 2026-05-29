@@ -5,7 +5,7 @@ import { Link } from '@inertiajs/vue3';
 <template>
     <div
         class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-slate-50 text-slate-900 font-sans"
-        style="background: radial-gradient(circle at 10% 20%, rgba(0, 156, 241, 0.08) 0%, transparent 45%), radial-gradient(circle at 90% 80%, rgba(15, 45, 136, 0.05) 0%, transparent 40%), #f8fafc;"
+        style="background: #f8fafc;"
     >
         <!-- Decorative Ambient Light -->
         <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sky-500/5 rounded-full blur-[120px] pointer-events-none"></div>
@@ -92,7 +92,7 @@ import { Link } from '@inertiajs/vue3';
 
 /* Override default primary buttons on auth forms to match light brand style */
 :deep(button[type="submit"]) {
-    background: linear-gradient(135deg, #009cf1 0%, #0f2d88 100%) !important;
+    background: #0f2d88 !important;
     box-shadow: 0 8px 20px -6px rgba(0, 156, 241, 0.4) !important;
     border-radius: 12px !important;
     text-transform: none !important;

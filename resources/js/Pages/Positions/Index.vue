@@ -118,11 +118,11 @@ function confirmDelete() {
                     color="indigo"
                     rounded="lg"
                     elevation="2"
-                    class="px-5 bg-indigo transition-hover-btn font-weight-bold"
+                    class="px-5 bg-indigo transition-hover-btn font-weight-bold text-white"
                     @click="openCreateDialog"
                 >
                     <template v-slot:prepend>
-                        <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
+                        <Plus style="width: 16px; height: 16px; margin-right: 4px; color: #ffffff;" />
                     </template>
                     Илова кардани вазифа
                 </v-btn>
@@ -200,7 +200,7 @@ function confirmDelete() {
         <v-dialog v-model="dialog" max-width="520px" persistent>
             <v-card class="rounded-xl overflow-hidden" elevation="8">
                 <!-- Premium Gradient Header -->
-                <div style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); padding: 20px 24px;">
+                <div style="background: #0f2d88; padding: 20px 24px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
                             <Briefcase style="width: 22px; height: 22px; color: white;" />
@@ -268,8 +268,8 @@ function confirmDelete() {
                 <div 
                     :style="{
                         background: positionToDelete?.employees_count > 0 
-                            ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' 
-                            : 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)',
+                            ? '#d97706'
+                            : '#dc2626',
                         padding: '20px 24px'
                     }"
                 >
@@ -374,7 +374,7 @@ function confirmDelete() {
     left: -50%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
+    background: transparent;
     transform: skewX(-25deg);
     transition: 0.75s;
     pointer-events: none;

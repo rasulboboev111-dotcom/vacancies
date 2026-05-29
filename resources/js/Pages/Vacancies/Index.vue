@@ -219,11 +219,11 @@ function confirmDelete() {
                     color="indigo"
                     rounded="lg"
                     elevation="2"
-                    class="px-5 bg-indigo transition-hover-btn font-weight-bold"
+                    class="px-5 bg-indigo transition-hover-btn font-weight-bold text-white"
                     @click="openCreateDialog()"
                 >
                     <template v-slot:prepend>
-                        <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
+                        <Plus style="width: 16px; height: 16px; margin-right: 4px; color: #ffffff;" />
                     </template>
                     Илова кардани вакансия
                 </v-btn>
@@ -317,7 +317,7 @@ function confirmDelete() {
         <!-- Create / Edit dialog -->
         <v-dialog v-model="dialog" max-width="680px" persistent scrollable>
             <v-card class="rounded-xl overflow-hidden" elevation="8">
-                <div style="background: linear-gradient(135deg, #009cf1 0%, #0f2d88 100%); padding: 20px 24px;">
+                <div style="background: #0f2d88; padding: 20px 24px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15);">
                             <DoorOpen style="width: 22px; height: 22px; color: white;" />
@@ -514,7 +514,7 @@ function confirmDelete() {
         <!-- Delete dialog -->
         <v-dialog v-model="deleteDialog" max-width="460px">
             <v-card class="rounded-xl overflow-hidden" elevation="8">
-                <div style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 20px 24px;">
+                <div style="background: #dc2626; padding: 20px 24px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15);">
                             <AlertTriangle style="width: 22px; height: 22px; color: white;" />

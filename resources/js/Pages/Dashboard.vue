@@ -266,16 +266,16 @@ const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#0f2d88', '#EC4899'
 
 <style scoped>
 .bg-gradient-indigo {
-    background: linear-gradient(135deg, #009cf1 0%, #0f2d88 100%) !important;
+    background: #0f2d88 !important;
 }
 .bg-gradient-emerald {
-    background: linear-gradient(135deg, #10b981 0%, #064e3b 100%) !important;
+    background: #059669 !important;
 }
 .bg-gradient-amber {
-    background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%) !important;
+    background: #d97706 !important;
 }
 .bg-gradient-slate {
-    background: linear-gradient(135deg, #64748b 0%, #1e293b 100%) !important;
+    background: #475569 !important;
 }
 .bg-surface-glass {
     background: rgba(255, 255, 255, 0.7) !important;
@@ -309,7 +309,7 @@ const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#0f2d88', '#EC4899'
     left: -50%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+    background: transparent;
     transform: skewX(-25deg);
     transition: 0.75s;
     pointer-events: none;
