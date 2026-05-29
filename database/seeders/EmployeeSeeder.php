@@ -306,6 +306,7 @@ class EmployeeSeeder extends Seeder
 
             $employeeData['category_id'] = $categoriesMap[$emp['category']] ?? null;
             $employeeData['employment_type'] = mb_strtolower($emp['type']);
+            $employeeData['gender'] = mb_strtolower($emp['gender']);
             $employeeData['position_id'] = $positionsMap[$emp['position']] ?? null;
             $employeeData['structure_id'] = $structuresMap[$emp['structure']] ?? null;
 

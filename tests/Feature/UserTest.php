@@ -188,7 +188,7 @@ class UserTest extends TestCase
             'branch_id' => $this->branch1->id,
             'position_id' => $pos->id,
             'full_name' => 'John Doe',
-            'gender' => 'male',
+            'gender' => 'мужской',
             'hire_date' => '2020-01-01',
         ]);
 
@@ -203,7 +203,7 @@ class UserTest extends TestCase
             'branch_id' => $this->branch2->id,
             'position_id' => $pos->id,
             'full_name' => 'Other Branch Employee',
-            'gender' => 'Мужской',
+            'gender' => 'мужской',
             'hire_date' => '2020-01-01',
         ]);
 
@@ -223,7 +223,7 @@ class UserTest extends TestCase
             'category_id' => $category->id,
             'type_id' => 'штатный',
             'full_name' => 'New Employee',
-            'gender' => 'Мужской',
+            'gender' => 'мужской',
             'position_id' => $pos->id,
             'structure_id' => $structure->id,
             'hire_date' => '2020-01-01',
@@ -247,7 +247,7 @@ class UserTest extends TestCase
             'category_id' => $category->id,
             'type_id' => 'штатный',
             'full_name' => 'Wrong Branch',
-            'gender' => 'Мужской',
+            'gender' => 'мужской',
             'position_id' => $pos->id,
             'structure_id' => $structure->id,
             'hire_date' => '2020-01-01',

@@ -100,12 +100,18 @@ const employeeToDelete = ref(null);
 // Form Tabs
 const activeTab = ref(0);
 
+// Gender options: canonical enum value submitted to the backend, label shown to the user.
+const genderOptions = [
+    { value: 'мужской', title: 'Мужской' },
+    { value: 'женский', title: 'Женский' },
+];
+
 const form = useForm({
     branch_id: null,
     category_id: null,
     type_id: null,
     full_name: '',
-    gender: '',
+    gender: null,
     position_id: null,
     structure_id: null,
     manager_id: null,
@@ -173,7 +179,7 @@ function openEditDialog(employee) {
     form.category_id = employee.category_id ? Number(employee.category_id) : null;
     form.type_id = employee.type_id ? Number(employee.type_id) : null;
     form.full_name = employee.full_name;
-    form.gender = employee.gender || '';
+    form.gender = employee.gender || null;
     form.position_id = employee.position_id ? Number(employee.position_id) : null;
     form.structure_id = employee.structure_id ? Number(employee.structure_id) : null;
     form.manager_id = employee.manager_id ? Number(employee.manager_id) : null;
@@ -565,7 +571,7 @@ function submitRotation() {
                                     </div>
                                     <div>
                                         <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Пол</span>
-                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.gender || '-' }}</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.gender_label || '-' }}</span>
                                     </div>
                                 </div>
                             </v-col>
@@ -1050,7 +1056,9 @@ function submitRotation() {
                                     <v-col cols="12" sm="4">
                                         <v-select
                                             v-model="form.gender"
-                                            :items="['Мужской', 'Женский']"
+                                            :items="genderOptions"
+                                            item-title="title"
+                                            item-value="value"
                                             label="Пол"
                                             variant="outlined"
                                             density="comfortable"
