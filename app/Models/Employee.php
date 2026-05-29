@@ -20,6 +20,7 @@ class Employee extends Model
         return LogOptions::defaults()
             ->logOnly([
                 'branch_id',
+                'department_id',
                 'category_id',
                 'employment_type',
                 'full_name',
@@ -50,6 +51,7 @@ class Employee extends Model
 
     protected $fillable = [
         'branch_id',
+        'department_id',
         'category_id',
         'employment_type',
         'full_name',
@@ -76,6 +78,7 @@ class Employee extends Model
     ];
 
     protected $casts = [
+        'department_id' => 'integer',
         'gender' => Gender::class,
         'hire_date' => 'date',
         'dismissal_date' => 'date',
@@ -113,6 +116,14 @@ class Employee extends Model
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    /**
+     * Get the department (new org tree) that the employee belongs to.
+     */
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 
     /**
