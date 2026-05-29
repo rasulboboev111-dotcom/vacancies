@@ -54,6 +54,10 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    departments: {
+        type: Array,
+        default: () => [],
+    },
     managers: {
         type: Array,
         required: true,
@@ -105,6 +109,11 @@ const genderOptions = [
     { value: 'женский', title: 'Зан' },
 ];
 
+// Departments (new org tree) filtered by the branch chosen in the form.
+const branchDepartments = computed(() =>
+    props.departments.filter((d) => Number(d.branch_id) === Number(form.branch_id)),
+);
+
 const form = useForm({
     branch_id: null,
     category_id: null,
@@ -113,6 +122,7 @@ const form = useForm({
     gender: null,
     position_id: null,
     structure_id: null,
+    department_id: null,
     manager_id: null,
     hire_date: '',
     dismissal_date: '',
@@ -173,6 +183,7 @@ function openEditDialog(employee) {
     form.gender = employee.gender || null;
     form.position_id = employee.position_id ? Number(employee.position_id) : null;
     form.structure_id = employee.structure_id ? Number(employee.structure_id) : null;
+    form.department_id = employee.department_id ? Number(employee.department_id) : null;
     form.manager_id = employee.manager_id ? Number(employee.manager_id) : null;
     form.hire_date = employee.hire_date ? employee.hire_date.substring(0, 10) : '';
     form.dismissal_date = employee.dismissal_date ? employee.dismissal_date.substring(0, 10) : '';
@@ -676,6 +687,18 @@ function submitRotation() {
                             <v-col cols="12" sm="4" class="py-2">
                                 <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
                                     <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
+                                        <Network style="width: 16px; height: 16px;" />
+                                    </div>
+                                    <div>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Шуъба</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.department?.name || '-' }}</span>
+                                    </div>
+                                </div>
+                            </v-col>
+
+                            <v-col cols="12" sm="4" class="py-2">
+                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
+                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
                                         <MapPin style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
@@ -941,6 +964,22 @@ function submitRotation() {
                                             rounded="lg"
                                             required
                                             :error-messages="form.errors.structure_id"
+                                        ></v-autocomplete>
+                                    </v-col>
+
+                                    <v-col cols="12" sm="6">
+                                        <v-autocomplete
+                                            v-model="form.department_id"
+                                            :items="branchDepartments"
+                                            item-title="name"
+                                            item-value="id"
+                                            label="Шуъба"
+                                            variant="outlined"
+                                            density="comfortable"
+                                            rounded="lg"
+                                            clearable
+                                            :no-data-text="form.branch_id ? 'Шуъбаҳо ёфт нашуданд' : 'Аввал филиалро интихоб кунед'"
+                                            :error-messages="form.errors.department_id"
                                         ></v-autocomplete>
                                     </v-col>
 

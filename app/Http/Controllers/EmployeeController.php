@@ -20,7 +20,7 @@ class EmployeeController extends Controller
         \Illuminate\Support\Facades\Gate::authorize('viewAny', Employee::class);
 
         $user = $request->user();
-        $query = Employee::with(['branch', 'category', 'position', 'structure', 'manager'])->whereNull('dismissal_date');
+        $query = Employee::with(['branch', 'department', 'category', 'position', 'structure', 'manager'])->whereNull('dismissal_date');
 
         if ($user->branch_id === null && !$user->hasRole('Admin')) {
             $query->whereRaw('1=0');
@@ -63,6 +63,7 @@ class EmployeeController extends Controller
             $types = collect();
             $positions = collect();
             $structures = collect();
+            $departments = collect();
             $managers = collect();
         } else {
             $categories = \App\Models\Category::orderBy('name')->get();
@@ -72,7 +73,13 @@ class EmployeeController extends Controller
             ]);
             $positions = \App\Models\Position::orderBy('name')->get();
             $structures = \App\Models\Structure::orderBy('name')->get();
-            
+
+            $departmentsQuery = \App\Models\Department::query()->orderBy('name');
+            if (!$user->hasRole('Admin')) {
+                $departmentsQuery->where('branch_id', $user->branch_id);
+            }
+            $departments = $departmentsQuery->get(['id', 'branch_id', 'name', 'code']);
+
             if (!$user->hasRole('Admin')) {
                 $managers = Employee::where('branch_id', $user->branch_id)->orderBy('full_name')->get(['id', 'full_name']);
             } else {
@@ -87,6 +94,7 @@ class EmployeeController extends Controller
             'types' => $types,
             'positions' => $positions,
             'structures' => $structures,
+            'departments' => $departments,
             'managers' => $managers,
             'filters' => $request->only(['search', 'branch_id', 'category_id', 'type_id']),
         ]);
@@ -109,6 +117,7 @@ class EmployeeController extends Controller
             'gender' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\Gender::class)],
             'position_id' => 'required|exists:positions,id',
             'structure_id' => 'required|exists:structures,id',
+            'department_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('departments', 'id')->where('branch_id', (int) $request->input('branch_id'))->whereNull('deleted_at')],
             'manager_id' => 'nullable|exists:employees,id',
             'hire_date' => 'required|date',
             'dismissal_date' => 'nullable|date|after_or_equal:hire_date',
@@ -177,6 +186,7 @@ class EmployeeController extends Controller
             'gender' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\Gender::class)],
             'position_id' => 'required|exists:positions,id',
             'structure_id' => 'required|exists:structures,id',
+            'department_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('departments', 'id')->where('branch_id', (int) $request->input('branch_id'))->whereNull('deleted_at')],
             'manager_id' => 'nullable|exists:employees,id',
             'hire_date' => 'required|date',
             'dismissal_date' => 'nullable|date|after_or_equal:hire_date',
@@ -250,7 +260,7 @@ class EmployeeController extends Controller
         \Illuminate\Support\Facades\Gate::authorize('viewAny', Employee::class);
 
         $user = $request->user();
-        $query = Employee::with(['branch', 'category', 'position', 'structure', 'manager'])->whereNotNull('dismissal_date');
+        $query = Employee::with(['branch', 'department', 'category', 'position', 'structure', 'manager'])->whereNotNull('dismissal_date');
 
         if ($user->branch_id === null && !$user->hasRole('Admin')) {
             $query->whereRaw('1=0');
