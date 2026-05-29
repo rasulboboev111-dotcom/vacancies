@@ -28,13 +28,13 @@ function changePage(page) {
 </script>
 
 <template>
-    <Head title="История ротаций" />
+    <Head title="Таърихи ҷобаҷогузорӣ" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="d-flex align-center">
                 <GitFork style="width: 24px; height: 24px; margin-right: 12px;" class="text-indigo-accent-2" />
-                <span>История ротаций и должностных перемещений</span>
+                <span>Таърихи ҷобаҷогузорӣ ва ивазкунии вазифаҳо</span>
             </div>
         </template>
 
@@ -51,7 +51,7 @@ function changePage(page) {
                     <div class="d-flex justify-space-between align-center mb-1">
                         <div>
                             <span class="font-weight-black text-subtitle-1 text-indigo-darken-4">
-                                {{ rotation.employee ? rotation.employee.full_name : 'Сотрудник удален' }}
+                                {{ rotation.employee ? rotation.employee.full_name : 'Корманд несткардашуда' }}
                             </span>
                             <span class="text-caption text-grey ml-3 d-inline-flex align-center">
                                 <Clock style="width: 12px; height: 12px; margin-right: 4px;" class="text-grey" />
@@ -59,7 +59,7 @@ function changePage(page) {
                             </span>
                         </div>
                         <v-chip size="x-small" color="indigo" variant="outlined" class="font-weight-bold">
-                            Дата ротации: {{ formatDate(rotation.rotation_date) }}
+                            Санаи ҷобаҷогузорӣ: {{ formatDate(rotation.rotation_date) }}
                         </v-chip>
                     </div>
 
@@ -67,7 +67,7 @@ function changePage(page) {
                     <v-row class="mt-2 pl-1 mb-2">
                         <v-col cols="12" md="5" class="py-1">
                             <v-card elevation="0" class="pa-3 rounded-lg border bg-surface-darken text-center border-l-4 border-error">
-                                <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Прежнее назначение</span>
+                                <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Таъиноти кӯҳна</span>
                                 <div class="font-weight-bold text-body-2 text-indigo-darken-2 mt-1">
                                     {{ rotation.old_position?.name || '-' }}
                                 </div>
@@ -75,7 +75,7 @@ function changePage(page) {
                                     {{ rotation.old_structure?.name || '-' }}
                                 </div>
                                 <v-chip size="x-small" color="error" variant="tonal" class="mt-2 font-weight-bold text-uppercase">
-                                    {{ rotation.old_branch ? rotation.old_branch.name : 'Удаленный филиал' }}
+                                    {{ rotation.old_branch ? rotation.old_branch.name : 'Филиали несткардашуда' }}
                                 </v-chip>
                             </v-card>
                         </v-col>
@@ -89,7 +89,7 @@ function changePage(page) {
 
                         <v-col cols="12" md="5" class="py-1">
                             <v-card elevation="0" class="pa-3 rounded-lg border bg-surface-darken text-center border-l-4 border-success">
-                                <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Новое назначение</span>
+                                <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Таъиноти нав</span>
                                 <div class="font-weight-bold text-body-2 text-indigo-darken-4 mt-1">
                                     {{ rotation.new_position?.name || '-' }}
                                 </div>
@@ -97,7 +97,7 @@ function changePage(page) {
                                     {{ rotation.new_structure?.name || '-' }}
                                 </div>
                                 <v-chip size="x-small" color="success" variant="tonal" class="mt-2 font-weight-bold text-uppercase">
-                                    {{ rotation.new_branch ? rotation.new_branch.name : 'Удаленный филиал' }}
+                                    {{ rotation.new_branch ? rotation.new_branch.name : 'Филиали несткардашуда' }}
                                 </v-chip>
                             </v-card>
                         </v-col>
@@ -107,7 +107,7 @@ function changePage(page) {
                     <div v-if="rotation.reason" class="text-body-2 text-grey-darken-3 font-weight-medium bg-indigo-lighten-5 pa-3 rounded-lg border pl-4 border-l-4 border-indigo mt-3">
                         <span class="d-flex align-center text-caption text-indigo font-weight-bold text-uppercase mb-1">
                             <Info style="width: 16px; height: 16px; margin-right: 4px;" class="text-indigo" />
-                            Основание / Причина ротации:
+                            Асос / Сабаби ҷобаҷогузорӣ:
                         </span>
                         {{ rotation.reason }}
                     </div>
@@ -116,7 +116,7 @@ function changePage(page) {
                 <v-timeline-item v-if="rotations.data.length === 0" dot-color="grey" size="small">
                     <div class="text-body-1 text-grey font-weight-medium py-4 text-center">
                         <GitFork style="width: 40px; height: 40px; margin: 0 auto 8px; opacity: 0.5;" class="text-grey" />
-                        Ротаций в системе пока не зарегистрировано.
+                        Ҳанӯз ягон ҷобаҷогузорӣ дар система ба қайд гирифта нашудааст.
                     </div>
                 </v-timeline-item>
             </v-timeline>
@@ -125,7 +125,7 @@ function changePage(page) {
             <v-divider class="my-4"></v-divider>
             <div class="d-flex justify-space-between align-center pa-2">
                 <div class="text-caption text-grey font-weight-bold">
-                    Показано {{ rotations.from || 0 }} - {{ rotations.to || 0 }} из {{ rotations.total || 0 }} записей ротаций
+                    Нишон дода шуд {{ rotations.from || 0 }} - {{ rotations.to || 0 }} аз {{ rotations.total || 0 }} сабти ҷобаҷогузорӣ
                 </div>
                 <v-pagination
                     v-if="rotations.last_page > 1"

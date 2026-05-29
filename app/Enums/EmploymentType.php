@@ -10,8 +10,8 @@ enum EmploymentType: string
     public function label(): string
     {
         return match($this) {
-            self::FULL_TIME => 'Штатный',
-            self::CONTRACT => 'Контракт',
+            self::FULL_TIME => 'Штатӣ',
+            self::CONTRACT => 'Шартномавӣ',
         };
     }
 }

@@ -92,13 +92,13 @@ function formatDate(dateStr) {
 </script>
 
 <template>
-    <Head title="Архив сотрудников" />
+    <Head title="Бойгонии кормандон" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="d-flex align-center">
                 <Archive style="width: 24px; height: 24px; margin-right: 12px;" class="text-indigo-accent-2" />
-                <span>Архив уволенных сотрудников</span>
+                <span>Бойгонии кормандони озодшуда</span>
             </div>
         </template>
 
@@ -110,7 +110,7 @@ function formatDate(dateStr) {
                     <v-text-field
                         v-model="search"
                         prepend-inner-icon="mdi-magnify"
-                        label="Поиск по ФИО, ИНН или должности..."
+                        label="Ҷустуҷӯ аз рӯи ному насаб, ИНН ё вазифа..."
                         variant="outlined"
                         density="comfortable"
                         rounded="lg"
@@ -126,7 +126,7 @@ function formatDate(dateStr) {
                         :items="branches"
                         item-title="name"
                         item-value="id"
-                        label="Фильтровать по бывшему филиалу"
+                        label="Филтр аз рӯи филиали пешина"
                         variant="outlined"
                         density="comfortable"
                         rounded="lg"
@@ -144,7 +144,7 @@ function formatDate(dateStr) {
                         class="filter-reset-btn"
                         @click="resetFilters"
                     >
-                        Сбросить
+                        Бекор кардан
                     </v-btn>
                 </v-col>
             </v-row>
@@ -153,14 +153,14 @@ function formatDate(dateStr) {
             <v-table class="table-modern border rounded-xl overflow-hidden">
                 <thead>
                     <tr>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">ФИО сотрудника</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Бывший филиал</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Должность</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Подразделение</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Ному насаби корманд</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Филиали пешина</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Вазифа</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Воҳид</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Категория</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Дата приема</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Дата ухода</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo text-center">Действия</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Санаи қабул</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Санаи рафтан</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo text-center">Амалҳо</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -187,7 +187,7 @@ function formatDate(dateStr) {
                     </tr>
                     <tr v-if="employees.data.length === 0">
                         <td colspan="8" class="text-center py-8 text-grey font-weight-medium">
-                            Сотрудников в архиве не найдено.
+                            Дар бойгонӣ кормандон ёфт нашуданд.
                         </td>
                     </tr>
                 </tbody>
@@ -197,7 +197,7 @@ function formatDate(dateStr) {
             <v-divider class="my-4"></v-divider>
             <div class="d-flex justify-space-between align-center pa-2">
                 <div class="text-caption text-grey font-weight-bold">
-                    Показано {{ employees.from || 0 }} - {{ employees.to || 0 }} из {{ employees.total || 0 }} архивных сотрудников
+                    Нишон дода шуд {{ employees.from || 0 }} - {{ employees.to || 0 }} аз {{ employees.total || 0 }} корманди бойгонӣ
                 </div>
                 <v-pagination
                     v-if="employees.last_page > 1"
@@ -226,7 +226,7 @@ function formatDate(dateStr) {
                             <div class="text-caption text-white opacity-85 mt-0.5 font-weight-bold text-uppercase">ИНН: {{ selectedEmployee.inn || '-' }}</div>
                         </div>
                     </div>
-                    <v-chip color="error" variant="flat" class="font-weight-black text-uppercase shadow-sm">Уволен(а)</v-chip>
+                    <v-chip color="error" variant="flat" class="font-weight-black text-uppercase shadow-sm">Озодшуда</v-chip>
                 </div>
 
                 <v-divider></v-divider>
@@ -234,46 +234,46 @@ function formatDate(dateStr) {
                 <!-- Body content -->
                 <v-card-text class="pa-6 bg-slate-50" style="max-height: 60vh;">
                     <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <IdCard style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> Личная информация
+                        <IdCard style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> Маълумоти шахсӣ
                     </div>
                     <v-row class="mb-4">
                         <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Пол</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Ҷинс</span>
                             <span class="text-body-1 font-weight-bold">{{ selectedEmployee.gender_label || '-' }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата рождения</span>
-                            <span class="text-body-1 font-weight-bold">{{ formatDate(selectedEmployee.birth_date) }} ({{ selectedEmployee.age ? selectedEmployee.age + ' лет' : '-' }})</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Санаи таваллуд</span>
+                            <span class="text-body-1 font-weight-bold">{{ formatDate(selectedEmployee.birth_date) }} ({{ selectedEmployee.age ? selectedEmployee.age + ' сол' : '-' }})</span>
                         </v-col>
 
                         <v-col cols="12" sm="4" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Национальность</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Миллат</span>
                             <span class="text-body-1 font-weight-bold">{{ selectedEmployee.nationality || '-' }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Номер телефона</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Рақами телефон</span>
                             <span class="text-body-1 font-weight-bold">{{ selectedEmployee.phone_number || '-' }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Место рождения</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Зодгоҳ</span>
                             <span class="text-body-1 font-weight-bold">{{ selectedEmployee.birth_place || '-' }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Образование</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Маълумот</span>
                             <span class="text-body-1 font-weight-bold">{{ selectedEmployee.education || '-' }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Специальность</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Ихтисос</span>
                             <span class="text-body-1 font-weight-bold text-indigo">{{ selectedEmployee.specialty || '-' }}</span>
                         </v-col>
 
                         <v-col cols="12" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Адрес проживания</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Суроғаи истиқомат</span>
                             <span class="text-body-1 font-weight-bold">{{ selectedEmployee.address || '-' }}</span>
                         </v-col>
                     </v-row>
@@ -281,27 +281,27 @@ function formatDate(dateStr) {
                     <v-divider class="my-4"></v-divider>
 
                     <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <Briefcase style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> Сведения об увольнении
+                        <Briefcase style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> Маълумот дар бораи озодшавӣ
                     </div>
                     <v-row class="mb-4">
                         <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата приема на работу</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Санаи ба кор қабул</span>
                             <span class="text-body-1 font-weight-bold text-success">{{ formatDate(selectedEmployee.hire_date) }}</span>
                         </v-col>
 
                         <v-col cols="12" sm="6" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата ухода (увольнения/пенсии)</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Санаи рафтан (озодшавӣ/нафақа)</span>
                             <span class="text-body-1 font-weight-bold text-error font-weight-black">{{ formatDate(selectedEmployee.dismissal_date) }}</span>
                         </v-col>
 
                         <v-col cols="12" class="py-2" v-if="selectedEmployee.employment_start_date">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Дата трудоустройства с</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">Санаи ба кор қабул аз</span>
                             <span class="text-body-1 font-weight-bold text-teal">{{ formatDate(selectedEmployee.employment_start_date) }}</span>
                         </v-col>
                     </v-row>
 
                     <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
-                        <Key style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> ИНН и документы
+                        <Key style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> ИНН ва ҳуҷҷатҳо
                     </div>
                     <v-row class="mb-4">
                         <v-col cols="12" sm="4" class="py-2">
@@ -310,7 +310,7 @@ function formatDate(dateStr) {
                         </v-col>
 
                         <v-col cols="12" sm="8" class="py-2">
-                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">СИН (Код)</span>
+                            <span class="text-caption text-grey d-block font-weight-bold text-uppercase">СИН (Рамз)</span>
                             <span class="text-body-1 font-weight-bold font-mono">{{ selectedEmployee.sin || '-' }}</span>
                         </v-col>
                     </v-row>
@@ -319,7 +319,7 @@ function formatDate(dateStr) {
                 <v-card-actions class="px-0 pt-6">
                     <v-spacer></v-spacer>
                     <v-btn color="indigo" variant="flat" class="bg-indigo px-5" rounded="lg" @click="viewDialog = false">
-                        Закрыть
+                        Пӯшидан
                     </v-btn>
                 </v-card-actions>
                 <div class="glass-shine"></div>

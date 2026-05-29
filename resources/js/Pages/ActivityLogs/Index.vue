@@ -64,9 +64,9 @@ function getEventColor(event) {
 
 function getEventText(event) {
     switch (event) {
-        case 'created': return 'Создание';
-        case 'updated': return 'Обновление';
-        case 'deleted': return 'Удаление';
+        case 'created': return 'Эҷодшуда';
+        case 'updated': return 'Навсозӣшуда';
+        case 'deleted': return 'Несткардашуда';
         default: return event;
     }
 }
@@ -77,13 +77,13 @@ function hasChanges(properties) {
 </script>
 
 <template>
-    <Head title="Логи действий" />
+    <Head title="Сабти амалҳо" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="d-flex align-center">
                 <History style="width: 24px; height: 24px; margin-right: 12px;" class="text-indigo-accent-2" />
-                <span>Лог действий (Аудит)</span>
+                <span>Сабти амалҳо (Аудит)</span>
             </div>
         </template>
 
@@ -94,7 +94,7 @@ function hasChanges(properties) {
                 <v-col cols="12" sm="12" md="5">
                     <v-text-field
                         v-model="search"
-                        placeholder="Поиск по описанию действия..."
+                        placeholder="Ҷустуҷӯ аз рӯи тавсифи амал..."
                         variant="solo"
                         density="comfortable"
                         rounded="lg"
@@ -114,7 +114,7 @@ function hasChanges(properties) {
                     <v-select
                         v-model="eventFilter"
                         :items="['created', 'updated', 'deleted']"
-                        label="Тип действия"
+                        label="Намуди амал"
                         variant="solo"
                         density="comfortable"
                         rounded="lg"
@@ -144,7 +144,7 @@ function hasChanges(properties) {
                         <template v-slot:prepend>
                             <FilterX style="width: 16px; height: 16px; color: #009cf1;" />
                         </template>
-                        Сбросить
+                        Тоза кардан
                     </v-btn>
                 </v-col>
             </v-row>
@@ -182,25 +182,25 @@ function hasChanges(properties) {
                         <v-expansion-panel elevation="0">
                             <v-expansion-panel-title class="py-2 px-4 text-caption font-weight-black text-grey-darken-1 d-flex align-center">
                                 <FileCode style="width: 16px; height: 16px; margin-right: 8px;" class="text-indigo" />
-                                Показать детали изменений
+                                Нишон додани тафсилоти тағйирот
                             </v-expansion-panel-title>
                             <v-expansion-panel-text class="pa-0">
                                 <v-table density="compact" class="border-0 table-diff">
                                     <thead>
                                         <tr class="bg-indigo-lighten-5">
-                                            <th class="font-weight-black text-caption text-left pa-2 text-indigo text-uppercase">Поле</th>
-                                            <th v-if="log.properties.old" class="font-weight-black text-caption text-left pa-2 text-error text-uppercase">Было</th>
-                                            <th class="font-weight-black text-caption text-left pa-2 text-success text-uppercase">Стало</th>
+                                            <th class="font-weight-black text-caption text-left pa-2 text-indigo text-uppercase">Майдон</th>
+                                            <th v-if="log.properties.old" class="font-weight-black text-caption text-left pa-2 text-error text-uppercase">Буд</th>
+                                            <th class="font-weight-black text-caption text-left pa-2 text-success text-uppercase">Шуд</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="(val, key) in log.properties.attributes" :key="key">
                                             <td class="font-weight-bold text-caption text-grey-darken-2 pa-2 font-mono">{{ key }}</td>
                                             <td v-if="log.properties.old" class="text-caption text-error bg-red-lighten-5 pa-2 font-weight-bold">
-                                                {{ log.properties.old[key] !== null && log.properties.old[key] !== '' ? log.properties.old[key] : 'пусто' }}
+                                                {{ log.properties.old[key] !== null && log.properties.old[key] !== '' ? log.properties.old[key] : 'холӣ' }}
                                             </td>
                                             <td class="text-caption text-success bg-green-lighten-5 pa-2 font-weight-bold">
-                                                {{ val !== null && val !== '' ? val : 'пусто' }}
+                                                {{ val !== null && val !== '' ? val : 'холӣ' }}
                                             </td>
                                         </tr>
                                     </tbody>
@@ -211,7 +211,7 @@ function hasChanges(properties) {
                 </v-timeline-item>
                 
                 <v-timeline-item v-if="logs.data.length === 0" dot-color="grey" size="small">
-                    <div class="text-body-1 text-grey font-weight-medium py-4">Логи действий отсутствуют.</div>
+                    <div class="text-body-1 text-grey font-weight-medium py-4">Сабти амалҳо вуҷуд надорад.</div>
                 </v-timeline-item>
             </v-timeline>
 
@@ -219,7 +219,7 @@ function hasChanges(properties) {
             <v-divider class="my-4"></v-divider>
             <div class="d-flex justify-space-between align-center pa-2">
                 <div class="text-caption text-grey font-weight-bold">
-                    Показано {{ logs.from || 0 }} - {{ logs.to || 0 }} из {{ logs.total || 0 }} логов
+                    Нишон дода шуд {{ logs.from || 0 }} - {{ logs.to || 0 }} аз {{ logs.total || 0 }} сабт
                 </div>
                 <v-pagination
                     v-if="logs.last_page > 1"

@@ -48,10 +48,10 @@ class DepartmentController extends Controller
         activity()
             ->performedOn($department)
             ->event('created')
-            ->log("Создан отдел: {$department->name}");
+            ->log("Шуъба эҷод шуд: {$department->name}");
 
         return redirect()->route('structure.index')
-            ->with('success', 'Отдел успешно создан.');
+            ->with('success', 'Шуъба бомуваффақият эҷод шуд.');
     }
 
     /**
@@ -77,7 +77,7 @@ class DepartmentController extends Controller
 
         if ($department->wouldCreateCycle($validated['parent_id'] ?? null)) {
             throw ValidationException::withMessages([
-                'parent_id' => 'Нельзя назначить подотдел в качестве родителя.',
+                'parent_id' => 'Зершуъбаро ҳамчун шуъбаи болоӣ таъин кардан мумкин нест.',
             ]);
         }
 
@@ -86,10 +86,10 @@ class DepartmentController extends Controller
         activity()
             ->performedOn($department)
             ->event('updated')
-            ->log("Обновлен отдел: {$department->name}");
+            ->log("Шуъба навсозӣ шуд: {$department->name}");
 
         return redirect()->route('structure.index')
-            ->with('success', 'Отдел успешно обновлен.');
+            ->with('success', 'Шуъба бомуваффақият навсозӣ шуд.');
     }
 
     /**
@@ -101,7 +101,7 @@ class DepartmentController extends Controller
 
         if ($department->children()->exists()) {
             return redirect()->route('structure.index')
-                ->withErrors(['message' => 'Нельзя удалить отдел с подотделами.']);
+                ->withErrors(['message' => 'Шуъбаро бо зершуъбаҳояш нест кардан мумкин нест.']);
         }
 
         $name = $department->name;
@@ -110,10 +110,10 @@ class DepartmentController extends Controller
 
         activity()
             ->event('deleted')
-            ->log("Удален отдел: {$name}");
+            ->log("Шуъба нест карда шуд: {$name}");
 
         return redirect()->route('structure.index')
-            ->with('success', 'Отдел успешно удален.');
+            ->with('success', 'Шуъба бомуваффақият нест карда шуд.');
     }
 
     /**
@@ -151,9 +151,9 @@ class DepartmentController extends Controller
             'code' => ['nullable', 'string', 'max:20'],
         ], [], [
             'branch_id' => 'филиал',
-            'parent_id' => 'родительский отдел',
-            'name' => 'название',
-            'code' => 'код',
+            'parent_id' => 'шуъбаи болоӣ',
+            'name' => 'ном',
+            'code' => 'рамз',
         ]);
     }
 
@@ -168,7 +168,7 @@ class DepartmentController extends Controller
 
         if ($department && $parentId === (int) $department->id) {
             throw ValidationException::withMessages([
-                'parent_id' => 'Отдел не может быть родителем самого себя.',
+                'parent_id' => 'Шуъба наметавонад шуъбаи болоии худаш бошад.',
             ]);
         }
 
@@ -176,13 +176,13 @@ class DepartmentController extends Controller
 
         if (!$parent) {
             throw ValidationException::withMessages([
-                'parent_id' => 'Выбранный родительский отдел не найден.',
+                'parent_id' => 'Шуъбаи болоии интихобшуда ёфт нашуд.',
             ]);
         }
 
         if ((int) $parent->branch_id !== $branchId) {
             throw ValidationException::withMessages([
-                'parent_id' => 'Родительский отдел должен принадлежать выбранному филиалу.',
+                'parent_id' => 'Шуъбаи болоӣ бояд ба филиали интихобшуда тааллуқ дошта бошад.',
             ]);
         }
     }

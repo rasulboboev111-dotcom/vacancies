@@ -44,8 +44,8 @@ function buildGraph(structure) {
     const root = {
         uid: 'root',
         kind: 'root',
-        label: 'Организация',
-        subtitle: `${structure.length} ${structure.length === 1 ? 'филиал' : 'филиалов'}`,
+        label: 'Ташкилот',
+        subtitle: `${structure.length} ${structure.length === 1 ? 'филиал' : 'филиал'}`,
         children: structure.map((branch) => ({
             uid: `b-${branch.id}`,
             kind: 'branch',
@@ -370,13 +370,13 @@ function confirmDeleteBranch() {
 </script>
 
 <template>
-    <Head title="Структура" />
+    <Head title="Сохтор" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="d-flex align-center">
                 <Workflow style="width: 24px; height: 24px; margin-right: 12px;" class="text-indigo-accent-2" />
-                <span>Организационная структура</span>
+                <span>Сохтори ташкилӣ</span>
             </div>
         </template>
 
@@ -384,7 +384,7 @@ function confirmDeleteBranch() {
         <v-card elevation="0" class="rounded-xl border bg-surface-glass overflow-hidden mb-6" style="height: 460px;">
             <div v-if="nodes.length === 0" class="text-center py-12 h-100 d-flex flex-column justify-center align-center">
                 <Network style="width: 48px; height: 48px; margin-bottom: 8px; opacity: 0.5;" class="text-grey" />
-                <div class="text-h6 text-grey font-weight-medium">Нет данных для отображения структуры.</div>
+                <div class="text-h6 text-grey font-weight-medium">Барои намоиши сохтор маълумот нест.</div>
             </div>
 
             <VueFlow
@@ -412,10 +412,10 @@ function confirmDeleteBranch() {
                             <div v-if="data.code" class="org-node__code">{{ data.code }}</div>
                             <div v-if="data.subtitle" class="org-node__sub">{{ data.subtitle }}</div>
                             <div v-if="data.kind !== 'root'" class="org-node__stats">
-                                <span v-if="data.kind === 'branch'" class="org-node__stat" title="Сотрудников">
+                                <span v-if="data.kind === 'branch'" class="org-node__stat" title="Кормандон">
                                     <Users style="width: 13px; height: 13px;" /> {{ data.employees ?? 0 }}
                                 </span>
-                                <span v-if="data.vacancies > 0" class="org-node__stat org-node__stat--vac" title="Открытые вакансии">
+                                <span v-if="data.vacancies > 0" class="org-node__stat org-node__stat--vac" title="Вакансияҳои кушода">
                                     <DoorOpen style="width: 13px; height: 13px;" /> {{ data.vacancies }}
                                 </span>
                             </div>
@@ -430,11 +430,11 @@ function confirmDeleteBranch() {
             <v-tabs v-model="tab" color="indigo" class="border-b px-2">
                 <v-tab value="departments" class="font-weight-bold text-none">
                     <Network style="width: 18px; height: 18px; margin-right: 8px;" />
-                    Отделы
+                    Шуъбаҳо
                 </v-tab>
                 <v-tab v-if="isAdmin" value="branches" class="font-weight-bold text-none">
                     <Building2 style="width: 18px; height: 18px; margin-right: 8px;" />
-                    Филиалы
+                    Филиалҳо
                 </v-tab>
             </v-tabs>
 
@@ -469,7 +469,7 @@ function confirmDeleteBranch() {
                                     <template v-slot:prepend>
                                         <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
                                     </template>
-                                    Добавить отдел
+                                    Илова кардани шуъба
                                 </v-btn>
                             </v-col>
                         </v-row>
@@ -492,7 +492,7 @@ function confirmDeleteBranch() {
                         <div v-else class="text-center py-12">
                             <Network style="width: 48px; height: 48px; margin: 0 auto 8px; opacity: 0.5;" class="text-grey" />
                             <div class="text-h6 text-grey font-weight-medium">
-                                {{ selectedBranchId ? 'Отделы не найдены.' : 'Выберите филиал или назначьте филиал пользователю.' }}
+                                {{ selectedBranchId ? 'Шуъбаҳо ёфт нашуданд.' : 'Филиалро интихоб кунед ё ба корбар филиал таъин кунед.' }}
                             </div>
                         </div>
                     </div>
@@ -513,7 +513,7 @@ function confirmDeleteBranch() {
                                     <template v-slot:prepend>
                                         <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
                                     </template>
-                                    Добавить филиал
+                                    Илова кардани филиал
                                 </v-btn>
                             </v-col>
                         </v-row>
@@ -537,7 +537,7 @@ function confirmDeleteBranch() {
                                             </template>
                                             <v-list density="comfortable" rounded="xl" class="border py-1">
                                                 <v-list-item
-                                                    title="Редактировать"
+                                                    title="Таҳрир"
                                                     class="font-weight-bold"
                                                     @click="openEditBranch(branch)"
                                                 >
@@ -546,7 +546,7 @@ function confirmDeleteBranch() {
                                                     </template>
                                                 </v-list-item>
                                                 <v-list-item
-                                                    title="Удалить"
+                                                    title="Нест кардан"
                                                     class="text-error font-weight-bold"
                                                     @click="openDeleteBranch(branch)"
                                                 >
@@ -560,16 +560,16 @@ function confirmDeleteBranch() {
 
                                     <p class="text-body-2 text-grey-darken-2 mb-4 flex-grow-1 font-weight-medium d-flex align-center">
                                         <MapPin style="width: 16px; height: 16px; margin-right: 8px;" class="text-indigo" />
-                                        {{ branch.address || 'Адрес не указан' }}
+                                        {{ branch.address || 'Суроға нишон дода нашудааст' }}
                                     </p>
 
                                     <v-divider class="my-3"></v-divider>
 
                                     <div class="d-flex justify-space-between align-center">
-                                        <span class="text-subtitle-2 text-grey font-weight-bold text-uppercase">Штат</span>
+                                        <span class="text-subtitle-2 text-grey font-weight-bold text-uppercase">Ҳайат</span>
                                         <v-chip color="teal" variant="tonal" class="font-weight-black px-3" size="medium">
                                             <Users style="width: 16px; height: 16px; margin-right: 4px;" class="text-teal" />
-                                            {{ branch.employees_count }} чел.
+                                            {{ branch.employees_count }} нафар.
                                         </v-chip>
                                     </div>
                                 </v-card>
@@ -577,7 +577,7 @@ function confirmDeleteBranch() {
 
                             <v-col v-if="branches.length === 0" cols="12" class="text-center py-12">
                                 <Building2 style="width: 48px; height: 48px; margin: 0 auto 8px; opacity: 0.5;" class="text-grey" />
-                                <div class="text-h6 text-grey font-weight-medium">Филиалы не найдены.</div>
+                                <div class="text-h6 text-grey font-weight-medium">Филиалҳо ёфт нашуданд.</div>
                             </v-col>
                         </v-row>
                     </div>
@@ -595,10 +595,10 @@ function confirmDeleteBranch() {
                         </v-avatar>
                         <div class="ml-4">
                             <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">
-                                {{ editingDepartment ? 'Редактирование' : 'Новый отдел' }}
+                                {{ editingDepartment ? 'Таҳрир' : 'Шуъбаи нав' }}
                             </div>
                             <div style="color: white; font-size: 1.1rem; font-weight: 800;">
-                                {{ editingDepartment ? deptForm.name || 'Отдел' : 'Добавить отдел' }}
+                                {{ editingDepartment ? deptForm.name || 'Шуъба' : 'Илова кардани шуъба' }}
                             </div>
                         </div>
                     </div>
@@ -611,20 +611,20 @@ function confirmDeleteBranch() {
                             :items="parentOptions"
                             item-title="name"
                             item-value="id"
-                            label="Родительский отдел"
+                            label="Шуъбаи болоӣ"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
                             clearable
                             :error-messages="deptForm.errors.parent_id"
                             class="mb-4"
-                            hint="Оставьте пустым для корневого отдела"
+                            hint="Барои шуъбаи решагӣ холӣ монед"
                             persistent-hint
                         />
 
                         <v-text-field
                             v-model="deptForm.name"
-                            label="Название отдела"
+                            label="Номи шуъба"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -635,7 +635,7 @@ function confirmDeleteBranch() {
 
                         <v-text-field
                             v-model="deptForm.code"
-                            label="Код отдела"
+                            label="Рамзи шуъба"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -656,7 +656,7 @@ function confirmDeleteBranch() {
                         class="px-6 font-weight-bold"
                         @click="deptDialog = false"
                     >
-                        Отмена
+                        Бекор кардан
                     </v-btn>
                     <v-btn
                         color="indigo"
@@ -668,7 +668,7 @@ function confirmDeleteBranch() {
                         style="box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);"
                         @click="submitDepartment"
                     >
-                        Сохранить
+                        Захира кардан
                     </v-btn>
                 </v-card-actions>
             </v-card>
@@ -683,20 +683,20 @@ function confirmDeleteBranch() {
                             <AlertTriangle style="width: 22px; height: 22px; color: white;" />
                         </v-avatar>
                         <div class="ml-3">
-                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Подтверждение</div>
-                            <div style="color: white; font-size: 1.05rem; font-weight: 800;">Удаление отдела</div>
+                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Тасдиқ</div>
+                            <div style="color: white; font-size: 1.05rem; font-weight: 800;">Нест кардани шуъба</div>
                         </div>
                     </div>
                 </div>
                 <v-card-text class="pa-6 text-body-1 text-grey-darken-3 font-weight-medium">
-                    Вы уверены, что хотите удалить отдел <strong class="text-red-darken-2">{{ departmentToDelete?.name }}</strong>?
+                    Шумо мутмаин ҳастед, ки мехоҳед шуъбаи <strong class="text-red-darken-2">{{ departmentToDelete?.name }}</strong>-ро нест кунед?
                     <div
                         v-if="departmentToDelete?.children_count > 0"
                         class="mt-3 pa-3 rounded-lg d-flex align-center"
                         style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2);"
                     >
                         <AlertTriangle style="width: 18px; height: 18px; margin-right: 8px; color: #ef4444; flex-shrink: 0;" />
-                        <span class="text-error font-weight-bold text-body-2">Сначала удалите или переместите подотделы.</span>
+                        <span class="text-error font-weight-bold text-body-2">Аввал зершуъбаҳоро нест кунед ё кӯчонед.</span>
                     </div>
                 </v-card-text>
                 <v-divider />
@@ -710,7 +710,7 @@ function confirmDeleteBranch() {
                         class="px-6 font-weight-bold"
                         @click="deptDeleteDialog = false"
                     >
-                        Отмена
+                        Бекор кардан
                     </v-btn>
                     <v-btn
                         color="error"
@@ -726,7 +726,7 @@ function confirmDeleteBranch() {
                         <template v-slot:prepend>
                             <Trash2 style="width: 18px; height: 18px;" />
                         </template>
-                        Удалить
+                        Нест кардан
                     </v-btn>
                 </v-card-actions>
             </v-card>
@@ -741,8 +741,8 @@ function confirmDeleteBranch() {
                             <Building2 style="width: 22px; height: 22px; color: white;" />
                         </v-avatar>
                         <div class="ml-4">
-                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">{{ editingBranch ? 'Редактирование' : 'Новый филиал' }}</div>
-                            <div style="color: white; font-size: 1.1rem; font-weight: 800;">{{ editingBranch ? branchForm.name || 'Филиал' : 'Добавить филиал' }}</div>
+                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">{{ editingBranch ? 'Таҳрир' : 'Филиали нав' }}</div>
+                            <div style="color: white; font-size: 1.1rem; font-weight: 800;">{{ editingBranch ? branchForm.name || 'Филиал' : 'Илова кардани филиал' }}</div>
                         </div>
                     </div>
                 </div>
@@ -751,7 +751,7 @@ function confirmDeleteBranch() {
                     <v-form @submit.prevent="submitBranch">
                         <v-text-field
                             v-model="branchForm.name"
-                            label="Название филиала"
+                            label="Номи филиал"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -762,7 +762,7 @@ function confirmDeleteBranch() {
 
                         <v-text-field
                             v-model="branchForm.code"
-                            label="Код филиала (например, DSH)"
+                            label="Рамзи филиал (масалан, DSH)"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -773,7 +773,7 @@ function confirmDeleteBranch() {
 
                         <v-text-field
                             v-model="branchForm.address"
-                            label="Адрес"
+                            label="Суроға"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -794,7 +794,7 @@ function confirmDeleteBranch() {
                         :disabled="branchForm.processing"
                         class="px-6 font-weight-bold"
                     >
-                        Отмена
+                        Бекор кардан
                     </v-btn>
                     <v-btn
                         color="indigo"
@@ -806,7 +806,7 @@ function confirmDeleteBranch() {
                         class="px-6 font-weight-bold"
                         style="box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);"
                     >
-                        Сохранить
+                        Захира кардан
                     </v-btn>
                 </v-card-actions>
             </v-card>
@@ -821,16 +821,16 @@ function confirmDeleteBranch() {
                             <AlertTriangle style="width: 22px; height: 22px; color: white;" />
                         </v-avatar>
                         <div class="ml-3">
-                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Подтверждение</div>
-                            <div style="color: white; font-size: 1.05rem; font-weight: 800;">Удаление филиала</div>
+                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Тасдиқ</div>
+                            <div style="color: white; font-size: 1.05rem; font-weight: 800;">Нест кардани филиал</div>
                         </div>
                     </div>
                 </div>
                 <v-card-text class="pa-6 text-body-1 text-grey-darken-3 font-weight-medium">
-                    Вы уверены, что хотите удалить филиал <strong class="text-red-darken-2">{{ branchToDelete?.name }}</strong>?
+                    Шумо мутмаин ҳастед, ки мехоҳед филиали <strong class="text-red-darken-2">{{ branchToDelete?.name }}</strong>-ро нест кунед?
                     <div class="mt-3 pa-3 rounded-lg d-flex align-center" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2);">
                         <AlertTriangle style="width: 18px; height: 18px; margin-right: 8px; color: #ef4444; flex-shrink: 0;" />
-                        <span class="text-error font-weight-bold text-body-2">Все связанные сотрудники будут также безвозвратно удалены!</span>
+                        <span class="text-error font-weight-bold text-body-2">Ҳамаи кормандони алоқаманд низ бебозгашт нест карда мешаванд!</span>
                     </div>
                 </v-card-text>
                 <v-divider></v-divider>
@@ -844,7 +844,7 @@ function confirmDeleteBranch() {
                         :disabled="branchForm.processing"
                         class="px-6 font-weight-bold"
                     >
-                        Отмена
+                        Бекор кардан
                     </v-btn>
                     <v-btn
                         color="error"
@@ -859,7 +859,7 @@ function confirmDeleteBranch() {
                         <template v-slot:prepend>
                             <Trash2 style="width: 18px; height: 18px;" />
                         </template>
-                        Удалить
+                        Нест кардан
                     </v-btn>
                 </v-card-actions>
             </v-card>

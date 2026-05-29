@@ -42,7 +42,7 @@ function logout() {
                     TOJIKTELECOM
                 </v-list-item-title>
                 <v-list-item-subtitle class="text-caption text-white opacity-70 font-weight-medium">
-                    Управление кадрами
+                    Идоракунии кадрҳо
                 </v-list-item-subtitle>
             </v-list-item>
 
@@ -50,7 +50,7 @@ function logout() {
 
             <v-list density="comfortable" nav class="mt-4 px-2">
                 <v-list-item
-                    title="Дашборд"
+                    title="Лавҳаи асосӣ"
                     :active="route().current('dashboard')"
                     color="indigo"
                     rounded="lg"
@@ -63,7 +63,7 @@ function logout() {
                 </v-list-item>
 
                 <v-list-item
-                    title="Сотрудники"
+                    title="Кормандон"
                     :active="route().current('employees.index')"
                     color="indigo"
                     rounded="lg"
@@ -76,7 +76,7 @@ function logout() {
                 </v-list-item>
 
                 <v-list-item
-                    title="Ротации"
+                    title="Ҷобаҷогузорӣ"
                     :active="route().current('rotations.index')"
                     color="indigo"
                     rounded="lg"
@@ -89,7 +89,7 @@ function logout() {
                 </v-list-item>
 
                 <v-list-item
-                    title="Вакансии"
+                    title="Вакансияҳо"
                     :active="route().current('vacancies.*')"
                     color="indigo"
                     rounded="lg"
@@ -102,7 +102,7 @@ function logout() {
                 </v-list-item>
 
                 <v-list-item
-                    title="Архив (Пенсионеры)"
+                    title="Бойгонӣ (Нафақахӯрон)"
                     :active="route().current('employees.archive')"
                     color="indigo"
                     rounded="lg"
@@ -115,7 +115,7 @@ function logout() {
                 </v-list-item>
 
                 <v-list-item
-                    title="Должности"
+                    title="Вазифаҳо"
                     :active="route().current('positions.*')"
                     color="indigo"
                     rounded="lg"
@@ -128,7 +128,7 @@ function logout() {
                 </v-list-item>
 
                 <v-list-item
-                    title="Структура"
+                    title="Сохтор"
                     :active="route().current('structure.*')"
                     color="indigo"
                     rounded="lg"
@@ -143,7 +143,7 @@ function logout() {
                 <!-- Show only for Admin -->
                 <v-list-item
                     v-if="$page.props.auth.user.roles.includes('Admin')"
-                    title="Пользователи"
+                    title="Корбарон"
                     :active="route().current('users.*')"
                     color="indigo"
                     rounded="lg"
@@ -157,7 +157,7 @@ function logout() {
 
                 <v-list-item
                     v-if="$page.props.auth.user.roles.includes('Admin')"
-                    title="Логи действий"
+                    title="Сабти амалҳо"
                     :active="route().current('activity-logs.*')"
                     color="indigo"
                     rounded="lg"
@@ -171,7 +171,7 @@ function logout() {
 
                 <v-list-item
                     v-if="$page.props.auth.user.permissions.includes('delete employees')"
-                    title="Корзина"
+                    title="Сабад"
                     :active="route().current('trash.*')"
                     color="red"
                     rounded="lg"
@@ -222,7 +222,7 @@ function logout() {
                             <p class="text-caption text-grey mt-1 font-weight-medium">{{ $page.props.auth.user.email }}</p>
                             
                             <v-chip size="small" color="indigo" variant="tonal" class="mt-2 font-weight-black text-uppercase">
-                                {{ $page.props.auth.user.roles.length > 0 ? $page.props.auth.user.roles.join(', ') : 'Нет роли' }}
+                                {{ $page.props.auth.user.roles.length > 0 ? $page.props.auth.user.roles.join(', ') : 'Нақш надорад' }}
                             </v-chip>
 
                             <v-divider class="my-3"></v-divider>
@@ -237,7 +237,7 @@ function logout() {
                                 <template v-slot:prepend>
                                     <User class="mr-2 h-4 w-4 text-indigo" />
                                 </template>
-                                Профиль
+                                Профил
                             </v-btn>
                             
                             <v-btn
@@ -251,7 +251,7 @@ function logout() {
                                 <template v-slot:prepend>
                                     <LogOut class="mr-2 h-4 w-4" />
                                 </template>
-                                Выйти
+                                Баромадан
                             </v-btn>
                         </div>
                     </v-card-text>

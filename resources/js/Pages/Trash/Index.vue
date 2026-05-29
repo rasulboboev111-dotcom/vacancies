@@ -96,9 +96,9 @@ const selectedItem = ref(null);
 
 const dialogTitle = computed(() => {
     if (dialogAction.value === 'restore') {
-        return 'Подтверждение восстановления';
+        return 'Тасдиқи барқароркунӣ';
     } else {
-        return 'Окончательное удаление';
+        return 'Несткунии бебозгашт';
     }
 });
 
@@ -109,22 +109,22 @@ const dialogMessage = computed(() => {
         ? selectedItem.value.full_name 
         : (dialogType.value === 'branch' ? selectedItem.value.name : selectedItem.value.name);
 
-    const typeLabel = dialogType.value === 'employee' 
-        ? 'сотрудника' 
-        : (dialogType.value === 'branch' ? 'филиал' : 'пользователя');
+    const typeLabel = dialogType.value === 'employee'
+        ? 'кормандро'
+        : (dialogType.value === 'branch' ? 'филиалро' : 'корбарро');
 
     if (dialogAction.value === 'restore') {
-        return `Вы действительно хотите восстановить ${typeLabel} "${name}"? Запись будет полностью возвращена в активную базу данных.`;
+        return `Шумо дар ҳақиқат мехоҳед ${typeLabel} "${name}" барқарор кунед? Сабт пурра ба пойгоҳи додаҳои фаъол бармегардад.`;
     } else {
-        let warning = `ВНИМАНИЕ! Вы собираетесь окончательно удалить ${typeLabel} "${name}" из базы данных.`;
+        let warning = `ДИҚҚАТ! Шумо мехоҳед ${typeLabel} "${name}" аз пойгоҳи додаҳо бебозгашт нест кунед.`;
         if (dialogType.value === 'branch') {
-            warning += '\n\nЭто действие удалит филиал навсегда. Убедитесь, что к нему не привязаны другие записи.';
+            warning += '\n\nИн амал филиалро абадан нест мекунад. Мутмаин шавед, ки ба он сабтҳои дигар вобаста нестанд.';
         } else if (dialogType.value === 'user') {
-            warning += '\n\nУчетная запись пользователя будет удалена безвозвратно. Войти под ней будет невозможно.';
+            warning += '\n\nҲисоби корбар бебозгашт нест карда мешавад. Бо он ворид шудан имконнопазир хоҳад буд.';
         } else {
-            warning += '\n\nВсе личные сведения, ИНН, СИН и история работы данного сотрудника будут стерты навсегда.';
+            warning += '\n\nҲамаи маълумоти шахсӣ, ИНН, СИН ва таърихи кори ин корманд абадан нест карда мешавад.';
         }
-        warning += '\n\nЭто действие абсолютно необратимо!';
+        warning += '\n\nИн амал комилан бебозгашт аст!';
         return warning;
     }
 });
@@ -177,13 +177,13 @@ function formatDate(dateStr) {
 </script>
 
 <template>
-    <Head title="Корзина удаленных записей" />
+    <Head title="Сабади сабтҳои несткардашуда" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="d-flex align-center">
                 <Trash2 style="width: 24px; height: 24px; margin-right: 12px;" class="text-rose-accent-4" />
-                <span>Корзина удаленных записей</span>
+                <span>Сабади сабтҳои несткардашуда</span>
             </div>
         </template>
 
@@ -193,15 +193,15 @@ function formatDate(dateStr) {
                 <div>
                     <h1 class="text-h5 font-weight-black d-flex align-center mb-1">
                         <Trash2 style="width: 28px; height: 28px; margin-right: 10px;" />
-                        Управление удаленными ресурсами
+                        Идоракунии захираҳои несткардашуда
                     </h1>
                     <p class="text-subtitle-2 opacity-85 font-weight-medium">
-                        Восстанавливайте случайно удаленные записи или стирайте их окончательно для освобождения базы данных.
+                        Сабтҳои тасодуфан несткардашударо барқарор кунед ё барои озод кардани пойгоҳи додаҳо онҳоро бебозгашт нест кунед.
                     </p>
                 </div>
                 <div class="mt-4 mt-sm-0">
                     <v-chip color="white" variant="flat" class="text-rose font-weight-black shadow-sm" size="large">
-                        Всего записей: {{ employees.length + branches.length + users.length }}
+                        Ҳамаи сабтҳо: {{ employees.length + branches.length + users.length }}
                     </v-chip>
                 </div>
             </div>
@@ -220,21 +220,21 @@ function formatDate(dateStr) {
             >
                 <v-tab value="employees" class="font-weight-bold text-subtitle-2 py-4">
                     <Users style="width: 18px; height: 18px; margin-right: 8px;" />
-                    Сотрудники
+                    Кормандон
                     <v-chip size="x-small" color="error" variant="flat" class="ml-2 font-weight-bold">
                         {{ employees.length }}
                     </v-chip>
                 </v-tab>
                 <v-tab value="branches" class="font-weight-bold text-subtitle-2 py-4">
                     <Building2 style="width: 18px; height: 18px; margin-right: 8px;" />
-                    Филиалы
+                    Филиалҳо
                     <v-chip size="x-small" color="error" variant="flat" class="ml-2 font-weight-bold">
                         {{ branches.length }}
                     </v-chip>
                 </v-tab>
                 <v-tab value="users" class="font-weight-bold text-subtitle-2 py-4">
                     <User style="width: 18px; height: 18px; margin-right: 8px;" />
-                    Пользователи
+                    Корбарон
                     <v-chip size="x-small" color="error" variant="flat" class="ml-2 font-weight-bold">
                         {{ users.length }}
                     </v-chip>
@@ -248,12 +248,12 @@ function formatDate(dateStr) {
                 <v-window-item value="employees">
                     <div class="d-flex flex-column flex-sm-row justify-space-between align-sm-center mb-6">
                         <div class="text-subtitle-1 font-weight-bold text-indigo-darken-4 mb-3 mb-sm-0">
-                            Удаленные сотрудники
+                            Кормандони несткардашуда
                         </div>
                         <v-text-field
                             v-model="searchEmployees"
                             prepend-inner-icon="mdi-magnify"
-                            label="Быстрый поиск по имени, ИНН, коду..."
+                            label="Ҷустуҷӯи зуд аз рӯи ном, ИНН, рамз..."
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -267,13 +267,13 @@ function formatDate(dateStr) {
                     <v-table class="table-modern border rounded-xl overflow-hidden">
                         <thead>
                             <tr class="bg-slate-50">
-                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">ФИО сотрудника</th>
+                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Ному насаби корманд</th>
                                 <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Филиал</th>
-                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Должность</th>
+                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Вазифа</th>
                                 <th class="font-weight-black text-subtitle-2 pa-4 text-rose">ИНН</th>
-                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">СИН (Код)</th>
-                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Удален в</th>
-                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose text-center" style="width: 180px;">Действия</th>
+                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">СИН (Рамз)</th>
+                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Несткардашуда</th>
+                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose text-center" style="width: 180px;">Амалҳо</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -304,7 +304,7 @@ function formatDate(dateStr) {
                                             <template v-slot:prepend>
                                                 <RotateCcw style="width: 14px; height: 14px;" />
                                             </template>
-                                            Вернуть
+                                            Барқарор кардан
                                         </v-btn>
                                         <v-btn
                                             v-if="canManageTrashedEmployee(employee)"
@@ -318,9 +318,9 @@ function formatDate(dateStr) {
                                             <template v-slot:prepend>
                                                 <Trash2 style="width: 14px; height: 14px;" />
                                             </template>
-                                            Стереть
+                                            Нест кардан
                                         </v-btn>
-                                        <span v-else class="text-caption text-grey">Только просмотр</span>
+                                        <span v-else class="text-caption text-grey">Танҳо тамошо</span>
                                     </div>
                                 </td>
                             </tr>
@@ -329,7 +329,7 @@ function formatDate(dateStr) {
                                     <div class="d-flex flex-column align-center justify-center text-grey">
                                         <Users style="width: 48px; height: 48px;" class="opacity-30 mb-2" />
                                         <div class="font-weight-medium">
-                                            {{ searchEmployees ? 'Совпадений в корзине не найдено' : 'Корзина сотрудников пуста' }}
+                                            {{ searchEmployees ? 'Мутобиқат дар сабад ёфт нашуд' : 'Сабади кормандон холӣ аст' }}
                                         </div>
                                     </div>
                                 </td>
@@ -342,12 +342,12 @@ function formatDate(dateStr) {
                 <v-window-item value="branches">
                     <div class="d-flex flex-column flex-sm-row justify-space-between align-sm-center mb-6">
                         <div class="text-subtitle-1 font-weight-bold text-indigo-darken-4 mb-3 mb-sm-0">
-                            Удаленные филиалы
+                            Филиалҳои несткардашуда
                         </div>
                         <v-text-field
                             v-model="searchBranches"
                             prepend-inner-icon="mdi-magnify"
-                            label="Быстрый поиск по названию..."
+                            label="Ҷустуҷӯи зуд аз рӯи ном..."
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -361,9 +361,9 @@ function formatDate(dateStr) {
                     <v-table class="table-modern border rounded-xl overflow-hidden">
                         <thead>
                             <tr class="bg-slate-50">
-                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Название филиала</th>
-                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Удален в</th>
-                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose text-center" style="width: 180px;">Действия</th>
+                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Номи филиал</th>
+                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Несткардашуда</th>
+                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose text-center" style="width: 180px;">Амалҳо</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -388,7 +388,7 @@ function formatDate(dateStr) {
                                                 <template v-slot:prepend>
                                                     <RotateCcw style="width: 14px; height: 14px;" />
                                                 </template>
-                                                Вернуть
+                                                Барқарор кардан
                                             </v-btn>
                                             <v-btn
                                                 color="error"
@@ -401,11 +401,11 @@ function formatDate(dateStr) {
                                                 <template v-slot:prepend>
                                                     <Trash2 style="width: 14px; height: 14px;" />
                                                 </template>
-                                                Стереть
+                                                Нест кардан
                                             </v-btn>
                                         </template>
                                         <span v-else class="text-caption text-grey font-weight-medium">
-                                            Доступно только Администраторам
+                                            Танҳо барои Администраторон дастрас аст
                                         </span>
                                     </div>
                                 </td>
@@ -415,7 +415,7 @@ function formatDate(dateStr) {
                                     <div class="d-flex flex-column align-center justify-center text-grey">
                                         <Building2 style="width: 48px; height: 48px;" class="opacity-30 mb-2" />
                                         <div class="font-weight-medium">
-                                            {{ searchBranches ? 'Совпадений в корзине не найдено' : 'Корзина филиалов пуста' }}
+                                            {{ searchBranches ? 'Мутобиқат дар сабад ёфт нашуд' : 'Сабади филиалҳо холӣ аст' }}
                                         </div>
                                     </div>
                                 </td>
@@ -428,12 +428,12 @@ function formatDate(dateStr) {
                 <v-window-item value="users">
                     <div class="d-flex flex-column flex-sm-row justify-space-between align-sm-center mb-6">
                         <div class="text-subtitle-1 font-weight-bold text-indigo-darken-4 mb-3 mb-sm-0">
-                            Удаленные пользователи
+                            Корбарони несткардашуда
                         </div>
                         <v-text-field
                             v-model="searchUsers"
                             prepend-inner-icon="mdi-magnify"
-                            label="Быстрый поиск по имени или email..."
+                            label="Ҷустуҷӯи зуд аз рӯи ном ё email..."
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -447,11 +447,11 @@ function formatDate(dateStr) {
                     <v-table class="table-modern border rounded-xl overflow-hidden">
                         <thead>
                             <tr class="bg-slate-50">
-                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">ФИО / Логин</th>
+                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Ному насаб / Логин</th>
                                 <th class="font-weight-black text-subtitle-2 pa-4 text-rose">E-mail</th>
                                 <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Филиал</th>
-                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Удален в</th>
-                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose text-center" style="width: 180px;">Действия</th>
+                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose">Несткардашуда</th>
+                                <th class="font-weight-black text-subtitle-2 pa-4 text-rose text-center" style="width: 180px;">Амалҳо</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -465,7 +465,7 @@ function formatDate(dateStr) {
                                         {{ usr.email }}
                                     </div>
                                 </td>
-                                <td class="pa-4 text-body-2">{{ usr.branch?.name || 'Все филиалы / Глобальный' }}</td>
+                                <td class="pa-4 text-body-2">{{ usr.branch?.name || 'Ҳамаи филиалҳо / Глобалӣ' }}</td>
                                 <td class="pa-4 text-body-2 font-weight-bold text-rose-darken-2">
                                     {{ formatDate(usr.deleted_at) }}
                                 </td>
@@ -483,7 +483,7 @@ function formatDate(dateStr) {
                                             <template v-slot:prepend>
                                                 <RotateCcw style="width: 14px; height: 14px;" />
                                             </template>
-                                            Вернуть
+                                            Барқарор кардан
                                         </v-btn>
                                         
                                         <!-- Only Admin can force delete users -->
@@ -499,11 +499,11 @@ function formatDate(dateStr) {
                                             <template v-slot:prepend>
                                                 <Trash2 style="width: 14px; height: 14px;" />
                                             </template>
-                                            Стереть
+                                            Нест кардан
                                         </v-btn>
-                                        <span v-else-if="currentUser.id === usr.id" class="text-caption text-grey">Текущий сеанс</span>
-                                        <span v-else-if="!canManageEmployees" class="text-caption text-grey">Только просмотр</span>
-                                        <span v-else class="text-caption text-grey font-weight-medium">Только для Админа</span>
+                                        <span v-else-if="currentUser.id === usr.id" class="text-caption text-grey">Сеанси ҷорӣ</span>
+                                        <span v-else-if="!canManageEmployees" class="text-caption text-grey">Танҳо тамошо</span>
+                                        <span v-else class="text-caption text-grey font-weight-medium">Танҳо барои Админ</span>
                                     </div>
                                 </td>
                             </tr>
@@ -512,7 +512,7 @@ function formatDate(dateStr) {
                                     <div class="d-flex flex-column align-center justify-center text-grey">
                                         <User style="width: 48px; height: 48px;" class="opacity-30 mb-2" />
                                         <div class="font-weight-medium">
-                                            {{ searchUsers ? 'Совпадений в корзине не найдено' : 'Корзина пользователей пуста' }}
+                                            {{ searchUsers ? 'Мутобиқат дар сабад ёфт нашуд' : 'Сабади корбарон холӣ аст' }}
                                         </div>
                                     </div>
                                 </td>
@@ -562,16 +562,16 @@ function formatDate(dateStr) {
                         class="px-5 font-weight-bold" 
                         @click="confirmDialog = false"
                     >
-                        Отмена
+                        Бекор кардан
                     </v-btn>
-                    <v-btn 
-                        :color="dialogAction === 'restore' ? 'success' : 'error'" 
+                    <v-btn
+                        :color="dialogAction === 'restore' ? 'success' : 'error'"
                         variant="flat" 
                         rounded="lg" 
                         class="px-5 font-weight-bold ml-3" 
                         @click="handleConfirm"
                     >
-                        {{ dialogAction === 'restore' ? 'Восстановить' : 'Удалить безвозвратно' }}
+                        {{ dialogAction === 'restore' ? 'Барқарор кардан' : 'Бебозгашт нест кардан' }}
                     </v-btn>
                 </v-card-actions>
                 <div class="glass-shine"></div>

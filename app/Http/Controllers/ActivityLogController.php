@@ -36,7 +36,7 @@ class ActivityLogController extends Controller
                 'description' => $log->description,
                 'subject_type' => class_basename($log->subject_type),
                 'event' => $log->event,
-                'causer_name' => $log->causer ? $log->causer->name : 'Система',
+                'causer_name' => $log->causer ? $log->causer->name : 'Низом',
                 'properties' => $log->properties,
                 'created_at' => $log->created_at->format('d.m.Y H:i:s'),
             ];

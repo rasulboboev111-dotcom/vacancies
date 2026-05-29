@@ -86,13 +86,13 @@ function confirmDelete() {
 </script>
 
 <template>
-    <Head title="Должности" />
+    <Head title="Вазифаҳо" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="d-flex align-center">
                 <Briefcase style="width: 24px; height: 24px; margin-right: 12px;" class="text-indigo-accent-2" />
-                <span>Управление должностями</span>
+                <span>Идоракунии вазифаҳо</span>
             </div>
         </template>
 
@@ -102,7 +102,7 @@ function confirmDelete() {
                 <v-text-field
                     v-model="search"
                     prepend-inner-icon="mdi-magnify"
-                    label="Поиск по названию должности..."
+                    label="Ҷустуҷӯ аз рӯи номи вазифа..."
                     variant="outlined"
                     density="comfortable"
                     rounded="lg"
@@ -124,7 +124,7 @@ function confirmDelete() {
                     <template v-slot:prepend>
                         <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
                     </template>
-                    Добавить должность
+                    Илова кардани вазифа
                 </v-btn>
             </v-col>
         </v-row>
@@ -152,7 +152,7 @@ function confirmDelete() {
                             </template>
                             <v-list density="comfortable" rounded="xl" class="border py-1">
                                 <v-list-item
-                                    title="Редактировать"
+                                    title="Таҳрир"
                                     class="font-weight-bold"
                                     @click="openEditDialog(position)"
                                 >
@@ -161,7 +161,7 @@ function confirmDelete() {
                                     </template>
                                 </v-list-item>
                                 <v-list-item
-                                    title="Удалить"
+                                    title="Нест кардан"
                                     class="text-error font-weight-bold"
                                     @click="openDeleteDialog(position)"
                                 >
@@ -176,12 +176,12 @@ function confirmDelete() {
                     <v-divider class="my-3"></v-divider>
 
                     <div class="d-flex justify-space-between align-center flex-grow-1 align-end">
-                        <span class="text-subtitle-2 text-grey font-weight-bold text-uppercase">Занятость</span>
+                        <span class="text-subtitle-2 text-grey font-weight-bold text-uppercase">Ҳайат</span>
                         <v-chip :color="position.employees_count > 0 ? 'teal' : 'grey'" variant="tonal" class="font-weight-black px-3" size="medium">
                             <template v-slot:prepend>
                                 <Users style="width: 16px; height: 16px; margin-right: 4px;" :class="position.employees_count > 0 ? 'text-teal' : 'text-grey'" />
                             </template>
-                            {{ position.employees_count }} чел.
+                            {{ position.employees_count }} нафар
                         </v-chip>
                     </div>
                     <div class="glass-shine"></div>
@@ -191,7 +191,7 @@ function confirmDelete() {
             <v-col v-if="filteredPositions.length === 0" cols="12" class="text-center py-12">
                 <Briefcase style="width: 48px; height: 48px; margin: 0 auto 8px; opacity: 0.5;" class="text-grey" />
                 <div class="text-h6 text-grey font-weight-medium">
-                    {{ search ? 'Должности с таким названием не найдены' : 'Должности не найдены.' }}
+                    {{ search ? 'Вазифа бо чунин ном ёфт нашуд' : 'Вазифаҳо ёфт нашуд.' }}
                 </div>
             </v-col>
         </v-row>
@@ -207,10 +207,10 @@ function confirmDelete() {
                         </v-avatar>
                         <div class="ml-4">
                             <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">
-                                {{ editingPosition ? 'Редактирование' : 'Новая должность' }}
+                                {{ editingPosition ? 'Таҳрир' : 'Вазифаи нав' }}
                             </div>
                             <div style="color: white; font-size: 1.1rem; font-weight: 800;">
-                                {{ editingPosition ? form.name || 'Должность' : 'Добавить должность' }}
+                                {{ editingPosition ? form.name || 'Вазифа' : 'Илова кардани вазифа' }}
                             </div>
                         </div>
                     </div>
@@ -220,7 +220,7 @@ function confirmDelete() {
                     <v-form @submit.prevent="submit">
                         <v-text-field
                             v-model="form.name"
-                            label="Название должности"
+                            label="Номи вазифа"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -243,7 +243,7 @@ function confirmDelete() {
                         :disabled="form.processing"
                         class="px-6 font-weight-bold"
                     >
-                        Отмена
+                        Бекор кардан
                     </v-btn>
                     <v-btn
                         color="indigo"
@@ -255,7 +255,7 @@ function confirmDelete() {
                         class="px-6 font-weight-bold"
                         style="box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);"
                     >
-                        Сохранить
+                        Захира кардан
                     </v-btn>
                 </v-card-actions>
             </v-card>
@@ -279,10 +279,10 @@ function confirmDelete() {
                         </v-avatar>
                         <div class="ml-3">
                             <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">
-                                {{ positionToDelete?.employees_count > 0 ? 'Предупреждение' : 'Подтверждение' }}
+                                {{ positionToDelete?.employees_count > 0 ? 'Огоҳӣ' : 'Тасдиқ' }}
                             </div>
                             <div style="color: white; font-size: 1.05rem; font-weight: 800;">
-                                {{ positionToDelete?.employees_count > 0 ? 'Удаление заблокировано' : 'Удаление должности' }}
+                                {{ positionToDelete?.employees_count > 0 ? 'Нест кардан манъ аст' : 'Нест кардани вазифа' }}
                             </div>
                         </div>
                     </div>
@@ -290,20 +290,20 @@ function confirmDelete() {
 
                 <v-card-text class="pa-6 text-body-1 text-grey-darken-3 font-weight-medium">
                     <template v-if="positionToDelete?.employees_count > 0">
-                        Вы не можете удалить должность <strong class="text-amber-darken-3">{{ positionToDelete?.name }}</strong>.
+                        Шумо наметавонед вазифаи <strong class="text-amber-darken-3">{{ positionToDelete?.name }}</strong>-ро нест кунед.
                         <div class="mt-4 pa-3 rounded-lg d-flex align-start" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2);">
                             <AlertTriangle style="width: 18px; height: 18px; margin-right: 8px; color: #d97706; flex-shrink: 0; margin-top: 2px;" />
                             <span class="text-amber-darken-4 font-weight-bold text-body-2 leading-snug">
-                                Данная должность назначена сотрудникам в количестве: <strong>{{ positionToDelete?.employees_count }} чел.</strong> 
-                                <br><span class="text-grey-darken-2 font-weight-medium">Сначала переведите их на другие должности в разделе «Сотрудники», прежде чем удалять эту должность.</span>
+                                Ин вазифа ба кормандон таъин шудааст, ба шумораи: <strong>{{ positionToDelete?.employees_count }} нафар.</strong>
+                                <br><span class="text-grey-darken-2 font-weight-medium">Аввал онҳоро дар бахши «Кормандон» ба вазифаҳои дигар гузаронед, баъд ин вазифаро нест кунед.</span>
                             </span>
                         </div>
                     </template>
                     <template v-else>
-                        Вы уверены, что хотите окончательно удалить должность <strong>{{ positionToDelete?.name }}</strong>?
+                        Шумо мутмаин ҳастед, ки мехоҳед вазифаи <strong>{{ positionToDelete?.name }}</strong>-ро бебозгашт нест кунед?
                         <div class="mt-3 pa-3 rounded-lg d-flex align-center" style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.15);">
                             <AlertTriangle style="width: 18px; height: 18px; margin-right: 8px; color: #ef4444; flex-shrink: 0;" />
-                            <span class="text-error font-weight-bold text-body-2">Это действие полностью сотрет название должности из базы данных!</span>
+                            <span class="text-error font-weight-bold text-body-2">Ин амал номи вазифаро аз пойгоҳи додаҳо пурра нест мекунад!</span>
                         </div>
                     </template>
                 </v-card-text>
@@ -319,7 +319,7 @@ function confirmDelete() {
                         @click="deleteDialog = false"
                         class="px-6 font-weight-bold"
                     >
-                        {{ positionToDelete?.employees_count > 0 ? 'Понятно' : 'Отмена' }}
+                        {{ positionToDelete?.employees_count > 0 ? 'Фаҳмо' : 'Бекор кардан' }}
                     </v-btn>
                     <v-btn
                         v-if="!(positionToDelete?.employees_count > 0)"
@@ -335,7 +335,7 @@ function confirmDelete() {
                         <template v-slot:prepend>
                             <Trash2 style="width: 18px; height: 18px;" />
                         </template>
-                        Удалить
+                        Нест кардан
                     </v-btn>
                 </v-card-actions>
             </v-card>

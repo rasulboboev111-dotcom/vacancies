@@ -5,7 +5,6 @@ import { ref, watch, computed } from 'vue';
 import { 
     Users,
     Search,
-    FilterX,
     Plus,
     Eye,
     ArrowLeftRight,
@@ -102,8 +101,8 @@ const activeTab = ref(0);
 
 // Gender options: canonical enum value submitted to the backend, label shown to the user.
 const genderOptions = [
-    { value: 'мужской', title: 'Мужской' },
-    { value: 'женский', title: 'Женский' },
+    { value: 'мужской', title: 'Мард' },
+    { value: 'женский', title: 'Зан' },
 ];
 
 const form = useForm({
@@ -148,14 +147,6 @@ function applyFilters() {
         preserveState: true,
         replace: true,
     });
-}
-
-function resetFilters() {
-    search.value = '';
-    branchId.value = null;
-    categoryId.value = null;
-    typeId.value = null;
-    router.get(route('employees.index'));
 }
 
 function openCreateDialog() {
@@ -301,13 +292,13 @@ function submitRotation() {
 </script>
 
 <template>
-    <Head title="Сотрудники" />
+    <Head title="Кормандон" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="d-flex align-center">
                 <Users class="mr-3 text-indigo-accent-2 h-6 w-6" />
-                <span>Сотрудники</span>
+                <span>Кормандон</span>
             </div>
         </template>
 
@@ -318,7 +309,7 @@ function submitRotation() {
                 <v-col cols="12" sm="12" md="3">
                     <v-text-field
                         v-model="search"
-                        placeholder="Поиск по ФИО, должности..."
+                        placeholder="Ҷустуҷӯ аз рӯи ному насаб, вазифа..."
                         variant="solo"
                         density="comfortable"
                         rounded="lg"
@@ -376,7 +367,7 @@ function submitRotation() {
                         :items="types"
                         item-title="name"
                         item-value="id"
-                        label="Тип занятости"
+                        label="Намуди шуғл"
                         variant="solo"
                         density="comfortable"
                         rounded="lg"
@@ -390,19 +381,6 @@ function submitRotation() {
                 <!-- Action buttons -->
                 <v-col cols="12" sm="12" md="3" class="d-flex align-center justify-md-end justify-center gap-2">
                     <v-btn
-                        variant="flat"
-                        rounded="lg"
-                        class="px-4 transition-hover-btn font-weight-bold"
-                        style="background: rgba(0, 156, 241, 0.08) !important; color: #009cf1 !important; border: 1px solid rgba(0, 156, 241, 0.15) !important;"
-                        @click="resetFilters"
-                    >
-                        <template v-slot:prepend>
-                            <FilterX style="width: 16px; height: 16px; color: #009cf1;" />
-                        </template>
-                        Сбросить
-                    </v-btn>
-                    
-                    <v-btn
                         v-if="canCreateEmployees"
                         variant="flat"
                         rounded="lg"
@@ -413,7 +391,7 @@ function submitRotation() {
                         <template v-slot:prepend>
                             <Plus style="width: 18px; height: 18px; color: #ffffff;" />
                         </template>
-                        Добавить
+                        Илова кардан
                     </v-btn>
                 </v-col>
             </v-row>
@@ -424,15 +402,15 @@ function submitRotation() {
             <v-table class="w-100 table-modern">
                 <thead>
                     <tr class="bg-indigo-lighten-5">
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">ФИО</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Должность</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Ному насаб</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Вазифа</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Филиал</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Категория</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Тип</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Намуд</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Телефон</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Дата рождения</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Дата трудоустройства с</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo text-center">Действия</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Санаи таваллуд</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Санаи ба кор қабул аз</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo text-center">Амалҳо</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -466,7 +444,7 @@ function submitRotation() {
                                 color="indigo"
                                 size="small"
                                 class="mr-1 hover-scale-btn"
-                                title="Ротация"
+                                title="Ротатсия"
                                 @click="openRotationDialog(employee)"
                             >
                                 <ArrowLeftRight style="width: 16px; height: 16px;" />
@@ -498,7 +476,7 @@ function submitRotation() {
                     <tr v-if="employees.data.length === 0">
                         <td colspan="9" class="text-center py-10 text-grey text-h6 font-weight-medium bg-surface">
                             <UserX class="h-10 w-10 text-grey-lighten-1 mx-auto mb-2 opacity-50" /><br>
-                            Сотрудники не найдены.
+                            Кормандон ёфт нашуданд.
                         </td>
                     </tr>
                 </tbody>
@@ -508,7 +486,7 @@ function submitRotation() {
             <v-divider></v-divider>
             <div class="d-flex justify-space-between align-center pa-4 bg-surface">
                 <div class="text-caption text-grey font-weight-bold">
-                    Показано {{ employees.from || 0 }} - {{ employees.to || 0 }} из {{ employees.total || 0 }} сотрудников
+                    Нишон дода шуд {{ employees.from || 0 }} - {{ employees.to || 0 }} аз {{ employees.total || 0 }} корманд
                 </div>
                 <v-pagination
                     v-if="employees.last_page > 1"
@@ -534,7 +512,7 @@ function submitRotation() {
                                 <User style="width: 22px; height: 22px; color: white;" />
                             </v-avatar>
                             <div class="ml-4">
-                                <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Детали сотрудника</div>
+                                <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Маълумот дар бораи корманд</div>
                                 <div style="color: white; font-size: 1.1rem; font-weight: 800;">{{ selectedEmployee.full_name }}</div>
                             </div>
                         </div>
@@ -549,7 +527,7 @@ function submitRotation() {
                             <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
                                 <User style="width: 16px; height: 16px;" />
                             </v-avatar>
-                            Основные и личные данные
+                            Маълумоти асосӣ ва шахсӣ
                         </div>
                         <v-row>
                             <v-col cols="12" class="py-2">
@@ -558,7 +536,7 @@ function submitRotation() {
                                         <User style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">ФИО</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Ному насаб</span>
                                         <span class="text-body-1 font-weight-black text-indigo-darken-4">{{ selectedEmployee.full_name }}</span>
                                     </div>
                                 </div>
@@ -570,7 +548,7 @@ function submitRotation() {
                                         <Users style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Пол</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Ҷинс</span>
                                         <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.gender_label || '-' }}</span>
                                     </div>
                                 </div>
@@ -582,8 +560,8 @@ function submitRotation() {
                                         <Calendar style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Дата рождения / Возраст</span>
-                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ formatDate(selectedEmployee.birth_date) }} ({{ selectedEmployee.age ? selectedEmployee.age + ' лет' : '-' }})</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Санаи таваллуд / Синну сол</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ formatDate(selectedEmployee.birth_date) }} ({{ selectedEmployee.age ? selectedEmployee.age + ' сол' : '-' }})</span>
                                     </div>
                                 </div>
                             </v-col>
@@ -594,7 +572,7 @@ function submitRotation() {
                                         <Globe style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Национальность</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Миллат</span>
                                         <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.nationality || '-' }}</span>
                                     </div>
                                 </div>
@@ -618,7 +596,7 @@ function submitRotation() {
                                         <MapPin style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Адрес проживания</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Суроғаи истиқомат</span>
                                         <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.address || '-' }}</span>
                                     </div>
                                 </div>
@@ -630,7 +608,7 @@ function submitRotation() {
                                         <MapPin style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Место рождения</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Зодгоҳ</span>
                                         <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.birth_place || '-' }}</span>
                                     </div>
                                 </div>
@@ -642,7 +620,7 @@ function submitRotation() {
                                         <BookOpen style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Образование</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Маълумот</span>
                                         <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.education || '-' }}</span>
                                     </div>
                                 </div>
@@ -654,7 +632,7 @@ function submitRotation() {
                                         <Award style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Специальность</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Ихтисос</span>
                                         <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.specialty || '-' }}</span>
                                     </div>
                                 </div>
@@ -668,7 +646,7 @@ function submitRotation() {
                             <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
                                 <Briefcase style="width: 16px; height: 16px;" />
                             </v-avatar>
-                            Трудовая деятельность
+                            Фаъолияти меҳнатӣ
                         </div>
                         <v-row>
                             <v-col cols="12" sm="4" class="py-2">
@@ -677,7 +655,7 @@ function submitRotation() {
                                         <Briefcase style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Должность</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Вазифа</span>
                                         <span class="text-body-2 font-weight-black text-indigo-darken-3">{{ selectedEmployee.position?.name || '-' }}</span>
                                     </div>
                                 </div>
@@ -689,7 +667,7 @@ function submitRotation() {
                                         <Network style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Подразделение</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Воҳид</span>
                                         <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.structure?.name || '-' }}</span>
                                     </div>
                                 </div>
@@ -702,7 +680,7 @@ function submitRotation() {
                                     </div>
                                     <div>
                                         <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Филиал</span>
-                                        <span class="text-body-2 font-weight-bold text-indigo-accent-3 font-weight-black">{{ selectedEmployee.branch?.name || 'Удаленный филиал' }}</span>
+                                        <span class="text-body-2 font-weight-bold text-indigo-accent-3 font-weight-black">{{ selectedEmployee.branch?.name || 'Филиали ҳазфшуда' }}</span>
                                     </div>
                                 </div>
                             </v-col>
@@ -725,8 +703,8 @@ function submitRotation() {
                                         <UserCheck style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Руководитель</span>
-                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.manager?.full_name || 'Нет' }}</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Роҳбар</span>
+                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.manager?.full_name || 'Нест' }}</span>
                                     </div>
                                 </div>
                             </v-col>
@@ -737,7 +715,7 @@ function submitRotation() {
                                         <Clock style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Дата трудоустройства с</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Санаи ба кор қабул аз</span>
                                         <span class="text-body-2 font-weight-black text-teal-darken-3 font-weight-bold">{{ formatDate(selectedEmployee.employment_start_date) }}</span>
                                     </div>
                                 </div>
@@ -749,7 +727,7 @@ function submitRotation() {
                                         <Calendar style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Дата приема</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Санаи қабул</span>
                                         <span class="text-body-2 font-weight-bold text-slate-800">{{ formatDate(selectedEmployee.hire_date) }}</span>
                                     </div>
                                 </div>
@@ -761,7 +739,7 @@ function submitRotation() {
                                         <Calendar style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Дата увольнения</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Санаи озодшавӣ</span>
                                         <span class="text-body-2 font-weight-bold text-error font-weight-black">{{ formatDate(selectedEmployee.dismissal_date) }}</span>
                                     </div>
                                 </div>
@@ -775,7 +753,7 @@ function submitRotation() {
                             <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
                                 <FileText style="width: 16px; height: 16px;" />
                             </v-avatar>
-                            Паспортные данные и коды
+                            Маълумоти шиноснома ва рамзҳо
                         </div>
                         <v-row>
                             <v-col cols="12" sm="4" class="py-2">
@@ -784,7 +762,7 @@ function submitRotation() {
                                         <IdCard style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Номер паспорта</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Рақами шиноснома</span>
                                         <span class="text-body-2 font-weight-bold font-mono text-slate-800">{{ selectedEmployee.passport_number || '-' }}</span>
                                     </div>
                                 </div>
@@ -796,7 +774,7 @@ function submitRotation() {
                                         <Calendar style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Срок действия (С)</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Мӯҳлати эътибор (Аз)</span>
                                         <span class="text-body-2 font-weight-bold text-slate-800">{{ formatDate(selectedEmployee.passport_start_date) }}</span>
                                     </div>
                                 </div>
@@ -808,7 +786,7 @@ function submitRotation() {
                                         <Calendar style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Срок действия (По)</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Мӯҳлати эътибор (То)</span>
                                         <span class="text-body-2 font-weight-bold text-slate-800">{{ formatDate(selectedEmployee.passport_end_date) }}</span>
                                     </div>
                                 </div>
@@ -832,7 +810,7 @@ function submitRotation() {
                                         <FileText style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">СИН (Код)</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">СИН (Рамз)</span>
                                         <span class="text-body-2 font-weight-bold font-mono text-slate-800">{{ selectedEmployee.sin || '-' }}</span>
                                     </div>
                                 </div>
@@ -844,7 +822,7 @@ function submitRotation() {
                                         <UserCheck style="width: 16px; height: 16px;" />
                                     </div>
                                     <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Кем выдан паспорт</span>
+                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Аз ҷониби додашуда</span>
                                         <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.passport_issued_by || '-' }}</span>
                                     </div>
                                 </div>
@@ -857,7 +835,7 @@ function submitRotation() {
 
                 <v-card-actions class="px-6 py-4 bg-white d-flex justify-end">
                     <v-btn color="indigo" variant="flat" size="large" class="bg-indigo px-6 font-weight-bold" rounded="lg" style="box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);" @click="viewDialog = false">
-                        Закрыть
+                        Пӯшидан
                     </v-btn>
                 </v-card-actions>
                 <div class="glass-shine"></div>
@@ -874,8 +852,8 @@ function submitRotation() {
                             <UserPlus style="width: 22px; height: 22px; color: white;" />
                         </v-avatar>
                         <div class="ml-4">
-                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">{{ editingEmployee ? 'Редактирование' : 'Новый сотрудник' }}</div>
-                            <div style="color: white; font-size: 1.1rem; font-weight: 800;">{{ editingEmployee ? form.full_name || 'Редактировать сотрудника' : 'Добавить сотрудника' }}</div>
+                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">{{ editingEmployee ? 'Таҳрир' : 'Корманди нав' }}</div>
+                            <div style="color: white; font-size: 1.1rem; font-weight: 800;">{{ editingEmployee ? form.full_name || 'Таҳрири корманд' : 'Илова кардани корманд' }}</div>
                         </div>
                     </div>
                 </div>
@@ -885,19 +863,19 @@ function submitRotation() {
                     <v-tab :value="0">
                         <div class="d-flex align-center">
                             <User style="width: 16px; height: 16px; margin-right: 6px;" />
-                            <span>Основное</span>
+                            <span>Маълумоти асосӣ</span>
                         </div>
                     </v-tab>
                     <v-tab :value="1">
                         <div class="d-flex align-center">
                             <IdCard style="width: 16px; height: 16px; margin-right: 6px;" />
-                            <span>Личные данные</span>
+                            <span>Маълумоти шахсӣ</span>
                         </div>
                     </v-tab>
                     <v-tab :value="2">
                         <div class="d-flex align-center">
                             <FileText style="width: 16px; height: 16px; margin-right: 6px;" />
-                            <span>Документы и ИНН</span>
+                            <span>Шиноснома ва рамзҳо</span>
                         </div>
                     </v-tab>
                 </v-tabs>
@@ -905,13 +883,13 @@ function submitRotation() {
                 <v-card-text class="px-6 pt-4 overflow-y-auto" style="max-height: 62vh;">
                     <v-form @submit.prevent="submit">
                         <v-window v-model="activeTab">
-                            <!-- Tab 1: Основная трудовая информация -->
+                            <!-- Tab 1: Маълумоти асосии корӣ -->
                             <v-window-item :value="0">
                                 <v-row>
                                     <v-col cols="12" sm="6">
                                         <v-text-field
                                             v-model="form.full_name"
-                                            label="ФИО сотрудника"
+                                            label="Ному насаби корманд"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -942,7 +920,7 @@ function submitRotation() {
                                             :items="positions"
                                             item-title="name"
                                             item-value="id"
-                                            label="Должность"
+                                            label="Вазифа"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -957,7 +935,7 @@ function submitRotation() {
                                             :items="structures"
                                             item-title="name"
                                             item-value="id"
-                                            label="Подразделение / Отдел (Сохтор)"
+                                            label="Воҳид / Шуъба (Сохтор)"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -987,7 +965,7 @@ function submitRotation() {
                                             :items="types"
                                             item-title="name"
                                             item-value="id"
-                                            label="Тип занятости"
+                                            label="Намуди шуғл"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1002,7 +980,7 @@ function submitRotation() {
                                             :items="managers"
                                             item-title="full_name"
                                             item-value="id"
-                                            label="Непосредственный руководитель"
+                                            label="Роҳбари бевосита"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1014,7 +992,7 @@ function submitRotation() {
                                     <v-col cols="12" sm="6">
                                         <v-text-field
                                             v-model="form.employment_start_date"
-                                            label="Дата трудоустройства с"
+                                            label="Санаи ба кор қабул аз"
                                             type="date"
                                             variant="outlined"
                                             density="comfortable"
@@ -1026,7 +1004,7 @@ function submitRotation() {
                                     <v-col cols="12" sm="6">
                                         <v-text-field
                                             v-model="form.hire_date"
-                                            label="Дата приема"
+                                            label="Санаи қабул"
                                             type="date"
                                             variant="outlined"
                                             density="comfortable"
@@ -1039,7 +1017,7 @@ function submitRotation() {
                                     <v-col cols="12" sm="6">
                                         <v-text-field
                                             v-model="form.dismissal_date"
-                                            label="Дата увольнения"
+                                            label="Санаи озодшавӣ"
                                             type="date"
                                             variant="outlined"
                                             density="comfortable"
@@ -1050,7 +1028,7 @@ function submitRotation() {
                                 </v-row>
                             </v-window-item>
 
-                            <!-- Tab 2: Личные данные -->
+                            <!-- Tab 2: Маълумоти шахсӣ -->
                             <v-window-item :value="1">
                                 <v-row>
                                     <v-col cols="12" sm="4">
@@ -1059,7 +1037,7 @@ function submitRotation() {
                                             :items="genderOptions"
                                             item-title="title"
                                             item-value="value"
-                                            label="Пол"
+                                            label="Ҷинс"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1071,7 +1049,7 @@ function submitRotation() {
                                     <v-col cols="12" sm="4">
                                         <v-text-field
                                             v-model="form.birth_date"
-                                            label="Дата рождения"
+                                            label="Санаи таваллуд"
                                             type="date"
                                             variant="outlined"
                                             density="comfortable"
@@ -1083,7 +1061,7 @@ function submitRotation() {
                                     <v-col cols="12" sm="4">
                                         <v-text-field
                                             v-model="form.nationality"
-                                            label="Национальность"
+                                            label="Миллат"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1094,7 +1072,7 @@ function submitRotation() {
                                     <v-col cols="12" sm="6">
                                         <v-text-field
                                             v-model="form.phone_number"
-                                            label="Номер телефона"
+                                            label="Рақами телефон"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1105,7 +1083,7 @@ function submitRotation() {
                                     <v-col cols="12" sm="6">
                                         <v-text-field
                                             v-model="form.birth_place"
-                                            label="Место рождения"
+                                            label="Зодгоҳ"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1116,7 +1094,7 @@ function submitRotation() {
                                     <v-col cols="12" sm="6">
                                         <v-text-field
                                             v-model="form.education"
-                                            label="Образование"
+                                            label="Маълумот"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1127,7 +1105,7 @@ function submitRotation() {
                                     <v-col cols="12" sm="6">
                                         <v-text-field
                                             v-model="form.specialty"
-                                            label="Ихтисос (Специальность)"
+                                            label="Ихтисос"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1138,7 +1116,7 @@ function submitRotation() {
                                     <v-col cols="12">
                                         <v-text-field
                                             v-model="form.address"
-                                            label="Адрес проживания"
+                                            label="Суроғаи истиқомат"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1148,13 +1126,13 @@ function submitRotation() {
                                 </v-row>
                             </v-window-item>
 
-                            <!-- Tab 3: Паспорт и Коды -->
+                            <!-- Tab 3: Шиноснома ва рамзҳо -->
                             <v-window-item :value="2">
                                 <v-row>
                                     <v-col cols="12" sm="4">
                                         <v-text-field
                                             v-model="form.passport_number"
-                                            label="Номер паспорта"
+                                            label="Рақами шиноснома"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1165,7 +1143,7 @@ function submitRotation() {
                                     <v-col cols="12" sm="4">
                                         <v-text-field
                                             v-model="form.passport_start_date"
-                                            label="Срок действия (С)"
+                                            label="Мӯҳлати эътибор (Аз)"
                                             type="date"
                                             variant="outlined"
                                             density="comfortable"
@@ -1177,7 +1155,7 @@ function submitRotation() {
                                     <v-col cols="12" sm="4">
                                         <v-text-field
                                             v-model="form.passport_end_date"
-                                            label="Срок действия (По)"
+                                            label="Мӯҳлати эътибор (То)"
                                             type="date"
                                             variant="outlined"
                                             density="comfortable"
@@ -1200,7 +1178,7 @@ function submitRotation() {
                                     <v-col cols="12" sm="6">
                                         <v-text-field
                                             v-model="form.sin"
-                                            label="СИН (Код)"
+                                            label="СИН (Рамз)"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1211,7 +1189,7 @@ function submitRotation() {
                                     <v-col cols="12">
                                         <v-textarea
                                             v-model="form.passport_issued_by"
-                                            label="Кем выдан паспорт (Мақоми шеносномадиҳанда)"
+                                            label="Аз ҷониби додашуда (Мақоми шиноснома диҳанда)"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
@@ -1233,7 +1211,7 @@ function submitRotation() {
                         rounded="lg"
                         @click="activeTab--"
                     >
-                        Назад
+                        Қафо
                     </v-btn>
                     <v-spacer></v-spacer>
                     <v-btn
@@ -1242,7 +1220,7 @@ function submitRotation() {
                         @click="createEditDialog = false"
                         :disabled="form.processing"
                     >
-                        Отмена
+                        Бекор кардан
                     </v-btn>
                     <v-btn
                         v-if="activeTab < 2"
@@ -1252,7 +1230,7 @@ function submitRotation() {
                         rounded="lg"
                         @click="activeTab++"
                     >
-                        Далее
+                        Минбаъд
                     </v-btn>
                     <v-btn
                         v-else
@@ -1263,7 +1241,7 @@ function submitRotation() {
                         @click="submit"
                         :loading="form.processing"
                     >
-                        Сохранить
+                        Захира кардан
                     </v-btn>
                 </v-card-actions>
             </v-card>
@@ -1279,13 +1257,13 @@ function submitRotation() {
                             <AlertCircle style="width: 22px; height: 22px; color: white;" />
                         </v-avatar>
                         <div class="ml-3">
-                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Подтверждение</div>
-                            <div style="color: white; font-size: 1.05rem; font-weight: 800;">Удаление сотрудника</div>
+                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Тасдиқ</div>
+                            <div style="color: white; font-size: 1.05rem; font-weight: 800;">Нест кардани корманд</div>
                         </div>
                     </div>
                 </div>
                 <v-card-text class="pa-6 text-body-1 text-grey-darken-3 font-weight-medium">
-                    Вы уверены, что хотите удалить сотрудника <strong class="text-red-darken-2">{{ employeeToDelete?.full_name }}</strong>? Это действие необратимо.
+                    Шумо мутмаин ҳастед, ки мехоҳед корманди <strong class="text-red-darken-2">{{ employeeToDelete?.full_name }}</strong>-ро нест кунед? Ин амал бебозгашт аст.
                 </v-card-text>
                 <v-divider></v-divider>
                 <v-card-actions class="pa-5 d-flex justify-end" style="gap: 12px;">
@@ -1298,7 +1276,7 @@ function submitRotation() {
                         :disabled="form.processing"
                         class="px-6 font-weight-bold"
                     >
-                        Отмена
+                        Бекор кардан
                     </v-btn>
                     <v-btn
                         color="error"
@@ -1313,7 +1291,7 @@ function submitRotation() {
                         <template v-slot:prepend>
                             <Trash2 style="width: 18px; height: 18px;" />
                         </template>
-                        Удалить
+                        Нест кардан
                     </v-btn>
                 </v-card-actions>
             </v-card>
@@ -1330,7 +1308,7 @@ function submitRotation() {
                                 <ArrowLeftRight style="width: 22px; height: 22px; color: white;" />
                             </v-avatar>
                             <div class="ml-4">
-                                <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Ротация кадров</div>
+                                <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">Ротатсияи кадрҳо</div>
                                 <div style="color: white; font-size: 1.1rem; font-weight: 800;">{{ selectedEmployee?.full_name }}</div>
                             </div>
                         </div>
@@ -1344,7 +1322,7 @@ function submitRotation() {
                             :items="branches"
                             item-title="name"
                             item-value="id"
-                            label="Новый филиал"
+                            label="Филиали нав"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -1359,7 +1337,7 @@ function submitRotation() {
                             :items="positions"
                             item-title="name"
                             item-value="id"
-                            label="Новая должность"
+                            label="Вазифаи нав"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -1373,7 +1351,7 @@ function submitRotation() {
                             :items="structures"
                             item-title="name"
                             item-value="id"
-                            label="Новое подразделение / отдел (Сохтор)"
+                            label="Воҳид / шуъбаи нав (Сохтор)"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -1384,7 +1362,7 @@ function submitRotation() {
 
                         <v-text-field
                             v-model="rotationForm.rotation_date"
-                            label="Дата ротации"
+                            label="Санаи ротатсия"
                             type="date"
                             variant="outlined"
                             density="comfortable"
@@ -1396,7 +1374,7 @@ function submitRotation() {
 
                         <v-textarea
                             v-model="rotationForm.reason"
-                            label="Причина / Основание ротации"
+                            label="Сабаб / Асоси ротатсия"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -1418,7 +1396,7 @@ function submitRotation() {
                         :disabled="rotationForm.processing"
                         class="px-6 font-weight-bold"
                     >
-                        Отмена
+                        Бекор кардан
                     </v-btn>
                     <v-btn
                         color="indigo"
@@ -1433,7 +1411,7 @@ function submitRotation() {
                         <template v-slot:prepend>
                             <ArrowLeftRight style="width: 18px; height: 18px;" />
                         </template>
-                        Выполнить ротацию
+                        Иҷрои ротатсия
                     </v-btn>
                 </v-card-actions>
             </v-card>

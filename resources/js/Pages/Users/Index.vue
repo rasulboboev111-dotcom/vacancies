@@ -121,12 +121,12 @@ function confirmDelete() {
 }
 
 const roleLabels = {
-    Admin: 'Админ',
-    User: 'Пользователь',
+    Admin: 'Маъмур',
+    User: 'Корбар',
 };
 
 const getRoleLabel = (roleName) => {
-    if (!roleName) return 'Нет роли';
+    if (!roleName) return 'Нақш надорад';
     return roleLabels[roleName] ?? roleName;
 };
 
@@ -158,13 +158,13 @@ const formatDate = (dateString) => {
 </script>
 
 <template>
-    <Head title="Пользователи" />
+    <Head title="Корбарон" />
 
     <AuthenticatedLayout>
         <template #header>
             <div class="d-flex align-center">
                 <Shield style="width: 24px; height: 24px; margin-right: 12px;" class="text-indigo-accent-2" />
-                <span>Управление пользователями</span>
+                <span>Идоракунии корбарон</span>
             </div>
         </template>
 
@@ -173,7 +173,7 @@ const formatDate = (dateString) => {
             <v-col cols="12" md="6">
                 <v-text-field
                     v-model="search"
-                    label="Поиск по имени или email..."
+                    label="Ҷустуҷӯ аз рӯи ном ё почтаи электронӣ..."
                     variant="outlined"
                     density="comfortable"
                     rounded="lg"
@@ -198,7 +198,7 @@ const formatDate = (dateString) => {
                     <template v-slot:prepend>
                         <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
                     </template>
-                    Добавить пользователя
+                    Илова кардани корбар
                 </v-btn>
             </v-col>
         </v-row>
@@ -208,12 +208,12 @@ const formatDate = (dateString) => {
             <v-table class="bg-transparent text-left">
                 <thead>
                     <tr class="bg-indigo-lighten-5">
-                        <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">Пользователь</th>
-                        <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">Email</th>
-                        <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">Роль</th>
+                        <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">Корбар</th>
+                        <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">Почтаи электронӣ</th>
+                        <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">Нақш</th>
                         <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">Филиал</th>
-                        <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">Регистрация</th>
-                        <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase text-right">Действия</th>
+                        <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">Бақайдгирӣ</th>
+                        <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase text-right">Амалҳо</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -227,7 +227,7 @@ const formatDate = (dateString) => {
                                 </v-avatar>
                                 <div>
                                     <div class="font-weight-bold text-grey-darken-4">{{ user.name }}</div>
-                                    <div v-if="user.id === $page.props.auth.user.id" class="text-caption text-indigo font-weight-bold">Это вы</div>
+                                    <div v-if="user.id === $page.props.auth.user.id" class="text-caption text-indigo font-weight-bold">Ин шумо</div>
                                 </div>
                             </div>
                         </td>
@@ -249,7 +249,7 @@ const formatDate = (dateString) => {
                                 <Building2 style="width: 14px; height: 14px; margin-right: 6px;" class="text-grey" />
                                 <span class="font-weight-medium text-grey-darken-3">{{ user.branch.name }}</span>
                             </div>
-                            <span v-else class="text-grey font-weight-bold text-caption text-uppercase">Все филиалы</span>
+                            <span v-else class="text-grey font-weight-bold text-caption text-uppercase">Ҳамаи филиалҳо</span>
                         </td>
                         <td class="py-4 px-6 font-weight-medium text-grey-darken-2">
                             {{ formatDate(user.created_at) }}
@@ -263,7 +263,7 @@ const formatDate = (dateString) => {
                                 </template>
                                 <v-list density="comfortable" rounded="xl" class="border py-1">
                                     <v-list-item
-                                        title="Редактировать"
+                                        title="Таҳрир"
                                         class="font-weight-bold"
                                         @click="openEditDialog(user)"
                                     >
@@ -273,7 +273,7 @@ const formatDate = (dateString) => {
                                     </v-list-item>
                                     <v-list-item
                                         v-if="user.id !== $page.props.auth.user.id"
-                                        title="Удалить"
+                                        title="Нест кардан"
                                         class="text-error font-weight-bold"
                                         @click="openDeleteDialog(user)"
                                     >
@@ -289,7 +289,7 @@ const formatDate = (dateString) => {
                         <td colspan="6" class="text-center py-12">
                             <User style="width: 48px; height: 48px; margin: 0 auto 8px; opacity: 0.5;" class="text-grey" />
                             <div class="text-h6 text-grey font-weight-medium">
-                                Пользователи не найдены.
+                                Корбарон ёфт нашуданд.
                             </div>
                         </td>
                     </tr>
@@ -313,7 +313,7 @@ const formatDate = (dateString) => {
         <v-dialog v-model="dialog" max-width="520px" persistent>
             <v-card class="rounded-xl border pa-4">
                 <v-card-title class="d-flex justify-space-between align-center font-weight-black text-indigo-darken-4 text-h5">
-                    <span>{{ editingUser ? 'Редактировать пользователя' : 'Создать пользователя' }}</span>
+                    <span>{{ editingUser ? 'Таҳрири корбар' : 'Эҷод кардани корбар' }}</span>
                 </v-card-title>
                 
                 <v-divider class="my-3"></v-divider>
@@ -323,7 +323,7 @@ const formatDate = (dateString) => {
                         <!-- Name Field -->
                         <v-text-field
                             v-model="form.name"
-                            label="Имя пользователя"
+                            label="Номи корбар"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -340,7 +340,7 @@ const formatDate = (dateString) => {
                         <!-- Email Field -->
                         <v-text-field
                             v-model="form.email"
-                            label="Электронная почта"
+                            label="Почтаи электронӣ"
                             type="email"
                             variant="outlined"
                             density="comfortable"
@@ -358,14 +358,14 @@ const formatDate = (dateString) => {
                         <!-- Password Field -->
                         <v-text-field
                             v-model="form.password"
-                            label="Пароль"
+                            label="Парол"
                             type="password"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
                             class="mb-3"
                             color="indigo"
-                            :placeholder="editingUser ? 'Оставьте пустым для сохранения текущего' : ''"
+                            :placeholder="editingUser ? 'Барои нигоҳ доштани пароли ҷорӣ холӣ гузоред' : ''"
                             :error-messages="form.errors.password"
                             :required="!editingUser"
                         >
@@ -377,7 +377,7 @@ const formatDate = (dateString) => {
                         <!-- Password Confirmation -->
                         <v-text-field
                             v-model="form.password_confirmation"
-                            label="Подтверждение пароля"
+                            label="Тасдиқи парол"
                             type="password"
                             variant="outlined"
                             density="comfortable"
@@ -397,7 +397,7 @@ const formatDate = (dateString) => {
                             :items="roleOptions"
                             item-title="title"
                             item-value="value"
-                            label="Роль пользователя"
+                            label="Нақши корбар"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -417,7 +417,7 @@ const formatDate = (dateString) => {
                             :items="branches"
                             item-title="name"
                             item-value="id"
-                            label="Привязка к филиалу"
+                            label="Пайвасткунӣ ба филиал"
                             variant="outlined"
                             density="comfortable"
                             rounded="lg"
@@ -426,7 +426,7 @@ const formatDate = (dateString) => {
                             :error-messages="form.errors.branch_id"
                             clearable
                             :required="form.role === 'User'"
-                            placeholder="Обязательно для роли «Пользователь»"
+                            placeholder="Барои нақши «Корбар» ҳатмист"
                         >
                             <template v-slot:prepend-inner>
                                 <Building2 style="width: 18px; height: 18px;" class="text-grey mr-2" />
@@ -444,7 +444,7 @@ const formatDate = (dateString) => {
                             class="px-4 font-weight-bold"
                             @click="dialog = false"
                         >
-                            Отмена
+                            Бекор кардан
                         </v-btn>
                         <v-btn
                             type="submit"
@@ -454,7 +454,7 @@ const formatDate = (dateString) => {
                             class="px-5 font-weight-bold text-white bg-indigo"
                             :loading="form.processing"
                         >
-                            Сохранить
+                            Захира кардан
                         </v-btn>
                     </v-card-actions>
                 </form>
@@ -466,11 +466,11 @@ const formatDate = (dateString) => {
             <v-card class="rounded-xl border pa-4">
                 <v-card-title class="d-flex align-center font-weight-black text-error text-h5">
                     <AlertTriangle style="width: 28px; height: 28px; margin-right: 12px;" class="text-error animate-pulse" />
-                    <span>Удалить пользователя?</span>
+                    <span>Корбар нест карда шавад?</span>
                 </v-card-title>
 
                 <v-card-text class="py-4 text-body-1 text-grey-darken-3 font-weight-medium">
-                    Вы действительно хотите удалить пользователя <strong class="text-indigo-darken-4">{{ userToDelete?.name }}</strong>? Он потеряет доступ к системе. Это действие можно отменить в Корзине.
+                    Шумо мутмаин ҳастед, ки мехоҳед корбари <strong class="text-indigo-darken-4">{{ userToDelete?.name }}</strong>-ро нест кунед? Ӯ дастрасӣ ба системаро аз даст медиҳад. Ин амалро дар Сабад бекор кардан мумкин аст.
                 </v-card-text>
 
                 <v-divider class="my-2"></v-divider>
@@ -483,7 +483,7 @@ const formatDate = (dateString) => {
                         class="px-4 font-weight-bold"
                         @click="deleteDialog = false"
                     >
-                        Отмена
+                        Бекор кардан
                     </v-btn>
                     <v-btn
                         color="error"
@@ -493,7 +493,7 @@ const formatDate = (dateString) => {
                         :loading="form.processing"
                         @click="confirmDelete"
                     >
-                        Удалить
+                        Нест кардан
                     </v-btn>
                 </v-card-actions>
             </v-card>

@@ -27,10 +27,10 @@ class BranchController extends Controller
         activity()
             ->performedOn($branch)
             ->event('created')
-            ->log("Создан филиал: {$branch->name} ({$branch->code})");
+            ->log("Филиал эҷод шуд: {$branch->name} ({$branch->code})");
 
         return redirect()->route('structure.index')
-            ->with('success', 'Филиал успешно создан.');
+            ->with('success', 'Филиал бомуваффақият эҷод шуд.');
     }
 
     /**
@@ -51,10 +51,10 @@ class BranchController extends Controller
         activity()
             ->performedOn($branch)
             ->event('updated')
-            ->log("Обновлен филиал: {$branch->name} ({$branch->code})");
+            ->log("Филиал навсозӣ шуд: {$branch->name} ({$branch->code})");
 
         return redirect()->route('structure.index')
-            ->with('success', 'Филиал успешно обновлен.');
+            ->with('success', 'Филиал бомуваффақият навсозӣ шуд.');
     }
 
     /**
@@ -71,9 +71,9 @@ class BranchController extends Controller
 
         activity()
             ->event('deleted')
-            ->log("Удален филиал: {$name} ({$code})");
+            ->log("Филиал нест карда шуд: {$name} ({$code})");
 
         return redirect()->route('structure.index')
-            ->with('success', 'Филиал успешно удален.');
+            ->with('success', 'Филиал бомуваффақият нест карда шуд.');
     }
 }
