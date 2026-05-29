@@ -109,11 +109,6 @@ const genderOptions = [
     { value: 'женский', title: 'Зан' },
 ];
 
-// Departments (new org tree) filtered by the branch chosen in the form.
-const branchDepartments = computed(() =>
-    props.departments.filter((d) => Number(d.branch_id) === Number(form.branch_id)),
-);
-
 const form = useForm({
     branch_id: null,
     category_id: null,
@@ -142,9 +137,27 @@ const form = useForm({
     employment_start_date: '',
 });
 
+// Departments (new org tree) filtered by the branch chosen in the form.
+const branchDepartments = computed(() =>
+    props.departments.filter((d) => Number(d.branch_id) === Number(form.branch_id)),
+);
+
 // Watch filters and perform Inertia reload on change
 watch([branchId, categoryId, typeId], () => {
     applyFilters();
+});
+
+// Clear the chosen department if it no longer belongs to the selected branch
+// (prevents a silent validation failure on submit when the branch is changed).
+watch(() => form.branch_id, (newBranchId) => {
+    if (
+        form.department_id &&
+        !props.departments.some(
+            (d) => Number(d.id) === Number(form.department_id) && Number(d.branch_id) === Number(newBranchId),
+        )
+    ) {
+        form.department_id = null;
+    }
 });
 
 function applyFilters() {
@@ -949,21 +962,6 @@ function submitRotation() {
                                             rounded="lg"
                                             required
                                             :error-messages="form.errors.position_id"
-                                        ></v-autocomplete>
-                                    </v-col>
-
-                                    <v-col cols="12" sm="6">
-                                        <v-autocomplete
-                                            v-model="form.structure_id"
-                                            :items="structures"
-                                            item-title="name"
-                                            item-value="id"
-                                            label="Воҳид / Шуъба (Сохтор)"
-                                            variant="outlined"
-                                            density="comfortable"
-                                            rounded="lg"
-                                            required
-                                            :error-messages="form.errors.structure_id"
                                         ></v-autocomplete>
                                     </v-col>
 

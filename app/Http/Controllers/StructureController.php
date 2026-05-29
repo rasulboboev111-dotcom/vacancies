@@ -40,7 +40,7 @@ class StructureController extends Controller
 
             $departments = Department::query()
                 ->whereIn('branch_id', $branchIds)
-                ->withCount('children')
+                ->withCount(['children', 'employees'])
                 ->orderBy('name')
                 ->get();
 
@@ -103,6 +103,7 @@ class StructureController extends Controller
                     'id' => $department->id,
                     'name' => $department->name,
                     'code' => $department->code,
+                    'employees_count' => $department->employees_count,
                     'open_vacancies' => (int) $vacancyCounts
                         ->where('branch_id', $branchId)
                         ->where('department_id', $department->id)

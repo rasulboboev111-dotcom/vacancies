@@ -63,6 +63,7 @@ function buildGraph(structure) {
             kind: 'dept',
             label: dept.name,
             code: dept.code,
+            employees: dept.employees_count,
             vacancies: dept.open_vacancies,
             children: (dept.children || []).map(mapDepartment),
         };
@@ -412,7 +413,7 @@ function confirmDeleteBranch() {
                             <div v-if="data.code" class="org-node__code">{{ data.code }}</div>
                             <div v-if="data.subtitle" class="org-node__sub">{{ data.subtitle }}</div>
                             <div v-if="data.kind !== 'root'" class="org-node__stats">
-                                <span v-if="data.kind === 'branch'" class="org-node__stat" title="Кормандон">
+                                <span class="org-node__stat" title="Кормандон">
                                     <Users style="width: 13px; height: 13px;" /> {{ data.employees ?? 0 }}
                                 </span>
                                 <span v-if="data.vacancies > 0" class="org-node__stat org-node__stat--vac" title="Вакансияҳои кушода">
