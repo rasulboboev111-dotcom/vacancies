@@ -4,9 +4,12 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\BranchController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ActivityLogController;
 use App\Http\Controllers\TrashController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\VacancyController;
+use App\Http\Controllers\StructureController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -29,7 +32,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/rotations', [EmployeeController::class, 'rotationsIndex'])->name('rotations.index');
     
     Route::resource('employees', EmployeeController::class)->except(['show', 'create', 'edit']);
-    Route::resource('branches', BranchController::class)->except(['show', 'create', 'edit']);
+    Route::resource('branches', BranchController::class)->only(['store', 'update', 'destroy']);
+    Route::resource('departments', DepartmentController::class)->only(['store', 'update', 'destroy']);
+    Route::resource('vacancies', VacancyController::class)->except(['show', 'create', 'edit']);
+    Route::get('/structure', [StructureController::class, 'index'])->name('structure.index');
     Route::resource('positions', PositionController::class)->except(['show', 'create', 'edit']);
     Route::resource('users', UserController::class)->except(['show', 'create', 'edit']);
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');

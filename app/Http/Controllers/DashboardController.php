@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\Employee;
+use App\Models\Vacancy;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -74,6 +75,49 @@ class DashboardController extends Controller
                 ];
             });
 
+        // Vacancy stats
+        $isRestricted = !$user->hasRole('Admin') && $user->branch_id === null;
+
+        $openVacancies = Vacancy::query()->where('status', Vacancy::STATUS_OPEN);
+        $closedVacancies = Vacancy::query()->where('status', Vacancy::STATUS_CLOSED);
+
+        if (!$user->hasRole('Admin') && $user->branch_id !== null) {
+            $openVacancies->where('branch_id', $user->branch_id);
+            $closedVacancies->where('branch_id', $user->branch_id);
+        } elseif ($isRestricted) {
+            $openVacancies->whereRaw('1=0');
+            $closedVacancies->whereRaw('1=0');
+        }
+
+        $openVacanciesCount = $openVacancies->count();
+        $closedVacanciesCount = $closedVacancies->count();
+
+        // Open vacancies broken down by branch
+        $vacancyByBranchQuery = Branch::query()
+            ->withCount(['vacancies as open_vacancies_count' => function ($query) {
+                $query->where('status', Vacancy::STATUS_OPEN);
+            }])
+            ->withCount(['vacancies as closed_vacancies_count' => function ($query) {
+                $query->where('status', Vacancy::STATUS_CLOSED);
+            }]);
+
+        if (!$user->hasRole('Admin') && $user->branch_id !== null) {
+            $vacancyByBranchQuery->where('id', $user->branch_id);
+        } elseif ($isRestricted) {
+            $vacancyByBranchQuery->whereRaw('1=0');
+        }
+
+        $vacancyByBranch = $vacancyByBranchQuery->orderBy('name')->get()
+            ->map(fn ($branch) => [
+                'id' => $branch->id,
+                'name' => $branch->name,
+                'code' => $branch->code,
+                'open' => $branch->open_vacancies_count,
+                'closed' => $branch->closed_vacancies_count,
+            ])
+            ->filter(fn ($branch) => $branch['open'] > 0 || $branch['closed'] > 0)
+            ->values();
+
         // Recent activity logs
         $recentActivitiesQuery = Activity::with('causer');
 
@@ -103,6 +147,9 @@ class DashboardController extends Controller
                 'branch_stats' => $branchStats,
                 'category_stats' => $categoryStats,
                 'type_stats' => $typeStats,
+                'open_vacancies' => $openVacanciesCount,
+                'closed_vacancies' => $closedVacanciesCount,
+                'vacancy_by_branch' => $vacancyByBranch,
             ],
             'recent_activities' => $recentActivities,
         ]);

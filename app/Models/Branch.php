@@ -38,4 +38,20 @@ class Branch extends Model
     {
         return $this->hasMany(Employee::class);
     }
+
+    /**
+     * Get the departments for the branch.
+     */
+    public function departments(): HasMany
+    {
+        return $this->hasMany(Department::class);
+    }
+
+    /**
+     * Get the vacancies for the branch.
+     */
+    public function vacancies(): HasMany
+    {
+        return $this->hasMany(Vacancy::class);
+    }
 }

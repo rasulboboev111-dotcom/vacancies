@@ -2,18 +2,19 @@
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
 import { 
-    LayoutDashboard, 
-    Users, 
-    GitFork, 
-    Archive, 
-    Building2, 
-    History, 
+    LayoutDashboard,
+    Users,
+    GitFork,
+    Archive,
+    History,
     Trash2,
     LogOut,
     User,
     Menu,
     Shield,
-    Briefcase
+    Briefcase,
+    DoorOpen,
+    Workflow
 } from '@lucide/vue';
 
 const drawer = ref(true);
@@ -88,6 +89,19 @@ function logout() {
                 </v-list-item>
 
                 <v-list-item
+                    title="Вакансии"
+                    :active="route().current('vacancies.*')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('vacancies.index'))"
+                >
+                    <template v-slot:prepend>
+                        <DoorOpen class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
                     title="Архив (Пенсионеры)"
                     :active="route().current('employees.archive')"
                     color="indigo"
@@ -101,19 +115,6 @@ function logout() {
                 </v-list-item>
 
                 <v-list-item
-                    title="Филиалы"
-                    :active="route().current('branches.*')"
-                    color="indigo"
-                    rounded="lg"
-                    class="mb-1"
-                    @click="router.visit(route('branches.index'))"
-                >
-                    <template v-slot:prepend>
-                        <Building2 class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
-                    </template>
-                </v-list-item>
-
-                <v-list-item
                     title="Должности"
                     :active="route().current('positions.*')"
                     color="indigo"
@@ -123,6 +124,19 @@ function logout() {
                 >
                     <template v-slot:prepend>
                         <Briefcase class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    title="Структура"
+                    :active="route().current('structure.*')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('structure.index'))"
+                >
+                    <template v-slot:prepend>
+                        <Workflow class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
                     </template>
                 </v-list-item>
 

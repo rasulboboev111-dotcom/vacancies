@@ -6,32 +6,9 @@ use App\Models\Branch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Inertia\Inertia;
-use Inertia\Response;
 
 class BranchController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request): Response
-    {
-        Gate::authorize('viewAny', Branch::class);
-
-        $user = $request->user();
-        $query = Branch::withCount('employees');
-
-        if ($user->branch_id === null && !$user->hasRole('Admin')) {
-            $query->whereRaw('1=0');
-        }
-
-        $branches = $query->orderBy('name')->get();
-
-        return Inertia::render('Branches/Index', [
-            'branches' => $branches,
-        ]);
-    }
-
     /**
      * Store a newly created resource in storage.
      */
@@ -52,7 +29,7 @@ class BranchController extends Controller
             ->event('created')
             ->log("Создан филиал: {$branch->name} ({$branch->code})");
 
-        return redirect()->route('branches.index')
+        return redirect()->route('structure.index')
             ->with('success', 'Филиал успешно создан.');
     }
 
@@ -76,7 +53,7 @@ class BranchController extends Controller
             ->event('updated')
             ->log("Обновлен филиал: {$branch->name} ({$branch->code})");
 
-        return redirect()->route('branches.index')
+        return redirect()->route('structure.index')
             ->with('success', 'Филиал успешно обновлен.');
     }
 
@@ -96,7 +73,7 @@ class BranchController extends Controller
             ->event('deleted')
             ->log("Удален филиал: {$name} ({$code})");
 
-        return redirect()->route('branches.index')
+        return redirect()->route('structure.index')
             ->with('success', 'Филиал успешно удален.');
     }
 }
