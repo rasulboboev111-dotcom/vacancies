@@ -463,11 +463,11 @@ function confirmDeleteBranch() {
                                     color="indigo"
                                     rounded="lg"
                                     elevation="2"
-                                    class="px-5 bg-indigo transition-hover-btn font-weight-bold"
+                                    class="px-5 bg-indigo transition-hover-btn font-weight-bold text-white"
                                     @click="openCreateDepartment()"
                                 >
                                     <template v-slot:prepend>
-                                        <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
+                                        <Plus style="width: 16px; height: 16px; margin-right: 4px; color: #ffffff;" />
                                     </template>
                                     Илова кардани шуъба
                                 </v-btn>
@@ -507,11 +507,11 @@ function confirmDeleteBranch() {
                                     color="indigo"
                                     rounded="lg"
                                     elevation="2"
-                                    class="px-5 bg-indigo transition-hover-btn font-weight-bold"
+                                    class="px-5 bg-indigo transition-hover-btn font-weight-bold text-white"
                                     @click="openCreateBranch"
                                 >
                                     <template v-slot:prepend>
-                                        <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
+                                        <Plus style="width: 16px; height: 16px; margin-right: 4px; color: #ffffff;" />
                                     </template>
                                     Илова кардани филиал
                                 </v-btn>
@@ -588,7 +588,7 @@ function confirmDeleteBranch() {
         <!-- Department dialog -->
         <v-dialog v-model="deptDialog" max-width="560px" persistent>
             <v-card class="rounded-xl overflow-hidden" elevation="8">
-                <div style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); padding: 20px 24px;">
+                <div style="background: #0f2d88; padding: 20px 24px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
                             <Network style="width: 22px; height: 22px; color: white;" />
@@ -677,7 +677,7 @@ function confirmDeleteBranch() {
         <!-- Department delete dialog -->
         <v-dialog v-model="deptDeleteDialog" max-width="460px">
             <v-card class="rounded-xl overflow-hidden" elevation="8">
-                <div style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 20px 24px;">
+                <div style="background: #dc2626; padding: 20px 24px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
                             <AlertTriangle style="width: 22px; height: 22px; color: white;" />
@@ -735,7 +735,7 @@ function confirmDeleteBranch() {
         <!-- Branch dialog -->
         <v-dialog v-model="branchDialog" max-width="520px" persistent>
             <v-card class="rounded-xl overflow-hidden" elevation="8">
-                <div style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); padding: 20px 24px;">
+                <div style="background: #0f2d88; padding: 20px 24px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
                             <Building2 style="width: 22px; height: 22px; color: white;" />
@@ -815,7 +815,7 @@ function confirmDeleteBranch() {
         <!-- Branch delete dialog -->
         <v-dialog v-model="branchDeleteDialog" max-width="460px">
             <v-card class="rounded-xl overflow-hidden" elevation="8">
-                <div style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 20px 24px;">
+                <div style="background: #dc2626; padding: 20px 24px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
                             <AlertTriangle style="width: 22px; height: 22px; color: white;" />
@@ -912,7 +912,7 @@ function confirmDeleteBranch() {
     box-shadow: 0 8px 20px -10px rgba(15, 45, 136, 0.25);
 }
 .org-node--root {
-    background: linear-gradient(135deg, #0f2d88 0%, #009cf1 100%);
+    background: #0f2d88;
     border: none;
     color: #fff;
 }

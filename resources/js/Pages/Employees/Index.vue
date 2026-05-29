@@ -505,7 +505,7 @@ function submitRotation() {
         <v-dialog v-model="viewDialog" max-width="850px">
             <v-card v-if="selectedEmployee" class="rounded-xl overflow-hidden" elevation="8">
                 <!-- Premium Gradient Header -->
-                <div style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); padding: 20px 28px;">
+                <div style="background: #0f2d88; padding: 20px 28px;">
                     <div class="d-flex align-center justify-space-between">
                         <div class="d-flex align-center">
                             <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
@@ -846,7 +846,7 @@ function submitRotation() {
         <v-dialog v-model="createEditDialog" max-width="850px" persistent>
             <v-card class="rounded-xl overflow-hidden" elevation="8">
                 <!-- Premium Gradient Header -->
-                <div style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); padding: 20px 28px;">
+                <div style="background: #0f2d88; padding: 20px 28px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
                             <UserPlus style="width: 22px; height: 22px; color: white;" />
@@ -1251,7 +1251,7 @@ function submitRotation() {
         <v-dialog v-model="deleteDialog" max-width="440px">
             <v-card class="rounded-xl overflow-hidden" elevation="8">
                 <!-- Red Gradient Header -->
-                <div style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); padding: 20px 24px;">
+                <div style="background: #dc2626; padding: 20px 24px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
                             <AlertCircle style="width: 22px; height: 22px; color: white;" />
@@ -1301,7 +1301,7 @@ function submitRotation() {
         <v-dialog v-model="rotationDialog" max-width="620px" persistent>
             <v-card class="rounded-xl overflow-hidden" elevation="8">
                 <!-- Premium Gradient Header -->
-                <div style="background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); padding: 24px 28px;">
+                <div style="background: #0f2d88; padding: 24px 28px;">
                     <div class="d-flex align-center justify-space-between">
                         <div class="d-flex align-center">
                             <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
@@ -1474,7 +1474,7 @@ function submitRotation() {
     left: -50%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
+    background: transparent;
     transform: skewX(-25deg);
     transition: 0.75s;
     pointer-events: none;

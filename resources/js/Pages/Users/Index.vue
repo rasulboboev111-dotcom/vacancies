@@ -192,11 +192,11 @@ const formatDate = (dateString) => {
                     color="indigo"
                     rounded="lg"
                     elevation="2"
-                    class="px-5 bg-indigo transition-hover-btn font-weight-bold"
+                    class="px-5 bg-indigo transition-hover-btn font-weight-bold text-white"
                     @click="openCreateDialog"
                 >
                     <template v-slot:prepend>
-                        <Plus style="width: 16px; height: 16px; margin-right: 4px;" />
+                        <Plus style="width: 16px; height: 16px; margin-right: 4px; color: #ffffff;" />
                     </template>
                     Илова кардани корбар
                 </v-btn>
