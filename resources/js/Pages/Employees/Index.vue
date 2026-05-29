@@ -1,7 +1,7 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { Head, useForm, router, usePage } from '@inertiajs/vue3';
+import { ref, watch, computed } from 'vue';
 import { 
     Users,
     Search,
@@ -63,6 +63,24 @@ const props = defineProps({
         type: Object,
         required: true,
     },
+});
+
+const page = usePage();
+const authUser = computed(() => page.props.auth.user);
+const isAdmin = computed(() => authUser.value?.roles?.includes('Admin') ?? false);
+
+const canManageEmployee = (employee) => {
+    const user = authUser.value;
+    if (!user) return false;
+    if (isAdmin.value) return true;
+    if (!user.permissions?.includes('edit employees')) return false;
+    return Number(employee.branch_id) === Number(user.branch_id);
+};
+
+const canCreateEmployees = computed(() => {
+    const user = authUser.value;
+    if (!user?.permissions?.includes('create employees')) return false;
+    return isAdmin.value || user.branch_id != null;
 });
 
 const search = ref(props.filters.search || '');
@@ -138,8 +156,11 @@ function openCreateDialog() {
     editingEmployee.value = null;
     activeTab.value = 0;
     form.reset();
-    if (props.branches.length > 0) {
+    const user = authUser.value;
+    if (isAdmin.value && props.branches.length > 0) {
         form.branch_id = Number(props.branches[0].id);
+    } else if (user?.branch_id) {
+        form.branch_id = Number(user.branch_id);
     }
     form.clearErrors();
     createEditDialog.value = true;
@@ -321,7 +342,6 @@ function submitRotation() {
                         hide-details
                         clearable
                         class="premium-field"
-                        :disabled="$page.props.auth.user.roles.includes('Branch Manager')"
                     ></v-select>
                 </v-col>
 
@@ -377,7 +397,7 @@ function submitRotation() {
                     </v-btn>
                     
                     <v-btn
-                        v-if="!$page.props.auth.user.roles.includes('Viewer')"
+                        v-if="canCreateEmployees"
                         variant="flat"
                         rounded="lg"
                         class="px-5 transition-hover-btn font-weight-bold text-white"
@@ -435,7 +455,7 @@ function submitRotation() {
                             </v-btn>
 
                             <v-btn
-                                v-if="!$page.props.auth.user.roles.includes('Viewer')"
+                                v-if="canManageEmployee(employee)"
                                 variant="text"
                                 color="indigo"
                                 size="small"
@@ -447,7 +467,7 @@ function submitRotation() {
                             </v-btn>
 
                             <v-btn
-                                v-if="!$page.props.auth.user.roles.includes('Viewer')"
+                                v-if="canManageEmployee(employee)"
                                 variant="text"
                                 color="primary"
                                 size="small"
@@ -458,7 +478,7 @@ function submitRotation() {
                             </v-btn>
 
                             <v-btn
-                                v-if="!$page.props.auth.user.roles.includes('Viewer')"
+                                v-if="canManageEmployee(employee)"
                                 variant="text"
                                 color="error"
                                 size="small"
@@ -906,7 +926,7 @@ function submitRotation() {
                                             rounded="lg"
                                             required
                                             :error-messages="form.errors.branch_id"
-                                            :disabled="$page.props.auth.user.roles.includes('Branch Manager')"
+                                            :disabled="!isAdmin"
                                         ></v-select>
                                     </v-col>
 
@@ -1323,7 +1343,7 @@ function submitRotation() {
                             required
                             :error-messages="rotationForm.errors.branch_id"
                             class="mb-4"
-                            :disabled="$page.props.auth.user.roles.includes('Branch Manager')"
+                            :disabled="!isAdmin"
                         ></v-select>
 
                         <v-autocomplete

@@ -8,6 +8,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -38,7 +39,18 @@ class UserController extends Controller
         $users = $query->latest()->paginate(10)->withQueryString();
 
         $branches = Branch::orderBy('name')->get();
-        $roles = Role::orderBy('name')->get();
+        $roles = Role::whereIn('name', [User::ROLE_ADMIN, User::ROLE_USER])
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn (Role $role) => [
+                'name' => $role->name,
+                'label' => match ($role->name) {
+                    User::ROLE_ADMIN => 'Админ',
+                    User::ROLE_USER => 'Пользователь',
+                    default => $role->name,
+                },
+            ])
+            ->values();
 
         return Inertia::render('Users/Index', [
             'users' => $users,
@@ -77,21 +89,28 @@ class UserController extends Controller
                 },
             ],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'branch_id' => 'nullable|exists:branches,id',
-            'role' => 'required|string|exists:roles,name',
+            'branch_id' => [
+                Rule::requiredIf(fn () => $request->input('role') === User::ROLE_USER),
+                'nullable',
+                'exists:branches,id',
+            ],
+            'role' => ['required', 'string', Rule::in([User::ROLE_ADMIN, User::ROLE_USER])],
         ], [
             'email.required' => 'Email обязателен для заполнения.',
             'email.email' => 'Неверный формат email.',
             'password.required' => 'Пароль обязателен для заполнения.',
             'password.confirmed' => 'Пароли не совпадают.',
             'role.required' => 'Роль обязательна для заполнения.',
+            'branch_id.required' => 'Для роли «Пользователь» необходимо указать филиал.',
         ]);
+
+        $branchId = $validated['role'] === User::ROLE_ADMIN ? null : $validated['branch_id'];
 
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'branch_id' => $validated['branch_id'],
+            'branch_id' => $branchId,
         ]);
 
         $user->assignRole($validated['role']);
@@ -136,19 +155,24 @@ class UserController extends Controller
                 },
             ],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
-            'branch_id' => 'nullable|exists:branches,id',
-            'role' => 'required|string|exists:roles,name',
+            'branch_id' => [
+                Rule::requiredIf(fn () => $request->input('role') === User::ROLE_USER),
+                'nullable',
+                'exists:branches,id',
+            ],
+            'role' => ['required', 'string', Rule::in([User::ROLE_ADMIN, User::ROLE_USER])],
         ], [
             'email.required' => 'Email обязателен для заполнения.',
             'email.email' => 'Неверный формат email.',
             'password.confirmed' => 'Пароли не совпадают.',
             'role.required' => 'Роль обязательна для заполнения.',
+            'branch_id.required' => 'Для роли «Пользователь» необходимо указать филиал.',
         ]);
 
         $updateData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
-            'branch_id' => $validated['branch_id'],
+            'branch_id' => $validated['role'] === User::ROLE_ADMIN ? null : $validated['branch_id'],
         ];
 
         if (!empty($validated['password'])) {

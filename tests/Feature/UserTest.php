@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Models\User;
 use App\Models\Position;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -15,8 +16,7 @@ class UserTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
-    private User $viewer;
-    private User $branchManager;
+    private User $branchUser;
     private Branch $branch1;
     private Branch $branch2;
 
@@ -24,43 +24,38 @@ class UserTest extends TestCase
     {
         parent::setUp();
 
-        // Create roles
-        $adminRole = Role::create(['name' => 'Admin']);
-        $viewerRole = Role::create(['name' => 'Viewer']);
-        $branchManagerRole = Role::create(['name' => 'Branch Manager']);
-        $hrManagerRole = Role::create(['name' => 'HR Manager']);
+        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
+        $userRole = Role::firstOrCreate(['name' => 'User']);
 
-        // Create permissions
-        $viewBranches = \Spatie\Permission\Models\Permission::create(['name' => 'view branches']);
-        $viewEmployees = \Spatie\Permission\Models\Permission::create(['name' => 'view employees']);
+        Permission::create(['name' => 'view branches']);
+        Permission::create(['name' => 'view employees']);
+        Permission::create(['name' => 'create employees']);
+        Permission::create(['name' => 'edit employees']);
+        Permission::create(['name' => 'delete employees']);
 
-        // Sync permissions
-        $adminRole->syncPermissions([$viewBranches, $viewEmployees]);
-        $viewerRole->syncPermissions([$viewBranches, $viewEmployees]);
-        $branchManagerRole->syncPermissions([$viewBranches, $viewEmployees]);
+        $adminRole->syncPermissions(Permission::all());
+        $userRole->syncPermissions([
+            'view branches',
+            'view employees',
+            'create employees',
+            'edit employees',
+            'delete employees',
+        ]);
 
-        // Create branches
         $this->branch1 = Branch::create(['name' => 'Branch One', 'code' => 'B1']);
         $this->branch2 = Branch::create(['name' => 'Branch Two', 'code' => 'B2']);
 
-        // Create users
         $this->admin = User::factory()->create(['branch_id' => null]);
         $this->admin->assignRole('Admin');
 
-        $this->viewer = User::factory()->create(['branch_id' => $this->branch1->id]);
-        $this->viewer->assignRole('Viewer');
-
-        $this->branchManager = User::factory()->create(['branch_id' => $this->branch1->id]);
-        $this->branchManager->assignRole('Branch Manager');
+        $this->branchUser = User::factory()->create(['branch_id' => $this->branch1->id]);
+        $this->branchUser->assignRole('User');
     }
 
     public function test_non_admin_cannot_access_user_index(): void
     {
-        $response = $this->actingAs($this->viewer)->get(route('users.index'));
+        $response = $this->actingAs($this->branchUser)->get(route('users.index'));
         $response->assertStatus(403);
-
-        $response2 = $this->actingAs($this->branchManager)->get(route('users.index'));
-        $response2->assertStatus(403);
     }
 
     public function test_admin_can_access_user_index(): void
@@ -77,7 +72,7 @@ class UserTest extends TestCase
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'branch_id' => $this->branch1->id,
-            'role' => 'Viewer',
+            'role' => 'User',
         ]);
 
         $response->assertRedirect(route('users.index'));
@@ -88,7 +83,23 @@ class UserTest extends TestCase
         ]);
 
         $newUser = User::where('email', 'staff@example.com')->first();
-        $this->assertTrue($newUser->hasRole('Viewer'));
+        $this->assertTrue($newUser->hasRole('User'));
+    }
+
+    public function test_user_role_requires_branch(): void
+    {
+        $response = $this->actingAs($this->admin)
+            ->from(route('users.index'))
+            ->post(route('users.store'), [
+                'name' => 'No Branch',
+                'email' => 'nobranch@example.com',
+                'password' => 'password123',
+                'password_confirmation' => 'password123',
+                'branch_id' => null,
+                'role' => 'User',
+            ]);
+
+        $response->assertSessionHasErrors('branch_id');
     }
 
     public function test_user_email_uniqueness_is_case_insensitive_and_trimmed(): void
@@ -105,7 +116,7 @@ class UserTest extends TestCase
                 'password' => 'password123',
                 'password_confirmation' => 'password123',
                 'branch_id' => $this->branch1->id,
-                'role' => 'Viewer',
+                'role' => 'User',
             ]);
 
         $response->assertSessionHasErrors('email');
@@ -114,13 +125,13 @@ class UserTest extends TestCase
     public function test_admin_can_update_user(): void
     {
         $targetUser = User::factory()->create(['branch_id' => $this->branch1->id]);
-        $targetUser->assignRole('Viewer');
+        $targetUser->assignRole('User');
 
         $response = $this->actingAs($this->admin)->put(route('users.update', $targetUser->id), [
             'name' => 'Updated Name',
             'email' => 'updated@example.com',
             'branch_id' => $this->branch2->id,
-            'role' => 'Branch Manager',
+            'role' => 'User',
         ]);
 
         $response->assertRedirect(route('users.index'));
@@ -131,8 +142,7 @@ class UserTest extends TestCase
             'branch_id' => $this->branch2->id,
         ]);
 
-        $this->assertTrue($targetUser->fresh()->hasRole('Branch Manager'));
-        $this->assertFalse($targetUser->fresh()->hasRole('Viewer'));
+        $this->assertTrue($targetUser->fresh()->hasRole('User'));
     }
 
     public function test_admin_cannot_delete_themselves(): void
@@ -145,38 +155,34 @@ class UserTest extends TestCase
     public function test_admin_can_delete_other_user(): void
     {
         $targetUser = User::factory()->create();
-        
+
         $response = $this->actingAs($this->admin)->delete(route('users.destroy', $targetUser->id));
         $response->assertRedirect(route('users.index'));
         $this->assertSoftDeleted('users', ['id' => $targetUser->id]);
     }
 
-    public function test_non_admin_cannot_see_users_in_trash_or_manage_them(): void
+    public function test_branch_user_cannot_restore_employees_in_trash(): void
     {
         $deletedUser = User::factory()->create(['branch_id' => $this->branch1->id]);
         $deletedUser->delete();
 
-        // 1. Index should not return users for non-admin
-        $response = $this->actingAs($this->branchManager)->get(route('trash.index'));
+        $response = $this->actingAs($this->branchUser)->get(route('trash.index'));
         $response->assertStatus(200);
-        
+
         $this->assertCount(0, $response->viewData('page')['props']['users']);
 
-        // 2. Restore should abort 403
-        $responseRestore = $this->actingAs($this->branchManager)->post(route('trash.users.restore', $deletedUser->id));
+        $responseRestore = $this->actingAs($this->branchUser)->post(route('trash.users.restore', $deletedUser->id));
         $responseRestore->assertStatus(403);
 
-        // 3. Force delete should abort 403
-        $responseForce = $this->actingAs($this->branchManager)->delete(route('trash.users.force', $deletedUser->id));
+        $responseForce = $this->actingAs($this->branchUser)->delete(route('trash.users.force', $deletedUser->id));
         $responseForce->assertStatus(403);
     }
 
-    public function test_non_admin_with_null_branch_id_sees_no_branches_or_positions_or_employees(): void
+    public function test_user_without_branch_cannot_view_employees(): void
     {
-        $nullBranchUser = User::factory()->create(['branch_id' => null]);
-        $nullBranchUser->assignRole('Viewer');
+        $userWithoutBranch = User::factory()->create(['branch_id' => null]);
+        $userWithoutBranch->assignRole('User');
 
-        // Create an employee in branch 1
         $pos = Position::create(['name' => 'Manager']);
         Employee::create([
             'branch_id' => $this->branch1->id,
@@ -186,16 +192,68 @@ class UserTest extends TestCase
             'hire_date' => '2020-01-01',
         ]);
 
-        // 1. Employees Index - should return 403 Forbidden
-        $response = $this->actingAs($nullBranchUser)->get(route('employees.index'));
+        $this->actingAs($userWithoutBranch)->get(route('employees.index'))->assertStatus(403);
+        $this->actingAs($userWithoutBranch)->get(route('branches.index'))->assertStatus(403);
+        $this->actingAs($userWithoutBranch)->get(route('positions.index'))->assertStatus(403);
+    }
+
+    public function test_branch_user_can_view_employees_from_other_branches(): void
+    {
+        $pos = Position::create(['name' => 'Manager']);
+        Employee::create([
+            'branch_id' => $this->branch2->id,
+            'position_id' => $pos->id,
+            'full_name' => 'Other Branch Employee',
+            'gender' => 'Мужской',
+            'hire_date' => '2020-01-01',
+        ]);
+
+        $response = $this->actingAs($this->branchUser)->get(route('employees.index'));
+        $response->assertStatus(200);
+        $response->assertSee('Other Branch Employee');
+    }
+
+    public function test_branch_user_can_create_employee_in_own_branch(): void
+    {
+        $pos = Position::create(['name' => 'Manager']);
+        $category = \App\Models\Category::create(['name' => 'Office']);
+        $structure = \App\Models\Structure::create(['name' => 'HQ']);
+
+        $response = $this->actingAs($this->branchUser)->post(route('employees.store'), [
+            'branch_id' => $this->branch1->id,
+            'category_id' => $category->id,
+            'type_id' => 'штатный',
+            'full_name' => 'New Employee',
+            'gender' => 'Мужской',
+            'position_id' => $pos->id,
+            'structure_id' => $structure->id,
+            'hire_date' => '2020-01-01',
+        ]);
+
+        $response->assertRedirect(route('employees.index'));
+        $this->assertDatabaseHas('employees', [
+            'full_name' => 'New Employee',
+            'branch_id' => $this->branch1->id,
+        ]);
+    }
+
+    public function test_branch_user_cannot_create_employee_in_other_branch(): void
+    {
+        $pos = Position::create(['name' => 'Manager']);
+        $category = \App\Models\Category::create(['name' => 'Office']);
+        $structure = \App\Models\Structure::create(['name' => 'HQ']);
+
+        $response = $this->actingAs($this->branchUser)->post(route('employees.store'), [
+            'branch_id' => $this->branch2->id,
+            'category_id' => $category->id,
+            'type_id' => 'штатный',
+            'full_name' => 'Wrong Branch',
+            'gender' => 'Мужской',
+            'position_id' => $pos->id,
+            'structure_id' => $structure->id,
+            'hire_date' => '2020-01-01',
+        ]);
+
         $response->assertStatus(403);
-
-        // 2. Branches Index - should return 403 Forbidden
-        $responseBranches = $this->actingAs($nullBranchUser)->get(route('branches.index'));
-        $responseBranches->assertStatus(403);
-
-        // 3. Positions Index - should return 403 Forbidden
-        $responsePositions = $this->actingAs($nullBranchUser)->get(route('positions.index'));
-        $responsePositions->assertStatus(403);
     }
 }

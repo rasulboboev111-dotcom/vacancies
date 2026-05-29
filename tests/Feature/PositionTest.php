@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Position;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
@@ -13,28 +14,40 @@ class PositionTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
-    private User $viewer;
+    private User $branchUser;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        // Create roles
-        Role::create(['name' => 'Admin']);
-        Role::create(['name' => 'Viewer']);
+        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
+        $userRole = Role::firstOrCreate(['name' => 'User']);
 
-        // Create users
+        Permission::create(['name' => 'view branches']);
+        Permission::create(['name' => 'view employees']);
+        Permission::create(['name' => 'create employees']);
+        Permission::create(['name' => 'edit employees']);
+        Permission::create(['name' => 'delete employees']);
+        $adminRole->syncPermissions(Permission::all());
+        $userRole->syncPermissions([
+            'view branches',
+            'view employees',
+            'create employees',
+            'edit employees',
+            'delete employees',
+        ]);
+
         $this->admin = User::factory()->create();
         $this->admin->assignRole('Admin');
 
-        $this->viewer = User::factory()->create();
-        $this->viewer->assignRole('Viewer');
+        $this->branchUser = User::factory()->create();
+        $this->branchUser->assignRole('User');
     }
 
-    public function test_viewer_cannot_create_position(): void
+    public function test_user_cannot_create_position(): void
     {
         $response = $this
-            ->actingAs($this->viewer)
+            ->actingAs($this->branchUser)
             ->post(route('positions.store'), [
                 'name' => 'New Position',
             ]);
@@ -68,10 +81,8 @@ class PositionTest extends TestCase
 
     public function test_duplicate_position_name_fails_validation(): void
     {
-        // Create first position
         Position::create(['name' => 'Developer']);
 
-        // Try creating with same name but different casing/spaces
         $response = $this
             ->actingAs($this->admin)
             ->from(route('positions.index'))

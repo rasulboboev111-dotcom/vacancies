@@ -22,13 +22,8 @@ class EmployeeController extends Controller
         $user = $request->user();
         $query = Employee::with(['branch', 'category', 'position', 'structure', 'manager'])->whereNull('dismissal_date');
 
-        // Scoping for non-admins: restrict by branch_id
-        if (!$user->hasRole('Admin')) {
-            if ($user->branch_id !== null) {
-                $query->where('branch_id', $user->branch_id);
-            } else {
-                $query->whereRaw('1=0');
-            }
+        if ($user->branch_id === null && !$user->hasRole('Admin')) {
+            $query->whereRaw('1=0');
         } elseif ($request->filled('branch_id')) {
             $query->where('branch_id', $request->input('branch_id'));
         }
@@ -58,16 +53,9 @@ class EmployeeController extends Controller
         // Get employees with pagination
         $employees = $query->latest()->paginate(10)->withQueryString();
 
-        // Get branches list for filters / forms
-        $branchesQuery = Branch::query();
-        if (!$user->hasRole('Admin')) {
-            if ($user->branch_id !== null) {
-                $branchesQuery->where('id', $user->branch_id);
-            } else {
-                $branchesQuery->whereRaw('1=0');
-            }
-        }
-        $branches = $branchesQuery->orderBy('name')->get();
+        $branches = $user->branch_id !== null || $user->hasRole('Admin')
+            ? Branch::orderBy('name')->get()
+            : collect();
 
         // Get lookup tables
         if (!$user->hasRole('Admin') && $user->branch_id === null) {
@@ -109,6 +97,8 @@ class EmployeeController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        \Illuminate\Support\Facades\Gate::authorize('create', Employee::class);
+
         $user = $request->user();
 
         $validated = $request->validate([
@@ -168,6 +158,8 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, Employee $employee): RedirectResponse
     {
+        \Illuminate\Support\Facades\Gate::authorize('update', $employee);
+
         $user = $request->user();
 
         // Non-admin can only update employees of their own branch
@@ -228,6 +220,8 @@ class EmployeeController extends Controller
      */
     public function destroy(Request $request, Employee $employee): RedirectResponse
     {
+        \Illuminate\Support\Facades\Gate::authorize('delete', $employee);
+
         $user = $request->user();
 
         // Non-admin can only delete employees of their own branch
@@ -253,16 +247,13 @@ class EmployeeController extends Controller
      */
     public function archive(Request $request): Response
     {
+        \Illuminate\Support\Facades\Gate::authorize('viewAny', Employee::class);
+
         $user = $request->user();
         $query = Employee::with(['branch', 'category', 'position', 'structure', 'manager'])->whereNotNull('dismissal_date');
 
-        // Scoping for non-admins
-        if (!$user->hasRole('Admin')) {
-            if ($user->branch_id !== null) {
-                $query->where('branch_id', $user->branch_id);
-            } else {
-                $query->whereRaw('1=0');
-            }
+        if ($user->branch_id === null && !$user->hasRole('Admin')) {
+            $query->whereRaw('1=0');
         } elseif ($request->filled('branch_id')) {
             $query->where('branch_id', $request->input('branch_id'));
         }
@@ -281,15 +272,9 @@ class EmployeeController extends Controller
 
         $employees = $query->latest('dismissal_date')->paginate(10)->withQueryString();
 
-        $branchesQuery = Branch::query();
-        if (!$user->hasRole('Admin')) {
-            if ($user->branch_id !== null) {
-                $branchesQuery->where('id', $user->branch_id);
-            } else {
-                $branchesQuery->whereRaw('1=0');
-            }
-        }
-        $branches = $branchesQuery->orderBy('name')->get();
+        $branches = $user->branch_id !== null || $user->hasRole('Admin')
+            ? Branch::orderBy('name')->get()
+            : collect();
 
         return Inertia::render('Employees/Archive', [
             'employees' => $employees,
@@ -303,12 +288,9 @@ class EmployeeController extends Controller
      */
     public function rotate(Request $request, Employee $employee): RedirectResponse
     {
-        $user = $request->user();
+        \Illuminate\Support\Facades\Gate::authorize('update', $employee);
 
-        // Viewers cannot perform rotations
-        if ($user->hasRole('Viewer')) {
-            abort(403, 'Недостаточно прав.');
-        }
+        $user = $request->user();
 
         // Non-admin can only rotate employees of their own branch
         if (!$user->hasRole('Admin')) {
@@ -374,17 +356,8 @@ class EmployeeController extends Controller
         $user = $request->user();
         $query = Rotation::with(['employee', 'oldBranch', 'newBranch', 'oldPosition', 'newPosition', 'oldStructure', 'newStructure']);
 
-        // Scoping for non-admins: show rotations in their branch (either old or new)
-        if (!$user->hasRole('Admin')) {
-            if ($user->branch_id !== null) {
-                $branchId = $user->branch_id;
-                $query->where(function ($q) use ($branchId) {
-                    $q->where('old_branch_id', $branchId)
-                      ->orWhere('new_branch_id', $branchId);
-                });
-            } else {
-                $query->whereRaw('1=0');
-            }
+        if ($user->branch_id === null && !$user->hasRole('Admin')) {
+            $query->whereRaw('1=0');
         }
 
         $rotations = $query->latest('rotation_date')->paginate(15);

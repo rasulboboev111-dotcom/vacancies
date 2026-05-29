@@ -97,7 +97,7 @@ function confirmDelete() {
         <v-row class="mb-6 align-center">
             <v-col cols="12" class="d-flex justify-end">
                 <v-btn
-                    v-if="$page.props.auth.user.roles.includes('Admin') || $page.props.auth.user.roles.includes('HR Manager')"
+                    v-if="$page.props.auth.user.roles.includes('Admin')"
                     color="indigo"
                     rounded="lg"
                     elevation="2"
@@ -124,8 +124,8 @@ function confirmDelete() {
                             <h3 class="text-h6 font-weight-black text-indigo-darken-3">{{ branch.name }}</h3>
                         </div>
                         
-                        <!-- Actions menu for Admin/HR Manager -->
-                        <v-menu v-if="$page.props.auth.user.roles.includes('Admin') || $page.props.auth.user.roles.includes('HR Manager')">
+                        <!-- Actions menu for Admin -->
+                        <v-menu v-if="$page.props.auth.user.roles.includes('Admin')">
                             <template v-slot:activator="{ props: menuProps }">
                                 <v-btn icon variant="text" size="small" class="hover-scale-btn" v-bind="menuProps">
                                     <MoreVertical style="width: 16px; height: 16px;" />
