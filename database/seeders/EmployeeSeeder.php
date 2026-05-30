@@ -7,6 +7,10 @@ use App\Models\Employee;
 use App\Models\Category;
 use App\Models\Position;
 use App\Models\Structure;
+use App\Models\Nationality;
+use App\Models\Education;
+use App\Models\Specialty;
+use App\Models\BirthPlace;
 use Illuminate\Database\Seeder;
 
 class EmployeeSeeder extends Seeder
@@ -272,29 +276,57 @@ class EmployeeSeeder extends Seeder
         $categoriesList = [];
         $positionsList = [];
         $structuresList = [];
- 
+        $nationalitiesList = [];
+        $educationsList = [];
+        $specialtiesList = [];
+        $birthPlacesList = [];
+
         foreach ($employees as $emp) {
             if (!empty($emp['category'])) $categoriesList[] = $emp['category'];
             if (!empty($emp['position'])) $positionsList[] = $emp['position'];
             if (!empty($emp['structure'])) $structuresList[] = $emp['structure'];
+            if (!empty($emp['nationality'])) $nationalitiesList[] = $emp['nationality'];
+            if (!empty($emp['education'])) $educationsList[] = $emp['education'];
+            if (!empty($emp['specialty'])) $specialtiesList[] = $emp['specialty'];
+            if (!empty($emp['birth_place'])) $birthPlacesList[] = $emp['birth_place'];
         }
- 
+
         $categoriesMap = [];
         foreach (array_unique($categoriesList) as $name) {
             $cat = Category::firstOrCreate(['name' => $name]);
             $categoriesMap[$name] = $cat->id;
         }
- 
+
         $positionsMap = [];
         foreach (array_unique($positionsList) as $name) {
             $p = Position::firstOrCreate(['name' => $name]);
             $positionsMap[$name] = $p->id;
         }
- 
+
         $structuresMap = [];
         foreach (array_unique($structuresList) as $name) {
             $s = Structure::firstOrCreate(['name' => $name]);
             $structuresMap[$name] = $s->id;
+        }
+
+        $nationalitiesMap = [];
+        foreach (array_unique($nationalitiesList) as $name) {
+            $nationalitiesMap[$name] = Nationality::firstOrCreate(['name' => $name])->id;
+        }
+
+        $educationsMap = [];
+        foreach (array_unique($educationsList) as $name) {
+            $educationsMap[$name] = Education::firstOrCreate(['name' => $name])->id;
+        }
+
+        $specialtiesMap = [];
+        foreach (array_unique($specialtiesList) as $name) {
+            $specialtiesMap[$name] = Specialty::firstOrCreate(['name' => $name])->id;
+        }
+
+        $birthPlacesMap = [];
+        foreach (array_unique($birthPlacesList) as $name) {
+            $birthPlacesMap[$name] = BirthPlace::firstOrCreate(['name' => $name])->id;
         }
 
         // Insert employees
@@ -309,12 +341,20 @@ class EmployeeSeeder extends Seeder
             $employeeData['gender'] = mb_strtolower($emp['gender']);
             $employeeData['position_id'] = $positionsMap[$emp['position']] ?? null;
             $employeeData['structure_id'] = $structuresMap[$emp['structure']] ?? null;
+            $employeeData['nationality_id'] = $nationalitiesMap[$emp['nationality']] ?? null;
+            $employeeData['education_id'] = $educationsMap[$emp['education']] ?? null;
+            $employeeData['specialty_id'] = $specialtiesMap[$emp['specialty']] ?? null;
+            $employeeData['birth_place_id'] = $birthPlacesMap[$emp['birth_place']] ?? null;
 
             unset($employeeData['category']);
             unset($employeeData['type']);
             unset($employeeData['position']);
             unset($employeeData['structure']);
             unset($employeeData['direct_manager']);
+            unset($employeeData['nationality']);
+            unset($employeeData['education']);
+            unset($employeeData['specialty']);
+            unset($employeeData['birth_place']);
 
             $newEmployee = Employee::create($employeeData);
             $createdEmployees[$newEmployee->full_name] = $newEmployee;

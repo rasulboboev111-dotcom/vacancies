@@ -20,7 +20,7 @@ class EmployeeController extends Controller
         \Illuminate\Support\Facades\Gate::authorize('viewAny', Employee::class);
 
         $user = $request->user();
-        $query = Employee::with(['branch', 'department', 'category', 'position', 'structure', 'manager'])->whereNull('dismissal_date');
+        $query = Employee::with(['branch', 'department', 'category', 'position', 'structure', 'manager', 'nationalityRef', 'educationRef', 'specialtyRef', 'birthPlaceRef'])->whereNull('dismissal_date');
 
         if ($user->branch_id === null && !$user->hasRole('Admin')) {
             $query->whereRaw('1=0');
@@ -65,6 +65,10 @@ class EmployeeController extends Controller
             $structures = collect();
             $departments = collect();
             $managers = collect();
+            $nationalities = collect();
+            $educations = collect();
+            $specialties = collect();
+            $birthPlaces = collect();
         } else {
             $categories = \App\Models\Category::orderBy('name')->get();
             $types = collect(\App\Enums\EmploymentType::cases())->map(fn($t) => [
@@ -73,6 +77,13 @@ class EmployeeController extends Controller
             ]);
             $positions = \App\Models\Position::orderBy('name')->get();
             $structures = \App\Models\Structure::orderBy('name')->get();
+
+            // Normalized lookup vocabularies surfaced as plain name lists so
+            // the form comboboxes can offer autocomplete suggestions.
+            $nationalities = \App\Models\Nationality::orderBy('name')->pluck('name');
+            $educations = \App\Models\Education::orderBy('name')->pluck('name');
+            $specialties = \App\Models\Specialty::orderBy('name')->pluck('name');
+            $birthPlaces = \App\Models\BirthPlace::orderBy('name')->pluck('name');
 
             $departmentsQuery = \App\Models\Department::query()->orderBy('name');
             if (!$user->hasRole('Admin')) {
@@ -96,6 +107,10 @@ class EmployeeController extends Controller
             'structures' => $structures,
             'departments' => $departments,
             'managers' => $managers,
+            'nationalities' => $nationalities,
+            'educations' => $educations,
+            'specialties' => $specialties,
+            'birthPlaces' => $birthPlaces,
             'filters' => $request->only(['search', 'branch_id', 'category_id', 'type_id']),
         ]);
     }
@@ -149,6 +164,14 @@ class EmployeeController extends Controller
 
         $validated['employment_type'] = $validated['type_id'];
         unset($validated['type_id']);
+
+        // Resolve the free-text lookup fields to their normalized FK ids,
+        // creating the lookup row on the fly when a new value is entered.
+        $validated['nationality_id'] = $this->resolveLookupId(\App\Models\Nationality::class, $validated['nationality'] ?? null);
+        $validated['education_id'] = $this->resolveLookupId(\App\Models\Education::class, $validated['education'] ?? null);
+        $validated['specialty_id'] = $this->resolveLookupId(\App\Models\Specialty::class, $validated['specialty'] ?? null);
+        $validated['birth_place_id'] = $this->resolveLookupId(\App\Models\BirthPlace::class, $validated['birth_place'] ?? null);
+        unset($validated['nationality'], $validated['education'], $validated['specialty'], $validated['birth_place']);
 
         $employee = Employee::create($validated);
         $employee->load('position');
@@ -214,6 +237,14 @@ class EmployeeController extends Controller
         $validated['employment_type'] = $validated['type_id'];
         unset($validated['type_id']);
 
+        // Resolve the free-text lookup fields to their normalized FK ids,
+        // creating the lookup row on the fly when a new value is entered.
+        $validated['nationality_id'] = $this->resolveLookupId(\App\Models\Nationality::class, $validated['nationality'] ?? null);
+        $validated['education_id'] = $this->resolveLookupId(\App\Models\Education::class, $validated['education'] ?? null);
+        $validated['specialty_id'] = $this->resolveLookupId(\App\Models\Specialty::class, $validated['specialty'] ?? null);
+        $validated['birth_place_id'] = $this->resolveLookupId(\App\Models\BirthPlace::class, $validated['birth_place'] ?? null);
+        unset($validated['nationality'], $validated['education'], $validated['specialty'], $validated['birth_place']);
+
         $employee->update($validated);
 
         activity()
@@ -260,7 +291,7 @@ class EmployeeController extends Controller
         \Illuminate\Support\Facades\Gate::authorize('viewAny', Employee::class);
 
         $user = $request->user();
-        $query = Employee::with(['branch', 'department', 'category', 'position', 'structure', 'manager'])->whereNotNull('dismissal_date');
+        $query = Employee::with(['branch', 'department', 'category', 'position', 'structure', 'manager', 'nationalityRef', 'educationRef', 'specialtyRef', 'birthPlaceRef'])->whereNotNull('dismissal_date');
 
         if ($user->branch_id === null && !$user->hasRole('Admin')) {
             $query->whereRaw('1=0');
@@ -375,5 +406,27 @@ class EmployeeController extends Controller
         return Inertia::render('Rotations/Index', [
             'rotations' => $rotations,
         ]);
+    }
+
+    /**
+     * Resolve a free-text lookup value to its FK id, creating the lookup
+     * row if it does not yet exist. Empty input resolves to null.
+     *
+     * @param  class-string<\Illuminate\Database\Eloquent\Model>  $modelClass
+     */
+    private function resolveLookupId(string $modelClass, ?string $name): ?int
+    {
+        $name = trim((string) $name);
+
+        if ($name === '') {
+            return null;
+        }
+
+        // Match case-insensitively (and ignoring surrounding whitespace) so
+        // that "Тоҷик" and "тоҷик" resolve to a single lookup row, mirroring
+        // the case-insensitive unique index enforced at the database level.
+        $existing = $modelClass::whereRaw('LOWER(TRIM(name)) = LOWER(?)', [$name])->first();
+
+        return ($existing ?? $modelClass::create(['name' => $name]))->id;
     }
 }
