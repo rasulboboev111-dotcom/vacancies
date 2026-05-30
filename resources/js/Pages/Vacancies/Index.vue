@@ -317,7 +317,7 @@ function confirmDelete() {
         <!-- Create / Edit dialog -->
         <v-dialog v-model="dialog" max-width="680px" persistent scrollable>
             <v-card class="rounded-xl overflow-hidden" elevation="8">
-                <div style="background: #0f2d88; padding: 20px 24px;">
+                <div style="background: #009cf1; padding: 20px 24px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15);">
                             <DoorOpen style="width: 22px; height: 22px; color: white;" />

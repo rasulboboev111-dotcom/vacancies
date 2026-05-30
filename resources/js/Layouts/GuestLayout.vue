@@ -44,7 +44,7 @@ import { Link } from '@inertiajs/vue3';
 <style scoped>
 /* Premium light form element styling for auth pages */
 :deep(label) {
-    color: #0f2d88 !important; /* Tojiktelecom Dark Navy */
+    color: #009cf1 !important; /* Tojiktelecom Dark Navy */
     font-weight: 700 !important;
     font-size: 0.85rem !important;
     text-transform: uppercase !important;
@@ -92,7 +92,7 @@ import { Link } from '@inertiajs/vue3';
 
 /* Override default primary buttons on auth forms to match light brand style */
 :deep(button[type="submit"]) {
-    background: #0f2d88 !important;
+    background: #009cf1 !important;
     box-shadow: 0 8px 20px -6px rgba(0, 156, 241, 0.4) !important;
     border-radius: 12px !important;
     text-transform: none !important;

@@ -133,6 +133,50 @@ function onPaneReady() {
 }
 
 /* ------------------------------------------------------------------ *
+ * Node click → employees popup
+ *   branch → total employee count
+ *   department → list of employees (full name + phone)
+ * ------------------------------------------------------------------ */
+const employeesDialog = ref(false);
+const employeesLoading = ref(false);
+const popupMode = ref('dept'); // 'dept' | 'branch'
+const popupTitle = ref('');
+const popupCount = ref(0);
+const popupEmployees = ref([]);
+
+function onNodeClick({ node }) {
+    if (!node || node.data?.kind === 'root') return;
+
+    // Branch → all employees of the branch; department → its own employees.
+    const isBranch = node.data.kind === 'branch';
+
+    popupMode.value = isBranch ? 'branch' : 'dept';
+    popupTitle.value = node.data.label;
+    popupCount.value = node.data.employees ?? 0;
+    popupEmployees.value = [];
+    employeesDialog.value = true;
+    employeesLoading.value = true;
+
+    const id = Number(String(node.id).replace(/^[bd]-/, ''));
+    const routeName = isBranch
+        ? 'structure.branch.employees'
+        : 'structure.department.employees';
+
+    window.axios
+        .get(route(routeName, id))
+        .then((response) => {
+            popupEmployees.value = response.data.employees ?? [];
+            popupCount.value = popupEmployees.value.length;
+        })
+        .catch(() => {
+            popupEmployees.value = [];
+        })
+        .finally(() => {
+            employeesLoading.value = false;
+        });
+}
+
+/* ------------------------------------------------------------------ *
  * Permissions
  * ------------------------------------------------------------------ */
 const canCreateDepartments = computed(() => {
@@ -400,6 +444,7 @@ function confirmDeleteBranch() {
                 :max-zoom="1.5"
                 class="structure-flow"
                 @pane-ready="onPaneReady"
+                @node-click="onNodeClick"
             >
                 <template #node-org="{ data }">
                     <div class="org-node" :class="`org-node--${data.kind}`">
@@ -425,6 +470,51 @@ function confirmDeleteBranch() {
                 </template>
             </VueFlow>
         </v-card>
+
+        <!-- Employees popup: opened by clicking a branch or department node -->
+        <v-dialog v-model="employeesDialog" max-width="520" scrollable>
+            <v-card rounded="xl">
+                <v-card-title class="d-flex align-center justify-space-between pa-4">
+                    <div class="d-flex align-center" style="gap: 8px; min-width: 0;">
+                        <Network v-if="popupMode === 'branch'" style="width: 18px; height: 18px; flex: none;" />
+                        <Workflow v-else style="width: 18px; height: 18px; flex: none;" />
+                        <span class="text-h6 font-weight-bold text-truncate">{{ popupTitle }}</span>
+                    </div>
+                    <v-btn icon variant="text" density="comfortable" @click="employeesDialog = false">
+                        <span style="font-size: 1.25rem; line-height: 1;">&times;</span>
+                    </v-btn>
+                </v-card-title>
+                <v-divider></v-divider>
+
+                <v-card-text class="pa-0">
+                    <!-- Employees list (full name + phone) — for both branch and department -->
+                    <div v-if="employeesLoading" class="text-center pa-8">
+                        <v-progress-circular indeterminate color="indigo"></v-progress-circular>
+                    </div>
+                    <div v-else-if="popupEmployees.length === 0" class="text-center pa-8 text-grey">
+                        {{ popupMode === 'branch' ? 'Дар ин филиал корманди берун аз шуъба нест.' : 'Дар ин шуъба корманд нест.' }}
+                    </div>
+                    <v-list v-else lines="two" density="comfortable">
+                        <v-list-item v-for="emp in popupEmployees" :key="emp.id">
+                            <template #prepend>
+                                <v-avatar color="indigo-lighten-5" size="36">
+                                    <Users style="width: 16px; height: 16px;" />
+                                </v-avatar>
+                            </template>
+                            <v-list-item-title class="font-weight-bold">{{ emp.full_name }}</v-list-item-title>
+                            <v-list-item-subtitle>{{ emp.phone_number || 'Телефон нест' }}</v-list-item-subtitle>
+                        </v-list-item>
+                    </v-list>
+                </v-card-text>
+
+                <template v-if="!employeesLoading && popupEmployees.length">
+                    <v-divider></v-divider>
+                    <v-card-actions class="px-4 py-2">
+                        <span class="text-caption text-grey-darken-1">Ҳамагӣ: {{ popupEmployees.length }}</span>
+                    </v-card-actions>
+                </template>
+            </v-card>
+        </v-dialog>
 
         <!-- Management panel -->
         <v-card elevation="0" class="rounded-xl border bg-surface-glass overflow-hidden">
@@ -589,7 +679,7 @@ function confirmDeleteBranch() {
         <!-- Department dialog -->
         <v-dialog v-model="deptDialog" max-width="560px" persistent>
             <v-card class="rounded-xl overflow-hidden" elevation="8">
-                <div style="background: #0f2d88; padding: 20px 24px;">
+                <div style="background: #009cf1; padding: 20px 24px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
                             <Network style="width: 22px; height: 22px; color: white;" />
@@ -736,7 +826,7 @@ function confirmDeleteBranch() {
         <!-- Branch dialog -->
         <v-dialog v-model="branchDialog" max-width="520px" persistent>
             <v-card class="rounded-xl overflow-hidden" elevation="8">
-                <div style="background: #0f2d88; padding: 20px 24px;">
+                <div style="background: #009cf1; padding: 20px 24px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
                             <Building2 style="width: 22px; height: 22px; color: white;" />
@@ -913,7 +1003,7 @@ function confirmDeleteBranch() {
     box-shadow: 0 8px 20px -10px rgba(15, 45, 136, 0.25);
 }
 .org-node--root {
-    background: #0f2d88;
+    background: #009cf1;
     border: none;
     color: #fff;
 }

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use App\Models\Department;
+use App\Models\Employee;
 use App\Models\Vacancy;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -82,6 +84,66 @@ class StructureController extends Controller
                 'code' => $department->code,
                 'children_count' => $department->children_count,
             ])->values(),
+        ]);
+    }
+
+    /**
+     * Return the employees that belong directly to a branch but are not
+     * assigned to any department (department_id IS NULL), so they are not
+     * duplicated by the per-department popups.
+     */
+    public function branchEmployees(Request $request, Branch $branch): JsonResponse
+    {
+        $user = $request->user();
+
+        // Non-admins may only inspect their own branch.
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id === null || $branch->id !== $user->branch_id) {
+                abort(403);
+            }
+        }
+
+        $employees = Employee::query()
+            ->where('branch_id', $branch->id)
+            ->whereNull('department_id')
+            ->orderBy('full_name')
+            ->get(['id', 'full_name', 'phone_number']);
+
+        return response()->json([
+            'branch' => [
+                'id' => $branch->id,
+                'name' => $branch->name,
+            ],
+            'employees' => $employees,
+        ]);
+    }
+
+    /**
+     * Return the employees that belong directly to a single department
+     * (excluding nested sub-departments) for the structure tree popup.
+     */
+    public function departmentEmployees(Request $request, Department $department): JsonResponse
+    {
+        $user = $request->user();
+
+        // Non-admins may only inspect departments of their own branch.
+        if (!$user->hasRole('Admin')) {
+            if ($user->branch_id === null || $department->branch_id !== $user->branch_id) {
+                abort(403);
+            }
+        }
+
+        $employees = Employee::query()
+            ->where('department_id', $department->id)
+            ->orderBy('full_name')
+            ->get(['id', 'full_name', 'phone_number']);
+
+        return response()->json([
+            'department' => [
+                'id' => $department->id,
+                'name' => $department->name,
+            ],
+            'employees' => $employees,
         ]);
     }
 

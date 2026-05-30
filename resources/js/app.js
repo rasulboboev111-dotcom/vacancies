@@ -18,13 +18,13 @@ const vuetify = createVuetify({
             light: {
                 colors: {
                     primary: '#009cf1',
-                    secondary: '#0f2d88',
+                    secondary: '#009cf1',
                     background: '#F8FAFC',
                     surface: '#FFFFFF',
                     indigo: '#009cf1',
                     'indigo-lighten-5': '#e0f2fe',
                     'indigo-darken-3': '#0284c7',
-                    'indigo-darken-4': '#0f2d88',
+                    'indigo-darken-4': '#009cf1',
                     'indigo-accent-2': '#009cf1',
                 },
             },

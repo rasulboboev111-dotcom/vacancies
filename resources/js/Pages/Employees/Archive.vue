@@ -216,7 +216,7 @@ function formatDate(dateStr) {
         <v-dialog v-model="viewDialog" max-width="800px" scrollable>
             <v-card v-if="selectedEmployee" class="rounded-2xl border" style="overflow: hidden;">
                 <!-- Header -->
-                <div class="pa-6 text-white d-flex align-center justify-space-between" style="background: #0f2d88">
+                <div class="pa-6 text-white d-flex align-center justify-space-between" style="background: #009cf1">
                     <div class="d-flex align-center">
                         <v-avatar color="white" size="48" class="mr-4 shadow-sm">
                             <User style="width: 24px; height: 24px; color: #009cf1;" />

@@ -274,7 +274,7 @@ const formatDate = (dateString) => {
                                     <v-list-item
                                         v-if="user.id !== $page.props.auth.user.id"
                                         title="Нест кардан"
-                                        class="text-error font-weight-bold"
+                                        class="text-black font-weight-bold"
                                         @click="openDeleteDialog(user)"
                                     >
                                         <template v-slot:prepend>
@@ -365,7 +365,6 @@ const formatDate = (dateString) => {
                             rounded="lg"
                             class="mb-3"
                             color="indigo"
-                            :placeholder="editingUser ? 'Барои нигоҳ доштани пароли ҷорӣ холӣ гузоред' : ''"
                             :error-messages="form.errors.password"
                             :required="!editingUser"
                         >
@@ -486,10 +485,10 @@ const formatDate = (dateString) => {
                         Бекор кардан
                     </v-btn>
                     <v-btn
-                        color="error"
-                        variant="elevated"
+                        variant="flat"
                         rounded="lg"
-                        class="px-5 font-weight-bold text-white bg-error"
+                        class="px-5 font-weight-bold"
+                        style="background-color: #d32f2f !important; color: #ffffff !important;"
                         :loading="form.processing"
                         @click="confirmDelete"
                     >
