@@ -31,7 +31,7 @@ class Employee extends Model
                 'hire_date',
                 'dismissal_date',
                 'birth_date',
-                'nationality',
+                'nationality_id',
                 'passport_number',
                 'passport_start_date',
                 'passport_end_date',
@@ -40,9 +40,9 @@ class Employee extends Model
                 'sin',
                 'address',
                 'phone_number',
-                'birth_place',
-                'education',
-                'specialty',
+                'birth_place_id',
+                'education_id',
+                'specialty_id',
                 'employment_start_date',
             ])
             ->logOnlyDirty()
@@ -62,7 +62,7 @@ class Employee extends Model
         'hire_date',
         'dismissal_date',
         'birth_date',
-        'nationality',
+        'nationality_id',
         'passport_number',
         'passport_start_date',
         'passport_end_date',
@@ -71,14 +71,18 @@ class Employee extends Model
         'sin',
         'address',
         'phone_number',
-        'birth_place',
-        'education',
-        'specialty',
+        'birth_place_id',
+        'education_id',
+        'specialty_id',
         'employment_start_date',
     ];
 
     protected $casts = [
         'department_id' => 'integer',
+        'nationality_id' => 'integer',
+        'education_id' => 'integer',
+        'specialty_id' => 'integer',
+        'birth_place_id' => 'integer',
         'gender' => Gender::class,
         'hire_date' => 'date',
         'dismissal_date' => 'date',
@@ -88,7 +92,7 @@ class Employee extends Model
         'employment_start_date' => 'date',
     ];
 
-    protected $appends = ['age', 'type_id', 'gender_label'];
+    protected $appends = ['age', 'type_id', 'gender_label', 'nationality', 'education', 'specialty', 'birth_place'];
 
     /**
      * Get employee's age based on birth date.
@@ -162,6 +166,57 @@ class Employee extends Model
     public function position(): BelongsTo
     {
         return $this->belongsTo(Position::class);
+    }
+
+    /**
+     * Lookup relationships for the normalized free-text attributes.
+     * They are suffixed with "Ref" so the bare attribute names
+     * (nationality, education, specialty, birth_place) can expose the
+     * resolved string value via accessors for frontend compatibility.
+     */
+    public function nationalityRef(): BelongsTo
+    {
+        return $this->belongsTo(Nationality::class, 'nationality_id');
+    }
+
+    public function educationRef(): BelongsTo
+    {
+        return $this->belongsTo(Education::class, 'education_id');
+    }
+
+    public function specialtyRef(): BelongsTo
+    {
+        return $this->belongsTo(Specialty::class, 'specialty_id');
+    }
+
+    public function birthPlaceRef(): BelongsTo
+    {
+        return $this->belongsTo(BirthPlace::class, 'birth_place_id');
+    }
+
+    /**
+     * String accessors that keep the frontend contract: employee.nationality,
+     * employee.education, employee.specialty and employee.birth_place are
+     * serialized as plain strings (the lookup name) rather than objects.
+     */
+    public function getNationalityAttribute(): ?string
+    {
+        return $this->nationalityRef?->name;
+    }
+
+    public function getEducationAttribute(): ?string
+    {
+        return $this->educationRef?->name;
+    }
+
+    public function getSpecialtyAttribute(): ?string
+    {
+        return $this->specialtyRef?->name;
+    }
+
+    public function getBirthPlaceAttribute(): ?string
+    {
+        return $this->birthPlaceRef?->name;
     }
 
     /**

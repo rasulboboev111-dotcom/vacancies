@@ -62,6 +62,22 @@ const props = defineProps({
         type: Array,
         required: true,
     },
+    nationalities: {
+        type: Array,
+        default: () => [],
+    },
+    educations: {
+        type: Array,
+        default: () => [],
+    },
+    specialties: {
+        type: Array,
+        default: () => [],
+    },
+    birthPlaces: {
+        type: Array,
+        default: () => [],
+    },
     filters: {
         type: Object,
         required: true,
@@ -1096,14 +1112,15 @@ function submitRotation() {
                                     </v-col>
 
                                     <v-col cols="12" sm="4">
-                                        <v-text-field
+                                        <v-combobox
                                             v-model="form.nationality"
+                                            :items="nationalities"
                                             label="Миллат"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
                                             :error-messages="form.errors.nationality"
-                                        ></v-text-field>
+                                        ></v-combobox>
                                     </v-col>
 
                                     <v-col cols="12" sm="6">
@@ -1118,36 +1135,39 @@ function submitRotation() {
                                     </v-col>
 
                                     <v-col cols="12" sm="6">
-                                        <v-text-field
+                                        <v-combobox
                                             v-model="form.birth_place"
+                                            :items="birthPlaces"
                                             label="Зодгоҳ"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
                                             :error-messages="form.errors.birth_place"
-                                        ></v-text-field>
+                                        ></v-combobox>
                                     </v-col>
 
                                     <v-col cols="12" sm="6">
-                                        <v-text-field
+                                        <v-combobox
                                             v-model="form.education"
+                                            :items="educations"
                                             label="Маълумот"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
                                             :error-messages="form.errors.education"
-                                        ></v-text-field>
+                                        ></v-combobox>
                                     </v-col>
 
                                     <v-col cols="12" sm="6">
-                                        <v-text-field
+                                        <v-combobox
                                             v-model="form.specialty"
+                                            :items="specialties"
                                             label="Ихтисос"
                                             variant="outlined"
                                             density="comfortable"
                                             rounded="lg"
                                             :error-messages="form.errors.specialty"
-                                        ></v-text-field>
+                                        ></v-combobox>
                                     </v-col>
 
                                     <v-col cols="12">
