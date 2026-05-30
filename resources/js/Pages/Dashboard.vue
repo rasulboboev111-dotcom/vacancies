@@ -26,7 +26,7 @@ const props = defineProps({
 });
 
 // Colors list for cards/distributions
-const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#0f2d88', '#EC4899'];
+const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#009cf1', '#EC4899'];
 </script>
 
 <template>
@@ -266,7 +266,7 @@ const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#0f2d88', '#EC4899'
 
 <style scoped>
 .bg-gradient-indigo {
-    background: #0f2d88 !important;
+    background: #009cf1 !important;
 }
 .bg-gradient-emerald {
     background: #059669 !important;

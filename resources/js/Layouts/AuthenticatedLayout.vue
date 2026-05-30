@@ -34,7 +34,7 @@ function logout() {
             color="surface"
             width="260"
         >
-            <v-list-item class="py-5 text-white" style="background: #0f2d88">
+            <v-list-item class="py-5 text-white" style="background: #009cf1">
                 <template v-slot:prepend>
                     <img src="https://tojiktelecom.tj/logonew.svg" class="mr-3" style="height: 32px; width: auto; max-width: 60px; filter: brightness(0) invert(1);" alt="Tojiktelecom" />
                 </template>

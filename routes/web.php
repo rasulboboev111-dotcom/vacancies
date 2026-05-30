@@ -31,6 +31,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('departments', DepartmentController::class)->only(['store', 'update', 'destroy']);
     Route::resource('vacancies', VacancyController::class)->except(['show', 'create', 'edit']);
     Route::get('/structure', [StructureController::class, 'index'])->name('structure.index');
+    Route::get('/structure/branches/{branch}/employees', [StructureController::class, 'branchEmployees'])->name('structure.branch.employees');
+    Route::get('/structure/departments/{department}/employees', [StructureController::class, 'departmentEmployees'])->name('structure.department.employees');
     Route::resource('positions', PositionController::class)->except(['show', 'create', 'edit']);
     Route::resource('users', UserController::class)->except(['show', 'create', 'edit']);
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');

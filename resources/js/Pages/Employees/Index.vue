@@ -545,7 +545,7 @@ function submitRotation() {
         <v-dialog v-model="viewDialog" max-width="850px">
             <v-card v-if="selectedEmployee" class="rounded-xl overflow-hidden" elevation="8">
                 <!-- Premium Gradient Header -->
-                <div style="background: #0f2d88; padding: 20px 28px;">
+                <div style="background: #009cf1; padding: 20px 28px;">
                     <div class="d-flex align-center justify-space-between">
                         <div class="d-flex align-center">
                             <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
@@ -898,7 +898,7 @@ function submitRotation() {
         <v-dialog v-model="createEditDialog" max-width="850px" persistent>
             <v-card class="rounded-xl overflow-hidden" elevation="8">
                 <!-- Premium Gradient Header -->
-                <div style="background: #0f2d88; padding: 20px 28px;">
+                <div style="background: #009cf1; padding: 20px 28px;">
                     <div class="d-flex align-center">
                         <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
                             <UserPlus style="width: 22px; height: 22px; color: white;" />
@@ -1358,7 +1358,7 @@ function submitRotation() {
         <v-dialog v-model="rotationDialog" max-width="620px" persistent>
             <v-card class="rounded-xl overflow-hidden" elevation="8">
                 <!-- Premium Gradient Header -->
-                <div style="background: #0f2d88; padding: 24px 28px;">
+                <div style="background: #009cf1; padding: 24px 28px;">
                     <div class="d-flex align-center justify-space-between">
                         <div class="d-flex align-center">
                             <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
