@@ -71,6 +71,13 @@ function getEventText(event) {
     }
 }
 
+// Tajik-labelled options for the event filter dropdown.
+const eventFilterOptions = [
+    { value: 'created', title: 'Эҷодшуда' },
+    { value: 'updated', title: 'Навсозӣшуда' },
+    { value: 'deleted', title: 'Несткардашуда' },
+];
+
 function hasChanges(properties) {
     return properties && (properties.attributes || properties.old);
 }
@@ -113,7 +120,9 @@ function hasChanges(properties) {
                 <v-col cols="12" sm="8" md="4">
                     <v-select
                         v-model="eventFilter"
-                        :items="['created', 'updated', 'deleted']"
+                        :items="eventFilterOptions"
+                        item-title="title"
+                        item-value="value"
                         label="Намуди амал"
                         variant="solo"
                         density="comfortable"

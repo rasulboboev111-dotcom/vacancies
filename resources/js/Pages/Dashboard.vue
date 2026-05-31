@@ -27,6 +27,14 @@ const props = defineProps({
 
 // Colors list for cards/distributions
 const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#009cf1', '#EC4899'];
+
+// Tajik labels for activity-log events shown in the timeline badge.
+const eventLabels = {
+    created: 'Эҷодшуда',
+    updated: 'Навсозӣшуда',
+    deleted: 'Несткардашуда',
+};
+const eventLabel = (event) => eventLabels[event] ?? event;
 </script>
 
 <template>
@@ -247,7 +255,7 @@ const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#009cf1', '#EC4899'
                         >
                             <div class="mb-1">
                                 <span class="font-weight-black text-subtitle-2 text-indigo-darken-2">{{ activity.causer_name }}</span>
-                                <v-chip size="x-small" :color="activity.event === 'created' ? 'success' : (activity.event === 'updated' ? 'primary' : 'error')" class="ml-2 px-2 text-uppercase font-weight-black" variant="tonal">{{ activity.event }}</v-chip>
+                                <v-chip size="x-small" :color="activity.event === 'created' ? 'success' : (activity.event === 'updated' ? 'primary' : 'error')" class="ml-2 px-2 text-uppercase font-weight-black" variant="tonal">{{ eventLabel(activity.event) }}</v-chip>
                                 <span class="text-caption text-grey ml-auto d-inline-block">{{ activity.created_at }}</span>
                             </div>
                             <div class="text-body-2 text-grey-darken-3 font-weight-medium bg-surface pa-2 rounded-lg border">
