@@ -76,6 +76,19 @@ function reload() {
     });
 }
 
+// Current list filters, forwarded to mutating actions so the redirect back to
+// the list keeps the same view instead of jumping to the vacancy's branch.
+function currentFilterParams() {
+    const params = {};
+    if (isAdmin.value && selectedBranchId.value) {
+        params.filter_branch_id = selectedBranchId.value;
+    }
+    if (selectedStatus.value) {
+        params.filter_status = selectedStatus.value;
+    }
+    return params;
+}
+
 watch(selectedBranchId, reload);
 watch(selectedStatus, reload);
 
@@ -134,18 +147,18 @@ function openEditDialog(vacancy) {
 
 function submit() {
     if (editing.value) {
-        form.put(route('vacancies.update', editing.value.id), {
+        form.put(route('vacancies.update', { vacancy: editing.value.id, ...currentFilterParams() }), {
             onSuccess: () => { dialog.value = false; form.reset(); },
         });
         return;
     }
-    form.post(route('vacancies.store'), {
+    form.post(route('vacancies.store', currentFilterParams()), {
         onSuccess: () => { dialog.value = false; form.reset(); },
     });
 }
 
 function toggleStatus(vacancy) {
-    router.put(route('vacancies.update', vacancy.id), {
+    router.put(route('vacancies.update', { vacancy: vacancy.id, ...currentFilterParams() }), {
         branch_id: vacancy.branch_id,
         department_id: vacancy.department_id,
         position_id: vacancy.position_id,
@@ -168,7 +181,7 @@ function openDeleteDialog(vacancy) {
 
 function confirmDelete() {
     if (!vacancyToDelete.value) return;
-    router.delete(route('vacancies.destroy', vacancyToDelete.value.id), {
+    router.delete(route('vacancies.destroy', { vacancy: vacancyToDelete.value.id, ...currentFilterParams() }), {
         preserveScroll: true,
         onSuccess: () => { deleteDialog.value = false; vacancyToDelete.value = null; },
     });
