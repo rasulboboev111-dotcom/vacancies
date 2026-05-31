@@ -138,7 +138,7 @@ const form = useForm({
     hire_date: '',
     dismissal_date: '',
     birth_date: '',
-    nationality: '',
+    nationality: null,
     passport_number: '',
     passport_start_date: '',
     passport_end_date: '',
@@ -147,9 +147,9 @@ const form = useForm({
     sin: '',
     address: '',
     phone_number: '',
-    birth_place: '',
-    education: '',
-    specialty: '',
+    birth_place: null,
+    education: null,
+    specialty: null,
     employment_start_date: '',
 });
 
@@ -217,7 +217,7 @@ function openEditDialog(employee) {
     form.hire_date = employee.hire_date ? employee.hire_date.substring(0, 10) : '';
     form.dismissal_date = employee.dismissal_date ? employee.dismissal_date.substring(0, 10) : '';
     form.birth_date = employee.birth_date ? employee.birth_date.substring(0, 10) : '';
-    form.nationality = employee.nationality || '';
+    form.nationality = employee.nationality || null;
     form.passport_number = employee.passport_number || '';
     form.passport_start_date = employee.passport_start_date ? employee.passport_start_date.substring(0, 10) : '';
     form.passport_end_date = employee.passport_end_date ? employee.passport_end_date.substring(0, 10) : '';
@@ -226,9 +226,9 @@ function openEditDialog(employee) {
     form.sin = employee.sin || '';
     form.address = employee.address || '';
     form.phone_number = employee.phone_number || '';
-    form.birth_place = employee.birth_place || '';
-    form.education = employee.education || '';
-    form.specialty = employee.specialty || '';
+    form.birth_place = employee.birth_place || null;
+    form.education = employee.education || null;
+    form.specialty = employee.specialty || null;
     form.employment_start_date = employee.employment_start_date || '';
     form.clearErrors();
     createEditDialog.value = true;
