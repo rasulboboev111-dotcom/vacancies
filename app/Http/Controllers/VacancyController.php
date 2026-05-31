@@ -263,8 +263,20 @@ class VacancyController extends Controller
     {
         $params = [];
 
+        // Preserve the list's branch filter that the user actually selected,
+        // NOT the branch of the vacancy being changed. Otherwise toggling a
+        // vacancy would silently narrow the list to its branch and hide the
+        // rest. Absent (null) filter means "all branches".
         if ($request->user()->hasRole('Admin')) {
-            $params['branch_id'] = $branchId;
+            $filterBranchId = $request->integer('filter_branch_id') ?: null;
+            if ($filterBranchId) {
+                $params['branch_id'] = $filterBranchId;
+            }
+        }
+
+        $filterStatus = $request->input('filter_status');
+        if (in_array($filterStatus, [Vacancy::STATUS_OPEN, Vacancy::STATUS_CLOSED], true)) {
+            $params['status'] = $filterStatus;
         }
 
         return $params;
