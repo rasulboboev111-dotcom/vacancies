@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Department;
+use App\Models\Employee;
+use App\Models\Vacancy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -106,7 +109,22 @@ class DepartmentController extends Controller
 
         $name = $department->name;
 
-        $department->delete();
+        // Soft-deleting the department does not fire the database-level
+        // ON DELETE SET NULL (that only triggers on a hard delete), so detach
+        // the references explicitly. withTrashed() also clears the link on
+        // archived employees/vacancies so no dangling department_id is left
+        // pointing at a removed department.
+        DB::transaction(function () use ($department) {
+            Employee::withTrashed()
+                ->where('department_id', $department->id)
+                ->update(['department_id' => null]);
+
+            Vacancy::withTrashed()
+                ->where('department_id', $department->id)
+                ->update(['department_id' => null]);
+
+            $department->delete();
+        });
 
         activity()
             ->event('deleted')

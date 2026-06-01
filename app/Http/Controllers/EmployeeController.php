@@ -124,33 +124,7 @@ class EmployeeController extends Controller
 
         $user = $request->user();
 
-        $validated = $request->validate([
-            'branch_id' => 'required|exists:branches,id',
-            'category_id' => 'required|exists:categories,id',
-            'type_id' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\EmploymentType::class)],
-            'full_name' => 'required|string|max:255',
-            'gender' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\Gender::class)],
-            'position_id' => 'required|exists:positions,id',
-            'structure_id' => 'nullable|exists:structures,id',
-            'department_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('departments', 'id')->where('branch_id', (int) $request->input('branch_id'))->whereNull('deleted_at')],
-            'manager_id' => 'nullable|exists:employees,id',
-            'hire_date' => 'required|date',
-            'dismissal_date' => 'nullable|date|after_or_equal:hire_date',
-            'birth_date' => 'nullable|date',
-            'nationality' => 'nullable|string|max:255',
-            'passport_number' => 'nullable|string|max:255',
-            'passport_start_date' => 'nullable|date',
-            'passport_end_date' => 'nullable|date',
-            'passport_issued_by' => 'nullable|string|max:255',
-            'inn' => 'nullable|string|max:50',
-            'sin' => 'nullable|string|max:255',
-            'address' => 'nullable|string|max:255',
-            'phone_number' => 'nullable|string|max:255',
-            'birth_place' => 'nullable|string|max:255',
-            'education' => 'nullable|string|max:255',
-            'specialty' => 'nullable|string|max:255',
-            'employment_start_date' => 'nullable|date',
-        ]);
+        $validated = $request->validate($this->employeeRules($request, null));
 
         // Non-admin can only add employees to their own branch
         if (!$user->hasRole('Admin')) {
@@ -201,33 +175,7 @@ class EmployeeController extends Controller
             }
         }
 
-        $validated = $request->validate([
-            'branch_id' => 'required|exists:branches,id',
-            'category_id' => 'required|exists:categories,id',
-            'type_id' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\EmploymentType::class)],
-            'full_name' => 'required|string|max:255',
-            'gender' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\Gender::class)],
-            'position_id' => 'required|exists:positions,id',
-            'structure_id' => 'nullable|exists:structures,id',
-            'department_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('departments', 'id')->where('branch_id', (int) $request->input('branch_id'))->whereNull('deleted_at')],
-            'manager_id' => 'nullable|exists:employees,id',
-            'hire_date' => 'required|date',
-            'dismissal_date' => 'nullable|date|after_or_equal:hire_date',
-            'birth_date' => 'nullable|date',
-            'nationality' => 'nullable|string|max:255',
-            'passport_number' => 'nullable|string|max:255',
-            'passport_start_date' => 'nullable|date',
-            'passport_end_date' => 'nullable|date',
-            'passport_issued_by' => 'nullable|string|max:255',
-            'inn' => 'nullable|string|max:50',
-            'sin' => 'nullable|string|max:255',
-            'address' => 'nullable|string|max:255',
-            'phone_number' => 'nullable|string|max:255',
-            'birth_place' => 'nullable|string|max:255',
-            'education' => 'nullable|string|max:255',
-            'specialty' => 'nullable|string|max:255',
-            'employment_start_date' => 'nullable|date',
-        ]);
+        $validated = $request->validate($this->employeeRules($request, $employee));
 
         // Non-admin cannot transfer employee to another branch
         if (!$user->hasRole('Admin') && $validated['branch_id'] != $user->branch_id) {
@@ -401,6 +349,9 @@ class EmployeeController extends Controller
         $user = $request->user();
         $query = Rotation::with(['employee', 'oldBranch', 'newBranch', 'oldPosition', 'newPosition', 'oldStructure', 'newStructure', 'oldDepartment', 'newDepartment']);
 
+        // A user without a branch (and not an admin) sees nothing. Branch
+        // users — like the employees listing — may view rotation history across
+        // branches; write access remains branch-scoped in rotate().
         if ($user->branch_id === null && !$user->hasRole('Admin')) {
             $query->whereRaw('1=0');
         }
@@ -410,6 +361,57 @@ class EmployeeController extends Controller
         return Inertia::render('Rotations/Index', [
             'rotations' => $rotations,
         ]);
+    }
+
+    /**
+     * Shared validation rules for creating and updating an employee. When
+     * $employee is provided (update) its own row is ignored by the unique
+     * checks. INN and passport number are unique among non-deleted employees;
+     * empty values are exempt so they may repeat.
+     *
+     * @return array<string, mixed>
+     */
+    private function employeeRules(Request $request, ?Employee $employee): array
+    {
+        $ignoreId = $employee?->id;
+
+        return [
+            'branch_id' => 'required|exists:branches,id',
+            'category_id' => 'required|exists:categories,id',
+            'type_id' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\EmploymentType::class)],
+            'full_name' => 'required|string|max:255',
+            'gender' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\Gender::class)],
+            'position_id' => 'required|exists:positions,id',
+            'structure_id' => 'nullable|exists:structures,id',
+            'department_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('departments', 'id')->where('branch_id', (int) $request->input('branch_id'))->whereNull('deleted_at')],
+            'manager_id' => 'nullable|exists:employees,id',
+            'hire_date' => 'required|date',
+            'dismissal_date' => 'nullable|date|after_or_equal:hire_date',
+            'birth_date' => 'nullable|date',
+            'nationality' => 'nullable|string|max:255',
+            'passport_number' => [
+                'nullable', 'string', 'max:255',
+                \Illuminate\Validation\Rule::unique('employees', 'passport_number')
+                    ->where(fn ($q) => $q->whereNull('deleted_at')->where('passport_number', '!=', ''))
+                    ->ignore($ignoreId),
+            ],
+            'passport_start_date' => 'nullable|date',
+            'passport_end_date' => 'nullable|date',
+            'passport_issued_by' => 'nullable|string|max:255',
+            'inn' => [
+                'nullable', 'string', 'max:50',
+                \Illuminate\Validation\Rule::unique('employees', 'inn')
+                    ->where(fn ($q) => $q->whereNull('deleted_at')->where('inn', '!=', ''))
+                    ->ignore($ignoreId),
+            ],
+            'sin' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
+            'phone_number' => 'nullable|string|max:255',
+            'birth_place' => 'nullable|string|max:255',
+            'education' => 'nullable|string|max:255',
+            'specialty' => 'nullable|string|max:255',
+            'employment_start_date' => 'nullable|date',
+        ];
     }
 
     /**
