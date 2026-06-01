@@ -344,6 +344,7 @@ class EmployeeController extends Controller
             'branch_id' => 'required|exists:branches,id',
             'position_id' => 'required|exists:positions,id',
             'structure_id' => 'nullable|exists:structures,id',
+            'department_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('departments', 'id')->where('branch_id', (int) $request->input('branch_id'))->whereNull('deleted_at')],
             'rotation_date' => 'required|date',
             'reason' => 'nullable|string|max:1000',
         ]);
@@ -362,6 +363,8 @@ class EmployeeController extends Controller
             'new_position_id' => $validated['position_id'],
             'old_structure_id' => $employee->structure_id,
             'new_structure_id' => $validated['structure_id'],
+            'old_department_id' => $employee->department_id,
+            'new_department_id' => $validated['department_id'] ?? null,
             'rotation_date' => $validated['rotation_date'],
             'reason' => $validated['reason'],
         ]);
@@ -375,6 +378,7 @@ class EmployeeController extends Controller
             'branch_id' => $validated['branch_id'],
             'position_id' => $validated['position_id'],
             'structure_id' => $validated['structure_id'],
+            'department_id' => $validated['department_id'] ?? null,
         ]);
 
         // Log action
@@ -395,7 +399,7 @@ class EmployeeController extends Controller
     public function rotationsIndex(Request $request): Response
     {
         $user = $request->user();
-        $query = Rotation::with(['employee', 'oldBranch', 'newBranch', 'oldPosition', 'newPosition', 'oldStructure', 'newStructure']);
+        $query = Rotation::with(['employee', 'oldBranch', 'newBranch', 'oldPosition', 'newPosition', 'oldStructure', 'newStructure', 'oldDepartment', 'newDepartment']);
 
         if ($user->branch_id === null && !$user->hasRole('Admin')) {
             $query->whereRaw('1=0');

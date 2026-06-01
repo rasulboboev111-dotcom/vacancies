@@ -18,6 +18,8 @@ class Rotation extends Model
         'new_position_id',
         'old_structure_id',
         'new_structure_id',
+        'old_department_id',
+        'new_department_id',
         'rotation_date',
         'reason',
     ];
@@ -80,5 +82,21 @@ class Rotation extends Model
     public function newStructure(): BelongsTo
     {
         return $this->belongsTo(Structure::class, 'new_structure_id');
+    }
+
+    /**
+     * Get the old department of this rotation.
+     */
+    public function oldDepartment(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'old_department_id');
+    }
+
+    /**
+     * Get the new department of this rotation.
+     */
+    public function newDepartment(): BelongsTo
+    {
+        return $this->belongsTo(Department::class, 'new_department_id');
     }
 }

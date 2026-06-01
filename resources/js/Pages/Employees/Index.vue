@@ -244,21 +244,44 @@ function openDeleteDialog(employee) {
     deleteDialog.value = true;
 }
 
+// Maps each form field to the tab (v-window-item value) it lives on, so that
+// a server-side validation error can surface the right tab — otherwise an
+// error on a hidden tab (e.g. the required "Ҷинс") looks like "nothing happened".
+const fieldTabMap = {
+    full_name: 0, branch_id: 0, position_id: 0, department_id: 0, category_id: 0,
+    type_id: 0, manager_id: 0, employment_start_date: 0, hire_date: 0, dismissal_date: 0,
+    structure_id: 0,
+    gender: 1, birth_date: 1, nationality: 1, phone_number: 1, birth_place: 1,
+    education: 1, specialty: 1, address: 1,
+    passport_number: 2, passport_start_date: 2, passport_end_date: 2, inn: 2,
+    sin: 2, passport_issued_by: 2,
+};
+
+// Jump to the first tab that holds an errored field so the message is visible.
+function focusFirstErrorTab(errors) {
+    const tabs = Object.keys(errors)
+        .map((field) => fieldTabMap[field])
+        .filter((t) => t !== undefined);
+    if (tabs.length) {
+        activeTab.value = Math.min(...tabs);
+    }
+}
+
 function submit() {
+    const options = {
+        onSuccess: () => {
+            createEditDialog.value = false;
+            form.reset();
+        },
+        onError: (errors) => {
+            focusFirstErrorTab(errors);
+        },
+    };
+
     if (editingEmployee.value) {
-        form.put(route('employees.update', editingEmployee.value.id), {
-            onSuccess: () => {
-                createEditDialog.value = false;
-                form.reset();
-            },
-        });
+        form.put(route('employees.update', editingEmployee.value.id), options);
     } else {
-        form.post(route('employees.store'), {
-            onSuccess: () => {
-                createEditDialog.value = false;
-                form.reset();
-            },
-        });
+        form.post(route('employees.store'), options);
     }
 }
 
@@ -306,8 +329,26 @@ const rotationForm = useForm({
     branch_id: null,
     position_id: null,
     structure_id: null,
+    department_id: null,
     rotation_date: new Date().toISOString().substring(0, 10),
     reason: '',
+});
+
+// Departments available for the branch chosen in the rotation dialog.
+const rotationBranchDepartments = computed(() =>
+    props.departments.filter((d) => Number(d.branch_id) === Number(rotationForm.branch_id)),
+);
+
+// Drop the chosen department if it no longer belongs to the rotation's branch.
+watch(() => rotationForm.branch_id, (newBranchId) => {
+    if (
+        rotationForm.department_id &&
+        !props.departments.some(
+            (d) => Number(d.id) === Number(rotationForm.department_id) && Number(d.branch_id) === Number(newBranchId),
+        )
+    ) {
+        rotationForm.department_id = null;
+    }
 });
 
 function openRotationDialog(employee) {
@@ -315,6 +356,7 @@ function openRotationDialog(employee) {
     rotationForm.branch_id = employee.branch_id ? Number(employee.branch_id) : null;
     rotationForm.position_id = employee.position_id ? Number(employee.position_id) : null;
     rotationForm.structure_id = employee.structure_id ? Number(employee.structure_id) : null;
+    rotationForm.department_id = employee.department_id ? Number(employee.department_id) : null;
     rotationForm.rotation_date = new Date().toISOString().substring(0, 10);
     rotationForm.reason = '';
     rotationForm.clearErrors();
@@ -933,6 +975,16 @@ function submitRotation() {
                 </v-tabs>
 
                 <v-card-text class="px-6 pt-4 overflow-y-auto" style="max-height: 62vh;">
+                    <v-alert
+                        v-if="Object.keys(form.errors).length"
+                        type="error"
+                        variant="tonal"
+                        density="comfortable"
+                        rounded="lg"
+                        class="mb-4"
+                    >
+                        Маълумотро пурра кунед — баъзе майдонҳои ҳатмӣ хатогӣ доранд.
+                    </v-alert>
                     <v-form @submit.prevent="submit">
                         <v-window v-model="activeTab">
                             <!-- Tab 1: Маълумоти асосии корӣ -->
@@ -1414,6 +1466,21 @@ function submitRotation() {
                             rounded="lg"
                             required
                             :error-messages="rotationForm.errors.structure_id"
+                            class="mb-4"
+                        ></v-autocomplete>
+
+                        <v-autocomplete
+                            v-model="rotationForm.department_id"
+                            :items="rotationBranchDepartments"
+                            item-title="name"
+                            item-value="id"
+                            label="Шуъбаи нав"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            clearable
+                            :no-data-text="rotationForm.branch_id ? 'Шуъбаҳо ёфт нашуданд' : 'Аввал филиалро интихоб кунед'"
+                            :error-messages="rotationForm.errors.department_id"
                             class="mb-4"
                         ></v-autocomplete>
 
