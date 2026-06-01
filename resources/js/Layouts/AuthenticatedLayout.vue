@@ -63,6 +63,19 @@ function logout() {
                 </v-list-item>
 
                 <v-list-item
+                    title="Сохтор"
+                    :active="route().current('structure.*')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('structure.index'))"
+                >
+                    <template v-slot:prepend>
+                        <Workflow class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
                     title="Кормандон"
                     :active="route().current('employees.index')"
                     color="indigo"
@@ -124,19 +137,6 @@ function logout() {
                 >
                     <template v-slot:prepend>
                         <Briefcase class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
-                    </template>
-                </v-list-item>
-
-                <v-list-item
-                    title="Сохтор"
-                    :active="route().current('structure.*')"
-                    color="indigo"
-                    rounded="lg"
-                    class="mb-1"
-                    @click="router.visit(route('structure.index'))"
-                >
-                    <template v-slot:prepend>
-                        <Workflow class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
                     </template>
                 </v-list-item>
 
