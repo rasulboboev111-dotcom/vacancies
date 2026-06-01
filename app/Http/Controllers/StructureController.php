@@ -21,7 +21,7 @@ class StructureController extends Controller
         $user = $request->user();
 
         $branchesQuery = Branch::query()
-            ->withCount('employees')
+            ->withCount(['employees' => fn ($q) => $q->whereNull('dismissal_date')])
             ->orderBy('name');
 
         if (!$user->hasRole('Admin')) {
@@ -42,7 +42,7 @@ class StructureController extends Controller
 
             $departments = Department::query()
                 ->whereIn('branch_id', $branchIds)
-                ->withCount(['children', 'employees'])
+                ->withCount(['children', 'employees' => fn ($q) => $q->whereNull('dismissal_date')])
                 ->orderBy('name')
                 ->get();
 
@@ -106,6 +106,7 @@ class StructureController extends Controller
         $employees = Employee::query()
             ->where('branch_id', $branch->id)
             ->whereNull('department_id')
+            ->whereNull('dismissal_date')
             ->orderBy('full_name')
             ->get(['id', 'full_name', 'phone_number']);
 
@@ -135,6 +136,7 @@ class StructureController extends Controller
 
         $employees = Employee::query()
             ->where('department_id', $department->id)
+            ->whereNull('dismissal_date')
             ->orderBy('full_name')
             ->get(['id', 'full_name', 'phone_number']);
 
