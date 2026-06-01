@@ -217,6 +217,40 @@ class DepartmentTest extends TestCase
         $this->assertSoftDeleted('departments', ['id' => $department->id]);
     }
 
+    public function test_deleting_department_detaches_employees_and_vacancies(): void
+    {
+        $department = Department::create([
+            'branch_id' => $this->branch1->id,
+            'name' => 'Doomed Department',
+        ]);
+
+        $position = \App\Models\Position::create(['name' => 'Clerk']);
+
+        $employee = \App\Models\Employee::create([
+            'branch_id' => $this->branch1->id,
+            'department_id' => $department->id,
+            'position_id' => $position->id,
+            'full_name' => 'Linked Employee',
+            'gender' => 'мужской',
+            'hire_date' => '2020-01-01',
+        ]);
+
+        $vacancy = \App\Models\Vacancy::create([
+            'branch_id' => $this->branch1->id,
+            'department_id' => $department->id,
+            'title' => 'Linked Vacancy',
+        ]);
+
+        $this->actingAs($this->admin)
+            ->delete(route('departments.destroy', $department))
+            ->assertRedirect(route('structure.index'));
+
+        $this->assertSoftDeleted('departments', ['id' => $department->id]);
+        // No dangling references should remain pointing at the removed department.
+        $this->assertNull($employee->fresh()->department_id);
+        $this->assertNull($vacancy->fresh()->department_id);
+    }
+
     public function test_admin_can_create_sub_department(): void
     {
         $parent = Department::create([
