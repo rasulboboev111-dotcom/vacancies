@@ -26,7 +26,6 @@ class Employee extends Model
                 'full_name',
                 'gender',
                 'position_id',
-                'structure_id',
                 'manager_id',
                 'hire_date',
                 'dismissal_date',
@@ -57,7 +56,6 @@ class Employee extends Model
         'full_name',
         'gender',
         'position_id',
-        'structure_id',
         'manager_id',
         'hire_date',
         'dismissal_date',
@@ -217,14 +215,6 @@ class Employee extends Model
     public function getBirthPlaceAttribute(): ?string
     {
         return $this->birthPlaceRef?->name;
-    }
-
-    /**
-     * Get the structure that the employee belongs to.
-     */
-    public function structure(): BelongsTo
-    {
-        return $this->belongsTo(Structure::class);
     }
 
     /**

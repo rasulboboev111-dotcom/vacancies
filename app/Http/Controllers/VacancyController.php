@@ -6,7 +6,6 @@ use App\Enums\EmploymentType;
 use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Position;
-use App\Models\Structure;
 use App\Models\Vacancy;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,7 +42,7 @@ class VacancyController extends Controller
         $status = in_array($status, [Vacancy::STATUS_OPEN, Vacancy::STATUS_CLOSED], true) ? $status : null;
 
         $vacanciesQuery = Vacancy::query()
-            ->with(['branch:id,name,code', 'department:id,name', 'position:id,name', 'structure:id,name', 'creator:id,name']);
+            ->with(['branch:id,name,code', 'department:id,name', 'position:id,name', 'creator:id,name']);
 
         if (!$user->hasRole('Admin')) {
             if ($user->branch_id !== null) {
@@ -72,8 +71,6 @@ class VacancyController extends Controller
                 'department' => $vacancy->department?->only(['id', 'name']),
                 'position_id' => $vacancy->position_id,
                 'position' => $vacancy->position?->only(['id', 'name']),
-                'structure_id' => $vacancy->structure_id,
-                'structure' => $vacancy->structure?->only(['id', 'name']),
                 'title' => $vacancy->title,
                 'employment_type' => $vacancy->employment_type,
                 'requirements' => $vacancy->requirements,
@@ -101,7 +98,6 @@ class VacancyController extends Controller
             ])->values(),
             'departments' => $departmentsQuery->get(['id', 'branch_id', 'name']),
             'positions' => Position::query()->orderBy('name')->get(['id', 'name']),
-            'structures' => Structure::query()->orderBy('name')->get(['id', 'name']),
             'employmentTypes' => collect(EmploymentType::cases())->map(fn (EmploymentType $type) => [
                 'value' => $type->value,
                 'label' => $type->label(),
@@ -233,7 +229,6 @@ class VacancyController extends Controller
                 Rule::exists('departments', 'id')->where('branch_id', $branchId)->whereNull('deleted_at'),
             ],
             'position_id' => ['nullable', 'integer', Rule::exists('positions', 'id')],
-            'structure_id' => ['nullable', 'integer', Rule::exists('structures', 'id')],
             'title' => ['required', 'string', 'max:255'],
             'employment_type' => ['nullable', Rule::in($employmentTypes)],
             'requirements' => ['nullable', 'string', 'max:5000'],
@@ -245,7 +240,6 @@ class VacancyController extends Controller
             'branch_id' => 'филиал',
             'department_id' => 'шуъба',
             'position_id' => 'вазифа',
-            'structure_id' => 'сохтор',
             'title' => 'ном',
             'employment_type' => 'намуди шуғл',
             'requirements' => 'талабот',

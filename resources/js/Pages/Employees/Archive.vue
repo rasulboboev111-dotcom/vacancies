@@ -156,7 +156,7 @@ function formatDate(dateStr) {
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Ному насаби корманд</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Филиали пешина</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Вазифа</th>
-                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Воҳид</th>
+                        <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Шуъба</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Категория</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Санаи қабул</th>
                         <th class="font-weight-black text-subtitle-2 pa-4 text-indigo">Санаи рафтан</th>
@@ -168,7 +168,7 @@ function formatDate(dateStr) {
                         <td class="pa-4 font-weight-bold text-indigo-darken-4">{{ employee.full_name }}</td>
                         <td class="pa-4 text-body-2">{{ employee.branch?.name || '-' }}</td>
                         <td class="pa-4 text-body-2 font-weight-medium text-slate-800">{{ employee.position?.name || '-' }}</td>
-                        <td class="pa-4 text-body-2 text-slate-700">{{ employee.structure?.name || '-' }}</td>
+                        <td class="pa-4 text-body-2 text-slate-700">{{ employee.department?.name || '-' }}</td>
                         <td class="pa-4"><v-chip size="small" color="secondary" variant="outlined">{{ employee.category?.name || '-' }}</v-chip></td>
                         <td class="pa-4 text-body-2 font-weight-medium">{{ formatDate(employee.hire_date) }}</td>
                         <td class="pa-4 text-body-2 font-weight-bold text-error">{{ formatDate(employee.dismissal_date) }}</td>

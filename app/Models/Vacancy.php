@@ -21,7 +21,6 @@ class Vacancy extends Model
         'branch_id',
         'department_id',
         'position_id',
-        'structure_id',
         'created_by',
         'title',
         'employment_type',
@@ -38,7 +37,6 @@ class Vacancy extends Model
         'branch_id' => 'integer',
         'department_id' => 'integer',
         'position_id' => 'integer',
-        'structure_id' => 'integer',
         'created_by' => 'integer',
         'opened_at' => 'date',
         'closed_at' => 'date',
@@ -51,7 +49,6 @@ class Vacancy extends Model
                 'branch_id',
                 'department_id',
                 'position_id',
-                'structure_id',
                 'title',
                 'employment_type',
                 'requirements',
@@ -84,11 +81,6 @@ class Vacancy extends Model
     public function position(): BelongsTo
     {
         return $this->belongsTo(Position::class);
-    }
-
-    public function structure(): BelongsTo
-    {
-        return $this->belongsTo(Structure::class);
     }
 
     public function creator(): BelongsTo

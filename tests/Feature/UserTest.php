@@ -216,7 +216,6 @@ class UserTest extends TestCase
     {
         $pos = Position::create(['name' => 'Manager']);
         $category = \App\Models\Category::create(['name' => 'Office']);
-        $structure = \App\Models\Structure::create(['name' => 'HQ']);
 
         $response = $this->actingAs($this->branchUser)->post(route('employees.store'), [
             'branch_id' => $this->branch1->id,
@@ -225,7 +224,6 @@ class UserTest extends TestCase
             'full_name' => 'New Employee',
             'gender' => 'мужской',
             'position_id' => $pos->id,
-            'structure_id' => $structure->id,
             'hire_date' => '2020-01-01',
         ]);
 
@@ -240,7 +238,6 @@ class UserTest extends TestCase
     {
         $pos = Position::create(['name' => 'Manager']);
         $category = \App\Models\Category::create(['name' => 'Office']);
-        $structure = \App\Models\Structure::create(['name' => 'HQ']);
 
         $response = $this->actingAs($this->branchUser)->post(route('employees.store'), [
             'branch_id' => $this->branch2->id,
@@ -249,7 +246,6 @@ class UserTest extends TestCase
             'full_name' => 'Wrong Branch',
             'gender' => 'мужской',
             'position_id' => $pos->id,
-            'structure_id' => $structure->id,
             'hire_date' => '2020-01-01',
         ]);
 

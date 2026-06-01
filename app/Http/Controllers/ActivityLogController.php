@@ -20,7 +20,6 @@ class ActivityLogController extends Controller
         'department_id'  => [\App\Models\Department::class, 'name'],
         'category_id'    => [\App\Models\Category::class, 'name'],
         'position_id'    => [\App\Models\Position::class, 'name'],
-        'structure_id'   => [\App\Models\Structure::class, 'name'],
         'manager_id'     => [\App\Models\Employee::class, 'full_name'],
         'nationality_id' => [\App\Models\Nationality::class, 'name'],
         'education_id'   => [\App\Models\Education::class, 'name'],

@@ -17,7 +17,6 @@ const props = defineProps({
     branches: { type: Array, required: true },
     departments: { type: Array, required: true },
     positions: { type: Array, required: true },
-    structures: { type: Array, required: true },
     employmentTypes: { type: Array, required: true },
     filters: { type: Object, required: true },
 });
@@ -101,7 +100,6 @@ const form = useForm({
     branch_id: null,
     department_id: null,
     position_id: null,
-    structure_id: null,
     title: '',
     employment_type: null,
     requirements: '',
@@ -133,7 +131,6 @@ function openEditDialog(vacancy) {
     form.branch_id = vacancy.branch_id;
     form.department_id = vacancy.department_id;
     form.position_id = vacancy.position_id;
-    form.structure_id = vacancy.structure_id;
     form.title = vacancy.title;
     form.employment_type = vacancy.employment_type;
     form.requirements = vacancy.requirements || '';
@@ -162,7 +159,6 @@ function toggleStatus(vacancy) {
         branch_id: vacancy.branch_id,
         department_id: vacancy.department_id,
         position_id: vacancy.position_id,
-        structure_id: vacancy.structure_id,
         title: vacancy.title,
         employment_type: vacancy.employment_type,
         requirements: vacancy.requirements,
@@ -248,7 +244,7 @@ function confirmDelete() {
                 <thead>
                     <tr>
                         <th class="font-weight-bold text-grey-darken-3">Вазифа / Ном</th>
-                        <th class="font-weight-bold text-grey-darken-3">Сохтор / Шуъба</th>
+                        <th class="font-weight-bold text-grey-darken-3">Шуъба</th>
                         <th v-if="isAdmin" class="font-weight-bold text-grey-darken-3">Филиал</th>
                         <th class="font-weight-bold text-grey-darken-3">Ҷадвали корӣ</th>
                         <th class="font-weight-bold text-grey-darken-3">Маош</th>
@@ -266,8 +262,7 @@ function confirmDelete() {
                             </v-chip>
                         </td>
                         <td>
-                            <div class="text-body-2 text-grey-darken-3">{{ vacancy.structure?.name || '—' }}</div>
-                            <div class="text-caption text-grey">{{ vacancy.department?.name || '' }}</div>
+                            <div class="text-body-2 text-grey-darken-3">{{ vacancy.department?.name || '—' }}</div>
                         </td>
                         <td v-if="isAdmin">
                             <span class="text-body-2">{{ vacancy.branch?.name || '—' }}</span>
@@ -387,21 +382,6 @@ function confirmDelete() {
                                     rounded="lg"
                                     clearable
                                     :error-messages="form.errors.position_id"
-                                    class="mb-4"
-                                />
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-select
-                                    v-model="form.structure_id"
-                                    :items="structures"
-                                    item-title="name"
-                                    item-value="id"
-                                    label="Сохтор"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    clearable
-                                    :error-messages="form.errors.structure_id"
                                     class="mb-4"
                                 />
                             </v-col>
