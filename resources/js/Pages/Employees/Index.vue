@@ -50,10 +50,6 @@ const props = defineProps({
         type: Array,
         required: true,
     },
-    structures: {
-        type: Array,
-        required: true,
-    },
     departments: {
         type: Array,
         default: () => [],
@@ -132,7 +128,6 @@ const form = useForm({
     full_name: '',
     gender: null,
     position_id: null,
-    structure_id: null,
     department_id: null,
     manager_id: null,
     hire_date: '',
@@ -211,7 +206,6 @@ function openEditDialog(employee) {
     form.full_name = employee.full_name;
     form.gender = employee.gender || null;
     form.position_id = employee.position_id ? Number(employee.position_id) : null;
-    form.structure_id = employee.structure_id ? Number(employee.structure_id) : null;
     form.department_id = employee.department_id ? Number(employee.department_id) : null;
     form.manager_id = employee.manager_id ? Number(employee.manager_id) : null;
     form.hire_date = employee.hire_date ? employee.hire_date.substring(0, 10) : '';
@@ -250,7 +244,6 @@ function openDeleteDialog(employee) {
 const fieldTabMap = {
     full_name: 0, branch_id: 0, position_id: 0, department_id: 0, category_id: 0,
     type_id: 0, manager_id: 0, employment_start_date: 0, hire_date: 0, dismissal_date: 0,
-    structure_id: 0,
     gender: 1, birth_date: 1, nationality: 1, phone_number: 1, birth_place: 1,
     education: 1, specialty: 1, address: 1,
     passport_number: 2, passport_start_date: 2, passport_end_date: 2, inn: 2,
@@ -328,7 +321,6 @@ const rotationDialog = ref(false);
 const rotationForm = useForm({
     branch_id: null,
     position_id: null,
-    structure_id: null,
     department_id: null,
     rotation_date: new Date().toISOString().substring(0, 10),
     reason: '',
@@ -355,7 +347,6 @@ function openRotationDialog(employee) {
     selectedEmployee.value = employee;
     rotationForm.branch_id = employee.branch_id ? Number(employee.branch_id) : null;
     rotationForm.position_id = employee.position_id ? Number(employee.position_id) : null;
-    rotationForm.structure_id = employee.structure_id ? Number(employee.structure_id) : null;
     rotationForm.department_id = employee.department_id ? Number(employee.department_id) : null;
     rotationForm.rotation_date = new Date().toISOString().substring(0, 10);
     rotationForm.reason = '';
@@ -739,18 +730,6 @@ function submitRotation() {
                                     <div>
                                         <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Вазифа</span>
                                         <span class="text-body-2 font-weight-black text-indigo-darken-3">{{ selectedEmployee.position?.name || '-' }}</span>
-                                    </div>
-                                </div>
-                            </v-col>
-
-                            <v-col cols="12" sm="4" class="py-2">
-                                <div class="info-field pa-3 rounded-lg border bg-slate-50 d-flex align-start h-100">
-                                    <div class="mr-3 pa-2 rounded-lg bg-indigo-lighten-5 text-indigo d-flex align-center justify-center" style="width: 36px; height: 36px; min-width: 36px;">
-                                        <Network style="width: 16px; height: 16px;" />
-                                    </div>
-                                    <div>
-                                        <span class="text-caption text-grey d-block font-weight-bold text-uppercase mb-0.5">Воҳид</span>
-                                        <span class="text-body-2 font-weight-bold text-slate-800">{{ selectedEmployee.structure?.name || '-' }}</span>
                                     </div>
                                 </div>
                             </v-col>
@@ -1452,20 +1431,6 @@ function submitRotation() {
                             rounded="lg"
                             required
                             :error-messages="rotationForm.errors.position_id"
-                            class="mb-4"
-                        ></v-autocomplete>
-
-                        <v-autocomplete
-                            v-model="rotationForm.structure_id"
-                            :items="structures"
-                            item-title="name"
-                            item-value="id"
-                            label="Воҳид / шуъбаи нав (Сохтор)"
-                            variant="outlined"
-                            density="comfortable"
-                            rounded="lg"
-                            required
-                            :error-messages="rotationForm.errors.structure_id"
                             class="mb-4"
                         ></v-autocomplete>
 

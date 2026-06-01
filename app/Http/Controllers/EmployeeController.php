@@ -20,7 +20,7 @@ class EmployeeController extends Controller
         \Illuminate\Support\Facades\Gate::authorize('viewAny', Employee::class);
 
         $user = $request->user();
-        $query = Employee::with(['branch', 'department', 'category', 'position', 'structure', 'manager', 'nationalityRef', 'educationRef', 'specialtyRef', 'birthPlaceRef'])->whereNull('dismissal_date');
+        $query = Employee::with(['branch', 'department', 'category', 'position', 'manager', 'nationalityRef', 'educationRef', 'specialtyRef', 'birthPlaceRef'])->whereNull('dismissal_date');
 
         if ($user->branch_id === null && !$user->hasRole('Admin')) {
             $query->whereRaw('1=0');
@@ -62,7 +62,6 @@ class EmployeeController extends Controller
             $categories = collect();
             $types = collect();
             $positions = collect();
-            $structures = collect();
             $departments = collect();
             $managers = collect();
             $nationalities = collect();
@@ -76,7 +75,6 @@ class EmployeeController extends Controller
                 'name' => $t->label()
             ]);
             $positions = \App\Models\Position::orderBy('name')->get();
-            $structures = \App\Models\Structure::orderBy('name')->get();
 
             // Normalized lookup vocabularies surfaced as plain name lists so
             // the form comboboxes can offer autocomplete suggestions.
@@ -104,7 +102,6 @@ class EmployeeController extends Controller
             'categories' => $categories,
             'types' => $types,
             'positions' => $positions,
-            'structures' => $structures,
             'departments' => $departments,
             'managers' => $managers,
             'nationalities' => $nationalities,
@@ -239,7 +236,7 @@ class EmployeeController extends Controller
         \Illuminate\Support\Facades\Gate::authorize('viewAny', Employee::class);
 
         $user = $request->user();
-        $query = Employee::with(['branch', 'department', 'category', 'position', 'structure', 'manager', 'nationalityRef', 'educationRef', 'specialtyRef', 'birthPlaceRef'])->whereNotNull('dismissal_date');
+        $query = Employee::with(['branch', 'department', 'category', 'position', 'manager', 'nationalityRef', 'educationRef', 'specialtyRef', 'birthPlaceRef'])->whereNotNull('dismissal_date');
 
         if ($user->branch_id === null && !$user->hasRole('Admin')) {
             $query->whereRaw('1=0');
@@ -273,7 +270,7 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Rotate the specified employee to a new branch, position, or structure.
+     * Rotate the specified employee to a new branch, position, or department.
      */
     public function rotate(Request $request, Employee $employee): RedirectResponse
     {
@@ -291,7 +288,6 @@ class EmployeeController extends Controller
         $validated = $request->validate([
             'branch_id' => 'required|exists:branches,id',
             'position_id' => 'required|exists:positions,id',
-            'structure_id' => 'nullable|exists:structures,id',
             'department_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('departments', 'id')->where('branch_id', (int) $request->input('branch_id'))->whereNull('deleted_at')],
             'rotation_date' => 'required|date',
             'reason' => 'nullable|string|max:1000',
@@ -309,8 +305,6 @@ class EmployeeController extends Controller
             'new_branch_id' => $validated['branch_id'],
             'old_position_id' => $employee->position_id,
             'new_position_id' => $validated['position_id'],
-            'old_structure_id' => $employee->structure_id,
-            'new_structure_id' => $validated['structure_id'],
             'old_department_id' => $employee->department_id,
             'new_department_id' => $validated['department_id'] ?? null,
             'rotation_date' => $validated['rotation_date'],
@@ -325,7 +319,6 @@ class EmployeeController extends Controller
         $employee->update([
             'branch_id' => $validated['branch_id'],
             'position_id' => $validated['position_id'],
-            'structure_id' => $validated['structure_id'],
             'department_id' => $validated['department_id'] ?? null,
         ]);
 
@@ -347,7 +340,7 @@ class EmployeeController extends Controller
     public function rotationsIndex(Request $request): Response
     {
         $user = $request->user();
-        $query = Rotation::with(['employee', 'oldBranch', 'newBranch', 'oldPosition', 'newPosition', 'oldStructure', 'newStructure', 'oldDepartment', 'newDepartment']);
+        $query = Rotation::with(['employee', 'oldBranch', 'newBranch', 'oldPosition', 'newPosition', 'oldDepartment', 'newDepartment']);
 
         // A user without a branch (and not an admin) sees nothing. Branch
         // users — like the employees listing — may view rotation history across
@@ -382,7 +375,6 @@ class EmployeeController extends Controller
             'full_name' => 'required|string|max:255',
             'gender' => ['required', \Illuminate\Validation\Rule::enum(\App\Enums\Gender::class)],
             'position_id' => 'required|exists:positions,id',
-            'structure_id' => 'nullable|exists:structures,id',
             'department_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('departments', 'id')->where('branch_id', (int) $request->input('branch_id'))->whereNull('deleted_at')],
             'manager_id' => 'nullable|exists:employees,id',
             'hire_date' => 'required|date',

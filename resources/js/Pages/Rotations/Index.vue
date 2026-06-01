@@ -71,11 +71,8 @@ function changePage(page) {
                                 <div class="font-weight-bold text-body-2 text-indigo-darken-2 mt-1">
                                     {{ rotation.old_position?.name || '-' }}
                                 </div>
-                                <div class="text-caption text-grey-darken-3 font-weight-medium">
-                                    {{ rotation.old_structure?.name || '-' }}
-                                </div>
-                                <div v-if="rotation.old_department" class="text-caption text-grey-darken-2 font-weight-medium">
-                                    Шуъба: {{ rotation.old_department.name }}
+                                <div class="text-caption text-grey-darken-2 font-weight-medium">
+                                    Шуъба: {{ rotation.old_department?.name || '-' }}
                                 </div>
                                 <v-chip size="x-small" color="error" variant="tonal" class="mt-2 font-weight-bold text-uppercase">
                                     {{ rotation.old_branch ? rotation.old_branch.name : 'Филиали несткардашуда' }}
@@ -96,11 +93,8 @@ function changePage(page) {
                                 <div class="font-weight-bold text-body-2 text-indigo-darken-4 mt-1">
                                     {{ rotation.new_position?.name || '-' }}
                                 </div>
-                                <div class="text-caption text-grey-darken-3 font-weight-medium">
-                                    {{ rotation.new_structure?.name || '-' }}
-                                </div>
-                                <div v-if="rotation.new_department" class="text-caption text-grey-darken-2 font-weight-medium">
-                                    Шуъба: {{ rotation.new_department.name }}
+                                <div class="text-caption text-grey-darken-2 font-weight-medium">
+                                    Шуъба: {{ rotation.new_department?.name || '-' }}
                                 </div>
                                 <v-chip size="x-small" color="success" variant="tonal" class="mt-2 font-weight-bold text-uppercase">
                                     {{ rotation.new_branch ? rotation.new_branch.name : 'Филиали несткардашуда' }}

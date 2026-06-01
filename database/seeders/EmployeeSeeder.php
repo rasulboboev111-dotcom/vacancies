@@ -6,7 +6,6 @@ use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\Category;
 use App\Models\Position;
-use App\Models\Structure;
 use App\Models\Nationality;
 use App\Models\Education;
 use App\Models\Specialty;
@@ -303,12 +302,6 @@ class EmployeeSeeder extends Seeder
             $positionsMap[$name] = $p->id;
         }
 
-        $structuresMap = [];
-        foreach (array_unique($structuresList) as $name) {
-            $s = Structure::firstOrCreate(['name' => $name]);
-            $structuresMap[$name] = $s->id;
-        }
-
         $nationalitiesMap = [];
         foreach (array_unique($nationalitiesList) as $name) {
             $nationalitiesMap[$name] = Nationality::firstOrCreate(['name' => $name])->id;
@@ -340,7 +333,6 @@ class EmployeeSeeder extends Seeder
             $employeeData['employment_type'] = mb_strtolower($emp['type']);
             $employeeData['gender'] = mb_strtolower($emp['gender']);
             $employeeData['position_id'] = $positionsMap[$emp['position']] ?? null;
-            $employeeData['structure_id'] = $structuresMap[$emp['structure']] ?? null;
             $employeeData['nationality_id'] = $nationalitiesMap[$emp['nationality']] ?? null;
             $employeeData['education_id'] = $educationsMap[$emp['education']] ?? null;
             $employeeData['specialty_id'] = $specialtiesMap[$emp['specialty']] ?? null;
