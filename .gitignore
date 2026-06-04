@@ -33,3 +33,14 @@ Thumbs.db
 /migrreadme.md
 /.understand-anything
 /.remember
+
+# Dev/test files kept only locally — excluded from the repo (run gates locally).
+/tests
+phpunit.xml
+vitest.config.js
+phpstan.neon
+phpstan-baseline.neon
+pint.json
+eslint.config.js
+tsconfig.json
+.editorconfig
