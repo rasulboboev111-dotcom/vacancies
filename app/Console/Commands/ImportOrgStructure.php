@@ -7,13 +7,16 @@ use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Position;
+use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 
 class ImportOrgStructure extends Command
 {
     protected $signature = 'org:import
         {--file=storage/app/tj_structure.json : Path to the API JSON dump}
+        {--api : Fetch the structure live from the Tojiktelecom API instead of reading --file}
         {--fresh : Wipe existing branches/departments/employees/vacancies/rotations before importing}';
 
     protected $description = 'Import the Tojiktelecom org structure (company → departments → employees) from the API JSON dump, 1:1 with the source tree';
@@ -26,17 +29,8 @@ class ImportOrgStructure extends Command
 
     public function handle(): int
     {
-        $path = base_path($this->option('file'));
-        if (! is_file($path)) {
-            $this->error("File not found: {$path}");
-
-            return self::FAILURE;
-        }
-
-        $json = json_decode(file_get_contents($path), true);
-        if (json_last_error() !== JSON_ERROR_NONE || empty($json['data'])) {
-            $this->error('Invalid or empty JSON payload.');
-
+        $json = $this->option('api') ? $this->fetchFromApi() : $this->readFromFile();
+        if ($json === null) {
             return self::FAILURE;
         }
 
@@ -191,7 +185,6 @@ class ImportOrgStructure extends Command
                                 'full_name' => $e['name'] ?? 'Номаълум',
                                 'phone_number' => $e['phone'] ?? null,
                                 'email' => $email,
-                                'photo_url' => $e['photoUrl'] ?? null,
                                 'status' => OrgStatus::tryFrom($e['status'] ?? ''),
                                 'sort_order' => $empOrder++,
                                 'gender' => null,
@@ -242,6 +235,123 @@ class ImportOrgStructure extends Command
         $this->info('Import finished.');
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Read the structure JSON from the local --file dump.
+     *
+     * @return array<string,mixed>|null null on any error (already reported)
+     */
+    private function readFromFile(): ?array
+    {
+        $path = base_path((string) $this->option('file'));
+        if (! is_file($path)) {
+            $this->error("File not found: {$path}");
+
+            return null;
+        }
+
+        $json = json_decode((string) file_get_contents($path), true);
+        if (json_last_error() !== JSON_ERROR_NONE || ! is_array($json) || empty($json['data'])) {
+            $this->error('Invalid or empty JSON payload.');
+
+            return null;
+        }
+
+        return $json;
+    }
+
+    /**
+     * Fetch the structure live from the Tojiktelecom API.
+     *
+     * Access is gated by the company SSO (auth.tojiktelecom.tj, OAuth code
+     * flow), so there is no static API token: we sign in with service-account
+     * credentials, let a shared cookie jar carry the session across the
+     * authorize→callback redirect chain, then call the structure endpoint. This
+     * is the path the daily scheduled sync takes; the updateOrCreate mapping
+     * below then reconciles our tables with the source.
+     *
+     * @return array<string,mixed>|null null on any error (already reported)
+     */
+    private function fetchFromApi(): ?array
+    {
+        $email = (string) config('services.tojiktelecom.email');
+        $password = (string) config('services.tojiktelecom.password');
+
+        if ($email === '' || $password === '') {
+            $this->error('Set TOJIKTELECOM_EMAIL and TOJIKTELECOM_PASSWORD in .env to sync from the API.');
+
+            return null;
+        }
+
+        // One cookie jar shared across both domains for the whole flow — the
+        // SSO sets JWT cookies on auth.* and the callback sets the app session
+        // on org.*, exactly like a browser would.
+        $jar = new CookieJar;
+        $http = Http::withOptions([
+            'cookies' => $jar,
+            'allow_redirects' => ['max' => 10, 'referer' => true],
+        ])->timeout(60)->withHeaders([
+            'User-Agent' => 'vacancies-sync/1.0',
+        ]);
+
+        try {
+            // 1) Load the login page; it redirects to the SSO authorize form,
+            //    which carries the OAuth return URL we must echo back ("rd").
+            $loginUrl = (string) config('services.tojiktelecom.login_url');
+            $page = $http->get($loginUrl);
+            if (! preg_match('/name="rd"\s+value="([^"]+)"/i', $page->body(), $m)) {
+                $this->error('Could not locate the SSO return URL (rd) on the login page.');
+
+                return null;
+            }
+            $rd = html_entity_decode($m[1]);
+
+            // 2) Submit credentials. On success the SSO returns JSON with the
+            //    authorize URL to follow (not an HTTP redirect).
+            $signinUrl = (string) config('services.tojiktelecom.signin_url');
+            $signin = $http->asForm()->acceptJson()->post($signinUrl, [
+                'email' => $email,
+                'password' => $password,
+                'rd' => $rd,
+            ]);
+            $redirect = $signin->json('redirect');
+            if (! is_string($redirect) || $redirect === '') {
+                $this->error('SSO sign-in failed (no redirect returned) — check the credentials.');
+
+                return null;
+            }
+
+            // 3) Follow authorize → callback → app: this is where the org
+            //    session cookie gets established in the jar.
+            $http->get($redirect);
+
+            // 4) Now authenticated, pull the structure with employees.
+            $url = (string) config('services.tojiktelecom.structure_url');
+            $response = $http->acceptJson()
+                ->withHeaders(['X-Requested-With' => 'XMLHttpRequest'])
+                ->retry(2, 2000)
+                ->get($url, ['with_employees' => 'true']);
+        } catch (\Throwable $e) {
+            $this->error('API request failed: '.$e->getMessage());
+
+            return null;
+        }
+
+        if (! $response->successful()) {
+            $this->error("API returned HTTP {$response->status()}: ".mb_substr($response->body(), 0, 200));
+
+            return null;
+        }
+
+        $json = $response->json();
+        if (! is_array($json) || empty($json['data'])) {
+            $this->error('Structure response was not valid JSON (empty "data") — the session may have expired.');
+
+            return null;
+        }
+
+        return $json;
     }
 
     /**

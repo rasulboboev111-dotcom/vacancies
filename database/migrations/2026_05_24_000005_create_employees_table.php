@@ -31,7 +31,6 @@ return new class extends Migration
             $table->string('full_name');
             $table->string('gender')->nullable();
             $table->string('email')->nullable();
-            $table->string('photo_url')->nullable();
             $table->string('status')->nullable();
             $table->integer('sort_order')->default(0);
 

@@ -15,13 +15,13 @@ const open = defineModel({ type: Boolean, default: false });
 <template>
     <v-dialog v-model="open" max-width="520" scrollable>
         <v-card rounded="xl">
-            <v-card-title class="d-flex align-center justify-space-between pa-4">
-                <div class="d-flex align-center" style="gap: 8px; min-width: 0;">
-                    <Network v-if="mode === 'branch'" style="width: 18px; height: 18px; flex: none;" />
-                    <Workflow v-else style="width: 18px; height: 18px; flex: none;" />
-                    <span class="text-h6 font-weight-bold text-truncate">{{ title }}</span>
+            <v-card-title class="d-flex align-start justify-space-between pa-4" style="gap: 8px;">
+                <div class="d-flex align-start" style="gap: 8px; min-width: 0;">
+                    <Network v-if="mode === 'branch'" style="width: 18px; height: 18px; flex: none; margin-top: 4px;" />
+                    <Workflow v-else style="width: 18px; height: 18px; flex: none; margin-top: 4px;" />
+                    <span class="text-h6 font-weight-bold dialog-title">{{ title }}</span>
                 </div>
-                <v-btn icon variant="text" density="comfortable" @click="open = false">
+                <v-btn icon variant="text" density="comfortable" class="flex-none" @click="open = false">
                     <span style="font-size: 1.25rem; line-height: 1;">&times;</span>
                 </v-btn>
             </v-card-title>
@@ -87,5 +87,11 @@ const open = defineModel({ type: Boolean, default: false });
 .manager-row {
     background: rgba(0, 156, 241, 0.06);
     border-left: 3px solid #009cf1;
+}
+.dialog-title {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.3;
 }
 </style>

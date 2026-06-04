@@ -61,7 +61,6 @@ class Employee extends Model
         'external_id',
         'person_id',
         'email',
-        'photo_url',
         'status',
         'sort_order',
         'branch_id',

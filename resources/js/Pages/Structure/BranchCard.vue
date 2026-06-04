@@ -12,10 +12,10 @@ defineEmits(['edit', 'delete']);
     <v-card elevation="0" class="rounded-xl border pa-5 h-100 d-flex flex-column transition-hover position-relative overflow-hidden">
         <div class="d-flex justify-space-between align-start mb-3">
             <div>
-                <v-chip color="indigo" variant="flat" size="small" class="font-weight-black text-uppercase tracking-wider mb-2">
+                <v-chip color="indigo" variant="tonal" size="small" class="code-chip mb-2">
                     {{ branch.code }}
                 </v-chip>
-                <h3 class="text-h6 font-weight-black text-indigo-darken-3">
+                <h3 class="text-h6 font-weight-medium text-indigo-darken-3">
                     {{ branch.name }}
                 </h3>
             </div>
@@ -49,11 +49,20 @@ defineEmits(['edit', 'delete']);
         <v-divider class="my-3" />
 
         <div class="d-flex justify-space-between align-center">
-            <span class="text-subtitle-2 text-grey font-weight-bold text-uppercase">Ҳайат</span>
-            <v-chip color="teal" variant="tonal" class="font-weight-black px-3" size="medium">
+            <span class="text-subtitle-2 text-grey font-weight-medium text-uppercase">Ҳайат</span>
+            <v-chip color="teal" variant="tonal" class="font-weight-medium px-3" size="medium">
                 <Users style="width: 16px; height: 16px; margin-right: 4px;" class="text-teal" />
                 {{ branch.employees_count }} нафар.
             </v-chip>
         </div>
     </v-card>
 </template>
+
+<style scoped>
+.code-chip {
+    font-family: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    font-size: 0.72rem;
+}
+</style>

@@ -10,8 +10,8 @@ import BranchFormDialog from '@/Pages/Structure/BranchFormDialog.vue';
 import DepartmentDeleteDialog from '@/Pages/Structure/DepartmentDeleteDialog.vue';
 import DepartmentFormDialog from '@/Pages/Structure/DepartmentFormDialog.vue';
 import DepartmentTreeNode from '@/Pages/Structure/DepartmentTreeNode.vue';
-import OrgChart from '@/Pages/Structure/OrgChart.vue';
 import StructureEmployeesDialog from '@/Pages/Structure/StructureEmployeesDialog.vue';
+import SvgOrgTree from '@/Pages/Structure/SvgOrgTree.vue';
 
 const props = defineProps({
     structure: { type: Array, required: true },
@@ -195,7 +195,7 @@ function openDeleteBranch(branch) {
         </template>
 
         <!-- Org chart (read-only) -->
-        <OrgChart :structure="structure" @node-click="onNodeClick" />
+        <SvgOrgTree :structure="structure" @node-click="onNodeClick" />
 
         <!-- Employees popup -->
         <StructureEmployeesDialog

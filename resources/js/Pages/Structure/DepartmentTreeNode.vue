@@ -1,8 +1,9 @@
 <script setup>
-import { MoreVertical, Pencil, Plus, Trash2 } from '@lucide/vue';
+import { ChevronRight, MoreVertical, Pencil, Plus, Trash2 } from '@lucide/vue';
+import { computed, ref } from 'vue';
 import DepartmentTreeNode from '@/Pages/Structure/DepartmentTreeNode.vue';
 
-defineProps({
+const props = defineProps({
     department: {
         type: Object,
         required: true,
@@ -26,12 +27,34 @@ defineProps({
 });
 
 const emit = defineEmits(['edit', 'delete', 'add-child']);
+
+// Sub-departments are hidden until asked for, so a deep branch reads as a short
+// list of headings instead of one giant wall of rows.
+const hasChildren = computed(() => (props.department.children?.length ?? 0) > 0);
+const open = ref(false);
+
+function toggle() {
+    if (hasChildren.value) {
+        open.value = !open.value;
+    }
+}
 </script>
 
 <template>
     <div class="department-node" :style="{ marginLeft: `${level * 20}px` }">
         <div class="d-flex align-center justify-space-between py-3 px-2 rounded-lg department-row">
-            <div class="d-flex align-center ga-3">
+            <div
+                class="d-flex align-center ga-3 flex-grow-1 department-label"
+                :class="{ 'department-label--clickable': hasChildren }"
+                @click="toggle"
+            >
+                <ChevronRight
+                    v-if="hasChildren"
+                    class="dept-chevron"
+                    :class="{ 'dept-chevron--open': open }"
+                    style="width: 18px; height: 18px;"
+                />
+                <span v-else class="dept-chevron-spacer" />
                 <v-chip
                     v-if="department.code"
                     color="indigo"
@@ -98,18 +121,20 @@ const emit = defineEmits(['edit', 'delete', 'add-child']);
             </div>
         </div>
 
-        <DepartmentTreeNode
-            v-for="child in department.children"
-            :key="child.id"
-            :department="child"
-            :level="level + 1"
-            :can-manage="canManage"
-            :can-delete="canDelete"
-            :can-create="canCreate"
-            @edit="emit('edit', $event)"
-            @delete="emit('delete', $event)"
-            @add-child="emit('add-child', $event)"
-        />
+        <template v-if="open">
+            <DepartmentTreeNode
+                v-for="child in department.children"
+                :key="child.id"
+                :department="child"
+                :level="level + 1"
+                :can-manage="canManage"
+                :can-delete="canDelete"
+                :can-create="canCreate"
+                @edit="emit('edit', $event)"
+                @delete="emit('delete', $event)"
+                @add-child="emit('add-child', $event)"
+            />
+        </template>
     </div>
 </template>
 
@@ -119,5 +144,22 @@ const emit = defineEmits(['edit', 'delete', 'add-child']);
 }
 .department-row:hover {
     background: rgba(99, 102, 241, 0.06);
+}
+.department-label--clickable {
+    cursor: pointer;
+    user-select: none;
+}
+.dept-chevron {
+    flex-shrink: 0;
+    color: #6366f1;
+    transition: transform 0.2s ease;
+}
+.dept-chevron--open {
+    transform: rotate(90deg);
+}
+.dept-chevron-spacer {
+    display: inline-block;
+    width: 18px;
+    flex-shrink: 0;
 }
 </style>
