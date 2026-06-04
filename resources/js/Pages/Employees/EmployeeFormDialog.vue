@@ -124,24 +124,48 @@ const [managerId, managerIdAttrs] = defineField('manager_id');
 const managerOptions = ref([]);
 const managerSearch = ref('');
 const managerLoading = ref(false);
+// Monotonic request id: only the latest in-flight search may write results,
+// so out-of-order responses can't clobber a newer query.
+let managerReq = 0;
 
 async function fetchManagers() {
+    const reqId = ++managerReq;
     managerLoading.value = true;
     try {
         const { data } = await window.axios.get(route('employees.managers'), {
             params: { search: managerSearch.value },
         });
+        if (reqId !== managerReq) {
+            return; // superseded by a newer request
+        }
         const selected = managerOptions.value.find(m => m.id === managerId.value);
         managerOptions.value = selected && !data.some(m => m.id === selected.id)
             ? [selected, ...data]
             : data;
     }
+    catch {
+        // Keep the field usable (selected manager stays visible); don't surface
+        // a hard error for a lookup helper.
+        if (reqId === managerReq) {
+            managerOptions.value = managerOptions.value.filter(m => m.id === managerId.value);
+        }
+    }
     finally {
-        managerLoading.value = false;
+        if (reqId === managerReq) {
+            managerLoading.value = false;
+        }
     }
 }
 
-watchDebounced(managerSearch, fetchManagers, { debounce: 300 });
+watchDebounced(managerSearch, (term) => {
+    // Vuetify echoes the selected item's title back into the search field on
+    // selection — skip that no-op to avoid a redundant request.
+    const selected = managerOptions.value.find(m => m.id === managerId.value);
+    if (selected && term === selected.full_name) {
+        return;
+    }
+    fetchManagers();
+}, { debounce: 300 });
 const [hireDate, hireDateAttrs] = defineField('hire_date');
 const [dismissalDate, dismissalDateAttrs] = defineField('dismissal_date');
 const [dismissalReason, dismissalReasonAttrs] = defineField('dismissal_reason');
