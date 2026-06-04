@@ -46,49 +46,48 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
             </thead>
             <tbody>
                 <tr v-for="employee in employees.data" :key="employee.id" class="employee-row">
-                    <td class="pa-3 font-weight-bold text-indigo-darken-3">
-                        {{ employee.full_name }}
+                    <td class="pa-3">
+                        <button type="button" class="emp-name" @click="$emit('view', employee)">
+                            {{ employee.full_name }}
+                        </button>
                     </td>
-                    <td class="pa-3 text-grey-darken-3 font-weight-medium">
-                        <div class="text-truncate col-position" :title="employee.position?.name || '-'">
+                    <td class="pa-3">
+                        <div class="text-truncate col-position emp-position" :title="employee.position?.name || '-'">
                             {{ employee.position?.name || '-' }}
                         </div>
                     </td>
                     <td class="pa-3">
-                        <v-chip size="small" color="indigo" variant="flat" class="font-weight-bold col-branch" :title="employee.branch?.name">
-                            {{ employee.branch?.name }}
-                        </v-chip>
+                        <div class="text-truncate col-branch emp-branch" :title="employee.branch?.name">
+                            {{ employee.branch?.name || '-' }}
+                        </div>
                     </td>
-                    <td class="pa-3">
-                        <v-chip size="small" color="secondary" variant="outlined">
-                            {{ employee.category || '-' }}
-                        </v-chip>
+                    <td class="pa-3 emp-category">
+                        {{ employee.category || '-' }}
                     </td>
                     <td class="pa-3">
                         <v-chip size="small" color="teal" variant="tonal" class="font-weight-bold">
                             {{ employee.employment_type_label || '-' }}
                         </v-chip>
                     </td>
-                    <td class="pa-3 text-body-2 font-weight-medium">
+                    <td class="pa-3 text-body-2 emp-secondary">
                         {{ employee.phone_number || '-' }}
                     </td>
-                    <td class="pa-3 text-body-2 font-weight-bold text-indigo">
+                    <td class="pa-3 text-body-2 emp-secondary">
                         {{ formatDate(employee.birth_date) }}
                     </td>
-                    <td class="pa-3 text-body-2 font-weight-medium">
+                    <td class="pa-3 text-body-2 emp-secondary">
                         {{ formatDate(employee.employment_start_date) }}
                     </td>
                     <td class="pa-3 text-center">
-                        <v-btn variant="text" color="indigo" size="small" class="mr-1 hover-scale-btn" @click="$emit('view', employee)">
+                        <v-btn variant="text" size="small" class="mr-1 hover-scale-btn act-btn act-accent" title="Дидан" @click="$emit('view', employee)">
                             <Eye style="width: 16px; height: 16px;" />
                         </v-btn>
 
                         <v-btn
                             v-if="canManage(employee)"
                             variant="text"
-                            color="indigo"
                             size="small"
-                            class="mr-1 hover-scale-btn"
+                            class="mr-1 hover-scale-btn act-btn act-accent"
                             title="Ротатсия"
                             @click="$emit('rotate', employee)"
                         >
@@ -98,9 +97,9 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
                         <v-btn
                             v-if="canManage(employee)"
                             variant="text"
-                            color="primary"
                             size="small"
-                            class="mr-1 hover-scale-btn"
+                            class="mr-1 hover-scale-btn act-btn act-accent"
+                            title="Таҳрир"
                             @click="$emit('edit', employee)"
                         >
                             <Pencil style="width: 16px; height: 16px;" />
@@ -109,9 +108,9 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
                         <v-btn
                             v-if="canManage(employee)"
                             variant="text"
-                            color="error"
                             size="small"
-                            class="hover-scale-btn"
+                            class="hover-scale-btn act-btn act-danger"
+                            title="Нест кардан"
                             @click="$emit('delete', employee)"
                         >
                             <Trash2 style="width: 16px; height: 16px;" />
@@ -160,11 +159,54 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
     max-width: 280px;
 }
 .col-branch {
-    max-width: 170px;
+    max-width: 200px;
 }
-.col-branch :deep(.v-chip__content) {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
+
+/* Three tiers of text contrast carry the hierarchy without colour:
+   name (darkest anchor) → position (mid) → branch/category/dashes (light). */
+.emp-name {
+    font: inherit;
+    color: #111111;
+    font-weight: 600;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+}
+/* The one resting accent that means something: the clickable name on hover. */
+.emp-name:hover {
+    color: #3f51b5;
+    text-decoration: underline;
+}
+.emp-position,
+.emp-secondary {
+    color: #555555;
+}
+.emp-branch,
+.emp-category {
+    color: #999999;
+}
+
+/* Rows read as discrete records: zebra striping plus a hover highlight with a
+   thin indigo bar on the left of the active row. */
+.table-modern tbody tr.employee-row:nth-child(even) {
+    background: #fafafb;
+}
+.table-modern tbody tr.employee-row:hover {
+    background: rgba(99, 102, 241, 0.07);
+    box-shadow: inset 3px 0 0 0 #5c6bc0;
+}
+
+/* Action icons stay quiet grey at rest; their meaning (accent / danger)
+   surfaces only on hover. */
+.act-btn {
+    color: #9ca3af !important;
+}
+.act-accent:hover {
+    color: #3f51b5 !important;
+}
+.act-danger:hover {
+    color: #e53935 !important;
 }
 </style>

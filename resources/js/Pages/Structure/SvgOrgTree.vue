@@ -1,7 +1,7 @@
 <script setup>
 import { ChevronsDownUp, ChevronsUpDown, Maximize2, Minimize2, Network } from '@lucide/vue';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { buildOrgTree, defaultExpanded } from '@/composables/useOrgChart';
+import { buildOrgTree, expandedToDepth } from '@/composables/useOrgChart';
 
 const props = defineProps({
     structure: { type: Array, required: true },
@@ -78,10 +78,10 @@ const c = computed(() => (isDark.value ? DARK : LIGHT));
  * resets to that whenever the structure reloads (Inertia/CRUD).
  * ------------------------------------------------------------------ */
 const tree = computed(() => buildOrgTree(props.structure));
-const expanded = ref(defaultExpanded(props.structure));
+const expanded = ref(expandedToDepth(tree.value));
 
-watch(() => props.structure, (next) => {
-    expanded.value = defaultExpanded(next);
+watch(tree, (next) => {
+    expanded.value = expandedToDepth(next);
 });
 
 const isOpen = id => expanded.value.has(id);
@@ -192,6 +192,8 @@ const placed = computed(() => {
             hasChildren: node.children.length > 0,
             childCount: node.children.length,
             open: isOpen(node.id),
+            popupId: node.popupId ?? null,
+            popupKind: node.popupKind ?? null,
             x: pos.x,
             y: pos.y,
         });
@@ -275,6 +277,12 @@ function toggleFullscreen() {
 
 function onCardClick(node) {
     if (node.kind === 'root') {
+        return;
+    }
+    // A filial whose header department was absorbed routes its click to that
+    // department's people (the filial itself holds no branch-level staff).
+    if (node.popupId) {
+        emit('node-click', { id: node.popupId, data: { kind: node.popupKind, label: node.label } });
         return;
     }
     emit('node-click', { id: node.id, data: { kind: node.kind, label: node.label } });

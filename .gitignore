@@ -30,6 +30,7 @@ Thumbs.db
 # Local scratch / tooling — not part of the project
 /qa-shots
 /tools
+/.playwright-mcp
 /migrreadme.md
 /.understand-anything
 /.remember

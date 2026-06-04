@@ -9,6 +9,14 @@ const Y_GAP = 170;
  * flattened to just what a card needs (uid, kind, label, employee count, child
  * list), with uids prefixed so branch/department numeric ids never collide.
  *
+ * A regional filial is mirrored in the source as both a businessUnit (→ our
+ * branch) and a root "Филиал …" header department of the same place, which would
+ * otherwise render the filial twice. We absorb that header into its branch: its
+ * children are hoisted onto the branch node, and the branch carries a `popupId`
+ * so a click opens the header's employees (filials hold no staff at branch
+ * level). Real departments ("Шуъбаи …", "ҶДММ …") never start with "Филиал", so
+ * they are left untouched.
+ *
  * @param {Array} structure  branches → departments tree from the server
  * @returns {object|null} the root node, or null when there is nothing to show
  */
@@ -27,6 +35,31 @@ export function buildOrgTree(structure) {
         children: (dept.children || []).map(mapDept),
     });
 
+    const isFilialHeader = dept => String(dept.name ?? '').trim().toLowerCase().startsWith('филиал');
+
+    const mapBranch = (branch) => {
+        const roots = branch.departments || [];
+        const header = roots.find(isFilialHeader);
+        const rest = header ? roots.filter(dept => dept !== header) : roots;
+
+        const node = {
+            id: `b-${branch.id}`,
+            kind: 'branch',
+            label: branch.name,
+            code: branch.code ?? null,
+            employeeCount: branch.employees_count ?? 0,
+            vacancies: branch.open_vacancies ?? 0,
+            children: [...(header?.children ?? []), ...rest].map(mapDept),
+        };
+
+        if (header) {
+            node.popupId = `d-${header.id}`;
+            node.popupKind = 'dept';
+        }
+
+        return node;
+    };
+
     return {
         id: 'root',
         kind: 'root',
@@ -34,16 +67,32 @@ export function buildOrgTree(structure) {
         code: null,
         employeeCount: 0,
         vacancies: 0,
-        children: structure.map(branch => ({
-            id: `b-${branch.id}`,
-            kind: 'branch',
-            label: branch.name,
-            code: branch.code ?? null,
-            employeeCount: branch.employees_count ?? 0,
-            vacancies: branch.open_vacancies ?? 0,
-            children: (branch.departments || []).map(mapDept),
-        })),
+        children: structure.map(mapBranch),
     };
+}
+
+/**
+ * The node ids to open on first render — every tier of an assembled tree above
+ * `maxDepth` (root is depth 0). Walking the built tree (not the raw payload)
+ * keeps the default correct after buildOrgTree merges filial headers.
+ *
+ * @param {object|null} root  the root node from buildOrgTree
+ * @param {number} maxDepth  number of tiers to open
+ * @returns {Set<string>} ids whose children should be drawn on first render
+ */
+export function expandedToDepth(root, maxDepth = 3) {
+    const expanded = new Set();
+    const walk = (node, depth) => {
+        if (depth >= maxDepth) {
+            return;
+        }
+        expanded.add(node.id);
+        node.children.forEach(child => walk(child, depth + 1));
+    };
+    if (root) {
+        walk(root, 0);
+    }
+    return expanded;
 }
 
 /**
