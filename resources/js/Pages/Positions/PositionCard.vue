@@ -10,20 +10,17 @@ defineEmits(['edit', 'delete']);
 </script>
 
 <template>
-    <v-card elevation="0" class="rounded-xl border pa-5 h-100 d-flex flex-column bg-surface-glass transition-hover position-relative overflow-hidden">
+    <v-card elevation="0" class="rounded-xl border pa-5 h-100 d-flex flex-column transition-hover position-relative overflow-hidden">
         <div class="d-flex justify-space-between align-start mb-3">
-            <div class="d-flex align-center">
-                <v-avatar color="indigo-lighten-5" class="mr-3" size="40">
-                    <Briefcase style="width: 20px; height: 20px;" class="text-indigo" />
-                </v-avatar>
-                <div>
-                    <h3 class="text-h6 font-weight-black text-indigo-darken-3">
-                        {{ position.name }}
-                    </h3>
-                </div>
+            <div class="d-flex align-center ga-3 position-head" style="min-width: 0;">
+                <span class="position-icon">
+                    <Briefcase style="width: 20px; height: 20px;" />
+                </span>
+                <h3 class="position-name mb-0">
+                    {{ position.name }}
+                </h3>
             </div>
 
-            <!-- Actions menu for Admin -->
             <v-menu v-if="isAdmin">
                 <template #activator="{ props: menuProps }">
                     <v-btn icon variant="text" size="small" class="hover-scale-btn" v-bind="menuProps">
@@ -45,24 +42,55 @@ defineEmits(['edit', 'delete']);
             </v-menu>
         </div>
 
+        <div class="flex-grow-1" />
+
         <v-divider class="my-3" />
 
-        <div class="d-flex justify-space-between align-center flex-grow-1 align-end">
-            <span class="text-subtitle-2 text-grey font-weight-bold text-uppercase">Ҳайат</span>
-            <v-chip :color="position.employees_count > 0 ? 'teal' : 'grey'" variant="tonal" class="font-weight-black px-3" size="medium">
-                <template #prepend>
-                    <Users style="width: 16px; height: 16px; margin-right: 4px;" :class="position.employees_count > 0 ? 'text-teal' : 'text-grey'" />
-                </template>
-                {{ position.employees_count }} нафар
+        <div class="d-flex justify-space-between align-center">
+            <span class="position-meta text-uppercase">Ҳайат</span>
+            <v-chip
+                :color="position.employees_count > 0 ? 'teal' : 'grey'"
+                variant="tonal"
+                class="font-weight-medium px-3"
+                size="medium"
+            >
+                <Users
+                    style="width: 16px; height: 16px; margin-right: 4px;"
+                    :class="position.employees_count > 0 ? 'text-teal' : 'text-grey'"
+                />
+                {{ position.employees_count }} нафар.
             </v-chip>
         </div>
-        <div class="glass-shine" />
     </v-card>
 </template>
 
 <style scoped>
-.bg-surface-glass {
-    background: rgba(255, 255, 255, 0.75) !important;
-    backdrop-filter: blur(12px);
+.position-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(37, 99, 235, 0.18);
+    color: #1d4ed8;
+    flex-shrink: 0;
+}
+.position-head {
+    min-height: 52px;
+}
+.position-name {
+    color: #141414;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+.position-meta {
+    color: #9ca3af;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
 }
 </style>

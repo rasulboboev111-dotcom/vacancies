@@ -4,6 +4,7 @@ import { DoorOpen } from '@lucide/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm as useVeeForm } from 'vee-validate';
 import { computed, watch } from 'vue';
+import FormField from '@/Components/FormField.vue';
 import { vacancySchema } from '@/lib/schemas';
 
 const props = defineProps({
@@ -161,170 +162,183 @@ const submit = handleSubmit((values) => {
             </div>
 
             <v-card-text class="pa-6">
-                <v-form @submit.prevent="submit">
-                    <v-select
-                        v-if="isAdmin"
-                        v-model="branchId"
-                        v-bind="branchIdAttrs"
-                        :items="branchOptions"
-                        item-title="title"
-                        item-value="id"
-                        label="Филиал"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        :error-messages="errors.branch_id"
-                        class="mb-4"
-                    />
+                <v-form class="app-form" @submit.prevent="submit">
+                    <FormField v-if="isAdmin" label="Филиал" class="mb-4">
+                        <v-select
+                            v-model="branchId"
+                            v-bind="branchIdAttrs"
+                            :items="branchOptions"
+                            item-title="title"
+                            item-value="id"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            hide-details="auto"
+                            :error-messages="errors.branch_id"
+                        />
+                    </FormField>
 
-                    <v-text-field
-                        v-model="title"
-                        v-bind="titleAttrs"
-                        label="Вазифа / Номи вакансия"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        :error-messages="errors.title"
-                        class="mb-4"
-                    />
+                    <FormField label="Вазифа / Номи вакансия" required class="mb-4">
+                        <v-text-field
+                            v-model="title"
+                            v-bind="titleAttrs"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            hide-details="auto"
+                            :error-messages="errors.title"
+                        />
+                    </FormField>
 
-                    <v-text-field
-                        v-model.number="openings"
-                        v-bind="openingsAttrs"
-                        label="Шумораи кормандони зарур"
-                        type="number"
-                        min="1"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        :error-messages="errors.openings"
-                        class="mb-4"
-                    />
+                    <FormField label="Шумораи кормандони зарур" required class="mb-4">
+                        <v-text-field
+                            v-model.number="openings"
+                            v-bind="openingsAttrs"
+                            type="number"
+                            min="1"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            hide-details="auto"
+                            :error-messages="errors.openings"
+                        />
+                    </FormField>
 
                     <v-row dense>
                         <v-col cols="12" md="6">
-                            <v-combobox
-                                v-model="position"
-                                v-bind="positionAttrs"
-                                :items="positionNames"
-                                label="Вазифа (интихоб ё вориди нав)"
-                                variant="outlined"
-                                density="comfortable"
-                                rounded="lg"
-                                clearable
-                                :error-messages="errors.position"
-                                class="mb-4"
-                            />
+                            <FormField label="Вазифа (интихоб ё вориди нав)" class="mb-4">
+                                <v-combobox
+                                    v-model="position"
+                                    v-bind="positionAttrs"
+                                    :items="positionNames"
+                                    variant="outlined"
+                                    density="comfortable"
+                                    rounded="lg"
+                                    clearable
+                                    hide-details="auto"
+                                    :error-messages="errors.position"
+                                />
+                            </FormField>
                         </v-col>
                         <v-col cols="12" md="6">
-                            <v-select
-                                v-model="departmentId"
-                                v-bind="departmentIdAttrs"
-                                :items="departmentOptions"
-                                item-title="name"
-                                item-value="id"
-                                label="Шуъба"
-                                variant="outlined"
-                                density="comfortable"
-                                rounded="lg"
-                                clearable
-                                :error-messages="errors.department_id"
-                                class="mb-4"
-                            />
+                            <FormField label="Шуъба" class="mb-4">
+                                <v-select
+                                    v-model="departmentId"
+                                    v-bind="departmentIdAttrs"
+                                    :items="departmentOptions"
+                                    item-title="name"
+                                    item-value="id"
+                                    variant="outlined"
+                                    density="comfortable"
+                                    rounded="lg"
+                                    clearable
+                                    hide-details="auto"
+                                    :error-messages="errors.department_id"
+                                />
+                            </FormField>
                         </v-col>
                         <v-col cols="12" md="6">
-                            <v-select
-                                v-model="employmentType"
-                                v-bind="employmentTypeAttrs"
-                                :items="employmentTypes"
-                                item-title="label"
-                                item-value="value"
-                                label="Намуди шуғл"
-                                variant="outlined"
-                                density="comfortable"
-                                rounded="lg"
-                                clearable
-                                :error-messages="errors.employment_type"
-                                class="mb-4"
-                            />
+                            <FormField label="Намуди шуғл" class="mb-4">
+                                <v-select
+                                    v-model="employmentType"
+                                    v-bind="employmentTypeAttrs"
+                                    :items="employmentTypes"
+                                    item-title="label"
+                                    item-value="value"
+                                    variant="outlined"
+                                    density="comfortable"
+                                    rounded="lg"
+                                    clearable
+                                    hide-details="auto"
+                                    :error-messages="errors.employment_type"
+                                />
+                            </FormField>
                         </v-col>
                         <v-col cols="12" md="6">
-                            <v-text-field
-                                v-model="schedule"
-                                v-bind="scheduleAttrs"
-                                label="Ҷадвали корӣ"
-                                variant="outlined"
-                                density="comfortable"
-                                rounded="lg"
-                                :error-messages="errors.schedule"
-                                class="mb-4"
-                            />
+                            <FormField label="Ҷадвали корӣ" class="mb-4">
+                                <v-text-field
+                                    v-model="schedule"
+                                    v-bind="scheduleAttrs"
+                                    variant="outlined"
+                                    density="comfortable"
+                                    rounded="lg"
+                                    hide-details="auto"
+                                    :error-messages="errors.schedule"
+                                />
+                            </FormField>
                         </v-col>
                         <v-col cols="12" md="6">
-                            <v-text-field
-                                v-model="salary"
-                                v-bind="salaryAttrs"
-                                label="Маош"
-                                variant="outlined"
-                                density="comfortable"
-                                rounded="lg"
-                                :error-messages="errors.salary"
-                                class="mb-4"
-                            />
+                            <FormField label="Маош" class="mb-4">
+                                <v-text-field
+                                    v-model="salary"
+                                    v-bind="salaryAttrs"
+                                    variant="outlined"
+                                    density="comfortable"
+                                    rounded="lg"
+                                    hide-details="auto"
+                                    :error-messages="errors.salary"
+                                />
+                            </FormField>
                         </v-col>
                     </v-row>
 
-                    <v-textarea
-                        v-model="requirements"
-                        v-bind="requirementsAttrs"
-                        label="Талабот ба номзад"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        rows="3"
-                        auto-grow
-                        :error-messages="errors.requirements"
-                        class="mb-4"
-                    />
+                    <FormField label="Талабот ба номзад" class="mb-4">
+                        <v-textarea
+                            v-model="requirements"
+                            v-bind="requirementsAttrs"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            rows="3"
+                            auto-grow
+                            hide-details="auto"
+                            :error-messages="errors.requirements"
+                        />
+                    </FormField>
 
-                    <v-textarea
-                        v-model="description"
-                        v-bind="descriptionAttrs"
-                        label="Тавсиф / Иловагӣ"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        rows="2"
-                        auto-grow
-                        :error-messages="errors.description"
-                        class="mb-4"
-                    />
+                    <FormField label="Тавсиф / Иловагӣ" class="mb-4">
+                        <v-textarea
+                            v-model="description"
+                            v-bind="descriptionAttrs"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            rows="2"
+                            auto-grow
+                            hide-details="auto"
+                            :error-messages="errors.description"
+                        />
+                    </FormField>
 
                     <v-row dense>
                         <v-col cols="12" md="6">
-                            <v-text-field
-                                v-model="openedAt"
-                                v-bind="openedAtAttrs"
-                                label="Санаи кушодашавӣ"
-                                type="date"
-                                variant="outlined"
-                                density="comfortable"
-                                rounded="lg"
-                                :error-messages="errors.opened_at"
-                            />
+                            <FormField label="Санаи кушодашавӣ">
+                                <v-text-field
+                                    v-model="openedAt"
+                                    v-bind="openedAtAttrs"
+                                    type="date"
+                                    variant="outlined"
+                                    density="comfortable"
+                                    rounded="lg"
+                                    hide-details="auto"
+                                    :error-messages="errors.opened_at"
+                                />
+                            </FormField>
                         </v-col>
                         <v-col v-if="vacancy" cols="12" md="6">
-                            <v-select
-                                v-model="status"
-                                v-bind="statusAttrs"
-                                :items="[{ value: 'open', title: 'Кушода' }, { value: 'closed', title: 'Баста' }]"
-                                item-title="title"
-                                item-value="value"
-                                label="Ҳолат"
-                                variant="outlined"
-                                density="comfortable"
-                                rounded="lg"
-                            />
+                            <FormField label="Ҳолат">
+                                <v-select
+                                    v-model="status"
+                                    v-bind="statusAttrs"
+                                    :items="[{ value: 'open', title: 'Кушода' }, { value: 'closed', title: 'Баста' }]"
+                                    item-title="title"
+                                    item-value="value"
+                                    variant="outlined"
+                                    density="comfortable"
+                                    rounded="lg"
+                                    hide-details="auto"
+                                />
+                            </FormField>
                         </v-col>
                     </v-row>
                 </v-form>
@@ -332,11 +346,12 @@ const submit = handleSubmit((values) => {
 
             <v-divider />
 
-            <v-card-actions class="pa-5 d-flex justify-end" style="gap: 12px;">
-                <v-btn variant="tonal" color="grey" rounded="lg" size="large" :disabled="inertia.processing" class="px-6 font-weight-bold" @click="open = false">
+            <v-card-actions class="pa-5">
+                <v-btn variant="text" rounded="lg" size="large" :disabled="inertia.processing" @click="open = false">
                     Бекор кардан
                 </v-btn>
-                <v-btn color="indigo" variant="flat" rounded="lg" size="large" :loading="inertia.processing" class="px-6 font-weight-bold text-white" @click="submit">
+                <v-spacer />
+                <v-btn color="indigo" variant="flat" rounded="lg" size="large" :loading="inertia.processing" class="px-6 font-weight-medium text-white bg-indigo" @click="submit">
                     Захира кардан
                 </v-btn>
             </v-card-actions>

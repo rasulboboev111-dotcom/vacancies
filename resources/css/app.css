@@ -490,6 +490,45 @@ body {
     text-transform: uppercase !important;
 }
 
+/* ==========================================
+   APP-FORM: clean, accessible form fields
+   ==========================================
+   The global outlined-field style above gives every field a grey fill and a
+   transparent idle border, which reads as "disabled". Forms opt into a clearer
+   treatment via class="app-form": white fill, a visible 1px grey border at
+   rest, a 2px azure border on focus, red on error. Labels live above each
+   field (see Components/FormField.vue), so the floating Vuetify label is gone. */
+.app-form .v-field--variant-outlined {
+    background-color: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 10px !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+.app-form .v-field--variant-outlined:hover {
+    border-color: #94a3b8 !important;
+}
+.app-form .v-field--variant-outlined.v-field--focused {
+    border-color: #009cf1 !important;
+    box-shadow: 0 0 0 3px rgba(0, 156, 241, 0.15) !important;
+}
+.app-form .v-field--variant-outlined.v-field--error {
+    border-color: rgb(var(--v-theme-error)) !important;
+}
+/* Suppress Vuetify's own 3-segment outline so the real border above is the only
+   one drawn (no faint double line). */
+.app-form .v-field--variant-outlined .v-field__outline__start,
+.app-form .v-field--variant-outlined .v-field__outline__notch,
+.app-form .v-field--variant-outlined .v-field__outline__end {
+    border-color: transparent !important;
+}
+.v-theme--dark .app-form .v-field--variant-outlined {
+    background-color: #1e293b !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+.v-theme--dark .app-form .v-field--variant-outlined.v-field--focused {
+    border-color: #009cf1 !important;
+}
+
 /* Premium tabs adjustments - ensure tabs never squash or overlap */
 .v-tab {
     min-width: 140px !important;

@@ -4,6 +4,7 @@ import { Briefcase } from '@lucide/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm as useVeeForm } from 'vee-validate';
 import { watch } from 'vue';
+import FormField from '@/Components/FormField.vue';
 import { positionSchema } from '@/lib/schemas';
 
 const props = defineProps({
@@ -67,42 +68,35 @@ const submit = handleSubmit((values) => {
             </div>
 
             <v-card-text class="pa-6">
-                <v-form @submit.prevent="submit">
-                    <v-text-field
-                        v-model="name"
-                        v-bind="nameAttrs"
-                        label="Номи вазифа"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        :error-messages="errors.name"
-                        class="mb-2"
-                    />
+                <v-form class="app-form" @submit.prevent="submit">
+                    <FormField label="Номи вазифа" required>
+                        <v-text-field
+                            v-model="name"
+                            v-bind="nameAttrs"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            hide-details="auto"
+                            :error-messages="errors.name"
+                        />
+                    </FormField>
                 </v-form>
             </v-card-text>
 
             <v-divider />
 
-            <v-card-actions class="pa-5 d-flex justify-end" style="gap: 12px;">
-                <v-btn
-                    variant="tonal"
-                    color="grey"
-                    rounded="lg"
-                    size="large"
-                    :disabled="inertia.processing"
-                    class="px-6 font-weight-bold"
-                    @click="open = false"
-                >
+            <v-card-actions class="pa-5">
+                <v-btn variant="text" rounded="lg" size="large" :disabled="inertia.processing" @click="open = false">
                     Бекор кардан
                 </v-btn>
+                <v-spacer />
                 <v-btn
                     color="indigo"
                     variant="flat"
                     rounded="lg"
                     size="large"
                     :loading="inertia.processing"
-                    class="px-6 font-weight-bold text-white"
-                    style="box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);"
+                    class="px-6 font-weight-medium text-white bg-indigo"
                     @click="submit"
                 >
                     Захира кардан

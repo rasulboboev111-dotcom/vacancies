@@ -1,9 +1,10 @@
 <script setup>
 import { useForm as useInertiaForm } from '@inertiajs/vue3';
-import { Building2, Lock, Mail, Shield, User } from '@lucide/vue';
+import { UserCog } from '@lucide/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm as useVeeForm } from 'vee-validate';
 import { computed, watch } from 'vue';
+import FormField from '@/Components/FormField.vue';
 import { userSchema } from '@/lib/schemas';
 import { getRoleLabel } from '@/Pages/Users/userRoles';
 
@@ -82,142 +83,64 @@ const submit = handleSubmit((values) => {
 
 <template>
     <v-dialog v-model="open" max-width="520px" persistent>
-        <v-card class="rounded-xl border pa-4">
-            <v-card-title class="d-flex justify-space-between align-center font-weight-black text-indigo-darken-4 text-h5">
-                <span>{{ user ? 'Таҳрири корбар' : 'Эҷод кардани корбар' }}</span>
-            </v-card-title>
+        <v-card class="rounded-xl overflow-hidden" elevation="8">
+            <div style="background: #009cf1; padding: 20px 24px;">
+                <div class="d-flex align-center">
+                    <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
+                        <UserCog style="width: 22px; height: 22px; color: white;" />
+                    </v-avatar>
+                    <div class="ml-4">
+                        <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">
+                            {{ user ? 'Таҳрир' : 'Корбари нав' }}
+                        </div>
+                        <div style="color: white; font-size: 1.1rem; font-weight: 700;">
+                            {{ user ? name || 'Корбар' : 'Эҷод кардани корбар' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            <v-divider class="my-3" />
+            <form class="app-form" @submit.prevent="submit">
+                <v-card-text class="pa-6">
+                    <FormField label="Номи корбар" required>
+                        <v-text-field v-model="name" v-bind="nameAttrs" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.name" />
+                    </FormField>
 
-            <form @submit.prevent="submit">
-                <v-card-text class="pa-2">
-                    <!-- Name Field -->
-                    <v-text-field
-                        v-model="name"
-                        v-bind="nameAttrs"
-                        label="Номи корбар"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        class="mb-3"
-                        color="indigo"
-                        :error-messages="errors.name"
-                    >
-                        <template #prepend-inner>
-                            <User style="width: 18px; height: 18px;" class="text-grey mr-2" />
-                        </template>
-                    </v-text-field>
+                    <FormField label="Почтаи электронӣ" required class="mt-4">
+                        <v-text-field v-model="email" v-bind="emailAttrs" type="email" placeholder="namuna@mail.tj" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.email" />
+                    </FormField>
 
-                    <!-- Email Field -->
-                    <v-text-field
-                        v-model="email"
-                        v-bind="emailAttrs"
-                        label="Почтаи электронӣ"
-                        type="email"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        class="mb-3"
-                        color="indigo"
-                        :error-messages="errors.email"
-                    >
-                        <template #prepend-inner>
-                            <Mail style="width: 18px; height: 18px;" class="text-grey mr-2" />
-                        </template>
-                    </v-text-field>
+                    <FormField label="Парол" :required="!user" class="mt-4">
+                        <v-text-field v-model="password" v-bind="passwordAttrs" type="password" :placeholder="user ? 'Холӣ монед барои нигоҳ доштани парол' : ''" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.password" />
+                    </FormField>
 
-                    <!-- Password Field -->
-                    <v-text-field
-                        v-model="password"
-                        v-bind="passwordAttrs"
-                        label="Парол"
-                        type="password"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        class="mb-3"
-                        color="indigo"
-                        :error-messages="errors.password"
-                    >
-                        <template #prepend-inner>
-                            <Lock style="width: 18px; height: 18px;" class="text-grey mr-2" />
-                        </template>
-                    </v-text-field>
+                    <FormField label="Тасдиқи парол" class="mt-4">
+                        <v-text-field v-model="passwordConfirmation" v-bind="passwordConfirmationAttrs" type="password" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.password_confirmation" />
+                    </FormField>
 
-                    <!-- Password Confirmation -->
-                    <v-text-field
-                        v-model="passwordConfirmation"
-                        v-bind="passwordConfirmationAttrs"
-                        label="Тасдиқи парол"
-                        type="password"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        class="mb-3"
-                        color="indigo"
-                        :error-messages="errors.password_confirmation"
-                    >
-                        <template #prepend-inner>
-                            <Lock style="width: 18px; height: 18px;" class="text-grey mr-2" />
-                        </template>
-                    </v-text-field>
+                    <FormField label="Нақши корбар" required class="mt-4">
+                        <v-select v-model="role" v-bind="roleAttrs" :items="roleOptions" item-title="title" item-value="value" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.role" />
+                    </FormField>
 
-                    <!-- Role Field -->
-                    <v-select
-                        v-model="role"
-                        v-bind="roleAttrs"
-                        :items="roleOptions"
-                        item-title="title"
-                        item-value="value"
-                        label="Нақши корбар"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        class="mb-3"
-                        color="indigo"
-                        :error-messages="errors.role"
-                    >
-                        <template #prepend-inner>
-                            <Shield style="width: 18px; height: 18px;" class="text-grey mr-2" />
-                        </template>
-                    </v-select>
-
-                    <!-- Branch Field -->
-                    <v-select
-                        v-model="branchId"
-                        v-bind="branchIdAttrs"
-                        :items="branches"
-                        item-title="name"
-                        item-value="id"
-                        label="Пайвасткунӣ ба филиал"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        class="mb-3"
-                        color="indigo"
-                        :error-messages="errors.branch_id"
-                        clearable
-                        placeholder="Барои нақши «Корбар» ҳатмист"
-                    >
-                        <template #prepend-inner>
-                            <Building2 style="width: 18px; height: 18px;" class="text-grey mr-2" />
-                        </template>
-                    </v-select>
+                    <FormField label="Пайвасткунӣ ба филиал" :required="role === 'User'" class="mt-4">
+                        <v-select v-model="branchId" v-bind="branchIdAttrs" :items="branches" item-title="name" item-value="id" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.branch_id" clearable placeholder="Барои нақши «Корбар» ҳатмист" />
+                    </FormField>
                 </v-card-text>
 
-                <v-divider class="my-3" />
+                <v-divider />
 
-                <v-card-actions class="px-2">
-                    <v-spacer />
-                    <v-btn variant="text" rounded="lg" class="px-4 font-weight-bold" @click="open = false">
+                <v-card-actions class="pa-5">
+                    <v-btn variant="text" rounded="lg" size="large" :disabled="inertia.processing" @click="open = false">
                         Бекор кардан
                     </v-btn>
+                    <v-spacer />
                     <v-btn
                         type="submit"
                         color="indigo"
-                        variant="elevated"
+                        variant="flat"
                         rounded="lg"
-                        class="px-5 font-weight-bold text-white bg-indigo"
+                        size="large"
+                        class="px-6 font-weight-medium text-white bg-indigo"
                         :loading="inertia.processing"
                     >
                         Захира кардан

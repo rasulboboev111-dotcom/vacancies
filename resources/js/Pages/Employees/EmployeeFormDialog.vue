@@ -5,6 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { watchDebounced } from '@vueuse/core';
 import { useForm as useVeeForm } from 'vee-validate';
 import { computed, ref, watch } from 'vue';
+import FormField from '@/Components/FormField.vue';
 import { employeeSchema } from '@/lib/schemas';
 
 const props = defineProps({
@@ -384,53 +385,75 @@ const submit = handleSubmit(
                 >
                     Маълумотро пурра кунед — баъзе майдонҳои ҳатмӣ хатогӣ доранд.
                 </v-alert>
-                <v-form @submit.prevent="submit">
+                <v-form class="app-form" @submit.prevent="submit">
                     <v-window v-model="activeTab">
                         <!-- Tab 1: Маълумоти асосии корӣ -->
                         <v-window-item :value="0">
                             <v-row>
                                 <v-col cols="12" sm="6">
-                                    <v-text-field v-model="fullName" v-bind="fullNameAttrs" label="Ному насаби корманд" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.full_name" />
+                                    <FormField label="Ному насаби корманд" required>
+                                        <v-text-field v-model="fullName" v-bind="fullNameAttrs" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.full_name" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-select v-model="branchId" v-bind="branchIdAttrs" :items="branches" item-title="name" item-value="id" label="Филиал" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.branch_id" :disabled="!isAdmin" />
+                                    <FormField label="Филиал" required>
+                                        <v-select v-model="branchId" v-bind="branchIdAttrs" :items="branches" item-title="name" item-value="id" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.branch_id" :disabled="!isAdmin" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-autocomplete v-model="positionId" v-bind="positionIdAttrs" :items="positions" item-title="name" item-value="id" label="Вазифа" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.position_id" />
+                                    <FormField label="Вазифа" required>
+                                        <v-autocomplete v-model="positionId" v-bind="positionIdAttrs" :items="positions" item-title="name" item-value="id" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.position_id" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-autocomplete v-model="departmentId" v-bind="departmentIdAttrs" :items="branchDepartments" item-title="name" item-value="id" label="Шуъба" variant="outlined" density="comfortable" rounded="lg" clearable :no-data-text="branchId ? 'Шуъбаҳо ёфт нашуданд' : 'Аввал филиалро интихоб кунед'" :error-messages="errors.department_id" />
+                                    <FormField label="Шуъба">
+                                        <v-autocomplete v-model="departmentId" v-bind="departmentIdAttrs" :items="branchDepartments" item-title="name" item-value="id" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" clearable :no-data-text="branchId ? 'Шуъбаҳо ёфт нашуданд' : 'Аввал филиалро интихоб кунед'" :error-messages="errors.department_id" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-select v-model="category" v-bind="categoryAttrs" :items="categories" item-title="label" item-value="value" label="Категория" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.category" />
+                                    <FormField label="Категория" required>
+                                        <v-select v-model="category" v-bind="categoryAttrs" :items="categories" item-title="label" item-value="value" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.category" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-select v-model="typeId" v-bind="typeIdAttrs" :items="types" item-title="name" item-value="id" label="Намуди шуғл" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.type_id" />
+                                    <FormField label="Намуди шуғл" required>
+                                        <v-select v-model="typeId" v-bind="typeIdAttrs" :items="types" item-title="name" item-value="id" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.type_id" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-autocomplete v-model="managerId" v-bind="managerIdAttrs" v-model:search="managerSearch" :items="managerOptions" :loading="managerLoading" no-filter item-title="full_name" item-value="id" label="Роҳбари бевосита" variant="outlined" density="comfortable" rounded="lg" clearable :error-messages="errors.manager_id" />
+                                    <FormField label="Роҳбари бевосита">
+                                        <v-autocomplete v-model="managerId" v-bind="managerIdAttrs" v-model:search="managerSearch" :items="managerOptions" :loading="managerLoading" no-filter item-title="full_name" item-value="id" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" clearable :error-messages="errors.manager_id" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-text-field v-model="employmentStartDate" v-bind="employmentStartDateAttrs" label="Собиқаи корӣ" type="date" max="3000-12-31" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.employment_start_date" />
+                                    <FormField label="Собиқаи корӣ">
+                                        <v-text-field v-model="employmentStartDate" v-bind="employmentStartDateAttrs" type="date" max="3000-12-31" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.employment_start_date" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-text-field v-model="hireDate" v-bind="hireDateAttrs" label="Санаи қабул" type="date" max="3000-12-31" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.hire_date" />
+                                    <FormField label="Санаи қабул" required>
+                                        <v-text-field v-model="hireDate" v-bind="hireDateAttrs" type="date" max="3000-12-31" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.hire_date" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-text-field v-model="dismissalDate" v-bind="dismissalDateAttrs" label="Санаи озодшавӣ" type="date" max="3000-12-31" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.dismissal_date" />
+                                    <FormField label="Санаи озодшавӣ">
+                                        <v-text-field v-model="dismissalDate" v-bind="dismissalDateAttrs" type="date" max="3000-12-31" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.dismissal_date" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col v-if="dismissalDate" cols="12">
-                                    <v-combobox v-model="dismissalReason" v-bind="dismissalReasonAttrs" :items="dismissalReasonOptions" label="Сабаби озодшавӣ" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.dismissal_reason" />
+                                    <FormField label="Сабаби озодшавӣ" required>
+                                        <v-combobox v-model="dismissalReason" v-bind="dismissalReasonAttrs" :items="dismissalReasonOptions" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.dismissal_reason" />
+                                    </FormField>
                                 </v-col>
                             </v-row>
                         </v-window-item>
@@ -439,39 +462,57 @@ const submit = handleSubmit(
                         <v-window-item :value="1">
                             <v-row>
                                 <v-col cols="12" sm="4">
-                                    <v-select v-model="gender" v-bind="genderAttrs" :items="genderOptions" item-title="title" item-value="value" label="Ҷинс" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.gender" />
+                                    <FormField label="Ҷинс" required>
+                                        <v-select v-model="gender" v-bind="genderAttrs" :items="genderOptions" item-title="title" item-value="value" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.gender" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="4">
-                                    <v-text-field v-model="birthDate" v-bind="birthDateAttrs" label="Санаи таваллуд" type="date" max="3000-12-31" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.birth_date" />
+                                    <FormField label="Санаи таваллуд">
+                                        <v-text-field v-model="birthDate" v-bind="birthDateAttrs" type="date" max="3000-12-31" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.birth_date" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="4">
-                                    <v-combobox v-model="nationality" v-bind="nationalityAttrs" :items="nationalities" label="Миллат" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.nationality" />
+                                    <FormField label="Миллат">
+                                        <v-combobox v-model="nationality" v-bind="nationalityAttrs" :items="nationalities" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.nationality" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-text-field v-model="phoneNumber" v-bind="phoneNumberAttrs" label="Рақами телефон" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.phone_number" />
+                                    <FormField label="Рақами телефон">
+                                        <v-text-field v-model="phoneNumber" v-bind="phoneNumberAttrs" placeholder="+992 90 000 0000" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.phone_number" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-text-field v-model="email" v-bind="emailAttrs" label="Почтаи электронӣ" type="email" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.email" />
+                                    <FormField label="Почтаи электронӣ">
+                                        <v-text-field v-model="email" v-bind="emailAttrs" type="email" placeholder="namuna@mail.tj" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.email" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-combobox v-model="birthPlace" v-bind="birthPlaceAttrs" :items="birthPlaces" label="Зодгоҳ" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.birth_place" />
+                                    <FormField label="Зодгоҳ">
+                                        <v-combobox v-model="birthPlace" v-bind="birthPlaceAttrs" :items="birthPlaces" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.birth_place" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-combobox v-model="education" v-bind="educationAttrs" :items="educations" label="Маълумот" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.education" />
+                                    <FormField label="Маълумот">
+                                        <v-combobox v-model="education" v-bind="educationAttrs" :items="educations" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.education" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-combobox v-model="specialty" v-bind="specialtyAttrs" :items="specialties" label="Ихтисос" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.specialty" />
+                                    <FormField label="Ихтисос">
+                                        <v-combobox v-model="specialty" v-bind="specialtyAttrs" :items="specialties" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.specialty" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12">
-                                    <v-text-field v-model="address" v-bind="addressAttrs" label="Суроғаи истиқомат" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.address" />
+                                    <FormField label="Суроғаи истиқомат">
+                                        <v-text-field v-model="address" v-bind="addressAttrs" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.address" />
+                                    </FormField>
                                 </v-col>
                             </v-row>
                         </v-window-item>
@@ -480,27 +521,39 @@ const submit = handleSubmit(
                         <v-window-item :value="2">
                             <v-row>
                                 <v-col cols="12" sm="4">
-                                    <v-text-field v-model="passportNumber" v-bind="passportNumberAttrs" label="Рақами шиноснома" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.passport_number" />
+                                    <FormField label="Рақами шиноснома">
+                                        <v-text-field v-model="passportNumber" v-bind="passportNumberAttrs" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.passport_number" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="4">
-                                    <v-text-field v-model="passportStartDate" v-bind="passportStartDateAttrs" label="Мӯҳлати эътибор (Аз)" type="date" max="3000-12-31" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.passport_start_date" />
+                                    <FormField label="Мӯҳлати эътибор (Аз)">
+                                        <v-text-field v-model="passportStartDate" v-bind="passportStartDateAttrs" type="date" max="3000-12-31" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.passport_start_date" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="4">
-                                    <v-text-field v-model="passportEndDate" v-bind="passportEndDateAttrs" label="Мӯҳлати эътибор (То)" type="date" max="3000-12-31" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.passport_end_date" />
+                                    <FormField label="Мӯҳлати эътибор (То)">
+                                        <v-text-field v-model="passportEndDate" v-bind="passportEndDateAttrs" type="date" max="3000-12-31" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.passport_end_date" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-text-field v-model="inn" v-bind="innAttrs" label="ИНН / РМА" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.inn" />
+                                    <FormField label="ИНН / РМА">
+                                        <v-text-field v-model="inn" v-bind="innAttrs" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.inn" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-text-field v-model="sin" v-bind="sinAttrs" label="СИН (Рамз)" variant="outlined" density="comfortable" rounded="lg" :error-messages="errors.sin" />
+                                    <FormField label="СИН (Рамз)">
+                                        <v-text-field v-model="sin" v-bind="sinAttrs" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.sin" />
+                                    </FormField>
                                 </v-col>
 
                                 <v-col cols="12">
-                                    <v-textarea v-model="passportIssuedBy" v-bind="passportIssuedByAttrs" label="Аз ҷониби додашуда (Мақоми шиноснома диҳанда)" variant="outlined" density="comfortable" rounded="lg" rows="2" :error-messages="errors.passport_issued_by" />
+                                    <FormField label="Аз ҷониби додашуда (Мақоми шиноснома диҳанда)">
+                                        <v-textarea v-model="passportIssuedBy" v-bind="passportIssuedByAttrs" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" rows="2" :error-messages="errors.passport_issued_by" />
+                                    </FormField>
                                 </v-col>
                             </v-row>
                         </v-window-item>
@@ -508,13 +561,13 @@ const submit = handleSubmit(
                 </v-form>
             </v-card-text>
 
-            <v-card-actions class="px-2 pt-4">
-                <v-btn v-if="activeTab > 0" variant="tonal" color="indigo" rounded="lg" @click="activeTab--">
-                    Қафо
-                </v-btn>
-                <v-spacer />
+            <v-card-actions class="px-6 pt-4 pb-3">
                 <v-btn variant="text" rounded="lg" :disabled="inertia.processing" @click="open = false">
                     Бекор кардан
+                </v-btn>
+                <v-spacer />
+                <v-btn v-if="activeTab > 0" variant="outlined" color="indigo" rounded="lg" class="mr-2" @click="activeTab--">
+                    Қафо
                 </v-btn>
                 <v-btn v-if="activeTab < 2" color="indigo" variant="flat" class="bg-indigo px-5 text-white" rounded="lg" @click="activeTab++">
                     Минбаъд
