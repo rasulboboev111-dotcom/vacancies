@@ -1,0 +1,563 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================
+   PREMIUM MODERN DESIGN SYSTEM & VARIABLES
+   ========================================== */
+
+/* Universal Font family definition - Cascade cleanly to prevent legend and notched outline bugs in Vuetify inputs */
+html, body, .v-application {
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: -0.01em;
+}
+
+/* Apply premium typography strictly to text and interactive containers */
+.v-btn, .v-card, .v-dialog, .v-table, .v-list, .v-field, .v-label, .v-tabs, input, select, textarea, button {
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+/* Base body styles */
+body {
+    background-color: #f8fafc;
+    transition: background-color 0.3s ease;
+}
+
+/* ==========================================
+   RESPONSIVE GRADIENT MESH BACKGROUND
+   ========================================== */
+.v-theme--light {
+    --bg-gradient-mesh: none;
+    --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+    --border-color-glow: rgba(255, 255, 255, 0.4);
+}
+
+.v-theme--dark {
+    --bg-gradient-mesh: none;
+    --card-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.1);
+    --border-color-glow: rgba(255, 255, 255, 0.08);
+}
+
+.bg-background {
+    background-image: var(--bg-gradient-mesh) !important;
+    background-attachment: fixed !important;
+    transition: background-image 0.3s ease;
+}
+
+/* ==========================================
+   GLASSMORPHISM & PREMIUM CARDS
+   ========================================== */
+.bg-surface-glass {
+    background: rgba(255, 255, 255, 0.65) !important;
+    backdrop-filter: blur(18px) saturate(125%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.45) !important;
+    box-shadow: var(--card-shadow) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.v-theme--dark .bg-surface-glass {
+    background: rgba(15, 23, 42, 0.65) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Border Glow Mask effect */
+.border-glow {
+    position: relative;
+}
+.border-glow::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--border-color-glow);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* Interactive card hover */
+.transition-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.transition-hover:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 20px 40px -15px rgba(0, 156, 241, 0.12), var(--card-shadow) !important;
+}
+
+/* Flat brand stat surfaces */
+.bg-gradient-indigo {
+    background: #0f2d88 !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 156, 241, 0.3) !important;
+}
+.bg-gradient-emerald {
+    background: #059669 !important;
+    box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.3) !important;
+}
+
+/* ==========================================
+   NAVIGATION DRAWER & APP BAR GLOW
+   ========================================== */
+.v-navigation-drawer {
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(20px) !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+.v-theme--dark .v-navigation-drawer {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.v-app-bar {
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(20px) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+.v-theme--dark .v-app-bar {
+    background: rgba(15, 23, 42, 0.8) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ==========================================
+   PREMIUM TABLES & DATATABLES + HORIZONTAL SCROLL
+   ========================================== */
+.v-table {
+    background: transparent !important;
+}
+/* Table wrapper – enable proper horizontal scroll via Vuetify's own wrapper */
+.v-table .v-table__wrapper {
+    border-radius: 12px !important;
+    overflow-x: auto !important;
+    overflow-y: visible !important;
+}
+
+/* Prevent columns from collapsing – keep text on one line */
+.table-modern th,
+.table-modern td {
+    white-space: nowrap !important;
+}
+
+.v-table th {
+    background-color: rgba(0, 156, 241, 0.05) !important;
+    color: #0f2d88 !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.72rem !important;
+    height: 48px !important;
+}
+.v-theme--dark .v-table th {
+    background-color: rgba(0, 156, 241, 0.12) !important;
+    color: #e0f2fe !important;
+}
+
+.v-table td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+    font-size: 0.85rem !important;
+    height: 52px !important;
+}
+.v-theme--dark .v-table td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+.employee-row {
+    transition: background-color 0.2s ease;
+}
+.employee-row:hover {
+    background-color: rgba(0, 156, 241, 0.04) !important;
+}
+.v-theme--dark .employee-row:hover {
+    background-color: rgba(0, 156, 241, 0.08) !important;
+}
+
+/* ==========================================
+   DARK THEME CONTRAST & DYNAMIC OVERRIDES
+   ========================================== */
+.v-theme--dark .text-grey-darken-3,
+.v-theme--dark .text-grey-darken-4,
+.v-theme--dark .text-grey-darken-2 {
+    color: #e2e8f0 !important;
+}
+
+.v-theme--dark .text-indigo-darken-3,
+.v-theme--dark .text-indigo-darken-4 {
+    color: #bae6fd !important; /* Light azure accent for superior readability */
+}
+
+.v-theme--dark .bg-white {
+    background-color: #111827 !important; /* Dark surface color instead of blinding white */
+}
+
+.v-theme--dark .border {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.v-theme--dark .v-card {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.v-theme--dark .v-list {
+    background-color: #111827 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.v-theme--dark .v-list-item--active {
+    box-shadow: 0 4px 12px rgba(0, 156, 241, 0.15) !important;
+}
+
+.v-theme--dark .v-timeline-item {
+    color: #e2e8f0 !important;
+}
+
+/* ==========================================
+   SLICK NATIVE SCROLLBARS
+   ========================================== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 156, 241, 0.2);
+    border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 156, 241, 0.4);
+}
+
+.v-theme--dark ::-webkit-scrollbar-thumb {
+    background: rgba(0, 156, 241, 0.3) !important;
+}
+.v-theme--dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 156, 241, 0.5) !important;
+}
+
+/* ==========================================
+   MICRO-ANIMATIONS & INTERACTION STATES
+   ========================================== */
+.hover-scale-btn {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.hover-scale-btn:hover {
+    transform: scale(1.08) !important;
+}
+.hover-scale-btn:active {
+    transform: scale(0.95) !important;
+}
+
+.transition-hover-btn {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    font-weight: 700 !important;
+}
+.transition-hover-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px -6px rgba(0, 156, 241, 0.35) !important;
+}
+.transition-hover-btn:active {
+    transform: translateY(0px) !important;
+}
+
+/* Glass card shine effect removed (no gradients) */
+.glass-shine {
+    display: none !important;
+}
+
+/* ==========================================
+   PREMIUM DIALOG OVERLAYS
+   ========================================== */
+.v-overlay__scrim {
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+/* Form field focus accents */
+.v-field--focused .v-field__outline {
+    border-color: #009cf1 !important;
+}
+
+/* Dark theme dialog card overrides */
+.v-theme--dark .v-dialog .v-card {
+    background-color: #1e293b !important;
+}
+
+.v-theme--dark .v-dialog .v-card .v-card-text {
+    color: #e2e8f0 !important;
+}
+
+/* Premium filter cards */
+.v-theme--dark .v-text-field .v-field,
+.v-theme--dark .v-select .v-field {
+    background: rgba(30, 41, 59, 0.8) !important;
+}
+
+/* ==========================================
+   FIX: FLOATING LABELS & DIALOG SCROLL CONTAINERS
+   ==========================================
+   Outlined fields use a native legend notch gap. To prevent the floating
+   labels of the first row from being clipped by overflow:hidden/auto
+   containers, we simply ensure there is ample padding-top space above the first row.
+   ========================================== */
+
+/* Add safe top padding inside all dialog cards to prevent floating labels from hitting boundaries */
+.v-dialog .v-card-text {
+    padding-top: 28px !important;
+}
+
+/* Add safe top padding to window items since they have overflow:hidden by default */
+.v-window-item {
+    padding-top: 16px !important;
+}
+.v-window-item .v-row {
+    padding-top: 8px !important;
+}
+
+/* ==========================================
+   PREMIUM SLEEK UNIFIED INPUT FIELDS
+   ========================================== */
+.premium-field {
+    border-radius: 12px !important;
+    transition: all 0.2s ease !important;
+}
+.premium-field .v-field {
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(226, 232, 240, 0.9) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+.premium-field .v-field:hover {
+    border-color: rgba(0, 156, 241, 0.35) !important;
+    background: #ffffff !important;
+}
+.premium-field.v-field--focused .v-field {
+    border-color: rgba(0, 156, 241, 0.6) !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(0, 156, 241, 0.08), 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+}
+
+/* Dark mode premium fields */
+.v-theme--dark .premium-field .v-field {
+    background: rgba(30, 41, 59, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.v-theme--dark .premium-field .v-field:hover {
+    border-color: rgba(0, 156, 241, 0.4) !important;
+    background: rgba(30, 41, 59, 0.9) !important;
+}
+.v-theme--dark .premium-field.v-field--focused .v-field {
+    border-color: rgba(0, 156, 241, 0.7) !important;
+    background: rgba(15, 23, 42, 0.85) !important;
+    box-shadow: 0 0 0 3px rgba(0, 156, 241, 0.15), 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Explicitly hide native browser borders, outlines, shadows, and default styling on all Vuetify input elements */
+.v-field input, 
+.v-field select, 
+.v-field textarea,
+.v-field__input input,
+.v-field__input select,
+.v-field__input textarea {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+}
+
+/* Custom modern styling for standard outlined fields (Variant 2: Contrast background) */
+.v-field--variant-outlined {
+    background-color: #F2F4F7 !important; /* Soft gray-blue background */
+    border-radius: 8px !important;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.v-field--variant-outlined .v-field__outline__start,
+.v-field--variant-outlined .v-field__outline__notch,
+.v-field--variant-outlined .v-field__outline__end {
+    border-color: transparent !important; /* Hide idle border lines */
+    border-style: solid !important;
+    transition: border-color 0.15s ease !important;
+}
+
+/* Hover state */
+.v-field--variant-outlined:hover {
+    background-color: #EAECEF !important; /* Slightly darker background on hover */
+}
+
+/* Focused state */
+.v-field--variant-outlined.v-field--focused {
+    background-color: #ffffff !important; /* Crisp white background when active */
+    box-shadow: 0 0 0 3px rgba(0, 156, 241, 0.12) !important; /* Soft azure focus glow */
+}
+.v-field--focused .v-field__outline {
+    --v-field-border-width: 2px !important;
+}
+.v-field--variant-outlined.v-field--focused .v-field__outline__start,
+.v-field--variant-outlined.v-field--focused .v-field__outline__notch,
+.v-field--variant-outlined.v-field--focused .v-field__outline__end {
+    border-color: #009cf1 !important; /* Clean primary azure border on focus */
+}
+
+/* Outlined input labels visibility overrides (Text on top) */
+.v-field--variant-outlined .v-label {
+    color: #556376 !important; /* Clearly visible dark gray label when idle */
+    opacity: 0.95 !important;
+}
+.v-field--variant-outlined:hover .v-label {
+    color: #1e293b !important;
+}
+
+/* Floating labels (text on top) */
+.v-field--variant-outlined .v-label.v-field-label--floating,
+.v-field--variant-outlined.v-field--active .v-label {
+    color: #1e293b !important; /* High-contrast dark slate for high readability */
+    opacity: 1 !important;
+    font-weight: 700 !important; /* Bolder for premium contrast */
+    background: transparent !important; /* Transparent when idle to blend with gray background */
+    padding: 0 6px !important;
+}
+
+/* Focused labels */
+.v-field--variant-outlined.v-field--focused .v-label.v-field-label--floating {
+    color: #009cf1 !important; /* Highlight when active/focused */
+    background: #ffffff !important; /* White background to cover the active border line */
+}
+
+/* Dark theme overrides for standard outlined fields */
+.v-theme--dark .v-field--variant-outlined {
+    background-color: #0f172a !important; /* Dark slate background */
+}
+.v-theme--dark .v-field--variant-outlined:hover {
+    background-color: #090d16 !important;
+}
+.v-theme--dark .v-field--variant-outlined.v-field--focused {
+    background-color: #1e293b !important; /* Match dark dialog background on focus */
+    box-shadow: 0 0 0 3px rgba(0, 156, 241, 0.2) !important;
+}
+.v-theme--dark .v-field--variant-outlined.v-field--focused .v-field__outline__start,
+.v-theme--dark .v-field--variant-outlined.v-field--focused .v-field__outline__notch,
+.v-theme--dark .v-field--variant-outlined.v-field--focused .v-field__outline__end {
+    border-color: #009cf1 !important;
+}
+
+/* Dark theme overrides for labels */
+.v-theme--dark .v-field--variant-outlined .v-label {
+    color: #94a3b8 !important;
+}
+.v-theme--dark .v-field--variant-outlined:hover .v-label {
+    color: #cbd5e1 !important;
+}
+.v-theme--dark .v-field--variant-outlined .v-label.v-field-label--floating {
+    color: #f1f5f9 !important;
+    background: transparent !important;
+}
+.v-theme--dark .v-field--variant-outlined.v-field--focused .v-label.v-field-label--floating {
+    color: #009cf1 !important;
+    background: #1e293b !important; /* Match dark dialog background on focus */
+}
+
+
+/* Ensure perfect vertical alignment and height for premium input fields */
+.premium-field {
+    height: 44px !important;
+}
+.premium-field .v-field {
+    min-height: 44px !important;
+    height: 44px !important;
+}
+.premium-field .v-field__input {
+    min-height: 44px !important;
+    height: 44px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* Ensure all buttons inside filter sections match the exact input field height */
+.bg-surface-glass .v-btn {
+    height: 44px !important;
+    min-height: 44px !important;
+}
+
+/* Force first letter of labels to be capitalized globally */
+.v-label::first-letter {
+    text-transform: uppercase !important;
+}
+
+/* Premium tabs adjustments - ensure tabs never squash or overlap */
+.v-tab {
+    min-width: 140px !important;
+    margin-right: 8px !important;
+    padding: 0 16px !important;
+    text-transform: none !important;
+    font-weight: 700 !important;
+    letter-spacing: normal !important;
+}
+.v-tab--selected {
+    background: rgba(0, 156, 241, 0.05) !important;
+    border-radius: 8px 8px 0 0 !important;
+}
+.v-theme--dark .v-tab--selected {
+    background: rgba(0, 156, 241, 0.1) !important;
+}
+
+/* ==========================================
+   GLOBAL BRAND COLOR OVERRIDES
+   ========================================== */
+/* Safety net: flatten any leftover inline indigo gradients to the solid brand navy */
+[style*="linear-gradient(135deg, #4f46e5"],
+[style*="linear-gradient(135deg, #6366f1"],
+[style*="linear-gradient(135deg, #009cf1 0%, #0f2d88"] {
+    background: #0f2d88 !important;
+}
+
+/* Override tailwind indigo styles globally */
+.bg-indigo {
+    background-color: #009cf1 !important;
+}
+.text-indigo {
+    color: #009cf1 !important;
+}
+.text-indigo-darken-3 {
+    color: #0284c7 !important;
+}
+.text-indigo-darken-4 {
+    color: #0f2d88 !important;
+}
+.bg-indigo-lighten-5 {
+    background-color: #e0f2fe !important;
+}
+.border-indigo {
+    border-color: #009cf1 !important;
+}
+.text-indigo-accent-2 {
+    color: #009cf1 !important;
+}
+
+/* ==========================================
+   SHARED UTILITIES (consolidated from components)
+   ========================================== */
+.font-mono {
+    font-family: monospace, Courier, monospace;
+}
+.tracking-wider {
+    letter-spacing: 0.05em;
+}
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+.table-modern {
+    border-radius: 12px;
+}
+.trash-row {
+    transition: all 0.2s ease-in-out;
+}
+.trash-row:hover {
+    background-color: rgba(244, 63, 94, 0.04) !important;
+}

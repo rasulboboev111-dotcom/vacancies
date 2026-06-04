@@ -1,0 +1,308 @@
+<script setup>
+import { router } from '@inertiajs/vue3';
+import {
+    Archive,
+    Briefcase,
+    DoorOpen,
+    GitFork,
+    History,
+    LayoutDashboard,
+    LogOut,
+    Menu,
+    Shield,
+    Trash2,
+    User,
+    Users,
+    Workflow,
+} from '@lucide/vue';
+import { ref } from 'vue';
+
+const drawer = ref(true);
+
+function logout() {
+    router.post(route('logout'));
+}
+</script>
+
+<template>
+    <v-app>
+        <!-- Navigation Drawer -->
+        <v-navigation-drawer
+            v-model="drawer"
+            elevation="0"
+            class="border-r"
+            color="surface"
+            width="260"
+        >
+            <v-list-item class="py-5 text-white" style="background: #009cf1">
+                <template #prepend>
+                    <img src="https://tojiktelecom.tj/logonew.svg" class="mr-3" style="height: 32px; width: auto; max-width: 60px; filter: brightness(0) invert(1);" alt="Tojiktelecom">
+                </template>
+                <v-list-item-title class="text-h6 font-weight-black tracking-wide">
+                    TOJIKTELECOM
+                </v-list-item-title>
+                <v-list-item-subtitle class="text-caption text-white opacity-70 font-weight-medium">
+                    Идоракунии кадрҳо
+                </v-list-item-subtitle>
+            </v-list-item>
+
+            <v-divider />
+
+            <v-list density="comfortable" nav class="mt-4 px-2">
+                <v-list-item
+                    title="Лавҳаи асосӣ"
+                    :active="route().current('dashboard')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('dashboard'))"
+                >
+                    <template #prepend>
+                        <LayoutDashboard class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    title="Сохтор"
+                    :active="route().current('structure.*')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('structure.index'))"
+                >
+                    <template #prepend>
+                        <Workflow class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    title="Кормандон"
+                    :active="route().current('employees.index')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('employees.index'))"
+                >
+                    <template #prepend>
+                        <Users class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    title="Ҷобаҷогузорӣ"
+                    :active="route().current('rotations.index')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('rotations.index'))"
+                >
+                    <template #prepend>
+                        <GitFork class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    title="Вакансияҳо"
+                    :active="route().current('vacancies.*')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('vacancies.index'))"
+                >
+                    <template #prepend>
+                        <DoorOpen class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    title="Бойгонӣ (Нафақахӯрон)"
+                    :active="route().current('employees.archive')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('employees.archive'))"
+                >
+                    <template #prepend>
+                        <Archive class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    title="Вазифаҳо"
+                    :active="route().current('positions.*')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('positions.index'))"
+                >
+                    <template #prepend>
+                        <Briefcase class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <!-- Show only for Admin -->
+                <v-list-item
+                    v-if="$page.props.auth.user.roles.includes('Admin')"
+                    title="Корбарон"
+                    :active="route().current('users.*')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('users.index'))"
+                >
+                    <template #prepend>
+                        <Shield class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    v-if="$page.props.auth.user.roles.includes('Admin')"
+                    title="Сабти амалҳо"
+                    :active="route().current('activity-logs.*')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('activity-logs.index'))"
+                >
+                    <template #prepend>
+                        <History class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    v-if="$page.props.auth.user.permissions.includes('delete employees')"
+                    title="Сабад"
+                    :active="route().current('trash.*')"
+                    color="red"
+                    rounded="lg"
+                    class="mb-1"
+                    @click="router.visit(route('trash.index'))"
+                >
+                    <template #prepend>
+                        <Trash2 class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+            </v-list>
+        </v-navigation-drawer>
+
+        <!-- AppBar / Header -->
+        <v-app-bar elevation="0" class="border-b" color="surface">
+            <template #prepend>
+                <v-btn icon class="ml-1" @click="drawer = !drawer">
+                    <Menu class="h-5 w-5" />
+                </v-btn>
+            </template>
+
+            <v-toolbar-title class="font-weight-bold text-indigo-darken-3 text-subtitle-1">
+                <slot name="header" />
+            </v-toolbar-title>
+
+            <v-spacer />
+
+            <!-- User Menu -->
+            <v-menu min-width="200px" rounded="xl">
+                <template #activator="{ props: menuProps }">
+                    <v-btn icon v-bind="menuProps" class="mr-3 hover-scale-btn">
+                        <v-avatar color="indigo" size="38">
+                            <span class="text-white text-subtitle-1 font-weight-bold">
+                                {{ $page.props.auth.user.name.charAt(0).toUpperCase() }}
+                            </span>
+                        </v-avatar>
+                    </v-btn>
+                </template>
+                <v-card class="mt-2 border rounded-xl pa-3">
+                    <v-card-text class="pa-2">
+                        <div class="mx-auto text-center">
+                            <v-avatar color="indigo" size="48" class="mb-2">
+                                <span class="text-white text-h5 font-weight-bold">
+                                    {{ $page.props.auth.user.name.charAt(0).toUpperCase() }}
+                                </span>
+                            </v-avatar>
+                            <h4 class="font-weight-bold text-indigo-darken-4">
+                                {{ $page.props.auth.user.name }}
+                            </h4>
+                            <p class="text-caption text-grey mt-1 font-weight-medium">
+                                {{ $page.props.auth.user.email }}
+                            </p>
+
+                            <v-chip size="small" color="indigo" variant="tonal" class="mt-2 font-weight-black text-uppercase">
+                                {{ $page.props.auth.user.roles.length > 0 ? $page.props.auth.user.roles.join(', ') : 'Нақш надорад' }}
+                            </v-chip>
+
+                            <v-divider class="my-3" />
+
+                            <v-btn
+                                variant="text"
+                                rounded="lg"
+                                block
+                                class="text-left justify-start font-weight-bold text-grey-darken-3"
+                                @click="router.visit(route('profile.edit'))"
+                            >
+                                <template #prepend>
+                                    <User class="mr-2 h-4 w-4 text-indigo" />
+                                </template>
+                                Профил
+                            </v-btn>
+
+                            <v-btn
+                                variant="text"
+                                color="error"
+                                rounded="lg"
+                                block
+                                class="text-left justify-start mt-1 font-weight-bold"
+                                @click="logout"
+                            >
+                                <template #prepend>
+                                    <LogOut class="mr-2 h-4 w-4" />
+                                </template>
+                                Баромадан
+                            </v-btn>
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-menu>
+        </v-app-bar>
+
+        <!-- Main Content -->
+        <v-main class="bg-background">
+            <v-container fluid class="pa-6">
+                <!-- Alert Messages -->
+                <v-slide-y-transition>
+                    <v-alert
+                        v-if="$page.props.flash && $page.props.flash.success"
+                        type="success"
+                        variant="tonal"
+                        closable
+                        class="mb-4 rounded-lg font-weight-bold"
+                    >
+                        {{ $page.props.flash.success }}
+                    </v-alert>
+                </v-slide-y-transition>
+
+                <v-slide-y-transition>
+                    <v-alert
+                        v-if="$page.props.flash && $page.props.flash.error"
+                        type="error"
+                        variant="tonal"
+                        closable
+                        class="mb-4 rounded-lg font-weight-bold"
+                    >
+                        {{ $page.props.flash.error }}
+                    </v-alert>
+                </v-slide-y-transition>
+
+                <slot />
+            </v-container>
+        </v-main>
+    </v-app>
+</template>
+
+<style scoped>
+.v-list-item--active {
+    font-weight: 800 !important;
+}
+.v-list-item--active .nav-icon-color {
+    color: inherit !important;
+    opacity: 1 !important;
+}
+</style>

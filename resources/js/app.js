@@ -1,0 +1,58 @@
+import { createInertiaApp } from '@inertiajs/vue3';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+
+import { createApp, h } from 'vue';
+// Vuetify
+import { createVuetify } from 'vuetify';
+import { ZiggyVue } from '../../vendor/tightenco/ziggy';
+import '../css/app.css';
+
+import './bootstrap';
+import 'vuetify/styles';
+import '@mdi/font/css/materialdesignicons.css';
+
+const vuetify = createVuetify({
+    theme: {
+        defaultTheme: 'light',
+        themes: {
+            light: {
+                colors: {
+                    'primary': '#009cf1',
+                    'secondary': '#009cf1',
+                    'background': '#F8FAFC',
+                    'surface': '#FFFFFF',
+                    'success': '#16a34a',
+                    'error': '#dc2626',
+                    'warning': '#f59e0b',
+                    'info': '#009cf1',
+                    'indigo': '#009cf1',
+                    'indigo-lighten-5': '#e0f2fe',
+                    'indigo-darken-3': '#0284c7',
+                    'indigo-darken-4': '#009cf1',
+                    'indigo-accent-2': '#009cf1',
+                },
+            },
+        },
+    },
+});
+
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+createInertiaApp({
+    title: title => `${title} - ${appName}`,
+    resolve: name =>
+        resolvePageComponent(
+            `./Pages/${name}.vue`,
+            import.meta.glob('./Pages/**/*.vue'),
+        ),
+    setup({ el, App, props, plugin }) {
+        return createApp({ render: () => h(App, props) })
+            .use(plugin)
+            .use(ZiggyVue)
+            .use(vuetify)
+            .mount(el);
+    },
+    progress: {
+        color: '#4B5563',
+    },
+});

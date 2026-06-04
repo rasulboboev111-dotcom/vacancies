@@ -1,0 +1,113 @@
+<script setup>
+import { useForm as useInertiaForm } from '@inertiajs/vue3';
+import { Briefcase } from '@lucide/vue';
+import { toTypedSchema } from '@vee-validate/zod';
+import { useForm as useVeeForm } from 'vee-validate';
+import { watch } from 'vue';
+import { positionSchema } from '@/lib/schemas';
+
+const props = defineProps({
+    position: { type: Object, default: null }, // null → create
+});
+
+const open = defineModel({ type: Boolean, default: false });
+
+// vee-validate owns instant client-side validation (the zod schema); Inertia
+// owns the actual submit and surfaces any server-side errors back into the form.
+const { defineField, errors, handleSubmit, resetForm, setFieldError } = useVeeForm({
+    validationSchema: toTypedSchema(positionSchema),
+    initialValues: { name: '' },
+});
+const [name, nameAttrs] = defineField('name');
+
+const inertia = useInertiaForm({ name: '' });
+
+watch(open, (visible) => {
+    if (visible) {
+        resetForm({ values: { name: props.position?.name ?? '' } });
+    }
+});
+
+const submit = handleSubmit((values) => {
+    inertia.name = values.name;
+
+    const onSuccess = () => {
+        open.value = false;
+    };
+    const onError = (serverErrors) => {
+        if (serverErrors.name)
+            setFieldError('name', serverErrors.name);
+    };
+
+    if (props.position)
+        inertia.put(route('positions.update', props.position.id), { onSuccess, onError });
+    else
+        inertia.post(route('positions.store'), { onSuccess, onError });
+});
+</script>
+
+<template>
+    <v-dialog v-model="open" max-width="520px" persistent>
+        <v-card class="rounded-xl overflow-hidden" elevation="8">
+            <!-- Premium Gradient Header -->
+            <div style="background: #009cf1; padding: 20px 24px;">
+                <div class="d-flex align-center">
+                    <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
+                        <Briefcase style="width: 22px; height: 22px; color: white;" />
+                    </v-avatar>
+                    <div class="ml-4">
+                        <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">
+                            {{ position ? 'Таҳрир' : 'Вазифаи нав' }}
+                        </div>
+                        <div style="color: white; font-size: 1.1rem; font-weight: 800;">
+                            {{ position ? name || 'Вазифа' : 'Илова кардани вазифа' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <v-card-text class="pa-6">
+                <v-form @submit.prevent="submit">
+                    <v-text-field
+                        v-model="name"
+                        v-bind="nameAttrs"
+                        label="Номи вазифа"
+                        variant="outlined"
+                        density="comfortable"
+                        rounded="lg"
+                        :error-messages="errors.name"
+                        class="mb-2"
+                    />
+                </v-form>
+            </v-card-text>
+
+            <v-divider />
+
+            <v-card-actions class="pa-5 d-flex justify-end" style="gap: 12px;">
+                <v-btn
+                    variant="tonal"
+                    color="grey"
+                    rounded="lg"
+                    size="large"
+                    :disabled="inertia.processing"
+                    class="px-6 font-weight-bold"
+                    @click="open = false"
+                >
+                    Бекор кардан
+                </v-btn>
+                <v-btn
+                    color="indigo"
+                    variant="flat"
+                    rounded="lg"
+                    size="large"
+                    :loading="inertia.processing"
+                    class="px-6 font-weight-bold text-white"
+                    style="box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.4);"
+                    @click="submit"
+                >
+                    Захира кардан
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+</template>
