@@ -214,6 +214,40 @@ class EmployeeTest extends TestCase
                 ->where('employees.data.0.full_name', 'Alice Permanent'));
     }
 
+    public function test_admin_can_search_managers_capped_and_by_name(): void
+    {
+        $this->makeEmployee($this->branch1->id, 'Alice Manager');
+        $this->makeEmployee($this->branch2->id, 'Bob Other');
+
+        $this->actingAs($this->admin)
+            ->getJson(route('employees.managers', ['search' => 'Alice']))
+            ->assertOk()
+            ->assertJsonCount(1)
+            ->assertJsonFragment(['full_name' => 'Alice Manager']);
+    }
+
+    public function test_manager_search_is_scoped_to_branch_for_non_admin(): void
+    {
+        $this->makeEmployee($this->branch1->id, 'Own Branch Emp');
+        $this->makeEmployee($this->branch2->id, 'Other Branch Emp');
+
+        $this->actingAs(User::findOrFail($this->branchUser->id))
+            ->getJson(route('employees.managers'))
+            ->assertOk()
+            ->assertJsonFragment(['full_name' => 'Own Branch Emp'])
+            ->assertJsonMissing(['full_name' => 'Other Branch Emp']);
+    }
+
+    public function test_manager_search_is_forbidden_for_user_without_branch(): void
+    {
+        $stray = User::factory()->create(['branch_id' => null]);
+        $stray->assignRole('User');
+
+        $this->actingAs(User::findOrFail($stray->id))
+            ->getJson(route('employees.managers'))
+            ->assertForbidden();
+    }
+
     public function test_duplicate_inn_is_rejected(): void
     {
         Employee::create([

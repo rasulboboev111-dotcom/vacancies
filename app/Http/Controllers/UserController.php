@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class UserController extends Controller
 {
@@ -23,18 +25,14 @@ class UserController extends Controller
     {
         Gate::authorize('viewAny', User::class);
 
-        $query = User::with(['branch', 'roles']);
-
-        // Search by name or email
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
-        $users = $query->latest()->latest('id')->paginate(10)->withQueryString();
+        $users = QueryBuilder::for(User::with(['branch', 'roles']))
+            ->allowedFilters([
+                AllowedFilter::scope('search'),
+            ])
+            ->latest()
+            ->latest('id')
+            ->paginate(10)
+            ->withQueryString();
 
         $branches = Branch::orderBy('name')->get();
         $roles = Role::whereIn('name', [User::ROLE_ADMIN, User::ROLE_USER])
@@ -54,7 +52,7 @@ class UserController extends Controller
             'users' => $users,
             'branches' => $branches,
             'roles' => $roles,
-            'filters' => $request->only(['search']),
+            'filters' => $request->input('filter', []),
         ]);
     }
 

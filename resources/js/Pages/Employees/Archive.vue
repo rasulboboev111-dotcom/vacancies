@@ -1,6 +1,6 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
-import { Archive, RotateCcw } from '@lucide/vue';
+import { Archive, RotateCcw, Search } from '@lucide/vue';
 import { watchDebounced } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
@@ -119,7 +119,7 @@ function changePage(page) {
                 <v-col cols="12" md="6">
                     <v-text-field
                         v-model="search"
-                        prepend-inner-icon="mdi-magnify"
+                        :prepend-inner-icon="Search"
                         label="Ҷустуҷӯ аз рӯи ному насаб, ИНН ё вазифа..."
                         variant="outlined"
                         density="comfortable"

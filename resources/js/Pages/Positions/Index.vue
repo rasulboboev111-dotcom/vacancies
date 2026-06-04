@@ -1,6 +1,7 @@
 <script setup>
 import { Head, usePage } from '@inertiajs/vue3';
-import { Briefcase, Plus } from '@lucide/vue';
+import { Briefcase, Plus, Search } from '@lucide/vue';
+import { refDebounced } from '@vueuse/core';
 import { computed, ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PositionCard from '@/Pages/Positions/PositionCard.vue';
@@ -15,15 +16,17 @@ const page = usePage();
 const isAdmin = computed(() => page.props.auth.user.roles.includes('Admin'));
 
 const search = ref('');
+// Debounce the local filter so it doesn't recompute on every keystroke (@vueuse/core).
+const debouncedSearch = refDebounced(search, 300);
 const dialog = ref(false);
 const deleteDialog = ref(false);
 const editingPosition = ref(null);
 const positionToDelete = ref(null);
 
 const filteredPositions = computed(() => {
-    if (!search.value)
+    if (!debouncedSearch.value)
         return props.positions;
-    const q = search.value.toLowerCase();
+    const q = debouncedSearch.value.toLowerCase();
     return props.positions.filter(p => p.name?.toLowerCase().includes(q));
 });
 
@@ -59,7 +62,7 @@ function openDeleteDialog(position) {
             <v-col cols="12" md="6">
                 <v-text-field
                     v-model="search"
-                    prepend-inner-icon="mdi-magnify"
+                    :prepend-inner-icon="Search"
                     label="Ҷустуҷӯ аз рӯи номи вазифа..."
                     variant="outlined"
                     density="comfortable"

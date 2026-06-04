@@ -2,6 +2,7 @@
 import { useForm as useInertiaForm } from '@inertiajs/vue3';
 import { FileText, IdCard, User, UserPlus } from '@lucide/vue';
 import { toTypedSchema } from '@vee-validate/zod';
+import { watchDebounced } from '@vueuse/core';
 import { useForm as useVeeForm } from 'vee-validate';
 import { computed, ref, watch } from 'vue';
 import { employeeSchema } from '@/lib/schemas';
@@ -13,7 +14,6 @@ const props = defineProps({
     types: { type: Array, default: () => [] },
     positions: { type: Array, default: () => [] },
     departments: { type: Array, default: () => [] },
-    managers: { type: Array, default: () => [] },
     nationalities: { type: Array, default: () => [] },
     educations: { type: Array, default: () => [] },
     specialties: { type: Array, default: () => [] },
@@ -116,6 +116,32 @@ const [gender, genderAttrs] = defineField('gender');
 const [positionId, positionIdAttrs] = defineField('position_id');
 const [departmentId, departmentIdAttrs] = defineField('department_id');
 const [managerId, managerIdAttrs] = defineField('manager_id');
+
+// Direct-manager picker: searched server-side (employees.managers, capped at
+// 20) instead of shipping the whole workforce. Options are refreshed as the
+// user types; the currently-selected manager is always kept in the list so its
+// name renders even when it isn't in the latest search results.
+const managerOptions = ref([]);
+const managerSearch = ref('');
+const managerLoading = ref(false);
+
+async function fetchManagers() {
+    managerLoading.value = true;
+    try {
+        const { data } = await window.axios.get(route('employees.managers'), {
+            params: { search: managerSearch.value },
+        });
+        const selected = managerOptions.value.find(m => m.id === managerId.value);
+        managerOptions.value = selected && !data.some(m => m.id === selected.id)
+            ? [selected, ...data]
+            : data;
+    }
+    finally {
+        managerLoading.value = false;
+    }
+}
+
+watchDebounced(managerSearch, fetchManagers, { debounce: 300 });
 const [hireDate, hireDateAttrs] = defineField('hire_date');
 const [dismissalDate, dismissalDateAttrs] = defineField('dismissal_date');
 const [dismissalReason, dismissalReasonAttrs] = defineField('dismissal_reason');
@@ -208,6 +234,13 @@ watch(open, (visible) => {
     activeTab.value = 0;
 
     const e = props.employee;
+    // Seed the manager picker so the current manager's name shows on edit, then
+    // (re)load the first page of options for the dropdown.
+    managerOptions.value = e?.manager_id && e?.manager
+        ? [{ id: Number(e.manager_id), full_name: e.manager.full_name }]
+        : [];
+    managerSearch.value = '';
+    fetchManagers();
     if (e) {
         resetForm({
             values: {
@@ -357,7 +390,7 @@ const submit = handleSubmit(
                                 </v-col>
 
                                 <v-col cols="12" sm="6">
-                                    <v-autocomplete v-model="managerId" v-bind="managerIdAttrs" :items="managers" item-title="full_name" item-value="id" label="Роҳбари бевосита" variant="outlined" density="comfortable" rounded="lg" clearable :error-messages="errors.manager_id" />
+                                    <v-autocomplete v-model="managerId" v-bind="managerIdAttrs" v-model:search="managerSearch" :items="managerOptions" :loading="managerLoading" no-filter item-title="full_name" item-value="id" label="Роҳбари бевосита" variant="outlined" density="comfortable" rounded="lg" clearable :error-messages="errors.manager_id" />
                                 </v-col>
 
                                 <v-col cols="12" sm="6">

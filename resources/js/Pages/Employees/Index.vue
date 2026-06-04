@@ -14,11 +14,13 @@ import EmployeeViewDialog from '@/Pages/Employees/EmployeeViewDialog.vue';
 const props = defineProps({
     employees: { type: Object, required: true },
     branches: { type: Array, required: true },
-    categories: { type: Array, required: true },
     types: { type: Array, required: true },
-    positions: { type: Array, required: true },
     departments: { type: Array, default: () => [] },
-    managers: { type: Array, required: true },
+    // Deferred (Inertia group "form") — absent on first paint, streamed in
+    // after render, so they default to empty until they arrive. (managers are
+    // fetched on demand inside the form via a searchable endpoint.)
+    categories: { type: Array, default: () => [] },
+    positions: { type: Array, default: () => [] },
     nationalities: { type: Array, default: () => [] },
     educations: { type: Array, default: () => [] },
     specialties: { type: Array, default: () => [] },
@@ -76,12 +78,16 @@ function applyFilters() {
     router.get(route('employees.index'), filterQuery(), {
         preserveState: true,
         replace: true,
+        // Re-fetch only the list (+ filters echo); the toolbar/form reference
+        // data is unchanged, so keep it out of every filter request.
+        only: ['employees', 'filters'],
     });
 }
 
 function changePage(p) {
     router.get(route('employees.index'), { page: p, ...filterQuery() }, {
         preserveState: true,
+        only: ['employees', 'filters'],
     });
 }
 
@@ -250,7 +256,6 @@ function openRotationDialog(employee) {
             :types="types"
             :positions="positions"
             :departments="departments"
-            :managers="managers"
             :nationalities="nationalities"
             :educations="educations"
             :specialties="specialties"

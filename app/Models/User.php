@@ -64,6 +64,21 @@ class User extends Authenticatable
     }
 
     /**
+     * Filter users whose name or email matches the search term.
+     */
+    public function scopeSearch($query, ?string $term)
+    {
+        if ($term === null || $term === '') {
+            return $query;
+        }
+
+        return $query->where(function ($q) use ($term) {
+            $q->where('name', 'like', "%{$term}%")
+                ->orWhere('email', 'like', "%{$term}%");
+        });
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>

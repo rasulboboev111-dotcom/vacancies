@@ -3,6 +3,7 @@ import { useForm } from '@inertiajs/vue3';
 import { ArrowLeftRight } from '@lucide/vue';
 import { watch } from 'vue';
 import { useBranchDepartments } from '@/composables/useBranchDepartments';
+import { today } from '@/lib/date';
 
 const props = defineProps({
     employee: { type: Object, default: null },
@@ -18,7 +19,7 @@ const form = useForm({
     branch_id: null,
     position_id: null,
     department_id: null,
-    rotation_date: new Date().toISOString().substring(0, 10),
+    rotation_date: today(),
     reason: '',
 });
 
@@ -32,7 +33,7 @@ watch(open, (visible) => {
     form.branch_id = employee.branch_id ? Number(employee.branch_id) : null;
     form.position_id = employee.position_id ? Number(employee.position_id) : null;
     form.department_id = employee.department_id ? Number(employee.department_id) : null;
-    form.rotation_date = new Date().toISOString().substring(0, 10);
+    form.rotation_date = today();
     form.reason = '';
     form.clearErrors();
 });

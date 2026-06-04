@@ -17,6 +17,7 @@ use App\Models\Position;
 use App\Models\Rotation;
 use App\Models\Specialty;
 use App\Services\EmployeeService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -38,7 +39,15 @@ class EmployeeController extends Controller
 
         $user = $request->user();
 
-        $base = Employee::with(['branch', 'department', 'position', 'manager'])
+        // Eager-load only the columns the list/view/edit actually read (the
+        // table & dialogs use branch/department/position name and manager
+        // full_name), instead of hydrating four full related models per row.
+        $base = Employee::with([
+            'branch:id,name',
+            'department:id,name',
+            'position:id,name',
+            'manager:id,full_name',
+        ])
             ->active()
             ->viewableBy($user)
             ->latest()
@@ -59,6 +68,28 @@ class EmployeeController extends Controller
             $this->referenceData($user),
             ['filters' => $request->input('filter', [])],
         ));
+    }
+
+    /**
+     * Search employees for the "direct manager" picker (server-side, capped),
+     * so the form never has to ship the entire workforce. Scoped to the user's
+     * branch for non-admins, mirroring the employees they may manage.
+     */
+    public function managers(Request $request): JsonResponse
+    {
+        Gate::authorize('viewAny', Employee::class);
+
+        $user = $request->user();
+        $term = trim((string) $request->input('search', ''));
+
+        $managers = Employee::query()
+            ->when(! $user->hasRole('Admin'), fn ($q) => $q->where('branch_id', $user->branch_id))
+            ->when($term !== '', fn ($q) => $q->where('full_name', 'like', "%{$term}%"))
+            ->orderBy('full_name')
+            ->limit(20)
+            ->get(['id', 'full_name']);
+
+        return response()->json($managers);
     }
 
     /**
@@ -183,47 +214,50 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Reference vocabularies for the create/edit form. A user without a branch
-     * (and not an admin) gets empty lists since they may not manage employees.
+     * Reference vocabularies for the employees screen.
+     *
+     * Only branches/departments/types are needed for the toolbar filters on
+     * first paint, so they load immediately. Everything else is consumed solely
+     * by the create/edit & rotation dialogs, so it is deferred (Inertia group
+     * "form"): the list renders first and the form data streams in afterwards,
+     * and it is skipped on filter/pagination partial reloads (`only`). A user
+     * without a branch (and not an admin) may not manage employees → empty lists.
      *
      * @return array<string, mixed>
      */
     private function referenceData($user): array
     {
-        if (! $user->hasRole('Admin') && $user->branch_id === null) {
-            return [
-                'branches' => collect(), 'categories' => collect(), 'types' => collect(),
-                'positions' => collect(), 'departments' => collect(), 'managers' => collect(),
-                'nationalities' => collect(), 'educations' => collect(),
-                'specialties' => collect(), 'birthPlaces' => collect(),
-            ];
-        }
-
-        $departmentsQuery = Department::query()->orderBy('name');
-        $managersQuery = Employee::query()->orderBy('full_name');
-
-        if (! $user->hasRole('Admin')) {
-            $departmentsQuery->where('branch_id', $user->branch_id);
-            $managersQuery->where('branch_id', $user->branch_id);
-        }
+        $isAdmin = $user->hasRole('Admin');
+        $canManage = $isAdmin || $user->branch_id !== null;
+        $branchId = $user->branch_id;
 
         return [
-            'branches' => Branch::orderBy('name')->get(),
-            'categories' => collect(Category::cases())->map(fn (Category $c) => [
-                'value' => $c->value,
-                'label' => $c->label(),
-            ]),
+            // Immediate — required by the toolbar filters.
+            'branches' => $canManage ? Branch::orderBy('name')->get() : collect(),
+            'departments' => $canManage
+                ? Department::query()
+                    ->when(! $isAdmin, fn ($q) => $q->where('branch_id', $branchId))
+                    ->orderBy('name')
+                    ->get(['id', 'branch_id', 'name', 'code'])
+                : collect(),
             'types' => collect(EmploymentType::cases())->map(fn (EmploymentType $t) => [
                 'id' => $t->value,
                 'name' => $t->label(),
             ]),
-            'positions' => Position::orderBy('name')->get(),
-            'departments' => $departmentsQuery->get(['id', 'branch_id', 'name', 'code']),
-            'managers' => $managersQuery->get(['id', 'full_name']),
-            'nationalities' => Nationality::orderBy('name')->pluck('name'),
-            'educations' => Education::orderBy('name')->pluck('name'),
-            'specialties' => Specialty::orderBy('name')->pluck('name'),
-            'birthPlaces' => BirthPlace::orderBy('name')->pluck('name'),
+
+            // Deferred (group "form") — only the dialogs consume these, so they
+            // never bloat the list's initial load or its partial reloads.
+            'categories' => Inertia::defer(fn () => collect(Category::cases())->map(fn (Category $c) => [
+                'value' => $c->value,
+                'label' => $c->label(),
+            ]), 'form'),
+            'positions' => Inertia::defer(fn () => $canManage ? Position::orderBy('name')->get() : collect(), 'form'),
+            // managers are fetched on demand via the searchable endpoint
+            // (employees.managers) — never shipped as a full list.
+            'nationalities' => Inertia::defer(fn () => Nationality::orderBy('name')->pluck('name'), 'form'),
+            'educations' => Inertia::defer(fn () => Education::orderBy('name')->pluck('name'), 'form'),
+            'specialties' => Inertia::defer(fn () => Specialty::orderBy('name')->pluck('name'), 'form'),
+            'birthPlaces' => Inertia::defer(fn () => BirthPlace::orderBy('name')->pluck('name'), 'form'),
         ];
     }
 }

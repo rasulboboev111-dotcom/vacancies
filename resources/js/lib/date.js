@@ -26,3 +26,10 @@ export function formatDateTime(dateStr) {
     const date = dayjs(dateStr);
     return date.isValid() ? date.format('DD.MM.YYYY HH:mm') : dateStr;
 }
+
+/**
+ * Today's local date as a `YYYY-MM-DD` string, ready for form/date inputs.
+ */
+export function today() {
+    return dayjs().format('YYYY-MM-DD');
+}

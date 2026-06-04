@@ -1,5 +1,5 @@
 <script setup>
-import { RotateCcw, Trash2, Users } from '@lucide/vue';
+import { RotateCcw, Search, Trash2, Users } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import { formatDateTime } from '@/lib/date';
 
@@ -33,7 +33,7 @@ const filtered = computed(() => {
         </div>
         <v-text-field
             v-model="search"
-            prepend-inner-icon="mdi-magnify"
+            :prepend-inner-icon="Search"
             label="Ҷустуҷӯи зуд аз рӯи ном, ИНН, рамз..."
             variant="outlined"
             density="comfortable"

@@ -1,7 +1,8 @@
 <script setup>
 import { Head, router, usePage } from '@inertiajs/vue3';
 import { Plus, Search, Shield } from '@lucide/vue';
-import { computed, ref, watch } from 'vue';
+import { watchDebounced } from '@vueuse/core';
+import { computed, ref } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import UserDeleteDialog from '@/Pages/Users/UserDeleteDialog.vue';
 import UserFormDialog from '@/Pages/Users/UserFormDialog.vue';
@@ -14,14 +15,6 @@ const props = defineProps({
     filters: { type: Object, required: true },
 });
 
-function debounce(fn, delay) {
-    let timeoutId = null;
-    return (...args) => {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(fn, delay, ...args);
-    };
-}
-
 const page = usePage();
 const currentUserId = computed(() => page.props.auth.user.id);
 
@@ -31,12 +24,26 @@ const deleteDialog = ref(false);
 const editingUser = ref(null);
 const userToDelete = ref(null);
 
-watch(search, debounce((value) => {
-    router.get(route('users.index'), { search: value }, {
+function filterQuery() {
+    return { filter: { search: search.value || undefined } };
+}
+
+function applyFilters() {
+    router.get(route('users.index'), filterQuery(), {
         preserveState: true,
         replace: true,
     });
-}, 300));
+}
+
+function changePage(p) {
+    router.get(route('users.index'), { page: p, ...filterQuery() }, {
+        preserveState: true,
+    });
+}
+
+// Auto-apply the text search while typing, debounced so we don't fire a
+// request on every keystroke (@vueuse/core).
+watchDebounced(search, applyFilters, { debounce: 300 });
 
 function openCreateDialog() {
     editingUser.value = null;
@@ -115,7 +122,7 @@ function openDeleteDialog(user) {
                 :total-visible="7"
                 rounded="circle"
                 active-color="indigo"
-                @update:model-value="(p) => router.visit(route('users.index', { page: p, search }))"
+                @update:model-value="changePage"
             />
         </div>
 

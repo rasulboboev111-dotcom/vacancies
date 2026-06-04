@@ -22,6 +22,12 @@ const drawer = ref(true);
 function logout() {
     router.post(route('logout'));
 }
+
+// Warm a page's data on hover so the click feels instant (Inertia v2 prefetch,
+// cached briefly to avoid re-fetching on repeated hovers).
+function prefetch(name) {
+    router.prefetch(route(name), { method: 'get' }, { cacheFor: '30s' });
+}
 </script>
 
 <template>
@@ -55,6 +61,7 @@ function logout() {
                     color="indigo"
                     rounded="lg"
                     class="mb-1"
+                    @mouseenter="prefetch('dashboard')"
                     @click="router.visit(route('dashboard'))"
                 >
                     <template #prepend>
@@ -68,6 +75,7 @@ function logout() {
                     color="indigo"
                     rounded="lg"
                     class="mb-1"
+                    @mouseenter="prefetch('structure.index')"
                     @click="router.visit(route('structure.index'))"
                 >
                     <template #prepend>
@@ -81,6 +89,7 @@ function logout() {
                     color="indigo"
                     rounded="lg"
                     class="mb-1"
+                    @mouseenter="prefetch('employees.index')"
                     @click="router.visit(route('employees.index'))"
                 >
                     <template #prepend>
@@ -94,6 +103,7 @@ function logout() {
                     color="indigo"
                     rounded="lg"
                     class="mb-1"
+                    @mouseenter="prefetch('rotations.index')"
                     @click="router.visit(route('rotations.index'))"
                 >
                     <template #prepend>
@@ -107,6 +117,7 @@ function logout() {
                     color="indigo"
                     rounded="lg"
                     class="mb-1"
+                    @mouseenter="prefetch('vacancies.index')"
                     @click="router.visit(route('vacancies.index'))"
                 >
                     <template #prepend>
@@ -120,6 +131,7 @@ function logout() {
                     color="indigo"
                     rounded="lg"
                     class="mb-1"
+                    @mouseenter="prefetch('employees.archive')"
                     @click="router.visit(route('employees.archive'))"
                 >
                     <template #prepend>
@@ -133,6 +145,7 @@ function logout() {
                     color="indigo"
                     rounded="lg"
                     class="mb-1"
+                    @mouseenter="prefetch('positions.index')"
                     @click="router.visit(route('positions.index'))"
                 >
                     <template #prepend>
@@ -148,6 +161,7 @@ function logout() {
                     color="indigo"
                     rounded="lg"
                     class="mb-1"
+                    @mouseenter="prefetch('users.index')"
                     @click="router.visit(route('users.index'))"
                 >
                     <template #prepend>
@@ -162,6 +176,7 @@ function logout() {
                     color="indigo"
                     rounded="lg"
                     class="mb-1"
+                    @mouseenter="prefetch('activity-logs.index')"
                     @click="router.visit(route('activity-logs.index'))"
                 >
                     <template #prepend>
@@ -176,6 +191,7 @@ function logout() {
                     color="red"
                     rounded="lg"
                     class="mb-1"
+                    @mouseenter="prefetch('trash.index')"
                     @click="router.visit(route('trash.index'))"
                 >
                     <template #prepend>

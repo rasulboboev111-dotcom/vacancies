@@ -28,6 +28,7 @@ Route::middleware(['auth', 'verified', 'throttle:120,1'])->group(function () {
     Route::post('/employees/{employee}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
     Route::post('/employees/{employee}/rotate', [EmployeeController::class, 'rotate'])->name('employees.rotate');
     Route::get('/rotations', [EmployeeController::class, 'rotationsIndex'])->name('rotations.index');
+    Route::get('/employees/managers', [EmployeeController::class, 'managers'])->name('employees.managers');
 
     Route::resource('employees', EmployeeController::class)->except(['show', 'create', 'edit']);
     Route::resource('branches', BranchController::class)->only(['store', 'update', 'destroy']);

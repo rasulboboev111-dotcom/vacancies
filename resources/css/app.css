@@ -561,3 +561,11 @@ body {
 .trash-row:hover {
     background-color: rgba(244, 63, 94, 0.04) !important;
 }
+
+/* Vuetify icons are now lucide SVG components (see app.js). Lucide ships a
+   fixed 24px svg; scale it to the VIcon font-size so dense/small icons render
+   at the right size, mirroring the old webfont behaviour. */
+.v-icon svg {
+    width: 1em;
+    height: 1em;
+}
