@@ -1,43 +1,57 @@
 <script setup>
+// Clean KPI tile: white card, one calm azure accent on the icon, a large dark
+// number. No full-colour fills — colour here is a brand accent, not a status
+// signal, so all four KPIs read as one consistent family.
 defineProps({
     label: { type: String, required: true },
     value: { type: [Number, String], default: 0 },
     icon: { type: [Object, Function], required: true },
-    gradient: { type: String, default: 'bg-gradient-indigo' },
 });
 </script>
 
 <template>
-    <v-card elevation="0" :class="`rounded-xl pa-5 ${gradient} border-glow relative overflow-hidden transition-hover`">
-        <div class="d-flex justify-between align-center">
-            <div>
-                <span class="text-subtitle-2 text-white-50 font-weight-medium text-uppercase tracking-wider">{{ label }}</span>
-                <h2 class="text-h3 font-weight-black mt-2 text-white">
+    <v-card elevation="0" class="rounded-xl border pa-5 bg-white transition-hover h-100">
+        <div class="d-flex align-center justify-space-between">
+            <div style="min-width: 0;">
+                <div class="stat-label">
+                    {{ label }}
+                </div>
+                <div class="stat-value">
                     {{ value }}
-                </h2>
+                </div>
             </div>
-            <v-avatar rounded="xl" size="64" style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(4px);">
-                <component :is="icon" style="width: 32px; height: 32px; color: white;" />
-            </v-avatar>
+            <span class="stat-icon">
+                <component :is="icon" style="width: 24px; height: 24px;" />
+            </span>
         </div>
-        <div class="glass-shine" />
     </v-card>
 </template>
 
 <style scoped>
-.bg-gradient-indigo {
-    background: #009cf1 !important;
+.stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #6b7280;
+    line-height: 1.3;
 }
-.bg-gradient-emerald {
-    background: #059669 !important;
+.stat-value {
+    margin-top: 8px;
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #0f172a;
 }
-.bg-gradient-amber {
-    background: #d97706 !important;
-}
-.bg-gradient-slate {
-    background: #475569 !important;
-}
-.border-glow {
-    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+.stat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(0, 156, 241, 0.12);
+    color: #009cf1;
+    flex-shrink: 0;
 }
 </style>

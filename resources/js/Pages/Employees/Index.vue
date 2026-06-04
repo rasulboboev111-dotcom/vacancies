@@ -141,9 +141,10 @@ function openRotationDialog(employee) {
 
         <!-- Filters section -->
         <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass mb-6">
-            <v-row class="align-center">
+            <v-row class="align-end">
                 <!-- Search bar -->
                 <v-col cols="12" sm="12" md="3">
+                    <label class="filter-label">Ҷустуҷӯ</label>
                     <v-text-field
                         v-model="search"
                         placeholder="Ном ё вазифа..."
@@ -162,12 +163,13 @@ function openRotationDialog(employee) {
 
                 <!-- Branch Filter (admins only — branch users are scoped to their own branch) -->
                 <v-col v-if="isAdmin" cols="12" sm="4" md="2">
+                    <label class="filter-label">Филиал</label>
                     <v-select
                         v-model="branchId"
                         :items="branches"
                         item-title="name"
                         item-value="id"
-                        label="Филиал"
+                        placeholder="Ҳамаи филиалҳо"
                         variant="solo"
                         density="comfortable"
                         rounded="lg"
@@ -180,12 +182,13 @@ function openRotationDialog(employee) {
 
                 <!-- Department (Шуъба) Filter -->
                 <v-col cols="12" sm="4" md="2">
+                    <label class="filter-label">Шуъба</label>
                     <v-autocomplete
                         v-model="departmentId"
                         :items="filterDepartments"
                         item-title="name"
                         item-value="id"
-                        label="Шуъба"
+                        placeholder="Ҳамаи шуъбаҳо"
                         variant="solo"
                         density="comfortable"
                         rounded="lg"
@@ -199,12 +202,13 @@ function openRotationDialog(employee) {
 
                 <!-- Employment Type Filter -->
                 <v-col cols="12" sm="4" md="2">
+                    <label class="filter-label">Намуди шуғл</label>
                     <v-select
                         v-model="typeId"
                         :items="types"
                         item-title="name"
                         item-value="id"
-                        label="Намуди шуғл"
+                        placeholder="Ҳама"
                         variant="solo"
                         density="comfortable"
                         rounded="lg"

@@ -115,12 +115,13 @@ function changePage(page) {
         <!-- Main Card -->
         <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass mb-6">
             <!-- Search & Filters -->
-            <v-row class="mb-6 align-center">
+            <v-row class="mb-6 align-end">
                 <v-col cols="12" md="6">
+                    <label class="filter-label">Ҷустуҷӯ</label>
                     <v-text-field
                         v-model="search"
                         :prepend-inner-icon="Search"
-                        label="Ҷустуҷӯ аз рӯи ному насаб, ИНН ё вазифа..."
+                        placeholder="Аз рӯи ному насаб, ИНН ё вазифа..."
                         variant="outlined"
                         density="comfortable"
                         rounded="lg"
@@ -131,12 +132,13 @@ function changePage(page) {
                     />
                 </v-col>
                 <v-col v-if="isAdmin" cols="12" md="4">
+                    <label class="filter-label">Филиали пешина</label>
                     <v-select
                         v-model="branchId"
                         :items="branches"
                         item-title="name"
                         item-value="id"
-                        label="Филтр аз рӯи филиали пешина"
+                        placeholder="Ҳамаи филиалҳо"
                         variant="outlined"
                         density="comfortable"
                         rounded="lg"

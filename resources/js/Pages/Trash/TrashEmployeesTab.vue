@@ -28,21 +28,23 @@ const filtered = computed(() => {
 
 <template>
     <div class="d-flex flex-column flex-sm-row justify-space-between align-sm-center mb-6">
-        <div class="text-subtitle-1 font-weight-bold text-indigo-darken-4 mb-3 mb-sm-0">
+        <div class="text-subtitle-1 font-weight-bold text-grey-darken-4 mb-3 mb-sm-0">
             Кормандони несткардашуда
         </div>
-        <v-text-field
-            v-model="search"
-            :prepend-inner-icon="Search"
-            label="Ҷустуҷӯи зуд аз рӯи ном, ИНН, рамз..."
-            variant="outlined"
-            density="comfortable"
-            rounded="lg"
-            hide-details
-            clearable
-            color="rose"
-            style="max-width: 380px; width: 100%;"
-        />
+        <div class="trash-search">
+            <span class="trash-search__label">Ҷустуҷӯи зуд аз рӯи ном, ИНН, рамз</span>
+            <v-text-field
+                v-model="search"
+                :prepend-inner-icon="Search"
+                placeholder="Ному насаб, ИНН ё рамз..."
+                variant="outlined"
+                density="comfortable"
+                rounded="lg"
+                hide-details
+                clearable
+                color="rose"
+            />
+        </div>
     </div>
 
     <v-table class="table-modern border rounded-xl overflow-hidden">
@@ -66,7 +68,7 @@ const filtered = computed(() => {
                 <th class="font-weight-black text-subtitle-2 pa-4 text-rose">
                     Несткардашуда
                 </th>
-                <th class="font-weight-black text-subtitle-2 pa-4 text-rose text-center" style="width: 180px;">
+                <th class="font-weight-black text-subtitle-2 pa-4 text-rose text-center" style="width: 120px;">
                     Амалҳо
                 </th>
             </tr>
@@ -92,35 +94,35 @@ const filtered = computed(() => {
                     {{ formatDateTime(employee.deleted_at) }}
                 </td>
                 <td class="pa-4 text-center">
-                    <div class="d-flex justify-center g-2">
-                        <v-btn
-                            v-if="canManage(employee)"
-                            color="success"
-                            variant="tonal"
-                            size="small"
-                            rounded="lg"
-                            class="mr-2 hover-scale-btn font-weight-bold"
-                            @click="$emit('restore', employee)"
-                        >
-                            <template #prepend>
-                                <RotateCcw style="width: 14px; height: 14px;" />
-                            </template>
-                            Барқарор кардан
-                        </v-btn>
-                        <v-btn
-                            v-if="canManage(employee)"
-                            color="error"
-                            variant="tonal"
-                            size="small"
-                            rounded="lg"
-                            class="hover-scale-btn font-weight-bold"
-                            @click="$emit('force', employee)"
-                        >
-                            <template #prepend>
-                                <Trash2 style="width: 14px; height: 14px;" />
-                            </template>
-                            Нест кардан
-                        </v-btn>
+                    <div class="d-flex justify-center ga-2">
+                        <template v-if="canManage(employee)">
+                            <v-btn
+                                variant="text"
+                                size="small"
+                                icon
+                                rounded="lg"
+                                class="trash-action-btn trash-action-btn--restore"
+                                @click="$emit('restore', employee)"
+                            >
+                                <RotateCcw style="width: 16px; height: 16px;" />
+                                <v-tooltip activator="parent" location="top">
+                                    Барқарор кардан
+                                </v-tooltip>
+                            </v-btn>
+                            <v-btn
+                                variant="text"
+                                size="small"
+                                icon
+                                rounded="lg"
+                                class="trash-action-btn trash-action-btn--delete"
+                                @click="$emit('force', employee)"
+                            >
+                                <Trash2 style="width: 16px; height: 16px;" />
+                                <v-tooltip activator="parent" location="top">
+                                    Нест кардан
+                                </v-tooltip>
+                            </v-btn>
+                        </template>
                         <span v-else class="text-caption text-grey">Танҳо тамошо</span>
                     </div>
                 </td>

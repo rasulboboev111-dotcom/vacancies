@@ -248,6 +248,52 @@ body {
     transform: scale(0.95) !important;
 }
 
+/* Trash action icon buttons (restore / force-delete): quiet grey at rest,
+   their meaning surfaces in colour only on hover — mirroring the action icons
+   on the employees table. */
+.trash-action-btn {
+    color: #9ca3af !important;
+    transition: transform 0.18s ease, color 0.18s ease !important;
+}
+.trash-action-btn:hover {
+    transform: scale(1.12) !important;
+}
+.trash-action-btn:active {
+    transform: scale(0.92) !important;
+}
+.trash-action-btn--restore:hover {
+    color: #16a34a !important;
+}
+.trash-action-btn--delete:hover {
+    color: #e53935 !important;
+}
+
+/* Static search label sitting above a trash-tab search field — replaces the
+   floating Vuetify label so the caption never animates over the input. */
+.trash-search {
+    width: 100%;
+    max-width: 380px;
+}
+.trash-search__label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+/* Generic static caption placed above a filter/search input on listing pages.
+   Replaces Vuetify's floating `label` prop so the caption never animates up
+   over the field when it is focused. */
+.filter-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1.2;
+}
+
 .transition-hover-btn {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     font-weight: 700 !important;
@@ -594,11 +640,8 @@ body {
 .table-modern {
     border-radius: 12px;
 }
-.trash-row {
-    transition: all 0.2s ease-in-out;
-}
-.trash-row:hover {
-    background-color: rgba(244, 63, 94, 0.04) !important;
+.trash-row:nth-child(even) {
+    background: #fafafb;
 }
 
 /* Vuetify icons are now lucide SVG components (see app.js). Lucide ships a

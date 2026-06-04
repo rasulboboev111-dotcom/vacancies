@@ -1,6 +1,6 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
-import { FilterX, History, Search } from '@lucide/vue';
+import { FilterX, History, Search, Trash2, TriangleAlert } from '@lucide/vue';
 import { watchDebounced } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -9,6 +9,7 @@ import ActivityLogItem from '@/Pages/ActivityLogs/ActivityLogItem.vue';
 const props = defineProps({
     logs: { type: Object, required: true },
     filters: { type: Object, required: true },
+    isAdmin: { type: Boolean, default: false },
 });
 
 const search = ref(props.filters.search || '');
@@ -50,12 +51,30 @@ function changePage(page) {
     });
 }
 
-// Tajik-labelled options for the event filter dropdown.
+// Tajik-labelled options for the event filter dropdown. The leading null
+// option ("Ҳама") is the default, so the field always shows a centred value
+// instead of a floating placeholder.
 const eventFilterOptions = [
+    { value: null, title: 'Ҳама' },
     { value: 'created', title: 'Эҷодшуда' },
     { value: 'updated', title: 'Навсозӣшуда' },
     { value: 'deleted', title: 'Несткардашуда' },
 ];
+
+// Clear-log confirmation flow.
+const clearDialog = ref(false);
+const clearing = ref(false);
+
+function clearLogs() {
+    clearing.value = true;
+    router.delete(route('activity-logs.clear'), {
+        preserveScroll: true,
+        onFinish: () => {
+            clearing.value = false;
+            clearDialog.value = false;
+        },
+    });
+}
 </script>
 
 <template>
@@ -69,20 +88,18 @@ const eventFilterOptions = [
             </div>
         </template>
 
-        <!-- Filters section -->
-        <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass mb-6">
-            <v-row class="align-center">
-                <!-- Search bar -->
-                <v-col cols="12" sm="12" md="5">
+        <!-- Toolbar: filters + clear -->
+        <v-card elevation="0" class="rounded-xl border pa-4 bg-surface-glass mb-6 app-form">
+            <v-row class="align-end" dense>
+                <v-col cols="12" md="5">
+                    <label class="filter-label">Ҷустуҷӯ</label>
                     <v-text-field
                         v-model="search"
-                        placeholder="Ҷустуҷӯ аз рӯи тавсифи амал..."
-                        variant="solo"
+                        placeholder="Аз рӯи тавсифи амал..."
+                        variant="outlined"
                         density="comfortable"
                         rounded="lg"
-                        flat
                         hide-details
-                        class="premium-field"
                     >
                         <template #prepend-inner>
                             <Search style="width: 18px; height: 18px; opacity: 0.5;" />
@@ -90,35 +107,48 @@ const eventFilterOptions = [
                     </v-text-field>
                 </v-col>
 
-                <!-- Event Filter -->
-                <v-col cols="12" sm="8" md="4">
+                <v-col cols="12" sm="6" md="3">
+                    <label class="filter-label">Намуди амал</label>
                     <v-select
                         v-model="eventFilter"
                         :items="eventFilterOptions"
                         item-title="title"
                         item-value="value"
-                        label="Намуди амал"
-                        variant="solo"
+                        variant="outlined"
                         density="comfortable"
                         rounded="lg"
-                        flat
                         hide-details
-                        clearable
-                        class="premium-field"
                     />
                 </v-col>
 
-                <!-- Reset button -->
-                <v-col cols="12" sm="4" md="3" class="d-flex align-center justify-md-end justify-center">
+                <v-col cols="auto" class="d-flex align-end">
                     <v-btn
-                        variant="flat"
+                        variant="text"
+                        icon
                         rounded="lg"
-                        class="transition-hover-btn font-weight-bold w-100"
-                        style="background: rgba(0, 156, 241, 0.08) !important; color: #009cf1 !important; border: 1px solid rgba(0, 156, 241, 0.15) !important;"
+                        size="large"
+                        class="text-grey-darken-2"
                         @click="resetFilters"
                     >
+                        <FilterX style="width: 20px; height: 20px;" />
+                        <v-tooltip activator="parent" location="top">
+                            Поксозии филтр
+                        </v-tooltip>
+                    </v-btn>
+                </v-col>
+
+                <v-col v-if="isAdmin" cols="6" sm="3" md="2">
+                    <v-btn
+                        variant="tonal"
+                        color="error"
+                        rounded="lg"
+                        size="large"
+                        class="w-100 font-weight-medium"
+                        :disabled="logs.total === 0"
+                        @click="clearDialog = true"
+                    >
                         <template #prepend>
-                            <FilterX style="width: 16px; height: 16px; color: #009cf1;" />
+                            <Trash2 style="width: 16px; height: 16px;" />
                         </template>
                         Тоза кардан
                     </v-btn>
@@ -126,36 +156,84 @@ const eventFilterOptions = [
             </v-row>
         </v-card>
 
-        <!-- Timeline list -->
-        <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass mb-6">
-            <v-timeline density="compact" align="start" class="activity-timeline">
-                <ActivityLogItem v-for="log in logs.data" :key="log.id" :log="log" />
-
-                <v-timeline-item v-if="logs.data.length === 0" dot-color="grey" size="small">
-                    <div class="text-body-1 text-grey font-weight-medium py-4">
-                        Сабти амалҳо вуҷуд надорад.
-                    </div>
-                </v-timeline-item>
-            </v-timeline>
-
-            <!-- Pagination -->
-            <v-divider class="my-4" />
-            <div class="d-flex justify-space-between align-center pa-2">
-                <div class="text-caption text-grey font-weight-bold">
-                    Нишон дода шуд {{ logs.from || 0 }} - {{ logs.to || 0 }} аз {{ logs.total || 0 }} сабт
+        <!-- Activity feed -->
+        <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass">
+            <div class="d-flex align-center justify-space-between mb-4">
+                <div class="text-subtitle-1 font-weight-bold text-indigo-darken-4">
+                    Таърихи амалҳо
                 </div>
-                <v-pagination
-                    v-if="logs.last_page > 1"
-                    :model-value="logs.current_page"
-                    :length="logs.last_page"
-                    :total-visible="5"
-                    density="comfortable"
-                    rounded="lg"
-                    active-color="indigo"
-                    @update:model-value="changePage"
-                />
+                <span class="text-caption text-grey font-weight-bold">
+                    Ҳамагӣ: {{ logs.total || 0 }}
+                </span>
             </div>
+
+            <div v-if="logs.data.length > 0" class="d-flex flex-column ga-3">
+                <ActivityLogItem v-for="log in logs.data" :key="log.id" :log="log" />
+            </div>
+
+            <div v-else class="text-center py-12">
+                <History style="width: 44px; height: 44px; opacity: 0.4; margin: 0 auto 8px;" class="text-grey" />
+                <div class="text-body-1 text-grey font-weight-medium">
+                    Сабти амалҳо вуҷуд надорад.
+                </div>
+            </div>
+
+            <template v-if="logs.data.length > 0">
+                <v-divider class="my-4" />
+                <div class="d-flex justify-space-between align-center px-1">
+                    <div class="text-caption text-grey font-weight-bold">
+                        Нишон дода шуд {{ logs.from || 0 }} – {{ logs.to || 0 }} аз {{ logs.total || 0 }} сабт
+                    </div>
+                    <v-pagination
+                        v-if="logs.last_page > 1"
+                        :model-value="logs.current_page"
+                        :length="logs.last_page"
+                        :total-visible="5"
+                        density="comfortable"
+                        rounded="lg"
+                        active-color="indigo"
+                        @update:model-value="changePage"
+                    />
+                </div>
+            </template>
         </v-card>
+
+        <!-- Clear confirmation -->
+        <v-dialog v-model="clearDialog" max-width="440px">
+            <v-card class="rounded-xl overflow-hidden" elevation="8">
+                <div class="pa-6 text-center">
+                    <v-avatar color="red-lighten-5" size="56" class="mb-3">
+                        <TriangleAlert style="width: 28px; height: 28px;" class="text-error" />
+                    </v-avatar>
+                    <h3 class="text-h6 font-weight-bold text-grey-darken-4 mb-2">
+                        Тоза кардани таърихи амалҳо?
+                    </h3>
+                    <p class="text-body-2 text-grey-darken-1">
+                        Ҳамаи <b>{{ logs.total || 0 }}</b> сабти аудит нест карда мешавад. Ин амал бебозгашт аст.
+                    </p>
+                </div>
+                <v-divider />
+                <v-card-actions class="pa-4">
+                    <v-btn variant="text" rounded="lg" :disabled="clearing" @click="clearDialog = false">
+                        Бекор кардан
+                    </v-btn>
+                    <v-spacer />
+                    <v-btn
+                        color="error"
+                        variant="flat"
+                        rounded="lg"
+                        class="px-5 font-weight-medium"
+                        :loading="clearing"
+                        @click="clearLogs"
+                    >
+                        <template #prepend>
+                            <Trash2 style="width: 16px; height: 16px;" />
+                        </template>
+                        Бале, тоза кун
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </AuthenticatedLayout>
 </template>
 
@@ -163,8 +241,5 @@ const eventFilterOptions = [
 .bg-surface-glass {
     background: rgba(255, 255, 255, 0.7) !important;
     backdrop-filter: blur(12px);
-}
-.activity-timeline {
-    padding-right: 8px;
 }
 </style>

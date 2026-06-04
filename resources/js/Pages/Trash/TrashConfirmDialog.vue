@@ -22,7 +22,7 @@ const message = computed(() => {
         return '';
 
     const name = props.type === 'employee' ? props.item.full_name : props.item.name;
-    const typeLabels = { employee: 'кормандро', branch: 'филиалро', user: 'корбарро' };
+    const typeLabels = { employee: 'кормандро', branch: 'филиалро', user: 'корбарро', department: 'шуъбаро' };
     const typeLabel = typeLabels[props.type] ?? 'корбарро';
 
     if (props.action === 'restore') {
@@ -32,6 +32,9 @@ const message = computed(() => {
     let warning = `ДИҚҚАТ! Шумо мехоҳед ${typeLabel} "${name}" аз пойгоҳи додаҳо бебозгашт нест кунед.`;
     if (props.type === 'branch') {
         warning += '\n\nИн амал филиалро абадан нест мекунад. Мутмаин шавед, ки ба он сабтҳои дигар вобаста нестанд.';
+    }
+    else if (props.type === 'department') {
+        warning += '\n\nИн амал шуъбаро абадан нест мекунад. Мутмаин шавед, ки ба он зершуъбаҳо вобаста нестанд.';
     }
     else if (props.type === 'user') {
         warning += '\n\nҲисоби корбар бебозгашт нест карда мешавад. Бо он ворид шудан имконнопазир хоҳад буд.';

@@ -1,10 +1,13 @@
 <script setup>
-import { FileCode } from '@lucide/vue';
-import { getEventColor, getEventText, getSubjectText } from '@/Pages/ActivityLogs/activityEvents';
+import { ChevronDown, Clock } from '@lucide/vue';
+import { ref } from 'vue';
+import { getEventText, getSubjectText } from '@/Pages/ActivityLogs/activityEvents';
 
 defineProps({
     log: { type: Object, required: true },
 });
+
+const open = ref(false);
 
 function hasChanges(properties) {
     return properties && (properties.attributes || properties.old);
@@ -14,75 +17,234 @@ function hasChanges(properties) {
 function displayValue(value) {
     return value !== null && value !== '' ? value : 'холӣ';
 }
+
+function initial(name) {
+    return (name || '?').charAt(0).toUpperCase();
+}
 </script>
 
 <template>
-    <v-timeline-item :dot-color="getEventColor(log.event)" size="small" class="mb-6">
-        <div class="d-flex justify-space-between align-center mb-1">
-            <div>
-                <v-chip :color="getEventColor(log.event)" size="x-small" class="mr-2 font-weight-black text-uppercase px-2" variant="flat">
+    <div class="log-row" :class="`log-row--${log.event}`">
+        <div class="log-row__avatar" :class="`log-row__avatar--${log.event}`">
+            {{ initial(log.causer_name) }}
+        </div>
+
+        <div class="log-row__body">
+            <div class="d-flex align-center flex-wrap ga-2 mb-1">
+                <span class="log-row__who">{{ log.causer_name }}</span>
+                <span class="log-row__event" :class="`log-row__event--${log.event}`">
                     {{ getEventText(log.event) }}
-                </v-chip>
-                <span class="font-weight-black text-subtitle-2 text-indigo-darken-3">{{ log.causer_name }}</span>
-                <span class="text-caption text-grey ml-3">{{ log.created_at }}</span>
+                </span>
+                <span class="log-row__subject">{{ getSubjectText(log.subject_type) }}</span>
             </div>
-            <v-chip size="x-small" color="secondary" variant="outlined" class="font-weight-medium">
-                {{ getSubjectText(log.subject_type) }}
-            </v-chip>
-        </div>
 
-        <div class="text-body-1 font-weight-bold text-grey-darken-3 mb-3 pl-1">
-            {{ log.description }}
-        </div>
+            <div class="log-row__desc">
+                {{ log.description }}
+            </div>
 
-        <!-- Changes Diff details -->
-        <v-expansion-panels v-if="hasChanges(log.properties)" class="elevation-0 border rounded-lg overflow-hidden max-width-diff bg-surface">
-            <v-expansion-panel elevation="0">
-                <v-expansion-panel-title class="py-2 px-4 text-caption font-weight-black text-grey-darken-1 d-flex align-center">
-                    <FileCode style="width: 16px; height: 16px; margin-right: 8px;" class="text-indigo" />
-                    Нишон додани тафсилоти тағйирот
-                </v-expansion-panel-title>
-                <v-expansion-panel-text class="pa-0">
-                    <v-table density="compact" class="border-0 table-diff">
+            <div class="d-flex align-center flex-wrap ga-4 mt-2">
+                <span class="log-row__meta">
+                    <Clock style="width: 13px; height: 13px;" /> {{ log.created_at }}
+                </span>
+                <button
+                    v-if="hasChanges(log.properties)"
+                    type="button"
+                    class="log-row__toggle"
+                    @click="open = !open"
+                >
+                    <ChevronDown style="width: 14px; height: 14px;" :class="{ 'log-row__chev--open': open }" />
+                    {{ open ? 'Пинҳон кардани тағйирот' : 'Тафсилоти тағйирот' }}
+                </button>
+            </div>
+
+            <v-expand-transition>
+                <div v-if="open && hasChanges(log.properties)" class="log-row__diff">
+                    <v-table density="compact" class="table-diff">
                         <thead>
-                            <tr class="bg-indigo-lighten-5">
-                                <th class="font-weight-black text-caption text-left pa-2 text-indigo text-uppercase">
+                            <tr>
+                                <th class="diff-head">
                                     Майдон
                                 </th>
-                                <th v-if="log.properties.old" class="font-weight-black text-caption text-left pa-2 text-error text-uppercase">
+                                <th v-if="log.properties.old" class="diff-head text-error">
                                     Буд
                                 </th>
-                                <th class="font-weight-black text-caption text-left pa-2 text-success text-uppercase">
+                                <th class="diff-head text-success">
                                     Шуд
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="(val, key) in log.properties.attributes" :key="key">
-                                <td class="font-weight-bold text-caption text-grey-darken-2 pa-2 font-mono">
+                                <td class="diff-key">
                                     {{ key }}
                                 </td>
-                                <td v-if="log.properties.old" class="text-caption text-error bg-red-lighten-5 pa-2 font-weight-bold">
+                                <td v-if="log.properties.old" class="diff-old">
                                     {{ displayValue(log.properties.old[key]) }}
                                 </td>
-                                <td class="text-caption text-success bg-green-lighten-5 pa-2 font-weight-bold">
+                                <td class="diff-new">
                                     {{ displayValue(val) }}
                                 </td>
                             </tr>
                         </tbody>
                     </v-table>
-                </v-expansion-panel-text>
-            </v-expansion-panel>
-        </v-expansion-panels>
-    </v-timeline-item>
+                </div>
+            </v-expand-transition>
+        </div>
+    </div>
 </template>
 
 <style scoped>
-.max-width-diff {
-    max-width: 100%;
+.log-row {
+    display: flex;
+    gap: 14px;
+    padding: 16px 18px;
+    border: 1px solid #eef1f5;
+    border-left: 3px solid #cbd5e1;
+    border-radius: 12px;
+    background: #ffffff;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
-.table-diff {
-    border-radius: 8px;
+.log-row:hover {
+    box-shadow: 0 6px 18px -10px rgba(15, 23, 42, 0.18);
+}
+.log-row--created {
+    border-left-color: #10b981;
+}
+.log-row--updated {
+    border-left-color: #009cf1;
+}
+.log-row--deleted {
+    border-left-color: #ef4444;
+}
+
+.log-row__avatar {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #475569;
+    background: #f1f5f9;
+}
+.log-row__avatar--created {
+    color: #047857;
+    background: rgba(16, 185, 129, 0.13);
+}
+.log-row__avatar--updated {
+    color: #0284c7;
+    background: rgba(0, 156, 241, 0.13);
+}
+.log-row__avatar--deleted {
+    color: #b91c1c;
+    background: rgba(239, 68, 68, 0.13);
+}
+
+.log-row__body {
+    min-width: 0;
+    flex: 1;
+}
+.log-row__who {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #0f172a;
+}
+.log-row__event {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+.log-row__event--created {
+    color: #047857;
+    background: rgba(16, 185, 129, 0.13);
+}
+.log-row__event--updated {
+    color: #0284c7;
+    background: rgba(0, 156, 241, 0.13);
+}
+.log-row__event--deleted {
+    color: #b91c1c;
+    background: rgba(239, 68, 68, 0.13);
+}
+.log-row__subject {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    padding: 1px 8px;
+    border-radius: 999px;
+}
+.log-row__desc {
+    font-size: 0.875rem;
+    color: #334155;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+.log-row__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+.log-row__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #009cf1;
+    cursor: pointer;
+    background: none;
+    border: 0;
+    padding: 0;
+}
+.log-row__toggle:hover {
+    text-decoration: underline;
+}
+.log-row__chev--open {
+    transform: rotate(180deg);
+    transition: transform 0.2s ease;
+}
+
+.log-row__diff {
+    margin-top: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
     overflow: hidden;
+}
+.table-diff :deep(.diff-head) {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #f8fafc;
+    color: #64748b;
+}
+.table-diff :deep(.diff-key) {
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: #475569;
+}
+.table-diff :deep(.diff-old) {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #b91c1c;
+    background: rgba(239, 68, 68, 0.05);
+    text-decoration: line-through;
+    text-decoration-color: rgba(185, 28, 28, 0.4);
+}
+.table-diff :deep(.diff-new) {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #047857;
+    background: rgba(16, 185, 129, 0.05);
 }
 </style>

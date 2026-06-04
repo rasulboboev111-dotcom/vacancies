@@ -224,20 +224,21 @@ function openDeleteBranch(branch) {
                 <!-- Departments management -->
                 <v-window-item value="departments">
                     <div class="pa-4">
-                        <v-row class="mb-2 align-center">
+                        <v-row class="mb-2 align-end">
                             <v-col cols="12" md="4">
-                                <v-select
-                                    v-if="branchOptions.length > 0"
-                                    v-model="selectedBranchId"
-                                    :items="branchOptions"
-                                    item-title="title"
-                                    item-value="id"
-                                    label="Филиал"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    hide-details
-                                />
+                                <template v-if="branchOptions.length > 0">
+                                    <label class="filter-label">Филиал</label>
+                                    <v-select
+                                        v-model="selectedBranchId"
+                                        :items="branchOptions"
+                                        item-title="title"
+                                        item-value="id"
+                                        variant="outlined"
+                                        density="comfortable"
+                                        rounded="lg"
+                                        hide-details
+                                    />
+                                </template>
                             </v-col>
                             <v-col cols="12" md="8" class="d-flex justify-end">
                                 <v-btn

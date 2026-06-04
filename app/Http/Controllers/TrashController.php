@@ -29,15 +29,26 @@ class TrashController extends Controller
         $usersQuery = User::onlyTrashed()->with('branch');
         $branchesQuery = Branch::onlyTrashed();
 
+        // Departments are branch-scoped: a branch manager sees only their own
+        // branch's trashed departments, the same as employees.
+        $departmentsQuery = Department::onlyTrashed()->with('branch');
+
         if (! $user->hasRole('Admin')) {
             $usersQuery->whereRaw('1=0');
             $branchesQuery->whereRaw('1=0');
+
+            if ($user->branch_id === null) {
+                $departmentsQuery->whereRaw('1=0');
+            } else {
+                $departmentsQuery->where('branch_id', $user->branch_id);
+            }
         }
 
         return Inertia::render('Trash/Index', [
             'employees' => $employeesQuery->latest('deleted_at')->get(),
             'branches' => $branchesQuery->latest('deleted_at')->get(),
             'users' => $usersQuery->latest('deleted_at')->get(),
+            'departments' => $departmentsQuery->latest('deleted_at')->get(),
         ]);
     }
 
@@ -158,6 +169,73 @@ class TrashController extends Controller
         });
 
         return redirect()->back()->with('success', "Филиал '{$name}' аз пойгоҳи додаҳо ба таври қатъӣ нест карда шуд.");
+    }
+
+    /**
+     * Restore the specified soft-deleted department.
+     */
+    public function restoreDepartment($id): RedirectResponse
+    {
+        $department = Department::onlyTrashed()->findOrFail($id);
+
+        Gate::authorize('delete', $department);
+
+        // The (branch, parent, name) and external_id unique indexes are
+        // soft-delete-aware, so a live department may have taken this slot while
+        // the row sat in the trash. Restoring would collide — block clearly.
+        $nameTaken = Department::where('branch_id', $department->branch_id)
+            ->where('name', $department->name)
+            ->where(function ($q) use ($department) {
+                $department->parent_id === null
+                    ? $q->whereNull('parent_id')
+                    : $q->where('parent_id', $department->parent_id);
+            })
+            ->whereKeyNot($department->id)
+            ->exists();
+
+        $externalTaken = $department->external_id !== null
+            && Department::where('external_id', $department->external_id)->whereKeyNot($department->id)->exists();
+
+        if ($nameTaken || $externalTaken) {
+            return redirect()->back()->with('error', "Барқарорсозии шуъба '{$department->name}' имконнопазир: шуъбаи фаъол бо ҳамин ном аллакай вуҷуд дорад.");
+        }
+
+        DB::transaction(function () use ($department) {
+            $department->disableLogging()->restore();
+
+            activity()->performedOn($department)->event('updated')
+                ->log("Шуъба аз сабад барқарор карда шуд: {$department->name}");
+        });
+
+        return redirect()->back()->with('success', "Шуъба '{$department->name}' бомуваффақият барқарор карда шуд.");
+    }
+
+    /**
+     * Permanently delete the specified soft-deleted department.
+     */
+    public function forceDeleteDepartment($id): RedirectResponse
+    {
+        $department = Department::onlyTrashed()->findOrFail($id);
+
+        Gate::authorize('delete', $department);
+
+        // A trashed department is always a leaf (delete blocks while children
+        // exist) and its employee/vacancy references were nulled on soft-delete.
+        // Guard defensively against any lingering child before the hard delete.
+        if (Department::withTrashed()->where('parent_id', $department->id)->exists()) {
+            return redirect()->back()->with('error', "Шуъбаи '{$department->name}'-ро ба таври қатъӣ нест кардан мумкин нест, зеро ба он зершуъбаҳо вобаста шудаанд.");
+        }
+
+        $name = $department->name;
+
+        DB::transaction(function () use ($department, $name) {
+            activity()->performedOn($department)->event('deleted')
+                ->log("Шуъба аз сабад тамоман нест карда шуд: {$name}");
+
+            $department->disableLogging()->forceDelete();
+        });
+
+        return redirect()->back()->with('success', "Шуъба '{$name}' аз пойгоҳи додаҳо ба таври қатъӣ нест карда шуд.");
     }
 
     /**

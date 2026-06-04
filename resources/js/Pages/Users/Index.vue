@@ -73,11 +73,12 @@ function openDeleteDialog(user) {
         </template>
 
         <!-- Search and Action Bar -->
-        <v-row class="mb-6 align-center">
+        <v-row class="mb-6 align-end">
             <v-col cols="12" md="6">
+                <label class="filter-label">Ҷустуҷӯ</label>
                 <v-text-field
                     v-model="search"
-                    label="Ҷустуҷӯ аз рӯи ном ё почтаи электронӣ..."
+                    placeholder="Аз рӯи ном ё почтаи электронӣ..."
                     variant="outlined"
                     density="comfortable"
                     rounded="lg"

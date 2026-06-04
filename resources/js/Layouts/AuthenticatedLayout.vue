@@ -40,7 +40,12 @@ function prefetch(name) {
             color="surface"
             width="260"
         >
-            <v-list-item class="py-5 text-white" style="background: #009cf1">
+            <v-list-item
+                class="text-white logo-bar"
+                style="background: #009cf1; cursor: pointer;"
+                @mouseenter="prefetch('dashboard')"
+                @click="router.visit(route('dashboard'))"
+            >
                 <template #prepend>
                     <img src="https://tojiktelecom.tj/logonew.svg" class="mr-3" style="height: 32px; width: auto; max-width: 60px; filter: brightness(0) invert(1);" alt="Tojiktelecom">
                 </template>
@@ -314,6 +319,15 @@ function prefetch(name) {
 </template>
 
 <style scoped>
+/* Match the logo block to the app-bar height (64px) so the header and the
+   sidebar header line up, and make the whole block a link to the dashboard. */
+.logo-bar {
+    min-height: 64px !important;
+    transition: filter 0.2s ease;
+}
+.logo-bar:hover {
+    filter: brightness(1.05);
+}
 .v-list-item--active {
     font-weight: 800 !important;
 }

@@ -1,31 +1,46 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
-import { Building2, Trash2, User, Users } from '@lucide/vue';
+import { Building2, Network, Trash2, User, Users } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { firstError } from '@/lib/errors';
 import TrashBranchesTab from '@/Pages/Trash/TrashBranchesTab.vue';
 import TrashConfirmDialog from '@/Pages/Trash/TrashConfirmDialog.vue';
+import TrashDepartmentsTab from '@/Pages/Trash/TrashDepartmentsTab.vue';
 import TrashEmployeesTab from '@/Pages/Trash/TrashEmployeesTab.vue';
 import TrashUsersTab from '@/Pages/Trash/TrashUsersTab.vue';
 
-defineProps({
+const props = defineProps({
     employees: { type: Array, required: true },
     branches: { type: Array, required: true },
     users: { type: Array, required: true },
+    departments: { type: Array, default: () => [] },
 });
 
 const { user: currentUser, isAdmin, hasPermission, canManageInBranch } = usePermissions();
 const canManageEmployees = computed(() => hasPermission('delete employees'));
 const canManageTrashedEmployee = employee => canManageInBranch('delete employees', employee.branch_id);
+const canManageTrashedDepartment = department => canManageInBranch('delete departments', department.branch_id);
 
 const tab = ref('employees');
+
+// Clickable summary tiles, each jumps to its tab.
+const tiles = computed(() => [
+    { key: 'employees', label: 'Кормандон', icon: Users, count: props.employees.length },
+    { key: 'departments', label: 'Шуъбаҳо', icon: Network, count: props.departments.length },
+    { key: 'branches', label: 'Филиалҳо', icon: Building2, count: props.branches.length },
+    { key: 'users', label: 'Корбарон', icon: User, count: props.users.length },
+]);
+
+const totalCount = computed(() =>
+    props.employees.length + props.departments.length + props.branches.length + props.users.length,
+);
 
 // Action & Confirmation dialog state
 const confirmDialog = ref(false);
 const dialogAction = ref(''); // 'restore' | 'forceDelete'
-const dialogType = ref(''); // 'employee' | 'branch' | 'user'
+const dialogType = ref(''); // 'employee' | 'department' | 'branch' | 'user'
 const selectedItem = ref(null);
 const processing = ref(false);
 const actionError = ref('');
@@ -42,25 +57,29 @@ function handleConfirm() {
     const type = dialogType.value;
     const item = selectedItem.value;
 
-    if (!item || processing.value)
+    if (!item || processing.value) {
         return;
+    }
 
     const routes = {
         restore: {
             employee: 'trash.employees.restore',
+            department: 'trash.departments.restore',
             branch: 'trash.branches.restore',
             user: 'trash.users.restore',
         },
         forceDelete: {
             employee: 'trash.employees.force',
+            department: 'trash.departments.force',
             branch: 'trash.branches.force',
             user: 'trash.users.force',
         },
     };
 
     const routeName = routes[action]?.[type];
-    if (!routeName)
+    if (!routeName) {
         return;
+    }
 
     // Keep the dialog open (and the button busy) until the request resolves, so
     // a slow connection can't be double-submitted and errors stay visible.
@@ -73,8 +92,6 @@ function handleConfirm() {
             selectedItem.value = null;
         },
         onError: (errors) => {
-            // Surface the failure instead of silently doing nothing; the dialog
-            // stays open so the user can read it and retry.
             actionError.value = firstError(errors, 'Амалиёт иҷро нашуд. Бори дигар кӯшиш кунед.');
         },
         onFinish: () => {
@@ -92,13 +109,13 @@ function handleConfirm() {
 </script>
 
 <template>
-    <Head title="Сабади сабтҳои несткардашуда" />
+    <Head title="Сабад" />
 
     <AuthenticatedLayout>
         <template #header>
-            <div class="d-flex align-center">
-                <Trash2 style="width: 24px; height: 24px; margin-right: 12px;" class="text-rose-accent-4" />
-                <span>Сабади сабтҳои несткардашуда</span>
+            <div class="d-flex align-center text-error">
+                <Trash2 style="width: 24px; height: 24px; margin-right: 12px;" />
+                <span>Сабад (Сабтҳои несткардашуда)</span>
             </div>
         </template>
 
@@ -106,63 +123,64 @@ function handleConfirm() {
             {{ actionError }}
         </v-alert>
 
-        <!-- Header Card with Premium Gradient -->
-        <v-card elevation="0" class="rounded-xl border mb-6 text-white relative overflow-hidden dashboard-header-card">
-            <div class="pa-6 d-flex flex-column flex-sm-row justify-space-between align-sm-center z-index-1">
-                <div>
-                    <h1 class="text-h5 font-weight-black d-flex align-center mb-1">
-                        <Trash2 style="width: 28px; height: 28px; margin-right: 10px;" />
-                        Идоракунии захираҳои несткардашуда
-                    </h1>
-                    <p class="text-subtitle-2 opacity-85 font-weight-medium">
-                        Сабтҳои тасодуфан несткардашударо барқарор кунед ё барои озод кардани пойгоҳи додаҳо онҳоро бебозгашт нест кунед.
-                    </p>
-                </div>
-                <div class="mt-4 mt-sm-0">
-                    <v-chip color="white" variant="flat" class="text-rose font-weight-black shadow-sm" size="large">
-                        Ҳамаи сабтҳо: {{ employees.length + branches.length + users.length }}
-                    </v-chip>
-                </div>
-            </div>
-            <div class="header-card-glow" />
-            <div class="glass-shine" />
-        </v-card>
+        <!-- Summary tiles -->
+        <v-row class="mb-6" dense>
+            <v-col v-for="t in tiles" :key="t.key" cols="6" md="3">
+                <button
+                    type="button"
+                    class="trash-tile"
+                    :class="{ 'trash-tile--active': tab === t.key }"
+                    @click="tab = t.key"
+                >
+                    <span class="trash-tile__icon">
+                        <component :is="t.icon" style="width: 22px; height: 22px;" />
+                    </span>
+                    <span class="trash-tile__text">
+                        <span class="trash-tile__count">{{ t.count }}</span>
+                        <span class="trash-tile__label">{{ t.label }}</span>
+                    </span>
+                </button>
+            </v-col>
+        </v-row>
 
-        <!-- Main Card Container -->
-        <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass mb-6">
-            <!-- Tabs Navigation -->
-            <v-tabs v-model="tab" color="rose" align-tabs="start" class="border-b">
-                <v-tab value="employees" class="font-weight-bold text-subtitle-2 py-4">
-                    <Users style="width: 18px; height: 18px; margin-right: 8px;" />
-                    Кормандон
-                    <v-chip size="x-small" color="error" variant="flat" class="ml-2 font-weight-bold">
-                        {{ employees.length }}
-                    </v-chip>
-                </v-tab>
-                <v-tab value="branches" class="font-weight-bold text-subtitle-2 py-4">
-                    <Building2 style="width: 18px; height: 18px; margin-right: 8px;" />
-                    Филиалҳо
-                    <v-chip size="x-small" color="error" variant="flat" class="ml-2 font-weight-bold">
-                        {{ branches.length }}
-                    </v-chip>
-                </v-tab>
-                <v-tab value="users" class="font-weight-bold text-subtitle-2 py-4">
-                    <User style="width: 18px; height: 18px; margin-right: 8px;" />
-                    Корбарон
-                    <v-chip size="x-small" color="error" variant="flat" class="ml-2 font-weight-bold">
-                        {{ users.length }}
+        <!-- Main card -->
+        <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass">
+            <div class="d-flex align-center justify-space-between mb-2">
+                <div class="text-subtitle-1 font-weight-bold text-grey-darken-4">
+                    Идоракунии сабад
+                </div>
+                <span class="text-caption text-grey font-weight-bold">
+                    Ҳамагӣ дар сабад: {{ totalCount }}
+                </span>
+            </div>
+            <v-divider class="mb-4" />
+
+            <v-tabs v-model="tab" color="error" align-tabs="start" show-arrows class="mb-2">
+                <v-tab v-for="t in tiles" :key="t.key" :value="t.key" class="font-weight-bold text-subtitle-2 text-none">
+                    <component :is="t.icon" style="width: 16px; height: 16px; margin-right: 6px;" />
+                    {{ t.label }}
+                    <v-chip v-if="t.count > 0" size="x-small" color="error" variant="flat" class="ml-2 font-weight-bold">
+                        {{ t.count }}
                     </v-chip>
                 </v-tab>
             </v-tabs>
 
-            <!-- Window Sections -->
-            <v-window v-model="tab" class="mt-6">
+            <v-window v-model="tab" class="mt-4">
                 <v-window-item value="employees">
                     <TrashEmployeesTab
                         :employees="employees"
                         :can-manage="canManageTrashedEmployee"
                         @restore="(e) => openConfirm('restore', 'employee', e)"
                         @force="(e) => openConfirm('forceDelete', 'employee', e)"
+                    />
+                </v-window-item>
+
+                <v-window-item value="departments">
+                    <TrashDepartmentsTab
+                        :departments="departments"
+                        :can-manage="canManageTrashedDepartment"
+                        @restore="(d) => openConfirm('restore', 'department', d)"
+                        @force="(d) => openConfirm('forceDelete', 'department', d)"
                     />
                 </v-window-item>
 
@@ -205,18 +223,56 @@ function handleConfirm() {
     background: rgba(255, 255, 255, 0.75) !important;
     backdrop-filter: blur(12px);
 }
-.dashboard-header-card {
-    background: #e11d48 !important;
-    box-shadow: 0 10px 25px -5px rgba(244, 63, 94, 0.3) !important;
+
+.trash-tile {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    border: 1px solid #eef1f5;
+    border-radius: 14px;
+    background: #ffffff;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
-.header-card-glow {
-    position: absolute;
-    top: -20%;
-    right: -10%;
-    width: 300px;
-    height: 300px;
-    background: transparent;
-    border-radius: 50%;
-    pointer-events: none;
+.trash-tile:hover {
+    box-shadow: 0 8px 22px -12px rgba(15, 23, 42, 0.2);
+    transform: translateY(-2px);
+}
+.trash-tile--active {
+    border-color: rgba(244, 63, 94, 0.5);
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.1);
+}
+.trash-tile__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    background: rgba(244, 63, 94, 0.12);
+    color: #e11d48;
+}
+.trash-tile__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.trash-tile__count {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1;
+    color: #0f172a;
+}
+.trash-tile__label {
+    margin-top: 4px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #94a3b8;
 }
 </style>

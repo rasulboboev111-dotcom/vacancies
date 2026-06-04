@@ -40,6 +40,7 @@ Route::middleware(['auth', 'verified', 'throttle:120,1'])->group(function () {
     Route::resource('positions', PositionController::class)->except(['show', 'create', 'edit']);
     Route::resource('users', UserController::class)->except(['show', 'create', 'edit']);
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
+    Route::delete('/activity-logs', [ActivityLogController::class, 'clear'])->name('activity-logs.clear');
 
     // Trash / Recycle Bin
     Route::get('/trash', [TrashController::class, 'index'])->name('trash.index');
@@ -47,6 +48,8 @@ Route::middleware(['auth', 'verified', 'throttle:120,1'])->group(function () {
     Route::delete('/trash/employees/{id}/force', [TrashController::class, 'forceDeleteEmployee'])->name('trash.employees.force');
     Route::post('/trash/branches/{id}/restore', [TrashController::class, 'restoreBranch'])->name('trash.branches.restore');
     Route::delete('/trash/branches/{id}/force', [TrashController::class, 'forceDeleteBranch'])->name('trash.branches.force');
+    Route::post('/trash/departments/{id}/restore', [TrashController::class, 'restoreDepartment'])->name('trash.departments.restore');
+    Route::delete('/trash/departments/{id}/force', [TrashController::class, 'forceDeleteDepartment'])->name('trash.departments.force');
     Route::post('/trash/users/{id}/restore', [TrashController::class, 'restoreUser'])->name('trash.users.restore');
     Route::delete('/trash/users/{id}/force', [TrashController::class, 'forceDeleteUser'])->name('trash.users.force');
 });

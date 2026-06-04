@@ -162,14 +162,14 @@ function confirmDelete() {
             {{ toggleError }}
         </v-alert>
 
-        <v-row class="mb-6 align-center">
+        <v-row class="mb-6 align-end">
             <v-col v-if="isAdmin" cols="12" md="4">
+                <label class="filter-label">Филиал</label>
                 <v-select
                     v-model="selectedBranchId"
                     :items="[{ id: null, title: 'Ҳамаи филиалҳо' }, ...branchOptions]"
                     item-title="title"
                     item-value="id"
-                    label="Филиал"
                     variant="outlined"
                     density="comfortable"
                     rounded="lg"
@@ -177,12 +177,12 @@ function confirmDelete() {
                 />
             </v-col>
             <v-col cols="12" md="3">
+                <label class="filter-label">Ҳолат</label>
                 <v-select
                     v-model="selectedStatus"
                     :items="statusOptions"
                     item-title="title"
                     item-value="value"
-                    label="Ҳолат"
                     variant="outlined"
                     density="comfortable"
                     rounded="lg"

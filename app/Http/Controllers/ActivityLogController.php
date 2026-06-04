@@ -15,6 +15,7 @@ use App\Models\Specialty;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
@@ -147,7 +148,22 @@ class ActivityLogController extends Controller
         return Inertia::render('ActivityLogs/Index', [
             'logs' => $logs,
             'filters' => $request->input('filter', []),
+            'isAdmin' => $user->isAdmin(),
         ]);
+    }
+
+    /**
+     * Purge the entire audit trail. Admin-only: clearing the log is a
+     * destructive, non-recoverable action, so it is gated more strictly than
+     * merely viewing the log (which branch users with the permission may do).
+     */
+    public function clear(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()->isAdmin(), 403);
+
+        Activity::query()->delete();
+
+        return back()->with('success', 'Сабти амалҳо пурра тоза карда шуд.');
     }
 
     /**

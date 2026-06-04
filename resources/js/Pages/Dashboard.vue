@@ -65,19 +65,19 @@ const femaleColor = '#EC4899';
         <!-- KPI Cards -->
         <v-row class="mb-6">
             <v-col cols="12" sm="6" md="3">
-                <StatCard label="Ҳамаи кормандон" :value="stats.total_employees" :icon="Users" gradient="bg-gradient-indigo" />
+                <StatCard label="Ҳамаи кормандон" :value="stats.total_employees" :icon="Users" />
             </v-col>
             <v-col cols="12" sm="6" md="3">
-                <StatCard label="Филиалҳои фаъол" :value="stats.total_branches" :icon="Building2" gradient="bg-gradient-emerald" />
+                <StatCard label="Филиалҳои фаъол" :value="stats.total_branches" :icon="Building2" />
             </v-col>
             <v-col cols="12" sm="6" md="3">
                 <Link :href="route('vacancies.index', { status: 'open' })" class="text-decoration-none d-block">
-                    <StatCard label="Вакансияҳои кушода" :value="stats.open_vacancies" :icon="DoorOpen" gradient="bg-gradient-amber" />
+                    <StatCard label="Вакансияҳои кушода" :value="stats.open_vacancies" :icon="DoorOpen" />
                 </Link>
             </v-col>
             <v-col cols="12" sm="6" md="3">
                 <Link :href="route('vacancies.index', { status: 'closed' })" class="text-decoration-none d-block">
-                    <StatCard label="Вакансияҳои баста" :value="stats.closed_vacancies" :icon="CheckCircle2" gradient="bg-gradient-slate" />
+                    <StatCard label="Вакансияҳои баста" :value="stats.closed_vacancies" :icon="CheckCircle2" />
                 </Link>
             </v-col>
         </v-row>

@@ -1,5 +1,5 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import Checkbox from '@/Components/Checkbox.vue';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
@@ -8,9 +8,6 @@ import TextInput from '@/Components/TextInput.vue';
 import GuestLayout from '@/Layouts/GuestLayout.vue';
 
 defineProps({
-    canResetPassword: {
-        type: Boolean,
-    },
     status: {
         type: String,
     },
@@ -78,17 +75,9 @@ function submit() {
                 </label>
             </div>
 
-            <div class="mt-6 flex items-center justify-between">
-                <Link
-                    v-if="canResetPassword"
-                    :href="route('password.request')"
-                    class="rounded-md text-sm text-slate-400 hover:text-white transition-colors duration-200"
-                >
-                    Паролро фаромӯш кардед?
-                </Link>
-
+            <div class="mt-6 flex items-center justify-end">
                 <PrimaryButton
-                    class="ms-4 px-6 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold transition-all duration-300"
+                    class="px-6 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold transition-all duration-300"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
