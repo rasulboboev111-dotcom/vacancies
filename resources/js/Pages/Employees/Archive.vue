@@ -1,6 +1,7 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
 import { Archive, RotateCcw } from '@lucide/vue';
+import { watchDebounced } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
@@ -35,6 +36,10 @@ const restoreError = ref('');
 watch([branchId], () => {
     applyFilters();
 });
+
+// Auto-apply the text search while typing, debounced so we don't fire a
+// request on every keystroke (@vueuse/core).
+watchDebounced(search, applyFilters, { debounce: 400 });
 
 function filterQuery() {
     return {
