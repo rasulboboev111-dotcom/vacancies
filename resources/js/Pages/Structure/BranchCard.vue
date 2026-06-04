@@ -1,5 +1,5 @@
 <script setup>
-import { MapPin, MoreVertical, Pencil, Trash2, Users } from '@lucide/vue';
+import { Building2, MapPin, MoreVertical, Pencil, Trash2, Users } from '@lucide/vue';
 
 defineProps({
     branch: { type: Object, required: true },
@@ -11,11 +11,11 @@ defineEmits(['edit', 'delete']);
 <template>
     <v-card elevation="0" class="rounded-xl border pa-5 h-100 d-flex flex-column transition-hover position-relative overflow-hidden">
         <div class="d-flex justify-space-between align-start mb-3">
-            <div>
-                <v-chip color="indigo" variant="tonal" size="small" class="code-chip mb-2">
-                    {{ branch.code }}
-                </v-chip>
-                <h3 class="text-h6 font-weight-medium text-indigo-darken-3">
+            <div class="d-flex align-center ga-3 branch-head" style="min-width: 0;">
+                <span class="branch-icon">
+                    <Building2 style="width: 20px; height: 20px;" />
+                </span>
+                <h3 class="branch-name mb-0">
                     {{ branch.name }}
                 </h3>
             </div>
@@ -41,17 +41,25 @@ defineEmits(['edit', 'delete']);
             </v-menu>
         </div>
 
-        <p class="text-body-2 text-grey-darken-2 mb-4 flex-grow-1 font-weight-medium d-flex align-center">
-            <MapPin style="width: 16px; height: 16px; margin-right: 8px;" class="text-indigo" />
+        <p class="branch-address mb-4 flex-grow-1 d-flex align-center">
+            <MapPin style="width: 15px; height: 15px; margin-right: 8px; flex: none;" />
             {{ branch.address || 'Суроға нишон дода нашудааст' }}
         </p>
 
         <v-divider class="my-3" />
 
         <div class="d-flex justify-space-between align-center">
-            <span class="text-subtitle-2 text-grey font-weight-medium text-uppercase">Ҳайат</span>
-            <v-chip color="teal" variant="tonal" class="font-weight-medium px-3" size="medium">
-                <Users style="width: 16px; height: 16px; margin-right: 4px;" class="text-teal" />
+            <span class="branch-meta text-uppercase">Ҳайат</span>
+            <v-chip
+                :color="branch.employees_count > 0 ? 'teal' : 'grey'"
+                variant="tonal"
+                class="font-weight-medium px-3"
+                size="medium"
+            >
+                <Users
+                    style="width: 16px; height: 16px; margin-right: 4px;"
+                    :class="branch.employees_count > 0 ? 'text-teal' : 'text-grey'"
+                />
                 {{ branch.employees_count }} нафар.
             </v-chip>
         </div>
@@ -59,10 +67,41 @@ defineEmits(['edit', 'delete']);
 </template>
 
 <style scoped>
-.code-chip {
-    font-family: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
-    font-weight: 600;
+.branch-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(37, 99, 235, 0.18);
+    color: #1d4ed8;
+    flex-shrink: 0;
+}
+.branch-head {
+    min-height: 52px;
+}
+.branch-name {
+    color: #141414;
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+}
+.branch-address {
+    color: #6b7280;
+    font-size: 0.8125rem;
+    font-weight: 400;
+    line-height: 1.4;
+}
+.branch-meta {
+    color: #9ca3af;
+    font-size: 0.8125rem;
+    font-weight: 500;
     letter-spacing: 0.04em;
-    font-size: 0.72rem;
 }
 </style>

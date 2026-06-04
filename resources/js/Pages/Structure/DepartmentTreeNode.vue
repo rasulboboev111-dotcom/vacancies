@@ -1,5 +1,5 @@
 <script setup>
-import { ChevronRight, MoreVertical, Pencil, Plus, Trash2 } from '@lucide/vue';
+import { Building2, ChevronRight, MoreVertical, Pencil, Plus, Trash2, Workflow } from '@lucide/vue';
 import { computed, ref } from 'vue';
 import DepartmentTreeNode from '@/Pages/Structure/DepartmentTreeNode.vue';
 
@@ -55,16 +55,11 @@ function toggle() {
                     style="width: 18px; height: 18px;"
                 />
                 <span v-else class="dept-chevron-spacer" />
-                <v-chip
-                    v-if="department.code"
-                    color="indigo"
-                    variant="flat"
-                    size="small"
-                    class="font-weight-black text-uppercase"
-                >
-                    {{ department.code }}
-                </v-chip>
-                <span class="text-body-1 font-weight-bold text-indigo-darken-3">{{ department.name }}</span>
+                <span class="dept-icon" :class="level === 0 ? 'dept-icon--branch' : 'dept-icon--dept'">
+                    <Building2 v-if="level === 0" style="width: 16px; height: 16px;" />
+                    <Workflow v-else style="width: 16px; height: 16px;" />
+                </span>
+                <span class="text-body-1 font-weight-bold dept-name">{{ department.name }}</span>
                 <v-chip
                     v-if="department.children_count > 0"
                     color="teal"
@@ -161,5 +156,25 @@ function toggle() {
     display: inline-block;
     width: 18px;
     flex-shrink: 0;
+}
+.dept-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+.dept-icon--branch {
+    background: rgba(59, 130, 246, 0.12);
+    color: #3b82f6;
+}
+.dept-icon--dept {
+    background: rgba(34, 197, 94, 0.12);
+    color: #22c55e;
+}
+.dept-name {
+    color: #1a1a2e;
 }
 </style>

@@ -35,7 +35,7 @@ const statusOptions = [
 const branchOptions = computed(() =>
     props.branches.map(branch => ({
         id: Number(branch.id),
-        title: branch.code ? `${branch.name} (${branch.code})` : branch.name,
+        title: branch.name,
     })),
 );
 
