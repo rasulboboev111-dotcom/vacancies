@@ -18,7 +18,7 @@ class EmployeeController extends Controller
     public function index(Request $request): Response
     {
         $user = $request->user();
-        $query = Employee::with('branch')->whereNull('dismissal_date');
+        $query = Employee::with(['branch', 'category', 'employmentType', 'position', 'structure', 'manager'])->whereNull('dismissal_date');
 
         // Scoping for Branch Manager: only show employees of their branch
         if ($user->hasRole('Branch Manager')) {
@@ -33,19 +33,21 @@ class EmployeeController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('full_name', 'like', "%{$search}%")
-                  ->orWhere('position', 'like', "%{$search}%")
+                  ->orWhereHas('position', function ($posQ) use ($search) {
+                      $posQ->where('name', 'like', "%{$search}%");
+                  })
                   ->orWhere('inn', 'like', "%{$search}%");
             });
         }
 
-        // Filtering by category
-        if ($request->filled('category')) {
-            $query->where('category', $request->input('category'));
+        // Filtering by category_id
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
         }
 
-        // Filtering by type
-        if ($request->filled('type')) {
-            $query->where('type', $request->input('type'));
+        // Filtering by type_id
+        if ($request->filled('type_id')) {
+            $query->where('type_id', $request->input('type_id'));
         }
 
         // Get employees with pagination
@@ -58,16 +60,22 @@ class EmployeeController extends Controller
         }
         $branches = $branchesQuery->orderBy('name')->get();
 
-        // Get unique categories and types for filters
-        $categories = Employee::distinct()->pluck('category')->filter()->values();
-        $types = Employee::distinct()->pluck('type')->filter()->values();
+        // Get lookup tables
+        $categories = \App\Models\Category::orderBy('name')->get();
+        $types = \App\Models\EmploymentType::orderBy('name')->get();
+        $positions = \App\Models\Position::orderBy('name')->get();
+        $structures = \App\Models\Structure::orderBy('name')->get();
+        $managers = Employee::orderBy('full_name')->get(['id', 'full_name']);
 
         return Inertia::render('Employees/Index', [
             'employees' => $employees,
             'branches' => $branches,
             'categories' => $categories,
             'types' => $types,
-            'filters' => $request->only(['search', 'branch_id', 'category', 'type']),
+            'positions' => $positions,
+            'structures' => $structures,
+            'managers' => $managers,
+            'filters' => $request->only(['search', 'branch_id', 'category_id', 'type_id']),
         ]);
     }
 
@@ -80,13 +88,13 @@ class EmployeeController extends Controller
 
         $validated = $request->validate([
             'branch_id' => 'required|exists:branches,id',
-            'category' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'type_id' => 'required|exists:employment_types,id',
             'full_name' => 'required|string|max:255',
             'gender' => 'required|string|in:Мужской,Женский',
-            'position' => 'required|string|max:255',
-            'structure' => 'required|string|max:255',
-            'direct_manager' => 'nullable|string|max:255',
+            'position_id' => 'required|exists:positions,id',
+            'structure_id' => 'required|exists:structures,id',
+            'manager_id' => 'nullable|exists:employees,id',
             'hire_date' => 'required|date',
             'dismissal_date' => 'nullable|date|after_or_equal:hire_date',
             'birth_date' => 'nullable|date',
@@ -102,7 +110,7 @@ class EmployeeController extends Controller
             'birth_place' => 'nullable|string|max:255',
             'education' => 'nullable|string|max:255',
             'specialty' => 'nullable|string|max:255',
-            'total_experience' => 'nullable|string|max:255',
+            'employment_start_date' => 'nullable|date',
         ]);
 
         // Branch Manager can only add employees to their own branch
@@ -111,11 +119,12 @@ class EmployeeController extends Controller
         }
 
         $employee = Employee::create($validated);
+        $employee->load('position');
 
         activity()
             ->performedOn($employee)
             ->event('created')
-            ->log("Добавлен сотрудник: {$employee->full_name} на должность {$employee->position}");
+            ->log("Добавлен сотрудник: {$employee->full_name} на должность " . ($employee->position?->name ?? 'Неизвестная должность'));
 
         return redirect()->route('employees.index')
             ->with('success', 'Сотрудник успешно добавлен.');
@@ -135,13 +144,13 @@ class EmployeeController extends Controller
 
         $validated = $request->validate([
             'branch_id' => 'required|exists:branches,id',
-            'category' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'type_id' => 'required|exists:employment_types,id',
             'full_name' => 'required|string|max:255',
             'gender' => 'required|string|in:Мужской,Женский',
-            'position' => 'required|string|max:255',
-            'structure' => 'required|string|max:255',
-            'direct_manager' => 'nullable|string|max:255',
+            'position_id' => 'required|exists:positions,id',
+            'structure_id' => 'required|exists:structures,id',
+            'manager_id' => 'nullable|exists:employees,id',
             'hire_date' => 'required|date',
             'dismissal_date' => 'nullable|date|after_or_equal:hire_date',
             'birth_date' => 'nullable|date',
@@ -157,7 +166,7 @@ class EmployeeController extends Controller
             'birth_place' => 'nullable|string|max:255',
             'education' => 'nullable|string|max:255',
             'specialty' => 'nullable|string|max:255',
-            'total_experience' => 'nullable|string|max:255',
+            'employment_start_date' => 'nullable|date',
         ]);
 
         // Branch Manager cannot transfer employee to another branch
@@ -205,7 +214,7 @@ class EmployeeController extends Controller
     public function archive(Request $request): Response
     {
         $user = $request->user();
-        $query = Employee::with('branch')->whereNotNull('dismissal_date');
+        $query = Employee::with(['branch', 'category', 'employmentType', 'position', 'structure', 'manager'])->whereNotNull('dismissal_date');
 
         // Scoping for Branch Manager: only show employees of their branch
         if ($user->hasRole('Branch Manager')) {
@@ -220,7 +229,9 @@ class EmployeeController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('full_name', 'like', "%{$search}%")
-                  ->orWhere('position', 'like', "%{$search}%")
+                  ->orWhereHas('position', function ($posQ) use ($search) {
+                      $posQ->where('name', 'like', "%{$search}%");
+                  })
                   ->orWhere('inn', 'like', "%{$search}%");
             });
         }
@@ -259,8 +270,8 @@ class EmployeeController extends Controller
 
         $validated = $request->validate([
             'branch_id' => 'required|exists:branches,id',
-            'position' => 'required|string|max:255',
-            'structure' => 'required|string|max:255',
+            'position_id' => 'required|exists:positions,id',
+            'structure_id' => 'required|exists:structures,id',
             'rotation_date' => 'required|date',
             'reason' => 'nullable|string|max:1000',
         ]);
@@ -275,31 +286,32 @@ class EmployeeController extends Controller
             'employee_id' => $employee->id,
             'old_branch_id' => $employee->branch_id,
             'new_branch_id' => $validated['branch_id'],
-            'old_position' => $employee->position,
-            'new_position' => $validated['position'],
-            'old_structure' => $employee->structure,
-            'new_structure' => $validated['structure'],
+            'old_position_id' => $employee->position_id,
+            'new_position_id' => $validated['position_id'],
+            'old_structure_id' => $employee->structure_id,
+            'new_structure_id' => $validated['structure_id'],
             'rotation_date' => $validated['rotation_date'],
             'reason' => $validated['reason'],
         ]);
 
         // Get old details for activity logging
         $oldBranchName = $employee->branch?->name ?? 'Неизвестный филиал';
-        $oldPosition = $employee->position;
+        $oldPosition = $employee->position?->name ?? 'Неизвестная должность';
 
         // Update employee record
         $employee->update([
             'branch_id' => $validated['branch_id'],
-            'position' => $validated['position'],
-            'structure' => $validated['structure'],
+            'position_id' => $validated['position_id'],
+            'structure_id' => $validated['structure_id'],
         ]);
 
         // Log action
         $newBranchName = Branch::find($validated['branch_id'])?->name ?? 'Неизвестный филиал';
+        $newPositionName = \App\Models\Position::find($validated['position_id'])?->name ?? 'Неизвестная должность';
         activity()
             ->performedOn($employee)
             ->event('updated')
-            ->log("Выполнена ротация сотрудника {$employee->full_name}. Переведен из {$oldBranchName} ({$oldPosition}) в {$newBranchName} ({$validated['position']})");
+            ->log("Выполнена ротация сотрудника {$employee->full_name}. Переведен из {$oldBranchName} ({$oldPosition}) в {$newBranchName} ({$newPositionName})");
 
         return redirect()->back()
             ->with('success', 'Ротация сотрудника успешно проведена.');
@@ -311,7 +323,7 @@ class EmployeeController extends Controller
     public function rotationsIndex(Request $request): Response
     {
         $user = $request->user();
-        $query = Rotation::with(['employee', 'oldBranch', 'newBranch']);
+        $query = Rotation::with(['employee', 'oldBranch', 'newBranch', 'oldPosition', 'newPosition', 'oldStructure', 'newStructure']);
 
         // Scoping for Branch Manager: only show rotations in their branch (either old or new)
         if ($user->hasRole('Branch Manager')) {

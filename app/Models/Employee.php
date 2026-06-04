@@ -18,13 +18,13 @@ class Employee extends Model
         return LogOptions::defaults()
             ->logOnly([
                 'branch_id',
-                'category',
-                'type',
+                'category_id',
+                'type_id',
                 'full_name',
                 'gender',
-                'position',
-                'structure',
-                'direct_manager',
+                'position_id',
+                'structure_id',
+                'manager_id',
                 'hire_date',
                 'dismissal_date',
                 'birth_date',
@@ -40,7 +40,7 @@ class Employee extends Model
                 'birth_place',
                 'education',
                 'specialty',
-                'total_experience',
+                'employment_start_date',
             ])
             ->logOnlyDirty()
             ->dontSubmitEmptyLogs();
@@ -48,13 +48,13 @@ class Employee extends Model
 
     protected $fillable = [
         'branch_id',
-        'category',
-        'type',
+        'category_id',
+        'type_id',
         'full_name',
         'gender',
-        'position',
-        'structure',
-        'direct_manager',
+        'position_id',
+        'structure_id',
+        'manager_id',
         'hire_date',
         'dismissal_date',
         'birth_date',
@@ -70,7 +70,7 @@ class Employee extends Model
         'birth_place',
         'education',
         'specialty',
-        'total_experience',
+        'employment_start_date',
     ];
 
     protected $casts = [
@@ -79,6 +79,7 @@ class Employee extends Model
         'birth_date' => 'date',
         'passport_start_date' => 'date',
         'passport_end_date' => 'date',
+        'employment_start_date' => 'date',
     ];
 
     protected $appends = ['age'];
@@ -100,6 +101,54 @@ class Employee extends Model
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    /**
+     * Get the category that the employee belongs to.
+     */
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    /**
+     * Get the employment type that the employee belongs to.
+     */
+    public function employmentType(): BelongsTo
+    {
+        return $this->belongsTo(EmploymentType::class, 'type_id');
+    }
+
+    /**
+     * Get the position that the employee belongs to.
+     */
+    public function position(): BelongsTo
+    {
+        return $this->belongsTo(Position::class);
+    }
+
+    /**
+     * Get the structure that the employee belongs to.
+     */
+    public function structure(): BelongsTo
+    {
+        return $this->belongsTo(Structure::class);
+    }
+
+    /**
+     * Get the direct manager of the employee.
+     */
+    public function manager(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class, 'manager_id');
+    }
+
+    /**
+     * Get subordinates of the employee.
+     */
+    public function subordinates()
+    {
+        return $this->hasMany(Employee::class, 'manager_id');
     }
 
     /**
