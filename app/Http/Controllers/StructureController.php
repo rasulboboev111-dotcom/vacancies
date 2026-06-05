@@ -92,8 +92,10 @@ class StructureController extends Controller
      * assigned to any department (department_id IS NULL), so they are not
      * duplicated by the per-department popups.
      */
-    public function branchEmployees(Request $request, Branch $branch): JsonResponse
+    public function branchEmployees(Request $request, int $id): JsonResponse
     {
+        $branch = Branch::findOrFail($id);
+
         $user = $request->user();
 
         // Non-admins may only inspect their own branch.
@@ -140,8 +142,10 @@ class StructureController extends Controller
      * Return the employees that belong directly to a single department
      * (excluding nested sub-departments) for the structure tree popup.
      */
-    public function departmentEmployees(Request $request, Department $department): JsonResponse
+    public function departmentEmployees(Request $request, int $id): JsonResponse
     {
+        $department = Department::findOrFail($id);
+
         $user = $request->user();
 
         // Non-admins may only inspect departments of their own branch.

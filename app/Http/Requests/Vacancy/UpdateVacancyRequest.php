@@ -4,6 +4,7 @@ namespace App\Http\Requests\Vacancy;
 
 use App\Enums\EmploymentType;
 use App\Enums\VacancyStatus;
+use App\Models\Vacancy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -12,7 +13,9 @@ class UpdateVacancyRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Gate::allows('update', $this->route('vacancy'));
+        $vacancy = Vacancy::find($this->route('id'));
+
+        return $vacancy !== null && Gate::allows('update', $vacancy);
     }
 
     /**
@@ -22,7 +25,7 @@ class UpdateVacancyRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $user = $this->user();
-        $vacancy = $this->route('vacancy');
+        $vacancy = Vacancy::find($this->route('id'));
 
         $branchId = $user->isAdmin()
             ? ($this->integer('branch_id') ?: $vacancy->branch_id)

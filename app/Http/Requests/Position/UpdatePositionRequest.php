@@ -10,7 +10,9 @@ class UpdatePositionRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Gate::allows('update', $this->route('position'));
+        $position = Position::find($this->route('id'));
+
+        return $position !== null && Gate::allows('update', $position);
     }
 
     protected function prepareForValidation(): void
@@ -23,7 +25,7 @@ class UpdatePositionRequest extends FormRequest
      */
     public function rules(): array
     {
-        $ignoreId = $this->route('position')?->id;
+        $ignoreId = $this->route('id');
 
         return [
             'name' => [

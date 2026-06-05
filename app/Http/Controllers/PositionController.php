@@ -55,8 +55,10 @@ class PositionController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePositionRequest $request, Position $position): RedirectResponse
+    public function update(UpdatePositionRequest $request, int $id): RedirectResponse
     {
+        $position = Position::findOrFail($id);
+
         $oldName = $position->name;
         $position->update($request->validated());
 
@@ -72,8 +74,10 @@ class PositionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Position $position): RedirectResponse
+    public function destroy(int $id): RedirectResponse
     {
+        $position = Position::findOrFail($id);
+
         Gate::authorize('delete', $position);
 
         // Safety check: Prevent deletion if any active or soft-deleted employee is linked to this position

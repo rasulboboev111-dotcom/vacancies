@@ -87,8 +87,10 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, User $user): RedirectResponse
+    public function update(UpdateUserRequest $request, int $id): RedirectResponse
     {
+        $user = User::findOrFail($id);
+
         $validated = $request->validated();
 
         $updateData = [
@@ -118,8 +120,10 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, User $user): RedirectResponse
+    public function destroy(Request $request, int $id): RedirectResponse
     {
+        $user = User::findOrFail($id);
+
         Gate::authorize('delete', $user);
 
         $currentUser = $request->user();

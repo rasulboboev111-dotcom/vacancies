@@ -135,7 +135,7 @@ const submit = handleSubmit((values) => {
     };
 
     if (props.vacancy) {
-        inertia.put(route('vacancies.update', { vacancy: props.vacancy.id, ...props.filterParams }), { onSuccess, onError });
+        inertia.put(route('vacancies.update', { id: props.vacancy.id, ...props.filterParams }), { onSuccess, onError });
         return;
     }
     inertia.post(route('vacancies.store', props.filterParams), { onSuccess, onError });

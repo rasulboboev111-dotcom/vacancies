@@ -30,8 +30,10 @@ class BranchController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBranchRequest $request, Branch $branch): RedirectResponse
+    public function update(UpdateBranchRequest $request, int $id): RedirectResponse
     {
+        $branch = Branch::findOrFail($id);
+
         $branch->disableLogging()->update($request->validated());
 
         activity()
@@ -46,8 +48,10 @@ class BranchController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Branch $branch): RedirectResponse
+    public function destroy(int $id): RedirectResponse
     {
+        $branch = Branch::findOrFail($id);
+
         Gate::authorize('delete', $branch);
 
         $name = $branch->name;

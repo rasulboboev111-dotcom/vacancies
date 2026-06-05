@@ -90,8 +90,10 @@ class VacancyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateVacancyRequest $request, Vacancy $vacancy): RedirectResponse
+    public function update(UpdateVacancyRequest $request, int $id): RedirectResponse
     {
+        $vacancy = Vacancy::findOrFail($id);
+
         $this->vacancies->update($vacancy, $request->validated(), $request->input('status'));
 
         return redirect()->route('vacancies.index', $this->indexParams($request))
@@ -101,8 +103,10 @@ class VacancyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Request $request, Vacancy $vacancy): RedirectResponse
+    public function destroy(Request $request, int $id): RedirectResponse
     {
+        $vacancy = Vacancy::findOrFail($id);
+
         Gate::authorize('delete', $vacancy);
 
         $this->vacancies->delete($vacancy);

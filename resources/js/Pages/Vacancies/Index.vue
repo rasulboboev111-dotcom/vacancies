@@ -119,7 +119,7 @@ function toggleStatus(vacancy) {
     }
     toggling.value = true;
     toggleError.value = '';
-    router.put(route('vacancies.update', { vacancy: vacancy.id, ...filterParams.value }), {
+    router.put(route('vacancies.update', { id: vacancy.id, ...filterParams.value }), {
         branch_id: vacancy.branch_id,
         department_id: vacancy.department_id,
         position: vacancy.position?.name ?? null,
@@ -150,7 +150,7 @@ function openDeleteDialog(vacancy) {
 function confirmDelete() {
     if (!vacancyToDelete.value)
         return;
-    router.delete(route('vacancies.destroy', { vacancy: vacancyToDelete.value.id, ...filterParams.value }), {
+    router.delete(route('vacancies.destroy', { id: vacancyToDelete.value.id, ...filterParams.value }), {
         preserveScroll: true,
         onStart: () => { deleting.value = true; },
         onFinish: () => { deleting.value = false; },

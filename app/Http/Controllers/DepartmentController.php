@@ -27,8 +27,10 @@ class DepartmentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateDepartmentRequest $request, Department $department): RedirectResponse
+    public function update(UpdateDepartmentRequest $request, int $id): RedirectResponse
     {
+        $department = Department::findOrFail($id);
+
         $this->departments->update($department, $request->validated());
 
         return redirect()->route('structure.index')
@@ -38,8 +40,10 @@ class DepartmentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Department $department): RedirectResponse
+    public function destroy(int $id): RedirectResponse
     {
+        $department = Department::findOrFail($id);
+
         Gate::authorize('delete', $department);
 
         if (! $this->departments->delete($department)) {

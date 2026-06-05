@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Department;
 
+use App\Models\Department;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -10,13 +11,15 @@ class UpdateDepartmentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Gate::allows('update', $this->route('department'));
+        $department = Department::find($this->route('id'));
+
+        return $department !== null && Gate::allows('update', $department);
     }
 
     protected function prepareForValidation(): void
     {
         $user = $this->user();
-        $department = $this->route('department');
+        $department = Department::find($this->route('id'));
 
         $branchId = $user->isAdmin()
             ? $this->integer('branch_id')
@@ -54,7 +57,7 @@ class UpdateDepartmentRequest extends FormRequest
                             fn ($query) => $query->where('parent_id', $parentId),
                             fn ($query) => $query->whereNull('parent_id'),
                         ))
-                    ->ignore($this->route('department')?->id),
+                    ->ignore($this->route('id')),
             ],
             'code' => ['nullable', 'string', 'max:20'],
         ];

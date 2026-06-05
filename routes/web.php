@@ -32,14 +32,14 @@ Route::middleware(['auth', 'verified', 'throttle:120,1'])->group(function () {
     Route::get('/employees/managers', [EmployeeController::class, 'managers'])->name('employees.managers');
 
     Route::resource('employees', EmployeeController::class)->except(['show', 'create', 'edit'])->parameters(['employees' => 'id'])->whereNumber('id');
-    Route::resource('branches', BranchController::class)->only(['store', 'update', 'destroy']);
-    Route::resource('departments', DepartmentController::class)->only(['store', 'update', 'destroy']);
-    Route::resource('vacancies', VacancyController::class)->except(['show', 'create', 'edit']);
+    Route::resource('branches', BranchController::class)->only(['store', 'update', 'destroy'])->parameters(['branches' => 'id'])->whereNumber('id');
+    Route::resource('departments', DepartmentController::class)->only(['store', 'update', 'destroy'])->parameters(['departments' => 'id'])->whereNumber('id');
+    Route::resource('vacancies', VacancyController::class)->except(['show', 'create', 'edit'])->parameters(['vacancies' => 'id'])->whereNumber('id');
     Route::get('/structure', [StructureController::class, 'index'])->name('structure.index');
-    Route::get('/structure/branches/{branch}/employees', [StructureController::class, 'branchEmployees'])->name('structure.branch.employees');
-    Route::get('/structure/departments/{department}/employees', [StructureController::class, 'departmentEmployees'])->name('structure.department.employees');
-    Route::resource('positions', PositionController::class)->except(['show', 'create', 'edit']);
-    Route::resource('users', UserController::class)->except(['show', 'create', 'edit']);
+    Route::get('/structure/branches/{id}/employees', [StructureController::class, 'branchEmployees'])->name('structure.branch.employees')->whereNumber('id');
+    Route::get('/structure/departments/{id}/employees', [StructureController::class, 'departmentEmployees'])->name('structure.department.employees')->whereNumber('id');
+    Route::resource('positions', PositionController::class)->except(['show', 'create', 'edit'])->parameters(['positions' => 'id'])->whereNumber('id');
+    Route::resource('users', UserController::class)->except(['show', 'create', 'edit'])->parameters(['users' => 'id'])->whereNumber('id');
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     Route::delete('/activity-logs', [ActivityLogController::class, 'clear'])->name('activity-logs.clear');
 

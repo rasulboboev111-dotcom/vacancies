@@ -12,7 +12,9 @@ class UpdateUserRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return Gate::allows('update', $this->route('user'));
+        $user = User::find($this->route('id'));
+
+        return $user !== null && Gate::allows('update', $user);
     }
 
     protected function prepareForValidation(): void
@@ -25,7 +27,7 @@ class UpdateUserRequest extends FormRequest
      */
     public function rules(): array
     {
-        $ignoreId = $this->route('user')?->id;
+        $ignoreId = $this->route('id');
 
         return [
             'name' => 'required|string|max:255',
