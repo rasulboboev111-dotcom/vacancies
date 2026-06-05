@@ -64,8 +64,18 @@ class StructureController extends Controller
             ];
         })->values();
 
+        // The head organisation name (the Business Unit that is not a regional
+        // "Филиал …"), resolved unscoped so branch users — who only see their
+        // own filial — still get the real org name at the tree root instead of
+        // a generic placeholder.
+        $organizationName = Branch::query()
+            ->where('name', 'not like', 'Филиал%')
+            ->orderBy('id')
+            ->value('name');
+
         return Inertia::render('Structure/Index', [
             'structure' => $structure,
+            'organizationName' => $organizationName,
             'branches' => $branches->map(fn (Branch $branch) => [
                 'id' => $branch->id,
                 'name' => $branch->name,

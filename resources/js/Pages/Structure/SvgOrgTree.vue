@@ -5,6 +5,7 @@ import { buildOrgTree, expandedToDepth } from '@/composables/useOrgChart';
 
 const props = defineProps({
     structure: { type: Array, required: true },
+    organizationName: { type: String, default: null },
 });
 
 const emit = defineEmits(['node-click']);
@@ -77,7 +78,7 @@ const c = computed(() => (isDark.value ? DARK : LIGHT));
  * Tree + expansion state. Opens the top three tiers by default and
  * resets to that whenever the structure reloads (Inertia/CRUD).
  * ------------------------------------------------------------------ */
-const tree = computed(() => buildOrgTree(props.structure));
+const tree = computed(() => buildOrgTree(props.structure, props.organizationName));
 const expanded = ref(expandedToDepth(tree.value));
 
 watch(tree, (next) => {

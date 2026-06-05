@@ -18,9 +18,12 @@ const Y_GAP = 170;
  * they are left untouched.
  *
  * @param {Array} structure  branches → departments tree from the server
+ * @param {string|null} orgName  the head organisation name, used for the root
+ *   when the head company branch is not in the visible set (e.g. a branch user
+ *   who only sees their own filial)
  * @returns {object|null} the root node, or null when there is nothing to show
  */
-export function buildOrgTree(structure) {
+export function buildOrgTree(structure, orgName = null) {
     if (!structure || structure.length === 0) {
         return null;
     }
@@ -72,11 +75,13 @@ export function buildOrgTree(structure) {
     const headIndex = branches.findIndex(branch => !isFilialBranch(branch));
 
     if (headIndex === -1) {
-        // No identifiable head company — keep the neutral synthetic root.
+        // The head company branch is not visible (e.g. a branch user who only
+        // sees their own filial). Root the tree on the real organisation name
+        // when the server provides it, otherwise a neutral placeholder.
         return {
             id: 'root',
             kind: 'root',
-            label: 'Ташкилот',
+            label: orgName || 'Ташкилот',
             code: null,
             employeeCount: 0,
             vacancies: 0,

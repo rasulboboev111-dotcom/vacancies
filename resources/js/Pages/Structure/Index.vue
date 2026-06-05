@@ -17,6 +17,7 @@ const props = defineProps({
     structure: { type: Array, required: true },
     branches: { type: Array, default: () => [] },
     departmentsFlat: { type: Array, default: () => [] },
+    organizationName: { type: String, default: null },
 });
 
 const { isAdmin, canManageInBranch, canCreateInBranch } = usePermissions();
@@ -195,7 +196,7 @@ function openDeleteBranch(branch) {
         </template>
 
         <!-- Org chart (read-only) -->
-        <SvgOrgTree :structure="structure" @node-click="onNodeClick" />
+        <SvgOrgTree :structure="structure" :organization-name="organizationName" @node-click="onNodeClick" />
 
         <!-- Employees popup -->
         <StructureEmployeesDialog
