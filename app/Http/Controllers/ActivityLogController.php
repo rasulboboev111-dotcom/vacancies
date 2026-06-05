@@ -135,7 +135,7 @@ class ActivityLogController extends Controller
                     'event' => $log->event,
                     'causer_name' => $log->causer ? $log->causer->name : 'Низом',
                     'properties' => $this->humanizeProperties($log->properties),
-                    'created_at' => $log->created_at->format('d.m.Y H:i:s'),
+                    'created_at' => $log->created_at->timezone(config('app.display_timezone'))->format('d.m.Y H:i:s'),
                 ];
             });
 
