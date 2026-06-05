@@ -86,6 +86,7 @@ class PositionController extends Controller
         $position->delete();
 
         activity()
+            ->performedOn($position)
             ->event('deleted')
             ->log("Вазифа нест карда шуд: {$name}");
 

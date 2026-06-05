@@ -187,7 +187,14 @@ class ActivityLogController extends Controller
             // mapping, so attributes and old stay aligned on the frontend.
             $relabeled = [];
             foreach ($props[$section] as $key => $value) {
-                $relabeled[$this->fieldLabel($key)] = $this->humanizeValue($key, $value);
+                $label = $this->fieldLabel($key);
+                // Two distinct columns can map to the same label (e.g.
+                // nationality_id and nationality). Disambiguate so neither
+                // value is silently overwritten.
+                if (array_key_exists($label, $relabeled)) {
+                    $label = "{$label} ({$key})";
+                }
+                $relabeled[$label] = $this->humanizeValue($key, $value);
             }
             $props[$section] = $relabeled;
         }

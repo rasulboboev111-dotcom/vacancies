@@ -47,6 +47,13 @@ class EmployeeController extends Controller
             'department:id,name',
             'position:id,name',
             'manager:id,full_name',
+            // Lookups behind the appended nationality/education/specialty/
+            // birth_place accessors — eager-loaded so serializing the page
+            // doesn't fire 4 lazy queries per row.
+            'nationalityRef:id,name',
+            'educationRef:id,name',
+            'specialtyRef:id,name',
+            'birthPlaceRef:id,name',
         ])
             ->active()
             ->viewableBy($user)
@@ -83,6 +90,7 @@ class EmployeeController extends Controller
         $term = trim((string) $request->input('search', ''));
 
         $managers = Employee::query()
+            ->active()
             ->when(! $user->hasRole('Admin'), fn ($q) => $q->where('branch_id', $user->branch_id))
             ->when($term !== '', fn ($q) => $q->where('full_name', 'like', "%{$term}%"))
             ->orderBy('full_name')
@@ -155,7 +163,10 @@ class EmployeeController extends Controller
 
         $user = $request->user();
 
-        $base = Employee::with(['branch', 'department', 'position', 'manager'])
+        $base = Employee::with([
+            'branch', 'department', 'position', 'manager',
+            'nationalityRef:id,name', 'educationRef:id,name', 'specialtyRef:id,name', 'birthPlaceRef:id,name',
+        ])
             ->dismissed()
             ->viewableBy($user)
             ->latest('dismissal_date')
