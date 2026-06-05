@@ -99,7 +99,7 @@ class StructureController extends Controller
         $user = $request->user();
 
         // Non-admins may only inspect their own branch.
-        if (! $user->hasRole('Admin')) {
+        if (! $user->isAdmin()) {
             if ($user->branch_id === null || $branch->id !== $user->branch_id) {
                 abort(403);
             }
@@ -149,7 +149,7 @@ class StructureController extends Controller
         $user = $request->user();
 
         // Non-admins may only inspect departments of their own branch.
-        if (! $user->hasRole('Admin')) {
+        if (! $user->isAdmin()) {
             if ($user->branch_id === null || $department->branch_id !== $user->branch_id) {
                 abort(403);
             }

@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\PositionInUseException;
 use App\Http\Requests\Position\StorePositionRequest;
 use App\Http\Requests\Position\UpdatePositionRequest;
-use App\Models\Employee;
 use App\Models\Position;
+use App\Services\PositionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -14,6 +15,8 @@ use Inertia\Response;
 
 class PositionController extends Controller
 {
+    public function __construct(private readonly PositionService $positions) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -25,7 +28,7 @@ class PositionController extends Controller
 
         $query = Position::withCount(['employees' => fn ($q) => $q->viewableBy($user)]);
 
-        if (! $user->hasRole('Admin') && $user->branch_id === null) {
+        if (! $user->isAdmin() && $user->branch_id === null) {
             $query->whereRaw('1=0');
         }
 
@@ -41,12 +44,7 @@ class PositionController extends Controller
      */
     public function store(StorePositionRequest $request): RedirectResponse
     {
-        $position = Position::create($request->validated());
-
-        activity()
-            ->performedOn($position)
-            ->event('created')
-            ->log("Вазифаи нав эҷод шуд: {$position->name}");
+        $position = $this->positions->create($request->validated());
 
         return redirect()->route('positions.index')
             ->with('success', "Вазифаи '{$position->name}' бомуваффақият эҷод шуд.");
@@ -59,13 +57,7 @@ class PositionController extends Controller
     {
         $position = Position::findOrFail($id);
 
-        $oldName = $position->name;
-        $position->update($request->validated());
-
-        activity()
-            ->performedOn($position)
-            ->event('updated')
-            ->log("Номи вазифа навсозӣ шуд: аз '{$oldName}' ба '{$position->name}'");
+        $this->positions->update($position, $request->validated());
 
         return redirect()->route('positions.index')
             ->with('success', "Вазифаи '{$position->name}' бомуваффақият навсозӣ шуд.");
@@ -80,19 +72,13 @@ class PositionController extends Controller
 
         Gate::authorize('delete', $position);
 
-        // Safety check: Prevent deletion if any active or soft-deleted employee is linked to this position
-        $employeeCount = Employee::withTrashed()->where('position_id', $position->id)->count();
-        if ($employeeCount > 0) {
-            return redirect()->back()->with('error', "Вазифаи '{$position->name}'-ро нест кардан мумкин нест, зеро он ба кормандон таъин шудааст ({$employeeCount} нафар). Аввал онҳоро ба вазифаи дигар гузаронед.");
-        }
-
         $name = $position->name;
-        $position->delete();
 
-        activity()
-            ->performedOn($position)
-            ->event('deleted')
-            ->log("Вазифа нест карда шуд: {$name}");
+        try {
+            $this->positions->delete($position);
+        } catch (PositionInUseException $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
 
         return redirect()->route('positions.index')
             ->with('success', "Вазифаи '{$name}' бомуваффақият нест карда шуд.");

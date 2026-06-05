@@ -16,6 +16,7 @@ use App\Models\Nationality;
 use App\Models\Position;
 use App\Models\Rotation;
 use App\Models\Specialty;
+use App\Models\User;
 use App\Services\EmployeeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -28,6 +29,20 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class EmployeeController extends Controller
 {
+    /**
+     * Relations eager-loaded for the employee list & archive screens, projected
+     * to just the columns the table, view and edit dialogs read — so serializing
+     * the page never hydrates four full related models, and the appended
+     * nationality/education/specialty/birth_place accessors don't fire four lazy
+     * lookups per row.
+     *
+     * @var list<string>
+     */
+    private const LIST_RELATIONS = [
+        'branch:id,name', 'department:id,name', 'position:id,name', 'manager:id,full_name',
+        'nationalityRef:id,name', 'educationRef:id,name', 'specialtyRef:id,name', 'birthPlaceRef:id,name',
+    ];
+
     public function __construct(private readonly EmployeeService $employees) {}
 
     /**
@@ -39,22 +54,7 @@ class EmployeeController extends Controller
 
         $user = $request->user();
 
-        // Eager-load only the columns the list/view/edit actually read (the
-        // table & dialogs use branch/department/position name and manager
-        // full_name), instead of hydrating four full related models per row.
-        $base = Employee::with([
-            'branch:id,name',
-            'department:id,name',
-            'position:id,name',
-            'manager:id,full_name',
-            // Lookups behind the appended nationality/education/specialty/
-            // birth_place accessors — eager-loaded so serializing the page
-            // doesn't fire 4 lazy queries per row.
-            'nationalityRef:id,name',
-            'educationRef:id,name',
-            'specialtyRef:id,name',
-            'birthPlaceRef:id,name',
-        ])
+        $base = Employee::with(self::LIST_RELATIONS)
             ->active()
             ->viewableBy($user)
             ->latest()
@@ -91,7 +91,7 @@ class EmployeeController extends Controller
 
         $managers = Employee::query()
             ->active()
-            ->when(! $user->hasRole('Admin'), fn ($q) => $q->where('branch_id', $user->branch_id))
+            ->when(! $user->isAdmin(), fn ($q) => $q->where('branch_id', $user->branch_id))
             ->when($term !== '', fn ($q) => $q->where('full_name', 'like', "%{$term}%"))
             ->orderBy('full_name')
             ->limit(20)
@@ -163,10 +163,7 @@ class EmployeeController extends Controller
 
         $user = $request->user();
 
-        $base = Employee::with([
-            'branch', 'department', 'position', 'manager',
-            'nationalityRef:id,name', 'educationRef:id,name', 'specialtyRef:id,name', 'birthPlaceRef:id,name',
-        ])
+        $base = Employee::with(self::LIST_RELATIONS)
             ->dismissed()
             ->viewableBy($user)
             ->latest('dismissal_date')
@@ -180,7 +177,7 @@ class EmployeeController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        $branches = $user->branch_id !== null || $user->hasRole('Admin')
+        $branches = $user->branch_id !== null || $user->isAdmin()
             ? Branch::orderBy('name')->get()
             : collect();
 
@@ -214,7 +211,7 @@ class EmployeeController extends Controller
         $user = $request->user();
 
         $rotations = Rotation::with(['employee', 'oldBranch', 'newBranch', 'oldPosition', 'newPosition', 'oldDepartment', 'newDepartment'])
-            ->when(! $user->hasRole('Admin'), function ($q) use ($user) {
+            ->when(! $user->isAdmin(), function ($q) use ($user) {
                 // Branch users see only rotations into or out of their own branch.
                 if ($user->branch_id === null) {
                     $q->whereRaw('1=0');
@@ -257,9 +254,9 @@ class EmployeeController extends Controller
      *
      * @return array<string, mixed>
      */
-    private function referenceData($user): array
+    private function referenceData(User $user): array
     {
-        $isAdmin = $user->hasRole('Admin');
+        $isAdmin = $user->isAdmin();
         $canManage = $isAdmin || $user->branch_id !== null;
         $branchId = $user->branch_id;
 

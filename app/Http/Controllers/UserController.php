@@ -6,10 +6,10 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
 use App\Models\Branch;
 use App\Models\User;
+use App\Services\UserService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\Permission\Models\Role;
@@ -18,6 +18,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class UserController extends Controller
 {
+    public function __construct(private readonly UserService $users) {}
+
     /**
      * Display a listing of the resource.
      */
@@ -61,24 +63,7 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-
-        $branchId = $validated['role'] === User::ROLE_ADMIN ? null : $validated['branch_id'];
-
-        $user = new User([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'branch_id' => $branchId,
-        ]);
-        $user->disableLogging()->save();
-
-        $user->assignRole($validated['role']);
-
-        activity()
-            ->performedOn($user)
-            ->event('created')
-            ->log("Корбар эҷод шуд: {$user->name} ({$user->email}), нақш: {$validated['role']}");
+        $this->users->create($request->validated());
 
         return redirect()->route('users.index')
             ->with('success', 'Корбар бомуваффақият эҷод шуд.');
@@ -91,27 +76,7 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        $validated = $request->validated();
-
-        $updateData = [
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'branch_id' => $validated['role'] === User::ROLE_ADMIN ? null : $validated['branch_id'],
-        ];
-
-        if (! empty($validated['password'])) {
-            $updateData['password'] = Hash::make($validated['password']);
-        }
-
-        $user->disableLogging()->update($updateData);
-
-        // Sync roles using Spatie
-        $user->syncRoles([$validated['role']]);
-
-        activity()
-            ->performedOn($user)
-            ->event('updated')
-            ->log("Корбар навсозӣ шуд: {$user->name} ({$user->email}), нақш: {$validated['role']}");
+        $this->users->update($user, $request->validated());
 
         return redirect()->route('users.index')
             ->with('success', 'Корбар бомуваффақият навсозӣ шуд.');
@@ -126,21 +91,11 @@ class UserController extends Controller
 
         Gate::authorize('delete', $user);
 
-        $currentUser = $request->user();
-
-        if ($currentUser->id === $user->id) {
+        if ($request->user()->id === $user->id) {
             return redirect()->back()->with('error', 'Шумо наметавонед аккаунти худро нест кунед.');
         }
 
-        $name = $user->name;
-        $email = $user->email;
-
-        activity()
-            ->performedOn($user)
-            ->event('deleted')
-            ->log("Корбар нест карда шуд: {$name} ({$email})");
-
-        $user->disableLogging()->delete();
+        $this->users->delete($user);
 
         return redirect()->route('users.index')
             ->with('success', 'Корбар бомуваффақият нест карда шуд.');

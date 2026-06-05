@@ -35,7 +35,7 @@ class TrashController extends Controller
         // branch's trashed departments, the same as employees.
         $departmentsQuery = Department::onlyTrashed()->with('branch');
 
-        if (! $user->hasRole('Admin')) {
+        if (! $user->isAdmin()) {
             $usersQuery->whereRaw('1=0');
             $branchesQuery->whereRaw('1=0');
 
@@ -54,7 +54,7 @@ class TrashController extends Controller
         ]);
     }
 
-    public function restoreEmployee($id): RedirectResponse
+    public function restoreEmployee(int $id): RedirectResponse
     {
         $employee = Employee::onlyTrashed()->findOrFail($id);
         Gate::authorize('delete', $employee);
@@ -68,7 +68,7 @@ class TrashController extends Controller
         return back()->with('success', "Корманд '{$employee->full_name}' бомуваффақият барқарор карда шуд.");
     }
 
-    public function forceDeleteEmployee($id): RedirectResponse
+    public function forceDeleteEmployee(int $id): RedirectResponse
     {
         $employee = Employee::onlyTrashed()->findOrFail($id);
         Gate::authorize('delete', $employee);
@@ -78,7 +78,7 @@ class TrashController extends Controller
         return back()->with('success', "Корманд '{$employee->full_name}' аз пойгоҳи додаҳо ба таври қатъӣ нест карда шуд.");
     }
 
-    public function restoreBranch($id): RedirectResponse
+    public function restoreBranch(int $id): RedirectResponse
     {
         $branch = Branch::onlyTrashed()->findOrFail($id);
         Gate::authorize('delete', $branch);
@@ -92,7 +92,7 @@ class TrashController extends Controller
         return back()->with('success', "Филиал '{$branch->name}' бомуваффақият барқарор карда шуд.");
     }
 
-    public function forceDeleteBranch($id): RedirectResponse
+    public function forceDeleteBranch(int $id): RedirectResponse
     {
         $branch = Branch::onlyTrashed()->findOrFail($id);
         Gate::authorize('delete', $branch);
@@ -106,7 +106,7 @@ class TrashController extends Controller
         return back()->with('success', "Филиал '{$branch->name}' аз пойгоҳи додаҳо ба таври қатъӣ нест карда шуд.");
     }
 
-    public function restoreDepartment($id): RedirectResponse
+    public function restoreDepartment(int $id): RedirectResponse
     {
         $department = Department::onlyTrashed()->findOrFail($id);
         Gate::authorize('delete', $department);
@@ -120,7 +120,7 @@ class TrashController extends Controller
         return back()->with('success', "Шуъба '{$department->name}' бомуваффақият барқарор карда шуд.");
     }
 
-    public function forceDeleteDepartment($id): RedirectResponse
+    public function forceDeleteDepartment(int $id): RedirectResponse
     {
         $department = Department::onlyTrashed()->findOrFail($id);
         Gate::authorize('delete', $department);
@@ -134,7 +134,7 @@ class TrashController extends Controller
         return back()->with('success', "Шуъба '{$department->name}' аз пойгоҳи додаҳо ба таври қатъӣ нест карда шуд.");
     }
 
-    public function restoreUser($id): RedirectResponse
+    public function restoreUser(int $id): RedirectResponse
     {
         $targetUser = User::onlyTrashed()->findOrFail($id);
         Gate::authorize('delete', $targetUser);
@@ -148,7 +148,7 @@ class TrashController extends Controller
         return back()->with('success', "Корбар '{$targetUser->name}' бомуваффақият барқарор карда шуд.");
     }
 
-    public function forceDeleteUser(Request $request, $id): RedirectResponse
+    public function forceDeleteUser(Request $request, int $id): RedirectResponse
     {
         $targetUser = User::onlyTrashed()->findOrFail($id);
         Gate::authorize('delete', $targetUser);

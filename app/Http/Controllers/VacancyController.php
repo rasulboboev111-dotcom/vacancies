@@ -34,7 +34,7 @@ class VacancyController extends Controller
         $user = $request->user();
         $branches = collect();
 
-        if ($user->hasRole('Admin') || $user->branch_id !== null) {
+        if ($user->isAdmin() || $user->branch_id !== null) {
             $branches = Branch::query()->orderBy('name')->get(['id', 'name', 'code']);
         }
 
@@ -55,7 +55,7 @@ class VacancyController extends Controller
             ->through(fn (Vacancy $vacancy) => VacancyData::from($vacancy));
 
         $departmentsQuery = Department::query()->orderBy('name');
-        if (! $user->hasRole('Admin')) {
+        if (! $user->isAdmin()) {
             $departmentsQuery->where('branch_id', $user->branch_id ?? 0);
         }
 
@@ -126,7 +126,7 @@ class VacancyController extends Controller
     {
         $filter = [];
 
-        if ($request->user()->hasRole('Admin')) {
+        if ($request->user()->isAdmin()) {
             $filterBranchId = $request->integer('filter_branch_id') ?: null;
             if ($filterBranchId) {
                 $filter['branch_id'] = $filterBranchId;

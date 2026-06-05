@@ -95,6 +95,8 @@ class Employee extends Model
         'department_id' => 'integer',
         'position_id' => 'integer',
         'manager_id' => 'integer',
+        // External system's person identifier, populated by the org importer
+        // (ImportOrgStructure: $e['personId']); not a local foreign key.
         'person_id' => 'integer',
         'category' => Category::class,
         'sort_order' => 'integer',
@@ -104,6 +106,8 @@ class Employee extends Model
         'birth_place_id' => 'integer',
         'employment_type' => EmploymentType::class,
         'gender' => Gender::class,
+        // External-system HR status mirrored by the org importer. NOT the
+        // active/dismissed flag — that is `dismissal_date` (see scopeActive).
         'status' => OrgStatus::class,
         'hire_date' => 'date',
         'dismissal_date' => 'date',
@@ -167,6 +171,11 @@ class Employee extends Model
 
     /**
      * Only employees that are still employed (no dismissal date).
+     *
+     * `dismissal_date` is the single source of truth for active vs dismissed
+     * across the whole app. The `status` column (OrgStatus: Active/Inactive) is
+     * the HR status mirrored from the external system by the org importer and is
+     * NOT used for this distinction — do not branch active/dismissed logic on it.
      */
     public function scopeActive($query)
     {
