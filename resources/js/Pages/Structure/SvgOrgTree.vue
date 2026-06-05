@@ -156,19 +156,37 @@ const layout = computed(() => {
 
 const canvas = computed(() => ({ width: layout.value.width, height: layout.value.height }));
 
-// Wrap a label into at most two lines of ≤14 chars, as the source cards do.
+// Wrap a label into at most two lines of ≤14 chars so it never spills past the
+// card edge: long words are hard-broken, and an overflowing label is clipped
+// with an ellipsis on the last visible line.
+const MAX_CHARS = 14;
+const MAX_LINES = 2;
+
 function wrapLabel(label) {
+    const words = String(label ?? '').trim().split(/\s+/).filter(Boolean);
     const lines = [];
-    String(label ?? '').split(' ').forEach((word) => {
+
+    words.forEach((word) => {
+        // Break a single word that can never fit on one line.
+        while (word.length > MAX_CHARS) {
+            lines.push(word.slice(0, MAX_CHARS));
+            word = word.slice(MAX_CHARS);
+        }
         const last = lines[lines.length - 1];
-        if (last && `${last} ${word}`.length <= 14) {
+        if (last && `${last} ${word}`.length <= MAX_CHARS) {
             lines[lines.length - 1] = `${last} ${word}`;
         }
         else {
             lines.push(word);
         }
     });
-    return lines.slice(0, 2);
+
+    if (lines.length > MAX_LINES) {
+        const kept = lines.slice(0, MAX_LINES);
+        kept[MAX_LINES - 1] = `${kept[MAX_LINES - 1].slice(0, MAX_CHARS - 1)}…`;
+        return kept;
+    }
+    return lines;
 }
 
 const placed = computed(() => {
