@@ -24,8 +24,6 @@ onMounted(() => requestAnimationFrame(() => (ready.value = true)));
 
             <slot />
         </div>
-
-        <p class="auth-foot">&copy; 2026 ҶСП «Тоҷиктелеком». Ҳамаи ҳуқуқҳо ҳифз шудаанд.</p>
     </div>
 </template>
 
@@ -120,15 +118,6 @@ onMounted(() => requestAnimationFrame(() => (ready.value = true)));
     padding-left: 0.2em;
 }
 
-.auth-foot {
-    position: relative;
-    z-index: 1;
-    margin-top: 1.75rem;
-    text-align: center;
-    font-size: 0.75rem;
-    color: #94a3b8;
-    font-weight: 600;
-}
 
 @media (prefers-reduced-motion: reduce) {
     .auth-card { opacity: 1 !important; transform: none !important; transition: none !important; }
