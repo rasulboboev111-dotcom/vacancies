@@ -159,9 +159,6 @@ function handleConfirm() {
                 <v-tab v-for="t in tiles" :key="t.key" :value="t.key" class="font-weight-bold text-subtitle-2 text-none">
                     <component :is="t.icon" style="width: 16px; height: 16px; margin-right: 6px;" />
                     {{ t.label }}
-                    <v-chip v-if="t.count > 0" size="x-small" color="error" variant="flat" class="ml-2 font-weight-bold">
-                        {{ t.count }}
-                    </v-chip>
                 </v-tab>
             </v-tabs>
 

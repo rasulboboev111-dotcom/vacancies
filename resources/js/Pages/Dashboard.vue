@@ -94,15 +94,15 @@ const femaleColor = '#EC4899';
 
                     <v-row v-if="stats.vacancy_by_branch && stats.vacancy_by_branch.length > 0">
                         <v-col v-for="branch in stats.vacancy_by_branch" :key="branch.id" cols="12" sm="6" md="4" class="mb-2">
-                            <v-card elevation="0" class="pa-4 rounded-lg bg-surface-glass border transition-hover h-100">
+                            <v-card elevation="0" class="pa-4 rounded-lg transition-hover h-100" style="background: #ffffff; border: 1px solid #e2e8f0;">
                                 <div class="d-flex justify-space-between align-center mb-3">
                                     <div class="font-weight-bold text-subtitle-1 d-flex align-center text-grey-darken-4">
                                         {{ branch.name }}
                                     </div>
                                 </div>
                                 <div class="d-flex" style="gap: 12px;">
-                                    <div class="flex-grow-1 text-center pa-3 rounded-lg" style="background: rgba(245, 158, 11, 0.1);">
-                                        <div class="text-h5 font-weight-black" style="color: #d97706;">
+                                    <div class="flex-grow-1 text-center pa-3 rounded-lg" style="background: rgba(34, 197, 94, 0.1);">
+                                        <div class="text-h5 font-weight-black" style="color: #16a34a;">
                                             {{ branch.open }}
                                         </div>
                                         <div class="text-caption font-weight-bold text-grey-darken-1">
@@ -140,25 +140,17 @@ const femaleColor = '#EC4899';
 
                     <v-row>
                         <v-col v-for="branch in stats.branch_stats" :key="branch.id" cols="12" sm="6" md="4" class="mb-4">
-                            <v-card elevation="0" class="pa-4 rounded-lg bg-surface-glass border transition-hover h-100">
-                                <div class="d-flex justify-space-between align-center mb-3">
-                                    <div class="font-weight-bold text-subtitle-1 d-flex align-center text-grey-darken-4">
+                            <v-card elevation="0" class="pa-4 rounded-lg transition-hover h-100" style="background: #ffffff; border: 1px solid #e2e8f0;">
+                                <div class="d-flex justify-space-between align-start" style="gap: 8px;">
+                                    <div class="font-weight-bold text-subtitle-1 text-grey-darken-4" style="min-width: 0;">
                                         {{ branch.name }}
                                     </div>
-                                    <div class="text-h6 font-weight-black text-indigo">
-                                        {{ branch.employees_count }} <span class="text-caption text-grey">нафар.</span>
+                                    <div class="text-h6 font-weight-black" style="white-space: nowrap; flex-shrink: 0; color: #16a34a;">
+                                        {{ branch.employees_count }} <span class="text-caption" style="color: #16a34a;">нафар.</span>
                                     </div>
                                 </div>
-                                <v-progress-linear
-                                    :model-value="(branch.employees_count / (stats.total_employees || 1)) * 100"
-                                    color="indigo-accent-3"
-                                    height="8"
-                                    rounded
-                                    striped
-                                    class="mb-1"
-                                />
-                                <div class="d-flex justify-end text-caption text-grey mt-2">
-                                    <span>Ҳисса: {{ Math.round((branch.employees_count / (stats.total_employees || 1)) * 100) }}%</span>
+                                <div class="text-caption mt-2" style="color: #16a34a;">
+                                    Ҳисса: {{ Math.round((branch.employees_count / (stats.total_employees || 1)) * 100) }}%
                                 </div>
                             </v-card>
                         </v-col>
@@ -365,6 +357,11 @@ const femaleColor = '#EC4899';
 .bg-surface-glass {
     background: rgba(255, 255, 255, 0.7) !important;
     backdrop-filter: blur(12px);
+}
+/* Vuetify's .border uses a translucent colour that all but disappears on the
+   glass surfaces; give every card on the page a solid, clearly visible edge. */
+.v-card.border {
+    border-color: #dbe2ea !important;
 }
 .activity-timeline {
     max-height: 480px;
