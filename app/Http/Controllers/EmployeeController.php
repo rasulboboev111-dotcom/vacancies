@@ -214,6 +214,19 @@ class EmployeeController extends Controller
     }
 
     /**
+     * Wipe the whole rotation history. Admin-only and irreversible — mirrors the
+     * activity-log clear action.
+     */
+    public function clearRotations(Request $request): RedirectResponse
+    {
+        abort_unless($request->user()->isAdmin(), 403);
+
+        Rotation::query()->delete();
+
+        return back()->with('success', 'Таърихи ҷобаҷогузорӣ пурра тоза карда шуд.');
+    }
+
+    /**
      * Reference vocabularies for the employees screen.
      *
      * Only branches/departments/types are needed for the toolbar filters on

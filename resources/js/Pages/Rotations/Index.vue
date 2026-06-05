@@ -1,15 +1,34 @@
 <script setup>
 import { Head, router } from '@inertiajs/vue3';
-import { GitFork, RefreshCw } from '@lucide/vue';
+import { GitFork, RefreshCw, Trash2, TriangleAlert } from '@lucide/vue';
+import { ref } from 'vue';
+import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import RotationTimelineItem from '@/Pages/Rotations/RotationTimelineItem.vue';
 
-defineProps({
+const props = defineProps({
     rotations: { type: Object, required: true },
 });
 
+const { isAdmin } = usePermissions();
+
 function changePage(page) {
     router.get(route('rotations.index'), { page }, { preserveState: true });
+}
+
+// Clear-all confirmation flow (admin only, irreversible).
+const clearDialog = ref(false);
+const clearing = ref(false);
+
+function clearRotations() {
+    clearing.value = true;
+    router.delete(route('rotations.clear'), {
+        preserveScroll: true,
+        onFinish: () => {
+            clearing.value = false;
+            clearDialog.value = false;
+        },
+    });
 }
 </script>
 
@@ -52,6 +71,16 @@ function changePage(page) {
                 {{ rotations.total }}
                 <em>сабт</em>
             </span>
+
+            <button
+                v-if="isAdmin && rotations.total"
+                type="button"
+                class="rot-clear"
+                @click="clearDialog = true"
+            >
+                <Trash2 class="rot-clear__icon" />
+                <span>Тоза кардан</span>
+            </button>
         </div>
 
         <!-- Rotation cards -->
@@ -89,6 +118,44 @@ function changePage(page) {
                 @update:model-value="changePage"
             />
         </div>
+
+        <!-- Clear-all confirmation (admin) -->
+        <v-dialog v-model="clearDialog" max-width="440px">
+            <v-card class="rounded-xl overflow-hidden" elevation="8" style="background: #ffffff;">
+                <div class="pa-6 text-center">
+                    <v-avatar color="red-lighten-5" size="56" class="mb-3">
+                        <TriangleAlert style="width: 28px; height: 28px; color: #e11d48;" />
+                    </v-avatar>
+                    <h3 class="text-h6 font-weight-bold mb-2" style="color: #1e293b;">
+                        Тоза кардани таърихи ҷобаҷогузорӣ?
+                    </h3>
+                    <p class="text-body-2" style="color: #64748b;">
+                        Ҳамаи <b style="color: #1e293b;">{{ rotations.total || 0 }}</b> сабти ҷобаҷогузорӣ нест карда мешавад.
+                        Ин амал бебозгашт аст.
+                    </p>
+                </div>
+                <v-divider />
+                <v-card-actions class="pa-4">
+                    <v-btn variant="text" rounded="lg" :disabled="clearing" style="color: #475569;" @click="clearDialog = false">
+                        Бекор кардан
+                    </v-btn>
+                    <v-spacer />
+                    <v-btn
+                        variant="flat"
+                        rounded="lg"
+                        class="px-5 font-weight-bold"
+                        style="background-color: #e11d48 !important; color: #ffffff !important;"
+                        :loading="clearing"
+                        @click="clearRotations"
+                    >
+                        <template #prepend>
+                            <Trash2 style="width: 16px; height: 16px; color: #ffffff;" />
+                        </template>
+                        Бале, тоза кун
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </AuthenticatedLayout>
 </template>
 
@@ -186,6 +253,35 @@ function changePage(page) {
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: #94a3b8;
+}
+
+/* ── Admin clear-all button ── */
+.rot-clear {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: 0;
+    background: linear-gradient(180deg, #f43f5e 0%, #e11d48 100%) !important;
+    color: #fff !important;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    box-shadow: 0 6px 16px -6px rgba(225, 29, 72, 0.5);
+}
+.rot-clear:hover {
+    background: linear-gradient(180deg, #e11d48 0%, #be123c 100%) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 22px -8px rgba(225, 29, 72, 0.6);
+}
+.rot-clear:active { transform: translateY(0); }
+.rot-clear__icon {
+    width: 16px;
+    height: 16px;
+    color: #fff !important;
 }
 
 /* ── Card list ── */
