@@ -60,14 +60,36 @@ export function buildOrgTree(structure) {
         return node;
     };
 
+    const branches = structure.map(mapBranch);
+
+    // The head company is the Business Unit at the top of the org — the only
+    // branch whose name is not a regional "Филиал …". It becomes the tree root
+    // (showing its real name, e.g. ҶСК "Тоҷиктелеком"), with the regional
+    // filials hanging beneath it. This shows the company once, as the top BU,
+    // instead of a synthetic "Organisation" root duplicated by a same-named
+    // company branch.
+    const isFilialBranch = branch => String(branch.label ?? '').trim().toLowerCase().startsWith('филиал');
+    const headIndex = branches.findIndex(branch => !isFilialBranch(branch));
+
+    if (headIndex === -1) {
+        // No identifiable head company — keep the neutral synthetic root.
+        return {
+            id: 'root',
+            kind: 'root',
+            label: 'Ташкилот',
+            code: null,
+            employeeCount: 0,
+            vacancies: 0,
+            children: branches,
+        };
+    }
+
+    const head = branches[headIndex];
+    const filials = branches.filter((_, index) => index !== headIndex);
+
     return {
-        id: 'root',
-        kind: 'root',
-        label: 'Ташкилот',
-        code: null,
-        employeeCount: 0,
-        vacancies: 0,
-        children: structure.map(mapBranch),
+        ...head,
+        children: [...head.children, ...filials],
     };
 }
 

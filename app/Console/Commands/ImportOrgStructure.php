@@ -405,62 +405,101 @@ class ImportOrgStructure extends Command
     /**
      * Repair the company↔filial business-unit boundary in the source data.
      *
-     * The API tags each regional filial's *header* node (e.g. "Филиал дар
-     * вилояти Суғд") with the parent company's businessUnit, while every
-     * department beneath it carries the filial's own businessUnit. Left as-is
-     * that strands the header — and the staff attached to it, including the
-     * filial director — in the parent company, and leaves the filial branch as
-     * a headless forest of root departments.
+     * The source nests its whole org as one parent→child tree and renders it
+     * that way; the businessUnit tags are an unreliable second layer. A filial
+     * is introduced by a "Филиал …" header node (the regional offices and the
+     * central filial); real departments never start with that word. The API
+     * tags each filial header with the *company's* unit and is inconsistent
+     * about the departments beneath it:
      *
-     * We promote a header to its children's unit, but only when ALL of its
-     * children unanimously belong to a single *other* unit, so a lone stray tag
-     * can never drag an unrelated subtree across branches. Parents whose
-     * children genuinely span several units are reported, not guessed.
+     *  - Regional filials (Суғд, Хатлон, …): every department carries the
+     *    filial's own unit, so the unit is obvious from the subtree.
+     *  - The central filial (#137): all but one of its departments are
+     *    mis-tagged as the company, leaving a single correctly-tagged node to
+     *    reveal the real unit — which is enough.
      *
-     * One pass suffices: the source mis-tags exactly the header level, and the
-     * child-unit map is read from the original tags before any change applies.
+     * So for each filial header we take the dominant *non-company* unit found
+     * anywhere in its subtree and re-tag the header and its whole subtree to it.
+     * That rebuilds each filial as one connected branch matching the source
+     * tree, instead of stranding the header (and most of its departments) in the
+     * company while a lone child forms a 1-department filial.
      *
      * @param  array<int,array<string,mixed>>  $nodes  id => node, by reference
-     * @return int number of header nodes re-tagged
+     * @return int number of nodes re-tagged
      */
     private function normalizeBusinessUnits(array &$nodes): int
     {
-        // Collapse each parent's child units into a single shared unit, or
-        // false when the children span more than one unit.
-        $childUnit = [];     // parentId => businessUnitId | false (mixed)
-        $childUnitName = []; // parentId => businessUnitName of that unit
-        foreach ($nodes as $n) {
-            $parentId = $n['parentId'];
-            if ($parentId === null) {
-                continue;
-            }
-            $bu = $this->businessUnit($n);
-            if (! array_key_exists($parentId, $childUnit)) {
-                $childUnit[$parentId] = $bu;
-                $childUnitName[$parentId] = $n['businessUnitName'] ?? null;
-            } elseif ($childUnit[$parentId] !== $bu) {
-                $childUnit[$parentId] = false;
+        // parentId => [childId, ...]
+        $childrenOf = [];
+        foreach ($nodes as $id => $n) {
+            if ($n['parentId'] !== null) {
+                $childrenOf[$n['parentId']][] = $id;
             }
         }
+
+        $isFilialHeader = static function (array $n): bool {
+            return str_starts_with(mb_strtolower(trim((string) ($n['name'] ?? ''))), 'филиал');
+        };
+
+        // First businessUnitName seen for each unit, so a re-tagged subtree can
+        // carry the filial's display name.
+        $buName = [];
+        foreach ($nodes as $n) {
+            $bu = $n['businessUnitId'] ?? null;
+            if ($bu !== null && ! isset($buName[$bu]) && ! empty($n['businessUnitName'])) {
+                $buName[$bu] = $n['businessUnitName'];
+            }
+        }
+
+        // Collect a node's descendants without crossing a nested filial header.
+        $descendants = function (int $rootId) use ($childrenOf, $isFilialHeader, $nodes): array {
+            $out = [];
+            $stack = $childrenOf[$rootId] ?? [];
+            while ($stack) {
+                $id = array_pop($stack);
+                $out[] = $id;
+                if (! $isFilialHeader($nodes[$id])) {
+                    foreach (($childrenOf[$id] ?? []) as $child) {
+                        $stack[] = $child;
+                    }
+                }
+            }
+
+            return $out;
+        };
 
         $promoted = 0;
-        foreach ($nodes as $id => &$n) {
-            $kidUnit = $childUnit[$id] ?? null;
-
-            if ($kidUnit === false) {
-                $this->warn("Department #{$id} ({$n['name']}) has children across multiple business units; left as-is.");
-
+        foreach ($nodes as $id => $n) {
+            if (! $isFilialHeader($n)) {
                 continue;
             }
 
-            $bu = $this->businessUnit($n);
-            if ($kidUnit !== null && $kidUnit !== $bu) {
-                $n['businessUnitId'] = $kidUnit;
-                $n['businessUnitName'] = $childUnitName[$id] ?? $n['businessUnitName'];
-                $promoted++;
+            $company = $n['companyId'];
+            $subtree = array_merge([$id], $descendants($id));
+
+            // Dominant non-company unit across the header and its subtree.
+            $tally = [];
+            foreach ($subtree as $nid) {
+                $bu = $nodes[$nid]['businessUnitId'] ?? $company;
+                if ($bu !== $company) {
+                    $tally[$bu] = ($tally[$bu] ?? 0) + 1;
+                }
+            }
+            if (! $tally) {
+                continue; // a company-level node merely named "Филиал…" — leave it
+            }
+            arsort($tally);
+            $filialBu = array_key_first($tally);
+            $filialName = $buName[$filialBu] ?? ($n['businessUnitName'] ?? null);
+
+            foreach ($subtree as $nid) {
+                if (($nodes[$nid]['businessUnitId'] ?? null) !== $filialBu) {
+                    $nodes[$nid]['businessUnitId'] = $filialBu;
+                    $nodes[$nid]['businessUnitName'] = $filialName;
+                    $promoted++;
+                }
             }
         }
-        unset($n);
 
         return $promoted;
     }
