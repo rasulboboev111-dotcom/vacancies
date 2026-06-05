@@ -1,107 +1,136 @@
 <script setup>
-import { Link } from '@inertiajs/vue3';
+import { onMounted, ref } from 'vue';
+
+const ready = ref(false);
+onMounted(() => requestAnimationFrame(() => (ready.value = true)));
 </script>
 
 <template>
-    <div
-        class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-slate-50 text-slate-900 font-sans"
-        style="background: #f8fafc;"
-    >
-        <!-- Decorative Ambient Light -->
-        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-sky-500/5 rounded-full blur-[120px] pointer-events-none" />
+    <div class="auth-shell" :class="{ 'is-ready': ready }">
+        <!-- soft ambient brand glows -->
+        <div class="auth-shell__glow auth-shell__glow--a" />
+        <div class="auth-shell__glow auth-shell__glow--b" />
 
-        <div class="relative z-10 w-full max-w-md px-6 py-12">
-            <!-- Premium Light Container Card -->
-            <div
-                class="w-full bg-white/95 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-8 shadow-xl relative overflow-hidden"
-                style="box-shadow: 0 20px 50px -12px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9);"
-            >
-                <!-- Top Glow Line with Tojiktelecom Primary Brand Gradient -->
-                <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-transparent via-[#009cf1] to-transparent" />
+        <div class="auth-card">
+            <span class="auth-card__top" />
 
-                <!-- Logo & Brand -->
-                <div class="flex flex-col items-center mb-8">
-                    <Link href="/" class="flex flex-col items-center group">
-                        <div class="px-6 py-4 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-md transform group-hover:scale-105 transition-transform duration-300">
-                            <img src="https://tojiktelecom.tj/logonew.svg" style="height: 44px; width: auto; object-fit: contain;" alt="Tojiktelecom">
-                        </div>
-                        <span class="mt-5 text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700">TOJIKTELECOM</span>
-                        <span class="text-xs text-sky-600 font-bold uppercase tracking-widest mt-1 opacity-90">HR-Портал</span>
-                    </Link>
-                </div>
-
-                <slot />
+            <!-- Logo & brand -->
+            <div class="auth-brand">
+                <span class="auth-brand__logo">
+                    <img src="https://tojiktelecom.tj/logonew.svg" alt="Tojiktelecom">
+                </span>
+                <span class="auth-brand__name">TOJIKTELECOM</span>
             </div>
 
-            <!-- Footer Meta -->
-            <div class="mt-8 text-center text-xs text-slate-400 font-semibold">
-                &copy; 2026 ҶСП "Тоҷиктелеком". Ҳамаи ҳуқуқҳо ҳифз шудаанд.
-            </div>
+            <slot />
         </div>
+
+        <p class="auth-foot">&copy; 2026 ҶСП «Тоҷиктелеком». Ҳамаи ҳуқуқҳо ҳифз шудаанд.</p>
     </div>
 </template>
 
 <style scoped>
-/* Premium light form element styling for auth pages */
-:deep(label) {
-    color: #009cf1 !important; /* Tojiktelecom Dark Navy */
-    font-weight: 700 !important;
-    font-size: 0.85rem !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.05em !important;
+.auth-shell {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 2rem 1.25rem;
+    font-family: 'Manrope', system-ui, sans-serif;
+    background:
+        radial-gradient(circle at 50% 0%, #f1f8fe 0%, transparent 55%),
+        #f7f9fc;
+}
+.auth-shell__glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+}
+.auth-shell__glow--a {
+    width: 460px;
+    height: 460px;
+    top: -160px;
+    right: -120px;
+    background: rgba(0, 156, 241, 0.16);
+}
+.auth-shell__glow--b {
+    width: 420px;
+    height: 420px;
+    bottom: -180px;
+    left: -120px;
+    background: rgba(79, 70, 229, 0.12);
 }
 
-:deep(input[type="email"]),
-:deep(input[type="password"]),
-:deep(input[type="text"]) {
-    background-color: #f8fafc !important; /* Very soft slate */
-    border: 1px solid #e2e8f0 !important; /* Soft gray border */
-    border-radius: 12px !important;
-    color: #0f172a !important; /* Dark Slate text */
-    padding: 0.75rem 1rem !important;
-    font-size: 0.9rem !important;
-    font-weight: 500 !important;
-    line-height: 1.25rem !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+.auth-card {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 26rem;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(14px);
+    border: 1px solid #e8edf4;
+    border-radius: 24px;
+    padding: 2.5rem 2.25rem;
+    box-shadow:
+        0 24px 60px -20px rgba(15, 27, 45, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(18px) scale(0.99);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.is-ready .auth-card { opacity: 1; transform: none; }
+.auth-card__top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #009cf1 50%, transparent);
 }
 
-:deep(input[type="email"]:focus),
-:deep(input[type="password"]:focus),
-:deep(input[type="text"]:focus) {
-    border-color: #009cf1 !important; /* Tojiktelecom Azure focus */
-    background-color: #ffffff !important;
-    box-shadow: 0 0 0 3px rgba(0, 156, 241, 0.12), 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+.auth-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 2rem;
+}
+.auth-brand__logo {
+    display: grid;
+    place-items: center;
+    width: 88px;
+    height: 80px;
+    border-radius: 20px;
+    background: #fff;
+    border: 1px solid #eef2f7;
+    box-shadow: 0 10px 24px -12px rgba(0, 97, 184, 0.35);
+}
+.auth-brand__logo img { height: 48px; width: auto; object-fit: contain; }
+.auth-brand__name {
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    font-size: 0.98rem;
+    color: #0f1b2d;
+    padding-left: 0.2em;
 }
 
-:deep(span.text-slate-300) {
-    color: #334155 !important; /* Dark Slate for Remember me label */
-    font-weight: 600 !important;
+.auth-foot {
+    position: relative;
+    z-index: 1;
+    margin-top: 1.75rem;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
 }
 
-:deep(a.text-slate-400) {
-    color: #64748b !important; /* Cool gray link */
-    font-weight: 600 !important;
-    transition: color 0.15s ease !important;
-}
-
-:deep(a.text-slate-400:hover) {
-    color: #009cf1 !important; /* Brand azure hover */
-    text-decoration: underline !important;
-}
-
-/* Override default primary buttons on auth forms to match light brand style */
-:deep(button[type="submit"]) {
-    background: #009cf1 !important;
-    box-shadow: 0 8px 20px -6px rgba(0, 156, 241, 0.4) !important;
-    border-radius: 12px !important;
-    text-transform: none !important;
-    font-weight: 700 !important;
-    letter-spacing: normal !important;
-    transition: all 0.25s ease !important;
-}
-:deep(button[type="submit"]:hover) {
-    transform: translateY(-1px) !important;
-    box-shadow: 0 10px 24px -5px rgba(0, 156, 241, 0.5) !important;
+@media (prefers-reduced-motion: reduce) {
+    .auth-card { opacity: 1 !important; transform: none !important; transition: none !important; }
 }
 </style>
