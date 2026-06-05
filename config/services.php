@@ -36,14 +36,11 @@ return [
     ],
 
     // Tojiktelecom org-structure API — source of truth for the daily employee
-    // sync. Access is via the SSO sign-in flow (auth.tojiktelecom.tj), so we
-    // authenticate with service-account credentials, not a static token.
+    // sync. The versioned endpoint authenticates with a static bearer token
+    // (Authorization: Bearer …), so a single GET returns the whole tree.
     'tojiktelecom' => [
-        'structure_url' => env('TOJIKTELECOM_API_URL', 'https://org.tojiktelecom.tj/organization/api/structure'),
-        'login_url' => env('TOJIKTELECOM_LOGIN_URL', 'https://org.tojiktelecom.tj/auth/login'),
-        'signin_url' => env('TOJIKTELECOM_SIGNIN_URL', 'https://auth.tojiktelecom.tj/signin'),
-        'email' => env('TOJIKTELECOM_EMAIL'),
-        'password' => env('TOJIKTELECOM_PASSWORD'),
+        'structure_url' => env('TOJIKTELECOM_API_URL', 'https://org.tojiktelecom.tj/api/v1/organization/structure'),
+        'token' => env('TOJIKTELECOM_TOKEN'),
     ],
 
 ];

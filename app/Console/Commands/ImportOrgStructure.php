@@ -7,7 +7,6 @@ use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Position;
-use GuzzleHttp\Cookie\CookieJar;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -262,74 +261,31 @@ class ImportOrgStructure extends Command
     }
 
     /**
-     * Fetch the structure live from the Tojiktelecom API.
+     * Fetch the structure live from the Tojiktelecom org-structure API.
      *
-     * Access is gated by the company SSO (auth.tojiktelecom.tj, OAuth code
-     * flow), so there is no static API token: we sign in with service-account
-     * credentials, let a shared cookie jar carry the session across the
-     * authorize→callback redirect chain, then call the structure endpoint. This
-     * is the path the daily scheduled sync takes; the updateOrCreate mapping
-     * below then reconciles our tables with the source.
+     * The versioned endpoint (/api/v1/organization/structure) authenticates with
+     * a static bearer token, so a single GET returns the whole company →
+     * departments → employees tree. The updateOrCreate mapping below then
+     * reconciles our tables with the source — keyed on external_id everywhere,
+     * so re-runs update existing rows in place rather than duplicating them.
      *
      * @return array<string,mixed>|null null on any error (already reported)
      */
     private function fetchFromApi(): ?array
     {
-        $email = (string) config('services.tojiktelecom.email');
-        $password = (string) config('services.tojiktelecom.password');
+        $token = (string) config('services.tojiktelecom.token');
 
-        if ($email === '' || $password === '') {
-            $this->error('Set TOJIKTELECOM_EMAIL and TOJIKTELECOM_PASSWORD in .env to sync from the API.');
+        if ($token === '') {
+            $this->error('Set TOJIKTELECOM_TOKEN in .env to sync from the API.');
 
             return null;
         }
 
-        // One cookie jar shared across both domains for the whole flow — the
-        // SSO sets JWT cookies on auth.* and the callback sets the app session
-        // on org.*, exactly like a browser would.
-        $jar = new CookieJar;
-        $http = Http::withOptions([
-            'cookies' => $jar,
-            'allow_redirects' => ['max' => 10, 'referer' => true],
-        ])->timeout(60)->withHeaders([
-            'User-Agent' => 'vacancies-sync/1.0',
-        ]);
-
         try {
-            // 1) Load the login page; it redirects to the SSO authorize form,
-            //    which carries the OAuth return URL we must echo back ("rd").
-            $loginUrl = (string) config('services.tojiktelecom.login_url');
-            $page = $http->get($loginUrl);
-            if (! preg_match('/name="rd"\s+value="([^"]+)"/i', $page->body(), $m)) {
-                $this->error('Could not locate the SSO return URL (rd) on the login page.');
-
-                return null;
-            }
-            $rd = html_entity_decode($m[1]);
-
-            // 2) Submit credentials. On success the SSO returns JSON with the
-            //    authorize URL to follow (not an HTTP redirect).
-            $signinUrl = (string) config('services.tojiktelecom.signin_url');
-            $signin = $http->asForm()->acceptJson()->post($signinUrl, [
-                'email' => $email,
-                'password' => $password,
-                'rd' => $rd,
-            ]);
-            $redirect = $signin->json('redirect');
-            if (! is_string($redirect) || $redirect === '') {
-                $this->error('SSO sign-in failed (no redirect returned) — check the credentials.');
-
-                return null;
-            }
-
-            // 3) Follow authorize → callback → app: this is where the org
-            //    session cookie gets established in the jar.
-            $http->get($redirect);
-
-            // 4) Now authenticated, pull the structure with employees.
             $url = (string) config('services.tojiktelecom.structure_url');
-            $response = $http->acceptJson()
-                ->withHeaders(['X-Requested-With' => 'XMLHttpRequest'])
+            $response = Http::acceptJson()
+                ->withToken($token)
+                ->timeout(60)
                 ->retry(2, 2000)
                 ->get($url, ['with_employees' => 'true']);
         } catch (\Throwable $e) {
