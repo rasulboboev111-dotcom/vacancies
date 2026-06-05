@@ -45,14 +45,14 @@ class VacancyController extends Controller
             ->latest('opened_at')
             ->latest('id');
 
-        $vacancies = VacancyData::collect(
-            QueryBuilder::for($base)
-                ->allowedFilters([
-                    AllowedFilter::exact('branch_id'),
-                    AllowedFilter::exact('status'),
-                ])
-                ->get()
-        );
+        $vacancies = QueryBuilder::for($base)
+            ->allowedFilters([
+                AllowedFilter::exact('branch_id'),
+                AllowedFilter::exact('status'),
+            ])
+            ->paginate(10)
+            ->withQueryString()
+            ->through(fn (Vacancy $vacancy) => VacancyData::from($vacancy));
 
         $departmentsQuery = Department::query()->orderBy('name');
         if (! $user->hasRole('Admin')) {

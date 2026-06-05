@@ -11,7 +11,7 @@ import VacancyTable from '@/Pages/Vacancies/VacancyTable.vue';
 import VacancyViewDialog from '@/Pages/Vacancies/VacancyViewDialog.vue';
 
 const props = defineProps({
-    vacancies: { type: Array, required: true },
+    vacancies: { type: Object, required: true },
     branches: { type: Array, required: true },
     departments: { type: Array, required: true },
     positions: { type: Array, required: true },
@@ -45,6 +45,21 @@ const canDelete = vacancy => canManageInBranch('delete vacancies', vacancy.branc
 
 function reload() {
     router.get(route('vacancies.index'), {
+        filter: {
+            branch_id: isAdmin.value ? selectedBranchId.value || undefined : undefined,
+            status: selectedStatus.value || undefined,
+        },
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+        replace: true,
+    });
+}
+
+// Jump to a page while keeping the active filters.
+function changePage(page) {
+    router.get(route('vacancies.index'), {
+        page,
         filter: {
             branch_id: isAdmin.value ? selectedBranchId.value || undefined : undefined,
             status: selectedStatus.value || undefined,
@@ -213,7 +228,7 @@ function confirmDelete() {
         </v-card>
 
         <VacancyTable
-            :vacancies="vacancies"
+            :vacancies="vacancies.data"
             :is-admin="isAdmin"
             :can-manage="canManage"
             :can-delete="canDelete"
@@ -222,6 +237,23 @@ function confirmDelete() {
             @delete="openDeleteDialog"
             @toggle="toggleStatus"
         />
+
+        <!-- Pagination -->
+        <div v-if="vacancies.data.length > 0" class="d-flex align-center justify-space-between flex-wrap gap-3 mt-4 pt-3" style="border-top: 1px solid #e9edf3;">
+            <div class="text-caption font-weight-bold" style="color: #94a3b8;">
+                Нишон дода шуд {{ vacancies.from || 0 }} – {{ vacancies.to || 0 }} аз {{ vacancies.total || 0 }} вакансия
+            </div>
+            <v-pagination
+                v-if="vacancies.last_page > 1"
+                :model-value="vacancies.current_page"
+                :length="vacancies.last_page"
+                :total-visible="5"
+                density="comfortable"
+                rounded="lg"
+                active-color="indigo"
+                @update:model-value="changePage"
+            />
+        </div>
 
         <VacancyFormDialog
             v-model="dialog"
