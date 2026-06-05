@@ -52,7 +52,7 @@ class UpdateVacancyRequest extends FormRequest
             'employment_type' => ['nullable', Rule::in($employmentTypes)],
             'requirements' => ['nullable', 'string', 'max:5000'],
             'schedule' => ['nullable', 'string', 'max:255'],
-            'salary' => ['nullable', 'string', 'max:255'],
+            'salary' => ['nullable', 'integer', 'min:0', 'max:1000000000'],
             'description' => ['nullable', 'string', 'max:5000'],
             'opened_at' => ['nullable', 'date'],
             'status' => ['nullable', Rule::enum(VacancyStatus::class)],

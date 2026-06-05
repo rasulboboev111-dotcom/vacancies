@@ -33,7 +33,7 @@ class VacancyData extends Data
         public ?string $employment_type_label,
         public ?string $requirements,
         public ?string $schedule,
-        public ?string $salary,
+        public ?int $salary,
         public ?string $description,
         public ?string $status,
         public ?string $opened_at,

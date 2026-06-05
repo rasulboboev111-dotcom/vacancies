@@ -272,6 +272,10 @@ const submit = handleSubmit((values) => {
                                 <v-text-field
                                     v-model="salary"
                                     v-bind="salaryAttrs"
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    suffix="сомонӣ"
                                     variant="outlined"
                                     density="comfortable"
                                     rounded="lg"

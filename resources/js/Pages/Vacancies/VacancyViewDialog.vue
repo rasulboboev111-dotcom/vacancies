@@ -64,7 +64,7 @@ const open = defineModel({ type: Boolean, default: false });
                             <DataField label="Ҷадвали корӣ" :value="vacancy.schedule" />
                         </v-col>
                         <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Маош" :value="vacancy.salary" />
+                            <DataField label="Маош" :value="vacancy.salary != null ? `${vacancy.salary.toLocaleString('ru-RU')} сомонӣ` : null" />
                         </v-col>
                         <v-col cols="12" sm="6" class="py-2">
                             <DataField label="Санаи кушодашавӣ" :value="formatDate(vacancy.opened_at)" />

@@ -39,6 +39,7 @@ class Vacancy extends Model
         'position_id' => 'integer',
         'created_by' => 'integer',
         'openings' => 'integer',
+        'salary' => 'integer',
         'employment_type' => EmploymentType::class,
         'status' => VacancyStatus::class,
         'opened_at' => 'date',

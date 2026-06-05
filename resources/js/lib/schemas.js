@@ -83,7 +83,15 @@ export const vacancySchema = z.object({
     employment_type: z.string().nullish(),
     requirements: z.string().max(5000, 'Ҳадди ниҳоӣ 5000 аломат').nullish(),
     schedule: z.string().max(255, 'Ҳадди ниҳоӣ 255 аломат').nullish(),
-    salary: z.string().max(255, 'Ҳадди ниҳоӣ 255 аломат').nullish(),
+    // Salary is a whole number; an empty field is treated as "not specified" (null).
+    salary: z.preprocess(
+        v => (v === '' || v === null || v === undefined ? null : v),
+        z.coerce.number({ invalid_type_error: 'Маош бояд рақам бошад' })
+            .int('Маош бояд рақами бутун бошад')
+            .min(0, 'Маош манфӣ буда наметавонад')
+            .max(1000000000, 'Хеле зиёд')
+            .nullable(),
+    ),
     description: z.string().max(5000, 'Ҳадди ниҳоӣ 5000 аломат').nullish(),
     opened_at: z.string().nullish(),
     status: z.string().nullish(),

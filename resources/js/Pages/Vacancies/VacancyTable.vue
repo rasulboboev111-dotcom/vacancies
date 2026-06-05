@@ -74,7 +74,7 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
                         {{ vacancy.schedule || '—' }}
                     </td>
                     <td class="pa-3 vac-secondary text-center">
-                        {{ vacancy.salary || '—' }}
+                        {{ vacancy.salary != null ? `${vacancy.salary.toLocaleString('ru-RU')} сом.` : '—' }}
                     </td>
                     <td class="pa-3 text-center">
                         <v-chip
