@@ -344,13 +344,11 @@ onBeforeUnmount(() => {
                     <span>Сохтор</span>
                 </div>
                 <div class="org-header__actions">
-                    <button type="button" class="org-btn" title="Печондани ҳама" @click="collapseAll">
+                    <button type="button" class="org-btn org-btn--icon" title="Печондани ҳама" @click="collapseAll">
                         <ChevronsDownUp style="width: 16px; height: 16px;" />
-                        <span class="org-btn__label">Печондан</span>
                     </button>
-                    <button type="button" class="org-btn" title="Кушодани ҳама" @click="expandAll">
+                    <button type="button" class="org-btn org-btn--icon" title="Кушодани ҳама" @click="expandAll">
                         <ChevronsUpDown style="width: 16px; height: 16px;" />
-                        <span class="org-btn__label">Кушодан</span>
                     </button>
                     <button
                         type="button"

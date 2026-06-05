@@ -4,7 +4,6 @@ import {
     Briefcase,
     Building2,
     CheckCircle2,
-    Clock,
     DoorOpen,
     FolderOpen,
     LayoutDashboard,
@@ -15,16 +14,11 @@ import {
     Venus,
 } from '@lucide/vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { getEventText } from '@/Pages/ActivityLogs/activityEvents';
 import StatCard from '@/Pages/Dashboard/StatCard.vue';
 
 defineProps({
     stats: {
         type: Object,
-        required: true,
-    },
-    recent_activities: {
-        type: Array,
         required: true,
     },
 });
@@ -37,15 +31,6 @@ const pct = (n, total) => (total ? Math.round((n / total) * 100) : 0);
 
 // Sum of a {male, female, unspecified} gender tally.
 const genderTotal = g => (g ? g.male + g.female + g.unspecified : 0);
-
-// Timeline dot/chip colour for a recent-activity event.
-function activityColor(event) {
-    switch (event) {
-        case 'created': return 'success';
-        case 'updated': return 'primary';
-        default: return 'error';
-    }
-}
 
 const maleColor = '#009cf1';
 const femaleColor = '#EC4899';
@@ -267,11 +252,10 @@ const femaleColor = '#EC4899';
             </v-col>
         </v-row>
 
-        <!-- Category & Type Splits & Activity Logs -->
+        <!-- Category & Type Splits -->
         <v-row>
-            <!-- Category and Type Splits -->
-            <v-col cols="12" md="6" class="d-flex flex-column gap-6">
-                <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass mb-6">
+            <v-col cols="12" md="6">
+                <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass h-100">
                     <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
                         <FolderOpen style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" />
                         Категорияҳои кормандон
@@ -291,8 +275,10 @@ const femaleColor = '#EC4899';
                         />
                     </div>
                 </v-card>
+            </v-col>
 
-                <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass">
+            <v-col cols="12" md="6">
+                <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass h-100">
                     <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
                         <Briefcase style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" />
                         Намуди шуғл
@@ -313,42 +299,6 @@ const femaleColor = '#EC4899';
                     </div>
                 </v-card>
             </v-col>
-
-            <!-- Activity Logs -->
-            <v-col cols="12" md="6">
-                <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass h-100">
-                    <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
-                        <Clock style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" />
-                        Фаъолияти охирин
-                    </v-card-title>
-                    <v-divider class="mb-5" />
-
-                    <v-timeline density="compact" align="start" class="activity-timeline">
-                        <v-timeline-item
-                            v-for="activity in recent_activities"
-                            :key="activity.id"
-                            :dot-color="activityColor(activity.event)"
-                            size="x-small"
-                        >
-                            <div class="mb-1">
-                                <span class="font-weight-black text-subtitle-2 text-indigo-darken-2">{{ activity.causer_name }}</span>
-                                <v-chip size="x-small" :color="activityColor(activity.event)" class="ml-2 px-2 text-uppercase font-weight-black" variant="tonal">
-                                    {{ getEventText(activity.event) }}
-                                </v-chip>
-                                <span class="text-caption text-grey ml-auto d-inline-block">{{ activity.created_at }}</span>
-                            </div>
-                            <div class="text-body-2 text-grey-darken-3 font-weight-medium bg-surface pa-2 rounded-lg border">
-                                {{ activity.description }}
-                            </div>
-                        </v-timeline-item>
-                        <v-timeline-item v-if="recent_activities.length === 0" dot-color="grey" size="x-small">
-                            <div class="text-body-2 text-grey font-weight-medium">
-                                Ҳоло ягон фаъолият сабт нашудааст.
-                            </div>
-                        </v-timeline-item>
-                    </v-timeline>
-                </v-card>
-            </v-col>
         </v-row>
     </AuthenticatedLayout>
 </template>
@@ -362,23 +312,5 @@ const femaleColor = '#EC4899';
    glass surfaces; give every card on the page a solid, clearly visible edge. */
 .v-card.border {
     border-color: #dbe2ea !important;
-}
-.activity-timeline {
-    max-height: 480px;
-    overflow-y: auto;
-    padding-right: 8px;
-}
-.activity-timeline::-webkit-scrollbar {
-    width: 6px;
-}
-.activity-timeline::-webkit-scrollbar-track {
-    background: transparent;
-}
-.activity-timeline::-webkit-scrollbar-thumb {
-    background: rgba(0, 156, 241, 0.2);
-    border-radius: 3px;
-}
-.activity-timeline::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 156, 241, 0.4);
 }
 </style>

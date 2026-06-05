@@ -103,7 +103,7 @@ function prefetch(name) {
                 </v-list-item>
 
                 <v-list-item
-                    title="Ҷобаҷогузорӣ"
+                    title="Ротатсия"
                     :active="route().current('rotations.index')"
                     color="indigo"
                     rounded="lg"
@@ -131,7 +131,7 @@ function prefetch(name) {
                 </v-list-item>
 
                 <v-list-item
-                    title="Бойгонӣ (Нафақахӯрон)"
+                    title="Бойгонӣ"
                     :active="route().current('employees.archive')"
                     color="indigo"
                     rounded="lg"
