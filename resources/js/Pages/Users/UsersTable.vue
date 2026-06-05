@@ -1,7 +1,7 @@
 <script setup>
-import { Building2, MoreVertical, Pencil, Trash2, User } from '@lucide/vue';
+import { Building2, Globe, MoreVertical, Pencil, Trash2, User } from '@lucide/vue';
 import { formatDate } from '@/lib/date';
-import { getRoleColor, getRoleLabel } from '@/Pages/Users/userRoles';
+import { getRoleColor, getRoleLabel, getRoleVariant } from '@/Pages/Users/userRoles';
 
 defineProps({
     users: { type: Array, required: true },
@@ -16,19 +16,19 @@ defineEmits(['edit', 'delete']);
         <v-table class="bg-transparent text-left">
             <thead>
                 <tr class="bg-indigo-lighten-5">
-                    <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">
+                    <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase text-left">
                         Корбар
                     </th>
-                    <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">
+                    <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase text-left">
                         Почтаи электронӣ
                     </th>
-                    <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">
+                    <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase text-left">
                         Нақш
                     </th>
-                    <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">
+                    <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase text-left">
                         Филиал
                     </th>
-                    <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase">
+                    <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase text-center">
                         Бақайдгирӣ
                     </th>
                     <th class="font-weight-black text-indigo-darken-4 py-4 px-6 text-subtitle-2 text-uppercase text-right">
@@ -62,7 +62,7 @@ defineEmits(['edit', 'delete']);
                         <v-chip
                             :color="getRoleColor(user.roles[0]?.name)"
                             size="small"
-                            variant="tonal"
+                            :variant="getRoleVariant(user.roles[0]?.name)"
                             class="font-weight-black"
                         >
                             {{ getRoleLabel(user.roles[0]?.name) }}
@@ -73,9 +73,12 @@ defineEmits(['edit', 'delete']);
                             <Building2 style="width: 14px; height: 14px; margin-right: 6px;" class="text-grey" />
                             <span class="font-weight-medium text-grey-darken-3">{{ user.branch.name }}</span>
                         </div>
-                        <span v-else class="text-grey font-weight-bold text-caption text-uppercase">Ҳамаи филиалҳо</span>
+                        <v-chip v-else color="indigo" size="small" variant="tonal" class="font-weight-bold">
+                            <Globe style="width: 14px; height: 14px; margin-right: 6px;" />
+                            Ҳамаи филиалҳо
+                        </v-chip>
                     </td>
-                    <td class="py-4 px-6 font-weight-medium text-grey-darken-2">
+                    <td class="py-4 px-6 font-weight-medium text-grey-darken-2 text-center">
                         {{ formatDate(user.created_at) }}
                     </td>
                     <td class="py-4 px-6 text-right">
