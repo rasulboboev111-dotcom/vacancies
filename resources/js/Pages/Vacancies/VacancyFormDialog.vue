@@ -178,7 +178,7 @@ const submit = handleSubmit((values) => {
                         />
                     </FormField>
 
-                    <FormField label="Вазифа / Номи вакансия" required class="mb-4">
+                    <FormField label="Вазифа / Номи вакансия" class="mb-4">
                         <v-text-field
                             v-model="title"
                             v-bind="titleAttrs"

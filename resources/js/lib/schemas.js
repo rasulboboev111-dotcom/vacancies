@@ -74,7 +74,7 @@ export const vacancySchema = z.object({
     branch_id: z.number().nullish(),
     department_id: z.number().nullish(),
     position: z.string().trim().max(255, 'Ҳадди ниҳоӣ 255 аломат').nullish(),
-    title: required255('Номи вакансия'),
+    title: optional255,
     openings: z
         .number({ invalid_type_error: 'Шумора ҳатмист', required_error: 'Шумора ҳатмист' })
         .int('Бояд адади бутун бошад')

@@ -27,16 +27,16 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
                     <th class="font-weight-black text-subtitle-2 pa-3 text-indigo">
                         Категория
                     </th>
-                    <th class="font-weight-black text-subtitle-2 pa-3 text-indigo">
+                    <th class="font-weight-black text-subtitle-2 pa-3 text-indigo text-center" style="min-width: 130px;">
                         Намуд
                     </th>
-                    <th class="font-weight-black text-subtitle-2 pa-3 text-indigo">
+                    <th class="font-weight-black text-subtitle-2 pa-3 text-indigo text-center" style="min-width: 140px;">
                         Телефон
                     </th>
-                    <th class="font-weight-black text-subtitle-2 pa-3 text-indigo">
+                    <th class="font-weight-black text-subtitle-2 pa-3 text-indigo text-center" style="min-width: 140px;">
                         Санаи таваллуд
                     </th>
-                    <th class="font-weight-black text-subtitle-2 pa-3 text-indigo">
+                    <th class="font-weight-black text-subtitle-2 pa-3 text-indigo text-center" style="min-width: 160px;">
                         Санаи ба кор қабул аз
                     </th>
                     <th class="font-weight-black text-subtitle-2 pa-3 text-indigo text-center">
@@ -64,18 +64,18 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
                     <td class="pa-3 emp-category">
                         {{ employee.category || '-' }}
                     </td>
-                    <td class="pa-3">
+                    <td class="pa-3 text-center">
                         <v-chip size="small" color="teal" variant="tonal" class="font-weight-bold">
                             {{ employee.employment_type_label || '-' }}
                         </v-chip>
                     </td>
-                    <td class="pa-3 text-body-2 emp-secondary">
+                    <td class="pa-3 text-body-2 emp-secondary text-center">
                         {{ employee.phone_number || '-' }}
                     </td>
-                    <td class="pa-3 text-body-2 emp-secondary">
+                    <td class="pa-3 text-body-2 emp-secondary text-center">
                         {{ formatDate(employee.birth_date) }}
                     </td>
-                    <td class="pa-3 text-body-2 emp-secondary">
+                    <td class="pa-3 text-body-2 emp-secondary text-center">
                         {{ formatDate(employee.employment_start_date) }}
                     </td>
                     <td class="pa-3 text-center">

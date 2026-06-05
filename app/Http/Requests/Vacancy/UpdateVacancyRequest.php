@@ -47,7 +47,7 @@ class UpdateVacancyRequest extends FormRequest
                 Rule::exists('departments', 'id')->where('branch_id', $branchId)->whereNull('deleted_at'),
             ],
             'position' => ['nullable', 'string', 'max:255'],
-            'title' => ['required', 'string', 'max:255'],
+            'title' => ['nullable', 'string', 'max:255'],
             'openings' => ['sometimes', 'required', 'integer', 'min:1', 'max:10000'],
             'employment_type' => ['nullable', Rule::in($employmentTypes)],
             'requirements' => ['nullable', 'string', 'max:5000'],

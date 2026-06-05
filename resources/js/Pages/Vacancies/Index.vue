@@ -162,49 +162,55 @@ function confirmDelete() {
             {{ toggleError }}
         </v-alert>
 
-        <v-row class="mb-6 align-end">
-            <v-col v-if="isAdmin" cols="12" md="4">
-                <label class="filter-label">Филиал</label>
-                <v-select
-                    v-model="selectedBranchId"
-                    :items="[{ id: null, title: 'Ҳамаи филиалҳо' }, ...branchOptions]"
-                    item-title="title"
-                    item-value="id"
-                    variant="outlined"
-                    density="comfortable"
-                    rounded="lg"
-                    hide-details
-                />
-            </v-col>
-            <v-col cols="12" md="3">
-                <label class="filter-label">Ҳолат</label>
-                <v-select
-                    v-model="selectedStatus"
-                    :items="statusOptions"
-                    item-title="title"
-                    item-value="value"
-                    variant="outlined"
-                    density="comfortable"
-                    rounded="lg"
-                    hide-details
-                />
-            </v-col>
-            <v-col cols="12" :md="isAdmin ? 5 : 9" class="d-flex justify-end">
-                <v-btn
-                    v-if="canCreate"
-                    color="indigo"
-                    rounded="lg"
-                    elevation="2"
-                    class="px-5 bg-indigo transition-hover-btn font-weight-bold text-white"
-                    @click="openCreateDialog()"
-                >
-                    <template #prepend>
-                        <Plus style="width: 16px; height: 16px; margin-right: 4px; color: #ffffff;" />
-                    </template>
-                    Илова кардани вакансия
-                </v-btn>
-            </v-col>
-        </v-row>
+        <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass mb-6">
+            <v-row class="align-end">
+                <v-col v-if="isAdmin" cols="12" sm="6" md="4">
+                    <label class="filter-label">Филиал</label>
+                    <v-select
+                        v-model="selectedBranchId"
+                        :items="[{ id: null, title: 'Ҳамаи филиалҳо' }, ...branchOptions]"
+                        item-title="title"
+                        item-value="id"
+                        variant="solo"
+                        density="comfortable"
+                        rounded="lg"
+                        flat
+                        hide-details
+                        class="premium-field"
+                    />
+                </v-col>
+                <v-col cols="12" sm="6" md="3">
+                    <label class="filter-label">Ҳолат</label>
+                    <v-select
+                        v-model="selectedStatus"
+                        :items="statusOptions"
+                        item-title="title"
+                        item-value="value"
+                        variant="solo"
+                        density="comfortable"
+                        rounded="lg"
+                        flat
+                        hide-details
+                        class="premium-field"
+                    />
+                </v-col>
+                <v-col cols="12" :md="isAdmin ? 5 : 9" class="d-flex align-center justify-md-end justify-center gap-2">
+                    <v-btn
+                        v-if="canCreate"
+                        variant="flat"
+                        rounded="lg"
+                        class="px-5 transition-hover-btn font-weight-bold text-white"
+                        style="background: #009cf1 !important; color: #ffffff !important; box-shadow: 0 4px 14px -4px rgba(0, 156, 241, 0.45) !important;"
+                        @click="openCreateDialog()"
+                    >
+                        <template #prepend>
+                            <Plus style="width: 18px; height: 18px; color: #ffffff;" />
+                        </template>
+                        Илова кардани вакансия
+                    </v-btn>
+                </v-col>
+            </v-row>
+        </v-card>
 
         <VacancyTable
             :vacancies="vacancies"
@@ -235,3 +241,10 @@ function confirmDelete() {
         <VacancyViewDialog v-model="viewDialog" :vacancy="viewVacancy" :is-admin="isAdmin" />
     </AuthenticatedLayout>
 </template>
+
+<style scoped>
+.bg-surface-glass {
+    background: rgba(255, 255, 255, 0.7) !important;
+    backdrop-filter: blur(12px);
+}
+</style>

@@ -82,9 +82,9 @@ const submit = handleSubmit((values) => {
 </script>
 
 <template>
-    <v-dialog v-model="open" max-width="520px" persistent>
-        <v-card class="rounded-xl overflow-hidden" elevation="8">
-            <div style="background: #009cf1; padding: 20px 24px;">
+    <v-dialog v-model="open" max-width="520px" persistent scrollable>
+        <v-card class="rounded-xl overflow-hidden d-flex flex-column" elevation="8" style="max-height: 90vh;">
+            <div style="background: #009cf1; padding: 20px 24px; flex-shrink: 0;">
                 <div class="d-flex align-center">
                     <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
                         <UserCog style="width: 22px; height: 22px; color: white;" />
@@ -100,8 +100,8 @@ const submit = handleSubmit((values) => {
                 </div>
             </div>
 
-            <form class="app-form" @submit.prevent="submit">
-                <v-card-text class="pa-6">
+            <form class="app-form d-flex flex-column" style="min-height: 0; flex: 1 1 auto; overflow: hidden;" @submit.prevent="submit">
+                <v-card-text class="pa-6" style="overflow-y: auto;">
                     <FormField label="Номи корбар" required>
                         <v-text-field v-model="name" v-bind="nameAttrs" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.name" />
                     </FormField>
@@ -123,7 +123,7 @@ const submit = handleSubmit((values) => {
                     </FormField>
 
                     <FormField label="Пайвасткунӣ ба филиал" :required="role === 'User'" class="mt-4">
-                        <v-select v-model="branchId" v-bind="branchIdAttrs" :items="branches" item-title="name" item-value="id" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.branch_id" clearable placeholder="Барои нақши «Корбар» ҳатмист" />
+                        <v-select v-model="branchId" v-bind="branchIdAttrs" :items="branches" item-title="name" item-value="id" variant="outlined" density="comfortable" rounded="lg" hide-details="auto" :error-messages="errors.branch_id" clearable />
                     </FormField>
                 </v-card-text>
 
