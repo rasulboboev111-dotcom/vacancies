@@ -25,13 +25,13 @@ Route::middleware(['auth', 'verified', 'throttle:120,1'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/employees/archive', [EmployeeController::class, 'archive'])->name('employees.archive');
-    Route::post('/employees/{employee}/restore', [EmployeeController::class, 'restore'])->name('employees.restore');
-    Route::post('/employees/{employee}/rotate', [EmployeeController::class, 'rotate'])->name('employees.rotate');
+    Route::post('/employees/{id}/restore', [EmployeeController::class, 'restore'])->name('employees.restore')->whereNumber('id');
+    Route::post('/employees/{id}/rotate', [EmployeeController::class, 'rotate'])->name('employees.rotate')->whereNumber('id');
     Route::get('/rotations', [EmployeeController::class, 'rotationsIndex'])->name('rotations.index');
     Route::delete('/rotations', [EmployeeController::class, 'clearRotations'])->name('rotations.clear');
     Route::get('/employees/managers', [EmployeeController::class, 'managers'])->name('employees.managers');
 
-    Route::resource('employees', EmployeeController::class)->except(['show', 'create', 'edit']);
+    Route::resource('employees', EmployeeController::class)->except(['show', 'create', 'edit'])->parameters(['employees' => 'id'])->whereNumber('id');
     Route::resource('branches', BranchController::class)->only(['store', 'update', 'destroy']);
     Route::resource('departments', DepartmentController::class)->only(['store', 'update', 'destroy']);
     Route::resource('vacancies', VacancyController::class)->except(['show', 'create', 'edit']);

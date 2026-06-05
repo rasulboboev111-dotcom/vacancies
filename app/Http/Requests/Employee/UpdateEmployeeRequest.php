@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Employee;
 
+use App\Models\Employee;
 use Illuminate\Support\Facades\Gate;
 
 class UpdateEmployeeRequest extends EmployeeRequest
@@ -12,7 +13,9 @@ class UpdateEmployeeRequest extends EmployeeRequest
      */
     public function authorize(): bool
     {
-        if (! Gate::allows('update', $this->route('employee'))) {
+        $employee = Employee::find($this->route('id'));
+
+        if ($employee === null || ! Gate::allows('update', $employee)) {
             return false;
         }
 

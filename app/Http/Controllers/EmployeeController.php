@@ -106,8 +106,10 @@ class EmployeeController extends Controller
     /**
      * Update the specified employee.
      */
-    public function update(UpdateEmployeeRequest $request, Employee $employee): RedirectResponse
+    public function update(UpdateEmployeeRequest $request, int $id): RedirectResponse
     {
+        $employee = Employee::findOrFail($id);
+
         $this->employees->update($employee, $request->validated());
 
         return redirect()->route('employees.index')
@@ -117,8 +119,10 @@ class EmployeeController extends Controller
     /**
      * Remove the specified employee.
      */
-    public function destroy(Employee $employee): RedirectResponse
+    public function destroy(int $id): RedirectResponse
     {
+        $employee = Employee::findOrFail($id);
+
         Gate::authorize('delete', $employee);
 
         $this->employees->delete($employee);
@@ -130,8 +134,10 @@ class EmployeeController extends Controller
     /**
      * Reinstate a dismissed (archived) employee back to the active roster.
      */
-    public function restore(Employee $employee): RedirectResponse
+    public function restore(int $id): RedirectResponse
     {
+        $employee = Employee::findOrFail($id);
+
         Gate::authorize('update', $employee);
 
         $this->employees->reinstate($employee);
@@ -177,8 +183,10 @@ class EmployeeController extends Controller
     /**
      * Rotate the specified employee to a new branch, position, or department.
      */
-    public function rotate(RotateEmployeeRequest $request, Employee $employee): RedirectResponse
+    public function rotate(RotateEmployeeRequest $request, int $id): RedirectResponse
     {
+        $employee = Employee::findOrFail($id);
+
         $this->employees->rotate($employee, $request->validated());
 
         return redirect()->back()

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Employee;
 
+use App\Models\Employee;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -14,7 +15,9 @@ class RotateEmployeeRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        if (! Gate::allows('update', $this->route('employee'))) {
+        $employee = Employee::find($this->route('id'));
+
+        if ($employee === null || ! Gate::allows('update', $employee)) {
             return false;
         }
 

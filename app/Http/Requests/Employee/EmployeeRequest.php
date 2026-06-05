@@ -5,6 +5,7 @@ namespace App\Http\Requests\Employee;
 use App\Enums\Category;
 use App\Enums\EmploymentType;
 use App\Enums\Gender;
+use App\Models\Employee;
 use App\Rules\SaneDate;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -23,7 +24,8 @@ abstract class EmployeeRequest extends FormRequest
     public function rules(): array
     {
         $branchId = (int) $this->input('branch_id');
-        $employee = $this->route('employee');
+        $employeeId = $this->route('id');
+        $employee = $employeeId !== null ? Employee::find($employeeId) : null;
         $ignoreId = $employee?->id;
         $currentManagerId = $employee?->manager_id;
         $currentBranchId = $employee?->branch_id;
