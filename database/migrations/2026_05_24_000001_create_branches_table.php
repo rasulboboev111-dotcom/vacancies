@@ -17,11 +17,11 @@ return new class extends Migration
             $table->unsignedBigInteger('external_id')->nullable()->index();
             $table->string('name');
             $table->string('legal_name')->nullable();
-            $table->string('tin')->nullable();
+            $table->string('tin', 20)->nullable();
             $table->unsignedBigInteger('ceo_external_id')->nullable();
             $table->unsignedBigInteger('head_company_external_id')->nullable();
             $table->string('status')->nullable();
-            $table->string('code')->unique();
+            $table->string('code', 50);
             $table->string('address')->nullable();
             $table->timestamps();
             $table->softDeletes();
@@ -30,6 +30,9 @@ return new class extends Migration
 
         // Soft-delete-aware unique import key (NULLs and trashed rows exempt).
         DB::statement('CREATE UNIQUE INDEX branches_external_id_unique ON branches (external_id) WHERE external_id IS NOT NULL AND deleted_at IS NULL');
+
+        // Soft-delete-aware unique code: a trashed branch's code can be reused.
+        DB::statement('CREATE UNIQUE INDEX branches_code_unique ON branches (code) WHERE deleted_at IS NULL');
 
         // Status enum enforced at the DB level (App\Enums\OrgStatus); NULL passes.
         DB::statement("ALTER TABLE branches ADD CONSTRAINT branches_status_check CHECK (status IN ('Active', 'Inactive'))");

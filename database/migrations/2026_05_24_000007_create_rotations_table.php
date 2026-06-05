@@ -13,9 +13,12 @@ return new class extends Migration
     {
         Schema::create('rotations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained('employees')->cascadeOnDelete();
+            // Rotations are audit/history: a movement keeps meaning even after
+            // the referenced employee or branch is purged, so these are nullable
+            // nullOnDelete (a force-delete must not destroy the history).
+            $table->foreignId('employee_id')->nullable()->constrained('employees')->nullOnDelete();
             $table->foreignId('old_branch_id')->nullable()->constrained('branches')->nullOnDelete();
-            $table->foreignId('new_branch_id')->constrained('branches')->restrictOnDelete();
+            $table->foreignId('new_branch_id')->nullable()->constrained('branches')->nullOnDelete();
             $table->foreignId('old_position_id')->nullable()->constrained('positions')->nullOnDelete();
             $table->foreignId('new_position_id')->nullable()->constrained('positions')->nullOnDelete();
             $table->foreignId('old_department_id')->nullable()->constrained('departments')->nullOnDelete();
@@ -29,6 +32,8 @@ return new class extends Migration
             $table->index('new_branch_id');
             $table->index('old_position_id');
             $table->index('new_position_id');
+            $table->index('old_department_id');
+            $table->index('new_department_id');
             $table->index('rotation_date');
         });
     }

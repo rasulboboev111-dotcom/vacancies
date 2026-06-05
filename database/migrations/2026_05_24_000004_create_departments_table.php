@@ -27,6 +27,9 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->index(['branch_id', 'parent_id']);
+            // Postgres does not auto-index a foreign key's referencing column;
+            // manager_id is joined/filtered, so index it explicitly.
+            $table->index('manager_id');
         });
 
         DB::statement('CREATE UNIQUE INDEX departments_branch_root_name_unique ON departments (branch_id, name) WHERE parent_id IS NULL AND deleted_at IS NULL');

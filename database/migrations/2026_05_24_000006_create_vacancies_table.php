@@ -19,7 +19,8 @@ return new class extends Migration
             $table->foreignId('position_id')->nullable()->constrained('positions')->nullOnDelete();
             $table->foreignId('created_by')->nullable()->constrained('users')->nullOnDelete();
 
-            $table->string('title');
+            $table->string('title')->nullable();
+            $table->unsignedInteger('openings')->default(1);
             $table->string('employment_type')->nullable();
             $table->text('requirements')->nullable();
             $table->string('schedule')->nullable();
@@ -39,6 +40,9 @@ return new class extends Migration
 
         // Status enum enforced at the DB level (App\Enums\VacancyStatus).
         DB::statement("ALTER TABLE vacancies ADD CONSTRAINT vacancies_status_check CHECK (status IN ('open', 'closed'))");
+
+        // Employment-type value set (NULL passes), matching the employees table.
+        DB::statement("ALTER TABLE vacancies ADD CONSTRAINT vacancies_employment_type_check CHECK (employment_type IN ('штатный', 'контракт'))");
     }
 
     /**

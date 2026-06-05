@@ -30,27 +30,27 @@ return new class extends Migration
             $table->string('employment_type')->default('штатный');
             $table->string('full_name');
             $table->string('gender')->nullable();
-            $table->string('email')->nullable();
+            $table->string('email', 254)->nullable();
             $table->string('status')->nullable();
             $table->integer('sort_order')->default(0);
 
             $table->date('hire_date')->nullable();
             $table->date('dismissal_date')->nullable();
+            $table->string('dismissal_reason')->nullable();
             $table->date('birth_date')->nullable();
-            $table->string('passport_number')->nullable();
+            $table->string('passport_number', 30)->nullable();
             $table->date('passport_start_date')->nullable();
             $table->date('passport_end_date')->nullable();
             $table->string('passport_issued_by')->nullable();
-            $table->string('inn')->nullable();
-            $table->string('sin')->nullable();
+            $table->string('inn', 20)->nullable();
+            $table->string('sin', 20)->nullable();
             $table->string('address')->nullable();
-            $table->string('phone_number')->nullable();
+            $table->string('phone_number', 32)->nullable();
             $table->date('employment_start_date')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('branch_id');
             $table->index(['branch_id', 'dismissal_date']);
             $table->index('position_id');
             $table->index('manager_id');
@@ -60,7 +60,6 @@ return new class extends Migration
             $table->index('specialty_id');
             $table->index('birth_place_id');
             $table->index('employment_type');
-            $table->index('full_name');
             $table->index('dismissal_date');
             $table->index('inn');
             $table->index('sin');
@@ -77,7 +76,9 @@ return new class extends Migration
         // Soft-delete-aware partial unique indexes (NULL/empty/trashed exempt).
         DB::statement('CREATE UNIQUE INDEX employees_external_id_unique ON employees (external_id) WHERE external_id IS NOT NULL AND deleted_at IS NULL');
         DB::statement("CREATE UNIQUE INDEX employees_inn_unique ON employees (inn) WHERE inn IS NOT NULL AND inn <> '' AND deleted_at IS NULL");
+        DB::statement("CREATE UNIQUE INDEX employees_sin_unique ON employees (sin) WHERE sin IS NOT NULL AND sin <> '' AND deleted_at IS NULL");
         DB::statement("CREATE UNIQUE INDEX employees_passport_number_unique ON employees (passport_number) WHERE passport_number IS NOT NULL AND passport_number <> '' AND deleted_at IS NULL");
+        DB::statement("CREATE UNIQUE INDEX employees_email_unique ON employees (email) WHERE email IS NOT NULL AND email <> '' AND deleted_at IS NULL");
     }
 
     /**
