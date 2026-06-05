@@ -226,6 +226,29 @@ class Employee extends Model
     }
 
     /**
+     * Apply the full activity-log visibility rule for a user: admins see
+     * everything, a branch user sees only their branch's subjects, and a
+     * branch-less non-admin sees nothing. Shared by the dashboard and the
+     * activity-log listing so the rule lives in exactly one place.
+     *
+     * @param  Builder<Activity>  $query
+     */
+    public static function restrictActivitiesTo($query, User $user): void
+    {
+        if ($user->isAdmin()) {
+            return;
+        }
+
+        if ($user->branch_id === null) {
+            $query->whereRaw('1=0');
+
+            return;
+        }
+
+        self::filterActivitiesByBranch($query, $user->branch_id);
+    }
+
+    /**
      * Get the branch that the employee belongs to.
      */
     public function branch(): BelongsTo

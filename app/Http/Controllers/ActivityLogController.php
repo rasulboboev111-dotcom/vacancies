@@ -120,13 +120,7 @@ class ActivityLogController extends Controller
         // their own branch — defence in depth, independent of who holds the
         // 'view audit logs' permission.
         $user = $request->user();
-        if (! $user->isAdmin()) {
-            if ($user->branch_id === null) {
-                $base->whereRaw('1=0');
-            } else {
-                Employee::filterActivitiesByBranch($base, $user->branch_id);
-            }
-        }
+        Employee::restrictActivitiesTo($base, $user);
 
         $logs = QueryBuilder::for($base)
             ->allowedFilters([

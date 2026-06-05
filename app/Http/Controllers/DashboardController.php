@@ -128,14 +128,7 @@ class DashboardController extends Controller
 
         // Recent activity logs
         $recentActivitiesQuery = Activity::with('causer');
-
-        if (! $user->hasRole('Admin')) {
-            if ($user->branch_id === null) {
-                $recentActivitiesQuery->whereRaw('1=0');
-            } else {
-                Employee::filterActivitiesByBranch($recentActivitiesQuery, $user->branch_id);
-            }
-        }
+        Employee::restrictActivitiesTo($recentActivitiesQuery, $user);
 
         $recentActivities = $recentActivitiesQuery->latest()
             ->limit(10)
