@@ -239,10 +239,10 @@ const entranceDelay = computed(() => `${Math.min(props.index, 12) * 55}ms`);
     flex-wrap: wrap;
 }
 .rot-val {
-    max-width: 220px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    /* Show the full name — wrap long values instead of clipping them. */
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
     padding: 4px 12px;
     border-radius: 8px;
     font-size: 0.84rem;
