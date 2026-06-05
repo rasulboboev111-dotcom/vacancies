@@ -201,13 +201,11 @@ class Employee extends Model
      * Restrict an activity-log query to subjects that belong to the given
      * branch (its employees, vacancies, departments, or the branch itself).
      * Subjects without a branch dimension (e.g. positions, users) are excluded.
-     *
-     * Shared by the dashboard and the activity-log listing so both apply the
-     * exact same branch filter.
+     * Internal helper for restrictActivitiesTo().
      *
      * @param  Builder<Activity>  $query
      */
-    public static function filterActivitiesByBranch($query, int $branchId): void
+    private static function filterActivitiesByBranch($query, int $branchId): void
     {
         $query->where(function ($outer) use ($branchId) {
             $outer->where(function ($q) use ($branchId) {
@@ -338,22 +336,6 @@ class Employee extends Model
     public function manager(): BelongsTo
     {
         return $this->belongsTo(Employee::class, 'manager_id');
-    }
-
-    /**
-     * Get subordinates of the employee.
-     */
-    public function subordinates(): HasMany
-    {
-        return $this->hasMany(Employee::class, 'manager_id');
-    }
-
-    /**
-     * Departments this employee heads. Backs the derived is_manager flag.
-     */
-    public function managedDepartments(): HasMany
-    {
-        return $this->hasMany(Department::class, 'manager_id');
     }
 
     /**

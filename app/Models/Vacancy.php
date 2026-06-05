@@ -68,11 +68,6 @@ class Vacancy extends Model
             ->dontSubmitEmptyLogs();
     }
 
-    public function isOpen(): bool
-    {
-        return $this->status === VacancyStatus::OPEN;
-    }
-
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
