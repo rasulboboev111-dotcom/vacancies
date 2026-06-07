@@ -1,138 +1,138 @@
-# Deployment & Run Guide — HR Portal
+# Руководство по развёртыванию и запуску — HR-портал
 
-Laravel 12 + Inertia/Vue 3 HR/vacancies app. This guide covers a fresh setup
-(local or production), database, **seeders**, the **org-structure import**, the
-scheduler, queue, and production hardening.
+Приложение для HR/вакансий на Laravel 12 + Inertia/Vue 3. Это руководство охватывает
+чистую установку (локально или на проде), базу данных, **сидеры**, **импорт
+оргструктуры**, планировщик, очередь и продакшен-хардеринг.
 
 ---
 
-## 1. Requirements
+## 1. Требования
 
-| Component | Version |
+| Компонент | Версия |
 |-----------|---------|
-| PHP | **8.2+** (extensions: `pdo_pgsql`, `mbstring`, `openssl`, `ctype`, `json`, `bcmath`, `fileinfo`) |
-| **PostgreSQL** | **13+** — *required* (migrations use partial unique indexes, CHECK constraints, `ALTER COLUMN … USING`; SQLite/MySQL will not migrate) |
+| PHP | **8.2+** (расширения: `pdo_pgsql`, `mbstring`, `openssl`, `ctype`, `json`, `bcmath`, `fileinfo`) |
+| **PostgreSQL** | **13+** — *обязательно* (миграции используют частичные уникальные индексы, CHECK-ограничения, `ALTER COLUMN … USING`; на SQLite/MySQL миграции не пройдут) |
 | Composer | 2.x |
-| Node.js | 18+ (build the frontend with Vite) |
-| Web server | Nginx/Apache pointing at `public/`, HTTPS in production |
+| Node.js | 18+ (сборка фронтенда через Vite) |
+| Веб-сервер | Nginx/Apache с корнем на `public/`, HTTPS в продакшене |
 
 ---
 
-## 2. Get the code & environment
+## 2. Получить код и окружение
 
 ```bash
 git clone <repo-url> hr-portal && cd hr-portal
 cp .env.example .env
 ```
 
-Edit `.env`:
+Отредактируйте `.env`:
 
-- **Production:** `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://your-domain.tj`
-- **Database:** set `DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD` (create the Postgres DB first, e.g. `createdb vacancies`).
-- **Org sync:** set `TOJIKTELECOM_TOKEN=<bearer-token>` (leave empty to disable the live API sync).
-- `APP_DISPLAY_TIMEZONE=Asia/Dushanbe` (already default) — UI times are shown in Dushanbe; storage stays UTC.
+- **Продакшен:** `APP_ENV=production`, `APP_DEBUG=false`, `APP_URL=https://your-domain.tj`
+- **База данных:** задайте `DB_HOST/DB_PORT/DB_DATABASE/DB_USERNAME/DB_PASSWORD` (сначала создайте БД Postgres, например `createdb vacancies`).
+- **Синхронизация оргструктуры:** задайте `TOJIKTELECOM_TOKEN=<bearer-token>` (оставьте пустым, чтобы отключить живую синхронизацию через API).
+- `APP_DISPLAY_TIMEZONE=Asia/Dushanbe` (уже по умолчанию) — время в интерфейсе показывается по Душанбе; в хранилище остаётся UTC.
 
 ---
 
-## 3. Install dependencies & build assets
+## 3. Установить зависимости и собрать ассеты
 
 ```bash
-# Backend
-composer install --no-dev --optimize-autoloader     # dev: composer install
+# Бэкенд
+composer install --no-dev --optimize-autoloader     # для разработки: composer install
 
-# App key (only if APP_KEY is empty)
+# Ключ приложения (только если APP_KEY пуст)
 php artisan key:generate
 
-# Frontend (assets are git-ignored — must be built on the server)
+# Фронтенд (ассеты в .gitignore — их нужно собирать на сервере)
 npm ci
-npm run build                                        # dev: npm run dev
+npm run build                                        # для разработки: npm run dev
 ```
 
 ---
 
-## 4. Database: migrate
+## 4. База данных: миграции
 
 ```bash
 php artisan migrate --force
 ```
 
-This builds all tables (users, branches, departments, employees, vacancies,
-rotations, positions, lookups, Spatie permission tables, activity_log) including
-the `activity_log.created_at` index.
+Это создаёт все таблицы (users, branches, departments, employees, vacancies,
+rotations, positions, справочники, таблицы Spatie permission, activity_log),
+включая индекс `activity_log.created_at`.
 
-> Fresh rebuild (DESTROYS data): `php artisan migrate:fresh --force`
+> Полная пересборка (УНИЧТОЖАЕТ данные): `php artisan migrate:fresh --force`
 
 ---
 
-## 5. Seeders (admin account + roles/permissions)
+## 5. Сидеры (учётка администратора + роли/права)
 
 ```bash
 php artisan db:seed --force
 ```
 
-What the seeders create (`DatabaseSeeder` → `RoleAndPermissionSeeder`):
+Что создают сидеры (`DatabaseSeeder` → `RoleAndPermissionSeeder`):
 
-- **Admin user** `admin@hr.local`
-  - **local/testing:** password is `password`
-  - **production:** password is **random** (a known password is never shipped) — set your own afterwards, see below.
-- **Roles:** `Admin` (all permissions) and `User` (branch-scoped: view/create/edit/delete employees, departments, vacancies; view branches).
-- **Permissions:** the full `view/create/edit/delete branches|employees|departments|vacancies` + `view audit logs` set.
+- **Администратор** `admin@hr.local`
+  - **local/testing:** пароль `password`
+  - **продакшен:** пароль **случайный** (известный пароль никогда не поставляется) — задайте свой после установки, см. ниже.
+- **Роли:** `Admin` (все права) и `User` (в пределах своего филиала: view/create/edit/delete для employees, departments, vacancies; view branches).
+- **Права:** полный набор `view/create/edit/delete branches|employees|departments|vacancies` + `view audit logs`.
 
-> Branches, departments and employees are **NOT** seeded — they come from the
-> org-structure import (next step).
+> Филиалы, отделы и сотрудники **НЕ** засеиваются — они приходят из импорта
+> оргструктуры (следующий шаг).
 
-### Set the production admin password
+### Задать продакшен-пароль администратора
 
 ```bash
 php artisan tinker --execute "\$u=App\Models\User::where('email','admin@hr.local')->first(); \$u->password=bcrypt('CHANGE_ME_STRONG'); \$u->save(); echo 'ok';"
 ```
 
-(Or sign in with the random password by resetting it the same way.)
+(Либо войдите со случайным паролем, сбросив его тем же способом.)
 
 ---
 
-## 6. Org-structure import (branches → departments → employees)
+## 6. Импорт оргструктуры (филиалы → отделы → сотрудники)
 
-The real organisational data is loaded by the `org:import` command.
+Реальные организационные данные загружаются командой `org:import`.
 
 ```bash
-# Live sync from the Tojiktelecom v1 API (needs TOJIKTELECOM_TOKEN in .env)
+# Живая синхронизация из v1 API Tojiktelecom (нужен TOJIKTELECOM_TOKEN в .env)
 php artisan org:import --api
 
-# Wipe org data first, then load a clean live copy (also clears vacancies/rotations)
+# Сначала очистить данные оргструктуры, затем загрузить чистую копию (также чистит vacancies/rotations)
 php artisan org:import --api --fresh
 
-# Offline: import from a saved JSON dump instead of the API
+# Офлайн: импорт из сохранённого JSON-дампа вместо API
 php artisan org:import --file=storage/app/tj_structure.json
 ```
 
-Notes:
+Примечания:
 
-- Idempotent: records upsert on `external_id`, so re-running **does not duplicate**.
-- `--fresh` deletes employees/departments/branches **and vacancies/rotations** before reload — use only for a full reset.
-- One Branch per businessUnit; the department tree stays connected per branch; ordering preserved via `departments.sort_order`.
+- Идемпотентно: записи апсёртятся по `external_id`, поэтому повторный запуск **не дублирует**.
+- `--fresh` удаляет employees/departments/branches **и vacancies/rotations** перед перезагрузкой — используйте только для полного сброса.
+- Один Branch на businessUnit; дерево отделов остаётся связным в пределах филиала; порядок сохраняется через `departments.sort_order`.
 
 ---
 
-## 7. Scheduler (daily auto-sync)
+## 7. Планировщик (ежедневная авто-синхронизация)
 
-`routes/console.php` schedules `org:import --api` daily at **03:00** (server/UTC time)
-with `withoutOverlapping()`. Enable Laravel's scheduler with a single system cron:
+`routes/console.php` планирует `org:import --api` ежедневно в **03:00** (время сервера/UTC)
+с `withoutOverlapping()`. Включите планировщик Laravel одним системным cron:
 
 ```cron
 * * * * * cd /var/www/hr-portal && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-> The 03:00 is in the app timezone (UTC) → 08:00 Asia/Dushanbe. If the live API
-> token is missing/expired the run logs an error and the DB simply stays at its
-> last state (no crash).
+> 03:00 — в таймзоне приложения (UTC) → 08:00 по Asia/Dushanbe. Если токен живого
+> API отсутствует/истёк, запуск пишет ошибку в лог, а БД просто остаётся в
+> последнем состоянии (без падения).
 
 ---
 
-## 8. Queue worker (optional)
+## 8. Воркер очереди (опционально)
 
-`QUEUE_CONNECTION=database`. If you enable queued mail/notifications, run a worker
-(via Supervisor/systemd):
+`QUEUE_CONNECTION=database`. Если включаете почту/уведомления через очередь, запустите воркер
+(через Supervisor/systemd):
 
 ```bash
 php artisan queue:work --tries=3 --timeout=90
@@ -140,9 +140,9 @@ php artisan queue:work --tries=3 --timeout=90
 
 ---
 
-## 9. Production optimisation & cache
+## 9. Продакшен-оптимизация и кеш
 
-Run after every deploy (and re-run on config/route changes):
+Запускать после каждого деплоя (и повторно при изменении конфигов/маршрутов):
 
 ```bash
 php artisan config:cache
@@ -151,22 +151,22 @@ php artisan view:cache
 php artisan event:cache
 ```
 
-> If you change `.env`, run `php artisan config:clear` (or re-cache) — cached
-> config ignores `.env` at runtime.
+> Если меняете `.env`, выполните `php artisan config:clear` (или пересоберите кеш) —
+> закешированный конфиг игнорирует `.env` во время выполнения.
 
-Storage symlink (uploads/public files):
+Symlink для хранилища (загрузки/публичные файлы):
 
 ```bash
 php artisan storage:link
 ```
 
-Permissions (Linux): `storage/` and `bootstrap/cache/` must be writable by the web user.
+Права (Linux): `storage/` и `bootstrap/cache/` должны быть доступны на запись веб-пользователю.
 
 ---
 
-## 10. Web server
+## 10. Веб-сервер
 
-Point the document root at **`public/`**. Example Nginx:
+Укажите корень документа на **`public/`**. Пример Nginx:
 
 ```nginx
 server {
@@ -187,7 +187,7 @@ server {
 
 ---
 
-## 11. One-shot deploy script (copy/paste)
+## 11. Скрипт деплоя в один заход (copy/paste)
 
 ```bash
 set -e
@@ -196,58 +196,58 @@ git pull
 composer install --no-dev --optimize-autoloader
 npm ci && npm run build
 php artisan migrate --force
-php artisan db:seed --force                 # safe: firstOrCreate, won't duplicate
-php artisan org:import --api                # refresh org data (skip if no token)
+php artisan db:seed --force                 # безопасно: firstOrCreate, не дублирует
+php artisan org:import --api                # обновить данные оргструктуры (пропустить, если нет токена)
 php artisan storage:link || true
 php artisan config:cache route:cache view:cache event:cache
-# restart php-fpm / queue worker as needed
+# при необходимости перезапустить php-fpm / воркер очереди
 ```
 
-First-time only: `cp .env.example .env && php artisan key:generate` before the above.
+Только при первом запуске: `cp .env.example .env && php artisan key:generate` перед вышеуказанным.
 
 ---
 
-## 12. Local development (quick start)
+## 12. Локальная разработка (быстрый старт)
 
 ```bash
 cp .env.example .env
 composer install
 php artisan key:generate
-# point .env DB_* at a local Postgres, then:
+# укажите DB_* в .env на локальный Postgres, затем:
 php artisan migrate --seed       # admin@hr.local / password
 npm install
-composer run dev                 # serves PHP + queue + Vite together
-# optional: php artisan org:import --file=storage/app/tj_structure.json
+composer run dev                 # запускает PHP + очередь + Vite вместе
+# опционально: php artisan org:import --file=storage/app/tj_structure.json
 ```
 
 ---
 
-## 13. Pre-deploy checklist & known issues
+## 13. Чек-лист перед деплоем и известные проблемы
 
-- [ ] `.env`: `APP_ENV=production`, `APP_DEBUG=false`, real `APP_KEY`, DB creds, `TOJIKTELECOM_TOKEN`.
-- [ ] Postgres database created and reachable.
-- [ ] `npm run build` ran on the server (assets are git-ignored).
-- [ ] System cron for `schedule:run` installed (for the daily import).
-- [ ] Admin password changed from the random/seeded value.
-- [ ] HTTPS configured; `storage/` & `bootstrap/cache/` writable.
+- [ ] `.env`: `APP_ENV=production`, `APP_DEBUG=false`, реальный `APP_KEY`, креды БД, `TOJIKTELECOM_TOKEN`.
+- [ ] База Postgres создана и доступна.
+- [ ] `npm run build` выполнен на сервере (ассеты в .gitignore).
+- [ ] Установлен системный cron для `schedule:run` (для ежедневного импорта).
+- [ ] Пароль администратора изменён со случайного/засеянного значения.
+- [ ] Настроен HTTPS; `storage/` и `bootstrap/cache/` доступны на запись.
 
-**Known (not blockers, but be aware):**
+**Известно (не блокеры, но имейте в виду):**
 
-- **Tests are git-ignored** (`/tests` in `.gitignore`) — they are not in the repo, so CI/server has nothing to run. Locally the suite is ~146 passing with 4 known failures (`ImportOrgStructureTest` ×2, `VacancyTest` pagination ×2).
-- **PHPStan** (level 5) reports one pre-existing error in `ProfileController` (`$user->branch?->name`) that is not in the baseline — decide whether to fix or baseline before wiring it into CI gating.
-- The org-sync **bearer token does not auto-expire-handle**: if it is revoked, the nightly sync fails silently (logs an error). Consider a failure alert and a service (non-personal) token.
+- **Тесты в .gitignore** (`/tests` в `.gitignore`) — их нет в репозитории, поэтому CI/серверу нечего запускать. Локально набор ~146 проходит с 4 известными падениями (`ImportOrgStructureTest` ×2, пагинация `VacancyTest` ×2).
+- **PHPStan** (level 5) сообщает об одной существующей ошибке в `ProfileController` (`$user->branch?->name`), которой нет в baseline — решите, исправить или внести в baseline, прежде чем подключать в CI-гейтинг.
+- Синхронизация оргструктуры **не обрабатывает истечение bearer-токена автоматически**: если токен отозван, ночная синхронизация падает молча (пишет ошибку в лог). Рассмотрите алерт о сбое и сервисный (не персональный) токен.
 
 ---
 
-## 14. Command reference
+## 14. Справочник команд
 
-| Task | Command |
+| Задача | Команда |
 |------|---------|
-| Migrate | `php artisan migrate --force` |
-| Seed (admin + roles) | `php artisan db:seed --force` |
-| Live org import | `php artisan org:import --api` |
-| Full reset import | `php artisan org:import --api --fresh` |
-| Import from file | `php artisan org:import --file=storage/app/tj_structure.json` |
-| Run scheduler once | `php artisan schedule:run` |
-| Clear caches | `php artisan optimize:clear` |
-| Cache for prod | `php artisan config:cache route:cache view:cache event:cache` |
+| Миграции | `php artisan migrate --force` |
+| Сидинг (админ + роли) | `php artisan db:seed --force` |
+| Живой импорт оргструктуры | `php artisan org:import --api` |
+| Импорт с полным сбросом | `php artisan org:import --api --fresh` |
+| Импорт из файла | `php artisan org:import --file=storage/app/tj_structure.json` |
+| Запустить планировщик один раз | `php artisan schedule:run` |
+| Очистить кеши | `php artisan optimize:clear` |
+| Кеш для прода | `php artisan config:cache route:cache view:cache event:cache` |
