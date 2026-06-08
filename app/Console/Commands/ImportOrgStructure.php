@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\OrgStatus;
+use App\Jobs\SyncOrgStructure;
 use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Employee;
@@ -16,7 +17,8 @@ class ImportOrgStructure extends Command
     protected $signature = 'org:import
         {--file=storage/app/tj_structure.json : Path to the API JSON dump}
         {--api : Fetch the structure live from the Tojiktelecom API instead of reading --file}
-        {--fresh : Wipe existing branches/departments/employees/vacancies/rotations before importing}';
+        {--fresh : Wipe existing branches/departments/employees/vacancies/rotations before importing}
+        {--sync : Run the import inline instead of dispatching it to the background queue}';
 
     protected $description = 'Import the Tojiktelecom org structure (company → departments → employees) from the API JSON dump, 1:1 with the source tree';
 
@@ -28,6 +30,18 @@ class ImportOrgStructure extends Command
 
     public function handle(): int
     {
+        if (! $this->option('sync')) {
+            SyncOrgStructure::dispatch(
+                api: (bool) $this->option('api'),
+                file: (string) $this->option('file'),
+                fresh: (bool) $this->option('fresh'),
+            );
+
+            $this->info('Org structure sync queued.');
+
+            return self::SUCCESS;
+        }
+
         $json = $this->option('api') ? $this->fetchFromApi() : $this->readFromFile();
         if ($json === null) {
             return self::FAILURE;

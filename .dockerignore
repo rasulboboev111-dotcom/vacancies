@@ -1,0 +1,44 @@
+# Build artefacts & deps — rebuilt inside the image
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+
+# Local env & secrets — injected at runtime via compose env_file, never baked in
+.env
+.env.*
+!.env.example
+
+# VCS / tooling
+.git
+.gitignore
+.github
+.idea
+.vscode
+.fleet
+.agents
+.claude
+.codex
+.remember
+
+# Local runtime state
+# Stale local caches reference dev-only providers (e.g. Laravel Boost), which
+# don't exist in a --no-dev image; they are regenerated at build/run time.
+/bootstrap/cache/*.php
+/storage/*.key
+/storage/logs/*
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+
+# Docker files themselves
+docker-compose*.yml
+Dockerfile
+.dockerignore
+
+# Docs & misc
+*.md
+report.*.json
+boost.json
+.mcp.json
