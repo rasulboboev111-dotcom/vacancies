@@ -17,7 +17,7 @@ services:
       RUN_MIGRATIONS: "true"
     volumes:
       - storage_logs:/var/www/html/storage/logs
-      - public_assets:/var/www/html/public-dist # app publishes built assets here
+      - public_assets:/var/www/html/public # app publishes built assets here
     depends_on:
       db:
         condition: service_healthy
