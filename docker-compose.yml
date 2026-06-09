@@ -24,7 +24,7 @@ services:
     expose:
       - "9000"
 
-  web:
+  nginx:
     image: nginx:alpine
     restart: unless-stopped
     volumes:
@@ -33,7 +33,7 @@ services:
     depends_on:
       - app
     ports:
-      - "8080:80"
+      - "8070:80"
 
   # Background worker — runs queued jobs (org-structure import).
   queue-worker:
