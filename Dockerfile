@@ -58,4 +58,4 @@ CMD ["php-fpm"]
 # ─────────────────────────────────────────────────────────────────────────────
 FROM nginx:alpine AS web
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY --from=frontend /app/public /var/www/html/public
+COPY --from=frontend /app/public/build /tmp/public_build
