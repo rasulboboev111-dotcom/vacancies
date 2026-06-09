@@ -77,7 +77,7 @@ services:
       app:
         condition: service_started
     networks:
-      - vacancies_network:
+      - vacancies_network
 
   db:
     image: postgres:16-alpine
