@@ -23,6 +23,7 @@ COPY . .
 COPY --from=vendor /app/vendor/tightenco/ziggy ./vendor/tightenco/ziggy
 RUN npm run build
 
+COPY --from=frontend /app/public/build /tmp/public_build
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 3 — app: the runtime PHP-FPM image (php-fpm, queue worker, scheduler).
 # ─────────────────────────────────────────────────────────────────────────────
@@ -58,4 +59,3 @@ CMD ["php-fpm"]
 # ─────────────────────────────────────────────────────────────────────────────
 FROM nginx:alpine AS web
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY --from=frontend /app/public/build /tmp/public_build
