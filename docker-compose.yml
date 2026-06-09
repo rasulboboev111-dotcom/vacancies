@@ -24,7 +24,7 @@ services:
     expose:
       - "9000"
     networks:
-      - vacancies_network:
+      - vacancies_network
 
   nginx:
     image: nginx:alpine
@@ -37,7 +37,7 @@ services:
     ports:
       - "8070:80"
     networks:
-      - vacancies_network:
+      - vacancies_network
 
   # Background worker — runs queued jobs (org-structure import).
   queue-worker:
@@ -58,7 +58,7 @@ services:
       app:
         condition: service_started
     networks:
-      - vacancies_network:
+      - vacancies_network
 
   scheduler:
     build:
@@ -96,7 +96,7 @@ services:
     expose:
       - "5432"
     networks:
-      - vacancies_network:
+      - vacancies_network
 
 volumes:
   pgdata:
