@@ -2,8 +2,15 @@
 
 namespace App\Http\Requests\Vacancy;
 
-use App\Enums\EmploymentType;
+use App\Enums\Education;
+use App\Enums\Experience;
+use App\Enums\OpeningReason;
+use App\Enums\Probation;
+use App\Enums\ScheduleType;
+use App\Enums\VacancyEmploymentType;
+use App\Enums\VacancyPriority;
 use App\Enums\VacancyStatus;
+use App\Enums\WorkFormat;
 use App\Models\Vacancy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
@@ -40,7 +47,6 @@ class UpdateVacancyRequest extends FormRequest
     public function rules(): array
     {
         $branchId = (int) $this->input('branch_id');
-        $employmentTypes = array_map(fn (EmploymentType $type) => $type->value, EmploymentType::cases());
 
         return [
             'branch_id' => ['required', 'integer', Rule::exists('branches', 'id')],
@@ -50,14 +56,27 @@ class UpdateVacancyRequest extends FormRequest
                 Rule::exists('departments', 'id')->where('branch_id', $branchId)->whereNull('deleted_at'),
             ],
             'position' => ['nullable', 'string', 'max:255'],
-            'title' => ['nullable', 'string', 'max:255'],
+            'location' => ['nullable', 'string', 'max:255'],
             'openings' => ['sometimes', 'required', 'integer', 'min:1', 'max:10000'],
-            'employment_type' => ['nullable', Rule::in($employmentTypes)],
+            'supervisor' => ['nullable', 'string', 'max:255'],
+            'education' => ['nullable', Rule::enum(Education::class)],
+            'experience' => ['nullable', Rule::enum(Experience::class)],
+            'languages' => ['nullable', 'array', 'max:10'],
+            'languages.*' => ['string', 'max:100', 'distinct:ignore_case'],
+            'skills' => ['nullable', 'string', 'max:5000'],
             'requirements' => ['nullable', 'string', 'max:5000'],
-            'schedule' => ['nullable', 'string', 'max:255'],
+            'responsibilities' => ['nullable', 'string', 'max:5000'],
+            'employment_type' => ['nullable', Rule::enum(VacancyEmploymentType::class)],
+            'schedule_type' => ['nullable', Rule::enum(ScheduleType::class)],
+            'schedule_other' => ['nullable', 'string', 'max:255'],
+            'work_format' => ['nullable', Rule::enum(WorkFormat::class)],
             'salary' => ['nullable', 'integer', 'min:0', 'max:1000000000'],
-            'description' => ['nullable', 'string', 'max:5000'],
+            'probation' => ['nullable', Rule::enum(Probation::class)],
+            'probation_other' => ['nullable', 'string', 'max:255'],
+            'opening_reason' => ['nullable', Rule::enum(OpeningReason::class)],
+            'priority' => ['nullable', Rule::enum(VacancyPriority::class)],
             'opened_at' => ['nullable', 'date'],
+            'deadline' => ['nullable', 'date'],
             'status' => ['nullable', Rule::enum(VacancyStatus::class)],
         ];
     }
@@ -69,16 +88,29 @@ class UpdateVacancyRequest extends FormRequest
     {
         return [
             'branch_id' => 'филиал',
-            'department_id' => 'шуъба',
-            'position' => 'вазифа',
-            'title' => 'ном',
-            'openings' => 'шумораи кормандон',
-            'employment_type' => 'намуди шуғл',
-            'requirements' => 'талабот',
-            'schedule' => 'ҷадвал',
-            'salary' => 'маош',
-            'description' => 'тавсиф',
-            'opened_at' => 'санаи кушодашавӣ',
+            'department_id' => 'структурное подразделение',
+            'position' => 'должность',
+            'location' => 'место деятельности',
+            'openings' => 'количество вакансий',
+            'supervisor' => 'непосредственный руководитель',
+            'education' => 'образование',
+            'experience' => 'опыт работы',
+            'languages' => 'знание языков',
+            'languages.*' => 'язык',
+            'skills' => 'ключевые навыки',
+            'requirements' => 'дополнительные требования',
+            'responsibilities' => 'основные обязанности',
+            'employment_type' => 'тип занятости',
+            'schedule_type' => 'график работы',
+            'schedule_other' => 'иной график',
+            'work_format' => 'формат работы',
+            'salary' => 'уровень дохода',
+            'probation' => 'испытательный срок',
+            'probation_other' => 'иной испытательный срок',
+            'opening_reason' => 'причина открытия позиции',
+            'priority' => 'приоритет',
+            'opened_at' => 'дата подачи заявки',
+            'deadline' => 'планируемая дата закрытия',
         ];
     }
 }

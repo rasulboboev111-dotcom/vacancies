@@ -20,20 +20,23 @@ class VacancyService
         // a PostgreSQL aborted-transaction would break. An unused Position row on
         // rollback is harmless reference data.
         $data = $this->resolvePosition($data);
+        $languages = $this->pullLanguages($data);
         $data['created_by'] = $creator->id;
         $data['status'] = VacancyStatus::OPEN;
         $data['opened_at'] = $data['opened_at'] ?? Carbon::today()->toDateString();
         $data['closed_at'] = null;
 
-        // The row save + audit entry are atomic.
-        return DB::transaction(function () use ($data) {
+        // The row save + languages + audit entry are atomic.
+        return DB::transaction(function () use ($data, $languages) {
             $vacancy = new Vacancy($data);
             $vacancy->disableLogging()->save();
+
+            $this->syncLanguages($vacancy, $languages);
 
             activity()
                 ->performedOn($vacancy)
                 ->event('created')
-                ->log("Вакансия эҷод шуд: {$vacancy->title}");
+                ->log("Вакансия эҷод шуд: {$vacancy->displayName()}");
 
             return $vacancy;
         });
@@ -43,6 +46,7 @@ class VacancyService
     {
         // See create(): position resolution stays outside the transaction.
         $data = $this->resolvePosition($data);
+        $languages = $this->pullLanguages($data);
 
         // Pure in-memory status/closed_at derivation — no DB access, so keep it
         // out of the transaction (which only needs to wrap the update + audit log).
@@ -59,13 +63,15 @@ class VacancyService
             }
         }
 
-        return DB::transaction(function () use ($vacancy, $data) {
+        return DB::transaction(function () use ($vacancy, $data, $languages) {
             $vacancy->disableLogging()->update($data);
+
+            $this->syncLanguages($vacancy, $languages);
 
             activity()
                 ->performedOn($vacancy)
                 ->event('updated')
-                ->log("Вакансия навсозӣ шуд: {$vacancy->title}");
+                ->log("Вакансия навсозӣ шуд: {$vacancy->displayName()}");
 
             return $vacancy;
         });
@@ -73,17 +79,17 @@ class VacancyService
 
     public function delete(Vacancy $vacancy): void
     {
-        $title = $vacancy->title;
+        $name = $vacancy->displayName();
 
         // Delete then log, both in one transaction — no phantom "deleted" log if
         // the delete fails, no lost log if the audit write fails after it.
-        DB::transaction(function () use ($vacancy, $title) {
+        DB::transaction(function () use ($vacancy, $name) {
             $vacancy->disableLogging()->delete();
 
             activity()
                 ->performedOn($vacancy)
                 ->event('deleted')
-                ->log("Вакансия нест карда шуд: {$title}");
+                ->log("Вакансия нест карда шуд: {$name}");
         });
     }
 
@@ -104,5 +110,44 @@ class VacancyService
         }
 
         return $data;
+    }
+
+    /**
+     * Extract the «Знание языков» multi-select for the child table. Null means
+     * "the request did not touch languages" (partial update keeps them);
+     * an array (possibly empty) replaces the existing set.
+     *
+     * @param  array<string, mixed>  $data
+     * @return list<string>|null
+     */
+    private function pullLanguages(array &$data): ?array
+    {
+        if (! array_key_exists('languages', $data)) {
+            return null;
+        }
+
+        $languages = collect($data['languages'] ?? [])
+            ->map(fn ($name) => trim((string) $name))
+            ->filter()
+            ->unique(fn (string $name) => mb_strtolower($name))
+            ->values()
+            ->all();
+
+        unset($data['languages']);
+
+        return $languages;
+    }
+
+    /**
+     * @param  list<string>|null  $languages
+     */
+    private function syncLanguages(Vacancy $vacancy, ?array $languages): void
+    {
+        if ($languages === null) {
+            return;
+        }
+
+        $vacancy->languages()->delete();
+        $vacancy->languages()->createMany(array_map(fn (string $name) => ['name' => $name], $languages));
     }
 }
