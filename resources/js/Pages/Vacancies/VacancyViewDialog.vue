@@ -31,9 +31,6 @@ const open = defineModel({ type: Boolean, default: false });
                             </div>
                         </div>
                     </div>
-                    <v-chip color="white" variant="flat" class="font-weight-medium" size="small" :style="{ color: vacancy.status === 'open' ? '#b45309' : '#475569' }">
-                        {{ vacancy.status === 'open' ? 'Открыта' : 'Закрыта' }}
-                    </v-chip>
                 </div>
             </div>
 
