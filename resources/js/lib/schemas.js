@@ -70,30 +70,47 @@ export const employeeSchema = z
         { message: 'Сабаби озодшавӣ ҳатмист', path: ['dismissal_reason'] },
     );
 
+// Mirrors the «Заявка на подбор персонала» form: every section is optional on
+// the paper form, so only the headcount and choice-group memberships are
+// checked here. `language_other` is client-only — it is merged into the
+// languages array before submitting.
 export const vacancySchema = z.object({
     branch_id: z.number().nullish(),
     department_id: z.number().nullish(),
-    position: z.string().trim().max(255, 'Ҳадди ниҳоӣ 255 аломат').nullish(),
-    title: optional255,
+    position: z.string().trim().max(255, 'Максимум 255 символов').nullish(),
+    location: z.string().max(255, 'Максимум 255 символов').nullish(),
     openings: z
-        .number({ invalid_type_error: 'Шумора ҳатмист', required_error: 'Шумора ҳатмист' })
-        .int('Бояд адади бутун бошад')
-        .min(1, 'Камаш 1')
-        .max(10000, 'Хеле зиёд'),
+        .number({ invalid_type_error: 'Укажите количество', required_error: 'Укажите количество' })
+        .int('Должно быть целым числом')
+        .min(1, 'Минимум 1')
+        .max(10000, 'Слишком много'),
+    supervisor: z.string().max(255, 'Максимум 255 символов').nullish(),
+    education: z.string().nullish(),
+    experience: z.string().nullish(),
+    languages: z.array(z.string()).nullish(),
+    language_other: z.string().max(100, 'Максимум 100 символов').nullish(),
+    skills: z.string().max(5000, 'Максимум 5000 символов').nullish(),
+    requirements: z.string().max(5000, 'Максимум 5000 символов').nullish(),
+    responsibilities: z.string().max(5000, 'Максимум 5000 символов').nullish(),
     employment_type: z.string().nullish(),
-    requirements: z.string().max(5000, 'Ҳадди ниҳоӣ 5000 аломат').nullish(),
-    schedule: z.string().max(255, 'Ҳадди ниҳоӣ 255 аломат').nullish(),
+    schedule_type: z.string().nullish(),
+    schedule_other: z.string().max(255, 'Максимум 255 символов').nullish(),
+    work_format: z.string().nullish(),
     // Salary is a whole number; an empty field is treated as "not specified" (null).
     salary: z.preprocess(
         v => (v === '' || v === null || v === undefined ? null : v),
-        z.coerce.number({ invalid_type_error: 'Маош бояд рақам бошад' })
-            .int('Маош бояд рақами бутун бошад')
-            .min(0, 'Маош манфӣ буда наметавонад')
-            .max(1000000000, 'Хеле зиёд')
+        z.coerce.number({ invalid_type_error: 'Доход должен быть числом' })
+            .int('Доход должен быть целым числом')
+            .min(0, 'Доход не может быть отрицательным')
+            .max(1000000000, 'Слишком много')
             .nullable(),
     ),
-    description: z.string().max(5000, 'Ҳадди ниҳоӣ 5000 аломат').nullish(),
+    probation: z.string().nullish(),
+    probation_other: z.string().max(255, 'Максимум 255 символов').nullish(),
+    opening_reason: z.string().nullish(),
+    priority: z.string().nullish(),
     opened_at: z.string().nullish(),
+    deadline: z.string().nullish(),
     status: z.string().nullish(),
 });
 

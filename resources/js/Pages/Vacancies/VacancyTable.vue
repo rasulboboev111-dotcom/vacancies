@@ -1,5 +1,5 @@
 <script setup>
-import { DoorOpen, Eye, Lock, Pencil, Trash2, Unlock } from '@lucide/vue';
+import { DoorOpen, Eye, Lock, Pencil, Printer, Trash2, Unlock } from '@lucide/vue';
 
 defineProps({
     vacancies: { type: Array, required: true },
@@ -8,7 +8,14 @@ defineProps({
     canDelete: { type: Function, required: true },
 });
 
-defineEmits(['view', 'edit', 'delete', 'toggle']);
+defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
+
+// «График работы» on the printed form: the 5/2 preset or the «иной» free text.
+function scheduleText(vacancy) {
+    if (vacancy.schedule_type === 'иной')
+        return vacancy.schedule_other || vacancy.schedule_type_label;
+    return vacancy.schedule_type_label;
+}
 </script>
 
 <template>
@@ -46,11 +53,8 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
                 <tr v-for="vacancy in vacancies" :key="vacancy.id" class="vacancy-row">
                     <td class="pa-3">
                         <button type="button" class="vac-name" @click="$emit('view', vacancy)">
-                            {{ vacancy.title || vacancy.position?.name || '—' }}
+                            {{ vacancy.position?.name || '—' }}
                         </button>
-                        <div v-if="vacancy.title && vacancy.position" class="text-caption vac-secondary">
-                            {{ vacancy.position.name }}
-                        </div>
                     </td>
                     <td class="pa-3 vac-position">
                         {{ vacancy.department?.name || '—' }}
@@ -71,7 +75,7 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
                         <span v-else class="vac-branch">—</span>
                     </td>
                     <td class="pa-3 vac-secondary text-center">
-                        {{ vacancy.schedule || '—' }}
+                        {{ scheduleText(vacancy) || '—' }}
                     </td>
                     <td class="pa-3 vac-secondary text-center">
                         {{ vacancy.salary != null ? `${vacancy.salary.toLocaleString('ru-RU')} сом.` : '—' }}
@@ -89,6 +93,10 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
                     <td class="pa-3 text-center">
                         <v-btn variant="text" size="small" class="mr-1 hover-scale-btn act-btn act-accent" title="Дидан" @click="$emit('view', vacancy)">
                             <Eye style="width: 16px; height: 16px;" />
+                        </v-btn>
+
+                        <v-btn variant="text" size="small" class="mr-1 hover-scale-btn act-btn act-accent" title="Чопи заявка" @click="$emit('print', vacancy)">
+                            <Printer style="width: 16px; height: 16px;" />
                         </v-btn>
 
                         <v-btn

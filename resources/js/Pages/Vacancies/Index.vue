@@ -15,7 +15,7 @@ const props = defineProps({
     branches: { type: Array, required: true },
     departments: { type: Array, required: true },
     positions: { type: Array, required: true },
-    employmentTypes: { type: Array, required: true },
+    formOptions: { type: Object, required: true },
     filters: { type: Object, required: true },
 });
 
@@ -119,17 +119,9 @@ function toggleStatus(vacancy) {
     }
     toggling.value = true;
     toggleError.value = '';
+    // A partial update: absent fields never reach validated(), so the toggle
+    // can't wipe the rest of the form.
     router.put(route('vacancies.update', { id: vacancy.id, ...filterParams.value }), {
-        branch_id: vacancy.branch_id,
-        department_id: vacancy.department_id,
-        position: vacancy.position?.name ?? null,
-        title: vacancy.title,
-        employment_type: vacancy.employment_type,
-        requirements: vacancy.requirements,
-        schedule: vacancy.schedule,
-        salary: vacancy.salary,
-        description: vacancy.description,
-        opened_at: vacancy.opened_at,
         status: vacancy.status === 'open' ? 'closed' : 'open',
     }, {
         preserveScroll: true,
@@ -140,6 +132,12 @@ function toggleStatus(vacancy) {
         },
         onFinish: () => { toggling.value = false; },
     });
+}
+
+// The print page is a standalone Blade view styled 1:1 after the official
+// docx form — open it in its own tab so the user can print / save as PDF.
+function printVacancy(vacancy) {
+    window.open(route('vacancies.print', { id: vacancy.id }), '_blank');
 }
 
 function openDeleteDialog(vacancy) {
@@ -236,6 +234,7 @@ function confirmDelete() {
             @edit="openEditDialog"
             @delete="openDeleteDialog"
             @toggle="toggleStatus"
+            @print="printVacancy"
         />
 
         <!-- Pagination -->
@@ -262,7 +261,7 @@ function confirmDelete() {
             :branches="branches"
             :departments="departments"
             :positions="positions"
-            :employment-types="employmentTypes"
+            :form-options="formOptions"
             :default-branch-id="selectedBranchId"
             :user-branch-id="authUser?.branch_id ?? null"
             :filter-params="filterParams"
