@@ -2,27 +2,14 @@
 import { Briefcase, ClipboardList, DoorOpen, FileText, Flag } from '@lucide/vue';
 import DataField from '@/Components/DataField.vue';
 import { formatDate } from '@/lib/date';
+import { probationText, scheduleText } from '@/lib/vacancy';
 
-const props = defineProps({
+defineProps({
     vacancy: { type: Object, default: null },
     isAdmin: { type: Boolean, default: false },
 });
 
 const open = defineModel({ type: Boolean, default: false });
-
-function scheduleText() {
-    const v = props.vacancy;
-    if (!v?.schedule_type)
-        return null;
-    return v.schedule_type === 'иной' ? (v.schedule_other || v.schedule_type_label) : v.schedule_type_label;
-}
-
-function probationText() {
-    const v = props.vacancy;
-    if (!v?.probation)
-        return null;
-    return v.probation === 'иное' ? (v.probation_other || v.probation_label) : v.probation_label;
-}
 </script>
 
 <template>
@@ -130,7 +117,7 @@ function probationText() {
                             <DataField label="Тип занятости" :value="vacancy.employment_type_label" />
                         </v-col>
                         <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="График работы" :value="scheduleText()" />
+                            <DataField label="График работы" :value="scheduleText(vacancy)" />
                         </v-col>
                         <v-col cols="12" sm="6" class="py-2">
                             <DataField label="Формат работы" :value="vacancy.work_format_label" />
@@ -139,7 +126,7 @@ function probationText() {
                             <DataField label="Предполагаемый уровень дохода" :value="vacancy.salary != null ? `${vacancy.salary.toLocaleString('ru-RU')} сомонӣ` : null" />
                         </v-col>
                         <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Испытательный срок" :value="probationText()" />
+                            <DataField label="Испытательный срок" :value="probationText(vacancy)" />
                         </v-col>
                     </v-row>
                 </v-card>

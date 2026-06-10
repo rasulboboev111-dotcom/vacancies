@@ -1,5 +1,6 @@
 <script setup>
 import { DoorOpen, Eye, Lock, Pencil, Printer, Trash2, Unlock } from '@lucide/vue';
+import { scheduleText } from '@/lib/vacancy';
 
 defineProps({
     vacancies: { type: Array, required: true },
@@ -9,13 +10,6 @@ defineProps({
 });
 
 defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
-
-// «График работы» on the printed form: the 5/2 preset or the «иной» free text.
-function scheduleText(vacancy) {
-    if (vacancy.schedule_type === 'иной')
-        return vacancy.schedule_other || vacancy.schedule_type_label;
-    return vacancy.schedule_type_label;
-}
 </script>
 
 <template>
