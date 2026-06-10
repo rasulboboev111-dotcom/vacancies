@@ -71,7 +71,7 @@ function toggle(value) {
 }
 
 .choice:hover {
-    color: #0f3d5c;
+    color: #4338ca;
 }
 
 .choice__box {
@@ -94,12 +94,12 @@ function toggle(value) {
 }
 
 .choice--on {
-    color: #0f3d5c;
+    color: #4338ca;
     font-weight: 600;
 }
 
 .choice--on .choice__box {
-    background: #0f3d5c;
-    border-color: #0f3d5c;
+    background: #4338ca;
+    border-color: #4338ca;
 }
 </style>
