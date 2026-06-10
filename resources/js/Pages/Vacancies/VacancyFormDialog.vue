@@ -486,7 +486,7 @@ const submit = handleSubmit((values) => {
                             <ChoiceBoxGroup v-model="priority" :options="formOptions.priorities ?? []" />
                         </FormField>
 
-                        <v-row dense>
+                        <v-row dense align="end">
                             <v-col cols="12" md="6">
                                 <FormField label="Дата подачи заявки" class="mb-1">
                                     <v-text-field
