@@ -344,7 +344,7 @@
         <div class="doc-header__approve">
             <div class="approve-title">«УТВЕРЖДАЮ»</div>
             <div class="approve-line">{!! implode('<br>', array_map('e', explode('|', config('hiring.approver_position')))) !!}</div>
-            <div class="approve-sign">____________ / {{ config('hiring.approver_name') }}</div>
+            <div class="approve-sign">____________ / ____________________</div>
             <div class="approve-date">«____» ______________ 20____ г.</div>
         </div>
     </div>
