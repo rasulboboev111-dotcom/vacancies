@@ -4,6 +4,8 @@ namespace App\Enums;
 
 enum VacancyEmploymentType: string implements HasLabel
 {
+    use HasOptions;
+
     case FULL = 'полная';
     case PARTIAL = 'частичная';
     case PROJECT = 'проектная';
@@ -15,15 +17,5 @@ enum VacancyEmploymentType: string implements HasLabel
             self::PARTIAL => 'Частичная',
             self::PROJECT => 'Проектная / срочная',
         };
-    }
-
-    /**
-     * The backing values, handy for validation and `in_array` checks.
-     *
-     * @return list<string>
-     */
-    public static function values(): array
-    {
-        return array_map(fn (self $case) => $case->value, self::cases());
     }
 }

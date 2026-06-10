@@ -4,6 +4,8 @@ namespace App\Enums;
 
 enum OpeningReason: string implements HasLabel
 {
+    use HasOptions;
+
     case EXPANSION = 'расширение штата';
     case NEW_POSITION = 'новая позиция';
     case REPLACEMENT = 'замена уволенного сотрудника';
@@ -17,15 +19,5 @@ enum OpeningReason: string implements HasLabel
             self::REPLACEMENT => 'Замена уволенного сотрудника',
             self::MATERNITY => 'Декретная ставка / временное замещение',
         };
-    }
-
-    /**
-     * The backing values, handy for validation and `in_array` checks.
-     *
-     * @return list<string>
-     */
-    public static function values(): array
-    {
-        return array_map(fn (self $case) => $case->value, self::cases());
     }
 }
