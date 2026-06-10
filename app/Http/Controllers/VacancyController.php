@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Data\VacancyData;
 use App\Enums\Education;
 use App\Enums\Experience;
-use App\Enums\HasLabel;
 use App\Enums\OpeningReason;
 use App\Enums\Probation;
 use App\Enums\ScheduleType;
@@ -78,15 +77,15 @@ class VacancyController extends Controller
             'departments' => $departmentsQuery->get(['id', 'branch_id', 'name']),
             'positions' => Position::query()->orderBy('name')->get(['id', 'name']),
             'formOptions' => [
-                'educations' => self::enumOptions(Education::cases()),
-                'experiences' => self::enumOptions(Experience::cases()),
-                'employmentTypes' => self::enumOptions(VacancyEmploymentType::cases()),
-                'scheduleTypes' => self::enumOptions(ScheduleType::cases()),
-                'workFormats' => self::enumOptions(WorkFormat::cases()),
-                'probations' => self::enumOptions(Probation::cases()),
-                'openingReasons' => self::enumOptions(OpeningReason::cases()),
-                'priorities' => self::enumOptions(VacancyPriority::cases()),
-                'knownLanguages' => Vacancy::KNOWN_LANGUAGES,
+                'educations' => Education::options(),
+                'experiences' => Experience::options(),
+                'employmentTypes' => VacancyEmploymentType::options(),
+                'scheduleTypes' => ScheduleType::options(),
+                'workFormats' => WorkFormat::options(),
+                'probations' => Probation::options(),
+                'openingReasons' => OpeningReason::options(),
+                'priorities' => VacancyPriority::options(),
+                'knownLanguages' => config('hiring.known_languages'),
             ],
             'filters' => $request->input('filter', []),
         ]);
@@ -142,18 +141,6 @@ class VacancyController extends Controller
 
         return redirect()->route('vacancies.index', $this->indexParams($request))
             ->with('success', 'Вакансия бомуваффақият нест карда шуд.');
-    }
-
-    /**
-     * @param  list<HasLabel&\BackedEnum>  $cases
-     * @return list<array{value: string, label: string}>
-     */
-    private static function enumOptions(array $cases): array
-    {
-        return array_map(fn ($case) => [
-            'value' => $case->value,
-            'label' => $case->label(),
-        ], $cases);
     }
 
     /**
