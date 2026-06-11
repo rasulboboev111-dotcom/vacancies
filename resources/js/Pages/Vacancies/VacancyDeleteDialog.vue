@@ -31,7 +31,7 @@ const open = defineModel({ type: Boolean, default: false });
                 </div>
             </div>
             <v-card-text class="pa-6 text-body-1 text-grey-darken-3 font-weight-medium">
-                Шумо мутмаин ҳастед, ки мехоҳед вакансияи <strong class="text-red-darken-2">{{ vacancy?.title }}</strong>-ро нест кунед?
+                Шумо мутмаин ҳастед, ки мехоҳед вакансияи <strong class="text-red-darken-2">{{ vacancy?.position?.name }}</strong>-ро нест кунед?
             </v-card-text>
             <v-divider />
             <v-card-actions class="pa-5 d-flex justify-end" style="gap: 12px;">

@@ -4,6 +4,8 @@ namespace App\Enums;
 
 enum ScheduleType: string implements HasLabel
 {
+    use HasOptions;
+
     case STANDARD = '5/2';
     case OTHER = 'иной';
 
@@ -13,15 +15,5 @@ enum ScheduleType: string implements HasLabel
             self::STANDARD => '5/2, 08:00–17:00',
             self::OTHER => 'Иной (сменный, 2/2, дежурство)',
         };
-    }
-
-    /**
-     * The backing values, handy for validation and `in_array` checks.
-     *
-     * @return list<string>
-     */
-    public static function values(): array
-    {
-        return array_map(fn (self $case) => $case->value, self::cases());
     }
 }

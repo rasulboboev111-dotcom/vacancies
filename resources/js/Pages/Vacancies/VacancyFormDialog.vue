@@ -34,35 +34,6 @@ const positionNames = computed(() => props.positions.map(p => p.name));
 const knownLanguages = computed(() => props.formOptions.knownLanguages ?? []);
 const languageOptions = computed(() => knownLanguages.value.map(name => ({ value: name, label: name })));
 
-// Server-validated fields, used to map server errors back onto the form.
-// `language_other` is client-only — merged into `languages` before submit.
-const FIELDS = [
-    'branch_id',
-    'department_id',
-    'position',
-    'location',
-    'openings',
-    'supervisor',
-    'education',
-    'experience',
-    'languages',
-    'skills',
-    'requirements',
-    'responsibilities',
-    'employment_type',
-    'schedule_type',
-    'schedule_other',
-    'work_format',
-    'salary',
-    'probation',
-    'probation_other',
-    'opening_reason',
-    'priority',
-    'opened_at',
-    'deadline',
-    'status',
-];
-
 const EMPTY_VALUES = {
     branch_id: null,
     department_id: null,
@@ -90,6 +61,10 @@ const EMPTY_VALUES = {
     deadline: null,
     status: 'open',
 };
+
+// Server-validated fields, used to map server errors back onto the form.
+// `language_other` is client-only — merged into `languages` before submit.
+const FIELDS = Object.keys(EMPTY_VALUES).filter(field => field !== 'language_other');
 
 // vee-validate owns client-side validation; Inertia owns submit + server errors.
 const { defineField, errors, handleSubmit, resetForm, setFieldError } = useVeeForm({

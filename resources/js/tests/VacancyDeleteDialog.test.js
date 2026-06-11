@@ -9,7 +9,7 @@ function button(wrapper, text) {
 describe('vacancyDeleteDialog', () => {
     it('emits confirm when the delete button is clicked', async () => {
         const w = mount(VacancyDeleteDialog, {
-            props: { modelValue: true, vacancy: { id: 1, title: 'Барномасоз' } },
+            props: { modelValue: true, vacancy: { id: 1, position: { name: 'Барномасоз' } } },
         });
 
         await button(w, 'Нест кардан').trigger('click');
@@ -18,7 +18,7 @@ describe('vacancyDeleteDialog', () => {
 
     it('disables the confirm button while processing', () => {
         const w = mount(VacancyDeleteDialog, {
-            props: { modelValue: true, vacancy: { id: 1, title: 'Барномасоз' }, processing: true },
+            props: { modelValue: true, vacancy: { id: 1, position: { name: 'Барномасоз' } }, processing: true },
         });
 
         expect(button(w, 'Нест кардан').attributes('disabled')).toBeDefined();

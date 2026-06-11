@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\Probation;
+use App\Enums\ScheduleType;
 use App\Enums\VacancyStatus;
 use App\Models\Position;
 use App\Models\User;
@@ -20,6 +22,7 @@ class VacancyService
         // a PostgreSQL aborted-transaction would break. An unused Position row on
         // rollback is harmless reference data.
         $data = $this->resolvePosition($data);
+        $data = $this->clearDanglingOtherFields($data);
         $languages = $this->pullLanguages($data);
         $data['created_by'] = $creator->id;
         $data['status'] = VacancyStatus::OPEN;
@@ -46,6 +49,7 @@ class VacancyService
     {
         // See create(): position resolution stays outside the transaction.
         $data = $this->resolvePosition($data);
+        $data = $this->clearDanglingOtherFields($data);
         $languages = $this->pullLanguages($data);
 
         // Pure in-memory status/closed_at derivation — no DB access, so keep it
@@ -113,6 +117,27 @@ class VacancyService
     }
 
     /**
+     * The «иной/иное» free-text columns only mean something while their option
+     * is selected — when a request switches the group to a preset option, the
+     * stale text is dropped so the row can't carry contradictory data.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    private function clearDanglingOtherFields(array $data): array
+    {
+        if (array_key_exists('schedule_type', $data) && $data['schedule_type'] !== ScheduleType::OTHER->value) {
+            $data['schedule_other'] = null;
+        }
+
+        if (array_key_exists('probation', $data) && $data['probation'] !== Probation::OTHER->value) {
+            $data['probation_other'] = null;
+        }
+
+        return $data;
+    }
+
+    /**
      * Extract the «Знание языков» multi-select for the child table. Null means
      * "the request did not touch languages" (partial update keeps them);
      * an array (possibly empty) replaces the existing set.
@@ -144,6 +169,14 @@ class VacancyService
     private function syncLanguages(Vacancy $vacancy, ?array $languages): void
     {
         if ($languages === null) {
+            return;
+        }
+
+        // Replace only when the set actually changed — the common edit that
+        // doesn't touch languages costs one SELECT instead of a rewrite.
+        $current = $vacancy->languages()->pluck('name')->sort()->values()->all();
+        $target = collect($languages)->sort()->values()->all();
+        if ($current === $target) {
             return;
         }
 

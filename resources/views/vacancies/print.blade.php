@@ -321,7 +321,7 @@
 <body>
 @php
     /** @var \App\Models\Vacancy $vacancy */
-    $known = \App\Models\Vacancy::KNOWN_LANGUAGES;
+    $known = config('hiring.known_languages');
     $storedLanguages = $vacancy->languages->pluck('name')->all();
     $otherLanguage = collect($storedLanguages)->first(fn (string $name) => ! in_array($name, $known, true));
     $opt = fn (bool $on, string $label) => '<span class="opt'.($on ? ' on' : '').'"><span class="cb">'.($on ? '✓' : '').'</span>'.e($label).'</span>';
@@ -332,19 +332,19 @@
     <button type="button" onclick="window.print()">Печать</button>
 </div>
 
-<div class="doc-footer">ОАО «Таджиктелеком»&nbsp;&nbsp;·&nbsp;&nbsp;Департамент управления и развития персонала</div>
+<div class="doc-footer">{{ config('hiring.organization_footer') }}&nbsp;&nbsp;·&nbsp;&nbsp;{{ config('hiring.department') }}</div>
 
 <div class="sheet">
     <!-- Шапка -->
     <div class="doc-header">
         <div class="doc-header__brand">
-            <div class="brand-name">ОАО «ТАДЖИКТЕЛЕКОМ»</div>
-            <div class="brand-sub">Департамент управления и развития персонала</div>
+            <div class="brand-name">{{ config('hiring.organization') }}</div>
+            <div class="brand-sub">{{ config('hiring.department') }}</div>
         </div>
         <div class="doc-header__approve">
             <div class="approve-title">«УТВЕРЖДАЮ»</div>
-            <div class="approve-line">Директор Департамента управления<br>и развития персонала ОАО «Таджиктелеком»</div>
-            <div class="approve-sign">____________ / Мирзоёрова М.Н.</div>
+            <div class="approve-line">{!! implode('<br>', array_map('e', explode('|', config('hiring.approver_position')))) !!}</div>
+            <div class="approve-sign">____________ / {{ config('hiring.approver_name') }}</div>
             <div class="approve-date">«____» ______________ 20____ г.</div>
         </div>
     </div>
@@ -532,7 +532,7 @@
         </tr>
     </table>
 
-    <div class="appendix">Приложение № 1 к СОП по отбору и найму персонала</div>
+    <div class="appendix">{{ config('hiring.appendix') }}</div>
 </div>
 </body>
 </html>

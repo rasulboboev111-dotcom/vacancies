@@ -24,12 +24,6 @@ class Vacancy extends Model
 {
     use BranchScoped, HasFactory, LogsActivity, SoftDeletes;
 
-    /**
-     * The «Знание языков» checkboxes printed on the form; anything else a
-     * vacancy stores is rendered as «Другой».
-     */
-    public const KNOWN_LANGUAGES = ['Таджикский', 'Русский', 'Английский'];
-
     protected $fillable = [
         'branch_id',
         'department_id',

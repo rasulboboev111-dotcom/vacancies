@@ -4,6 +4,8 @@ namespace App\Enums;
 
 enum Probation: string implements HasLabel
 {
+    use HasOptions;
+
     case NONE = 'нет';
     case ONE_MONTH = '1 месяц';
     case THREE_MONTHS = '3 месяца';
@@ -17,15 +19,5 @@ enum Probation: string implements HasLabel
             self::THREE_MONTHS => '3 мес.',
             self::OTHER => 'Иное',
         };
-    }
-
-    /**
-     * The backing values, handy for validation and `in_array` checks.
-     *
-     * @return list<string>
-     */
-    public static function values(): array
-    {
-        return array_map(fn (self $case) => $case->value, self::cases());
     }
 }
