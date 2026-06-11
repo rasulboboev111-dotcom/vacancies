@@ -1,9 +1,10 @@
 <script setup>
 import { useForm as useInertiaForm } from '@inertiajs/vue3';
-import { DoorOpen } from '@lucide/vue';
+import { ClipboardList } from '@lucide/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm as useVeeForm } from 'vee-validate';
 import { computed, watch } from 'vue';
+import ChoiceBoxGroup from '@/Components/ChoiceBoxGroup.vue';
 import FormField from '@/Components/FormField.vue';
 import { vacancySchema } from '@/lib/schemas';
 
@@ -13,7 +14,7 @@ const props = defineProps({
     branches: { type: Array, default: () => [] },
     departments: { type: Array, default: () => [] },
     positions: { type: Array, default: () => [] },
-    employmentTypes: { type: Array, default: () => [] },
+    formOptions: { type: Object, default: () => ({}) },
     defaultBranchId: { type: Number, default: null },
     userBranchId: { type: Number, default: null },
     filterParams: { type: Object, default: () => ({}) },
@@ -30,37 +31,96 @@ const branchOptions = computed(() =>
 
 const positionNames = computed(() => props.positions.map(p => p.name));
 
+const knownLanguages = computed(() => props.formOptions.knownLanguages ?? []);
+const languageOptions = computed(() => knownLanguages.value.map(name => ({ value: name, label: name })));
+
+// Server-validated fields, used to map server errors back onto the form.
+// `language_other` is client-only — merged into `languages` before submit.
 const FIELDS = [
     'branch_id',
     'department_id',
     'position',
-    'title',
+    'location',
     'openings',
-    'employment_type',
+    'supervisor',
+    'education',
+    'experience',
+    'languages',
+    'skills',
     'requirements',
-    'schedule',
+    'responsibilities',
+    'employment_type',
+    'schedule_type',
+    'schedule_other',
+    'work_format',
     'salary',
-    'description',
+    'probation',
+    'probation_other',
+    'opening_reason',
+    'priority',
     'opened_at',
+    'deadline',
     'status',
 ];
+
+const EMPTY_VALUES = {
+    branch_id: null,
+    department_id: null,
+    position: null,
+    location: '',
+    openings: 1,
+    supervisor: '',
+    education: null,
+    experience: null,
+    languages: [],
+    language_other: '',
+    skills: '',
+    requirements: '',
+    responsibilities: '',
+    employment_type: null,
+    schedule_type: null,
+    schedule_other: '',
+    work_format: null,
+    salary: '',
+    probation: null,
+    probation_other: '',
+    opening_reason: null,
+    priority: null,
+    opened_at: null,
+    deadline: null,
+    status: 'open',
+};
 
 // vee-validate owns client-side validation; Inertia owns submit + server errors.
 const { defineField, errors, handleSubmit, resetForm, setFieldError } = useVeeForm({
     validationSchema: toTypedSchema(vacancySchema),
-    initialValues: { branch_id: null, department_id: null, position: null, title: '', openings: 1, employment_type: null, requirements: '', schedule: '', salary: '', description: '', opened_at: null, status: 'open' },
+    initialValues: { ...EMPTY_VALUES },
 });
+
 const [branchId, branchIdAttrs] = defineField('branch_id');
 const [departmentId, departmentIdAttrs] = defineField('department_id');
 const [position, positionAttrs] = defineField('position');
-const [title, titleAttrs] = defineField('title');
+const [location, locationAttrs] = defineField('location');
 const [openings, openingsAttrs] = defineField('openings');
-const [employmentType, employmentTypeAttrs] = defineField('employment_type');
+const [supervisor, supervisorAttrs] = defineField('supervisor');
+const [education] = defineField('education');
+const [experience] = defineField('experience');
+const [languages] = defineField('languages');
+const [languageOther, languageOtherAttrs] = defineField('language_other');
+const [skills, skillsAttrs] = defineField('skills');
 const [requirements, requirementsAttrs] = defineField('requirements');
-const [schedule, scheduleAttrs] = defineField('schedule');
+const [responsibilities, responsibilitiesAttrs] = defineField('responsibilities');
+const [employmentType] = defineField('employment_type');
+const [scheduleType] = defineField('schedule_type');
+const [scheduleOther, scheduleOtherAttrs] = defineField('schedule_other');
+const [workFormat] = defineField('work_format');
 const [salary, salaryAttrs] = defineField('salary');
-const [description, descriptionAttrs] = defineField('description');
+const [probation] = defineField('probation');
+const [probationOther, probationOtherAttrs] = defineField('probation_other');
+const [openingReason] = defineField('opening_reason');
+const [priority] = defineField('priority');
 const [openedAt, openedAtAttrs] = defineField('opened_at');
+const [deadline, deadlineAttrs] = defineField('deadline');
 const [status, statusAttrs] = defineField('status');
 
 const inertia = useInertiaForm(Object.fromEntries(FIELDS.map(f => [f, null])));
@@ -88,41 +148,57 @@ watch(open, (visible) => {
     if (!visible)
         return;
     const v = props.vacancy;
+    if (!v) {
+        resetForm({
+            values: {
+                ...EMPTY_VALUES,
+                branch_id: props.isAdmin ? props.defaultBranchId : props.userBranchId,
+            },
+        });
+        return;
+    }
+    // The «Другой» language is whatever the vacancy stores beyond the form's
+    // printed checkboxes.
+    const stored = v.languages ?? [];
     resetForm({
-        values: v
-            ? {
-                    branch_id: v.branch_id,
-                    department_id: v.department_id,
-                    position: v.position?.name ?? null,
-                    title: v.title,
-                    openings: v.openings ?? 1,
-                    employment_type: v.employment_type,
-                    requirements: v.requirements ?? '',
-                    schedule: v.schedule ?? '',
-                    salary: v.salary ?? '',
-                    description: v.description ?? '',
-                    opened_at: v.opened_at,
-                    status: v.status,
-                }
-            : {
-                    branch_id: props.isAdmin ? props.defaultBranchId : props.userBranchId,
-                    department_id: null,
-                    position: null,
-                    title: '',
-                    openings: 1,
-                    employment_type: null,
-                    requirements: '',
-                    schedule: '',
-                    salary: '',
-                    description: '',
-                    opened_at: null,
-                    status: 'open',
-                },
+        values: {
+            branch_id: v.branch_id,
+            department_id: v.department_id,
+            position: v.position?.name ?? null,
+            location: v.location ?? '',
+            openings: v.openings ?? 1,
+            supervisor: v.supervisor ?? '',
+            education: v.education,
+            experience: v.experience,
+            languages: stored.filter(name => knownLanguages.value.includes(name)),
+            language_other: stored.find(name => !knownLanguages.value.includes(name)) ?? '',
+            skills: v.skills ?? '',
+            requirements: v.requirements ?? '',
+            responsibilities: v.responsibilities ?? '',
+            employment_type: v.employment_type,
+            schedule_type: v.schedule_type,
+            schedule_other: v.schedule_other ?? '',
+            work_format: v.work_format,
+            salary: v.salary ?? '',
+            probation: v.probation,
+            probation_other: v.probation_other ?? '',
+            opening_reason: v.opening_reason,
+            priority: v.priority,
+            opened_at: v.opened_at,
+            deadline: v.deadline,
+            status: v.status,
+        },
     });
 });
 
 const submit = handleSubmit((values) => {
-    Object.assign(inertia, values);
+    const { language_other: otherLanguage, ...payload } = values;
+    payload.languages = [
+        ...(values.languages ?? []),
+        ...(otherLanguage && otherLanguage.trim() ? [otherLanguage.trim()] : []),
+    ];
+
+    Object.assign(inertia, payload);
 
     const onSuccess = () => {
         open.value = false;
@@ -143,198 +219,326 @@ const submit = handleSubmit((values) => {
 </script>
 
 <template>
-    <v-dialog v-model="open" max-width="680px" persistent scrollable>
+    <v-dialog v-model="open" max-width="780px" persistent scrollable>
         <v-card class="rounded-xl overflow-hidden" elevation="8">
-            <div style="background: #009cf1; padding: 20px 24px;">
+            <div class="form-head">
                 <div class="d-flex align-center">
-                    <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15);">
-                        <DoorOpen style="width: 22px; height: 22px; color: white;" />
+                    <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.12);">
+                        <ClipboardList style="width: 22px; height: 22px; color: white;" />
                     </v-avatar>
                     <div class="ml-4">
-                        <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">
-                            {{ vacancy ? 'Таҳрир' : 'Вакансияи нав' }}
+                        <div class="form-head__kicker">
+                            {{ vacancy ? 'Редактирование' : 'Новая заявка' }}
                         </div>
-                        <div style="color: white; font-size: 1.1rem; font-weight: 800;">
-                            {{ vacancy ? title || 'Вакансия' : 'Илова кардани вакансия' }}
+                        <div class="form-head__title">
+                            Заявка на подбор персонала
+                        </div>
+                        <div class="form-head__sub">
+                            описание вакансии: заполняется руководителем подразделения
                         </div>
                     </div>
                 </div>
             </div>
 
-            <v-card-text class="pa-6">
-                <v-form class="app-form" @submit.prevent="submit">
-                    <FormField v-if="isAdmin" label="Филиал" class="mb-4">
-                        <v-select
-                            v-model="branchId"
-                            v-bind="branchIdAttrs"
-                            :items="branchOptions"
-                            item-title="title"
-                            item-value="id"
-                            variant="outlined"
-                            density="comfortable"
-                            rounded="lg"
-                            hide-details="auto"
-                            :error-messages="errors.branch_id"
-                        />
-                    </FormField>
+            <v-card-text class="pa-0" style="background: #f8fafc;">
+                <v-form class="app-form pa-5 pt-4" @submit.prevent="submit">
+                    <!-- 1. Информация о вакансии -->
+                    <div class="section-bar">
+                        1&ensp;Информация о вакансии
+                    </div>
+                    <div class="section-body">
+                        <FormField v-if="isAdmin" label="Филиал" class="mb-4">
+                            <v-select
+                                v-model="branchId"
+                                v-bind="branchIdAttrs"
+                                :items="branchOptions"
+                                item-title="title"
+                                item-value="id"
+                                variant="outlined"
+                                density="comfortable"
+                                rounded="lg"
+                                hide-details="auto"
+                                :error-messages="errors.branch_id"
+                            />
+                        </FormField>
 
-                    <FormField label="Вазифа / Номи вакансия" class="mb-4">
-                        <v-text-field
-                            v-model="title"
-                            v-bind="titleAttrs"
-                            variant="outlined"
-                            density="comfortable"
-                            rounded="lg"
-                            hide-details="auto"
-                            :error-messages="errors.title"
-                        />
-                    </FormField>
+                        <v-row dense>
+                            <v-col cols="12" md="6">
+                                <FormField label="Должность (позиция)" class="mb-4">
+                                    <v-combobox
+                                        v-model="position"
+                                        v-bind="positionAttrs"
+                                        :items="positionNames"
+                                        variant="outlined"
+                                        density="comfortable"
+                                        rounded="lg"
+                                        clearable
+                                        hide-details="auto"
+                                        :error-messages="errors.position"
+                                    />
+                                </FormField>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <FormField label="Структурное подразделение" class="mb-4">
+                                    <v-select
+                                        v-model="departmentId"
+                                        v-bind="departmentIdAttrs"
+                                        :items="departmentOptions"
+                                        item-title="name"
+                                        item-value="id"
+                                        variant="outlined"
+                                        density="comfortable"
+                                        rounded="lg"
+                                        clearable
+                                        hide-details="auto"
+                                        :error-messages="errors.department_id"
+                                    />
+                                </FormField>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <FormField label="Место деятельности / локация" class="mb-4">
+                                    <v-text-field
+                                        v-model="location"
+                                        v-bind="locationAttrs"
+                                        variant="outlined"
+                                        density="comfortable"
+                                        rounded="lg"
+                                        hide-details="auto"
+                                        :error-messages="errors.location"
+                                    />
+                                </FormField>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <FormField label="Количество вакансий" required class="mb-4">
+                                    <v-text-field
+                                        v-model.number="openings"
+                                        v-bind="openingsAttrs"
+                                        type="number"
+                                        min="1"
+                                        variant="outlined"
+                                        density="comfortable"
+                                        rounded="lg"
+                                        hide-details="auto"
+                                        :error-messages="errors.openings"
+                                    />
+                                </FormField>
+                            </v-col>
+                        </v-row>
 
-                    <FormField label="Шумораи кормандони зарур" required class="mb-4">
-                        <v-text-field
-                            v-model.number="openings"
-                            v-bind="openingsAttrs"
-                            type="number"
-                            min="1"
-                            variant="outlined"
-                            density="comfortable"
-                            rounded="lg"
-                            hide-details="auto"
-                            :error-messages="errors.openings"
-                        />
-                    </FormField>
+                        <FormField label="Непосредственный руководитель" class="mb-1">
+                            <v-text-field
+                                v-model="supervisor"
+                                v-bind="supervisorAttrs"
+                                variant="outlined"
+                                density="comfortable"
+                                rounded="lg"
+                                hide-details="auto"
+                                :error-messages="errors.supervisor"
+                            />
+                        </FormField>
+                    </div>
 
-                    <v-row dense>
-                        <v-col cols="12" md="6">
-                            <FormField label="Вазифа (интихоб ё вориди нав)" class="mb-4">
-                                <v-combobox
-                                    v-model="position"
-                                    v-bind="positionAttrs"
-                                    :items="positionNames"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    clearable
-                                    hide-details="auto"
-                                    :error-messages="errors.position"
-                                />
-                            </FormField>
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <FormField label="Шуъба" class="mb-4">
-                                <v-select
-                                    v-model="departmentId"
-                                    v-bind="departmentIdAttrs"
-                                    :items="departmentOptions"
-                                    item-title="name"
-                                    item-value="id"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    clearable
-                                    hide-details="auto"
-                                    :error-messages="errors.department_id"
-                                />
-                            </FormField>
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <FormField label="Намуди шуғл" class="mb-4">
-                                <v-select
-                                    v-model="employmentType"
-                                    v-bind="employmentTypeAttrs"
-                                    :items="employmentTypes"
-                                    item-title="label"
-                                    item-value="value"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    clearable
-                                    hide-details="auto"
-                                    :error-messages="errors.employment_type"
-                                />
-                            </FormField>
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <FormField label="Ҷадвали корӣ" class="mb-4">
+                    <!-- 2. Требования к кандидату -->
+                    <div class="section-bar">
+                        2&ensp;Требования к кандидату
+                    </div>
+                    <div class="section-body">
+                        <FormField label="Образование" class="mb-4">
+                            <ChoiceBoxGroup v-model="education" :options="formOptions.educations ?? []" />
+                        </FormField>
+
+                        <FormField label="Опыт работы" class="mb-4">
+                            <ChoiceBoxGroup v-model="experience" :options="formOptions.experiences ?? []" />
+                        </FormField>
+
+                        <FormField label="Знание языков" class="mb-4">
+                            <div class="d-flex flex-wrap align-center" style="gap: 6px 18px;">
+                                <ChoiceBoxGroup v-model="languages" :options="languageOptions" multiple />
                                 <v-text-field
-                                    v-model="schedule"
-                                    v-bind="scheduleAttrs"
+                                    v-model="languageOther"
+                                    v-bind="languageOtherAttrs"
+                                    label="Другой"
                                     variant="outlined"
-                                    density="comfortable"
+                                    density="compact"
                                     rounded="lg"
                                     hide-details="auto"
-                                    :error-messages="errors.schedule"
+                                    style="max-width: 200px;"
+                                    :error-messages="errors.language_other"
                                 />
-                            </FormField>
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <FormField label="Маош" class="mb-4">
+                            </div>
+                        </FormField>
+
+                        <FormField label="Ключевые навыки и знание программ" class="mb-4">
+                            <v-textarea
+                                v-model="skills"
+                                v-bind="skillsAttrs"
+                                variant="outlined"
+                                density="comfortable"
+                                rounded="lg"
+                                rows="2"
+                                auto-grow
+                                hide-details="auto"
+                                :error-messages="errors.skills"
+                            />
+                        </FormField>
+
+                        <FormField label="Дополнительные требования к кандидату" class="mb-1">
+                            <v-textarea
+                                v-model="requirements"
+                                v-bind="requirementsAttrs"
+                                variant="outlined"
+                                density="comfortable"
+                                rounded="lg"
+                                rows="2"
+                                auto-grow
+                                hide-details="auto"
+                                :error-messages="errors.requirements"
+                            />
+                        </FormField>
+                    </div>
+
+                    <!-- 3. Должностные обязанности -->
+                    <div class="section-bar">
+                        3&ensp;Должностные обязанности
+                    </div>
+                    <div class="section-body">
+                        <FormField label="Основные обязанности" class="mb-1">
+                            <v-textarea
+                                v-model="responsibilities"
+                                v-bind="responsibilitiesAttrs"
+                                variant="outlined"
+                                density="comfortable"
+                                rounded="lg"
+                                rows="3"
+                                auto-grow
+                                hide-details="auto"
+                                :error-messages="errors.responsibilities"
+                            />
+                        </FormField>
+                    </div>
+
+                    <!-- 4. Условия работы -->
+                    <div class="section-bar">
+                        4&ensp;Условия работы
+                    </div>
+                    <div class="section-body">
+                        <FormField label="Тип занятости" class="mb-4">
+                            <ChoiceBoxGroup v-model="employmentType" :options="formOptions.employmentTypes ?? []" />
+                        </FormField>
+
+                        <FormField label="График работы" class="mb-4">
+                            <div class="d-flex flex-wrap align-center" style="gap: 6px 18px;">
+                                <ChoiceBoxGroup v-model="scheduleType" :options="formOptions.scheduleTypes ?? []" />
                                 <v-text-field
-                                    v-model="salary"
-                                    v-bind="salaryAttrs"
-                                    type="number"
-                                    min="0"
-                                    step="1"
-                                    suffix="сомонӣ"
+                                    v-model="scheduleOther"
+                                    v-bind="scheduleOtherAttrs"
+                                    label="Укажите"
                                     variant="outlined"
-                                    density="comfortable"
+                                    density="compact"
                                     rounded="lg"
                                     hide-details="auto"
-                                    :error-messages="errors.salary"
+                                    style="max-width: 240px;"
+                                    :disabled="scheduleType !== 'иной'"
+                                    :error-messages="errors.schedule_other"
                                 />
-                            </FormField>
-                        </v-col>
-                    </v-row>
+                            </div>
+                        </FormField>
 
-                    <FormField label="Талабот ба номзад" class="mb-4">
-                        <v-textarea
-                            v-model="requirements"
-                            v-bind="requirementsAttrs"
-                            variant="outlined"
-                            density="comfortable"
-                            rounded="lg"
-                            rows="3"
-                            auto-grow
-                            hide-details="auto"
-                            :error-messages="errors.requirements"
-                        />
-                    </FormField>
+                        <FormField label="Формат работы" class="mb-4">
+                            <ChoiceBoxGroup v-model="workFormat" :options="formOptions.workFormats ?? []" />
+                        </FormField>
 
-                    <FormField label="Тавсиф / Иловагӣ" class="mb-4">
-                        <v-textarea
-                            v-model="description"
-                            v-bind="descriptionAttrs"
-                            variant="outlined"
-                            density="comfortable"
-                            rounded="lg"
-                            rows="2"
-                            auto-grow
-                            hide-details="auto"
-                            :error-messages="errors.description"
-                        />
-                    </FormField>
+                        <FormField label="Предполагаемый уровень дохода (оклад / диапазон, по согласованию с HR)" class="mb-4">
+                            <v-text-field
+                                v-model="salary"
+                                v-bind="salaryAttrs"
+                                type="number"
+                                min="0"
+                                step="1"
+                                suffix="сомонӣ"
+                                variant="outlined"
+                                density="comfortable"
+                                rounded="lg"
+                                hide-details="auto"
+                                :error-messages="errors.salary"
+                            />
+                        </FormField>
 
-                    <v-row dense>
-                        <v-col cols="12" md="6">
-                            <FormField label="Санаи кушодашавӣ">
+                        <FormField label="Испытательный срок" class="mb-1">
+                            <div class="d-flex flex-wrap align-center" style="gap: 6px 18px;">
+                                <ChoiceBoxGroup v-model="probation" :options="formOptions.probations ?? []" />
                                 <v-text-field
-                                    v-model="openedAt"
-                                    v-bind="openedAtAttrs"
-                                    type="date"
+                                    v-model="probationOther"
+                                    v-bind="probationOtherAttrs"
+                                    label="Иное"
                                     variant="outlined"
-                                    density="comfortable"
+                                    density="compact"
                                     rounded="lg"
                                     hide-details="auto"
-                                    :error-messages="errors.opened_at"
+                                    style="max-width: 180px;"
+                                    :disabled="probation !== 'иное'"
+                                    :error-messages="errors.probation_other"
                                 />
-                            </FormField>
-                        </v-col>
-                        <v-col v-if="vacancy" cols="12" md="6">
-                            <FormField label="Ҳолат">
+                            </div>
+                        </FormField>
+                    </div>
+
+                    <!-- 5. Причина открытия позиции и сроки -->
+                    <div class="section-bar">
+                        5&ensp;Причина открытия позиции и сроки
+                    </div>
+                    <div class="section-body">
+                        <FormField label="Причина открытия позиции" class="mb-4">
+                            <ChoiceBoxGroup v-model="openingReason" :options="formOptions.openingReasons ?? []" />
+                        </FormField>
+
+                        <FormField label="Приоритет / срочность" class="mb-4">
+                            <ChoiceBoxGroup v-model="priority" :options="formOptions.priorities ?? []" />
+                        </FormField>
+
+                        <v-row dense>
+                            <v-col cols="12" md="6">
+                                <FormField label="Дата подачи заявки" class="mb-1">
+                                    <v-text-field
+                                        v-model="openedAt"
+                                        v-bind="openedAtAttrs"
+                                        type="date"
+                                        variant="outlined"
+                                        density="comfortable"
+                                        rounded="lg"
+                                        hide-details="auto"
+                                        :error-messages="errors.opened_at"
+                                    />
+                                </FormField>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <FormField label="Планируемая дата закрытия вакансии (Дедлайн)" class="mb-1">
+                                    <v-text-field
+                                        v-model="deadline"
+                                        v-bind="deadlineAttrs"
+                                        type="date"
+                                        variant="outlined"
+                                        density="comfortable"
+                                        rounded="lg"
+                                        hide-details="auto"
+                                        :error-messages="errors.deadline"
+                                    />
+                                </FormField>
+                            </v-col>
+                        </v-row>
+                    </div>
+
+                    <!-- 6. Согласование заявки (статус — только при редактировании) -->
+                    <template v-if="vacancy">
+                        <div class="section-bar">
+                            6&ensp;Согласование заявки
+                        </div>
+                        <div class="section-body">
+                            <FormField label="Статус вакансии" class="mb-1">
                                 <v-select
                                     v-model="status"
                                     v-bind="statusAttrs"
-                                    :items="[{ value: 'open', title: 'Кушода' }, { value: 'closed', title: 'Баста' }]"
+                                    :items="[{ value: 'open', title: 'Открыта' }, { value: 'closed', title: 'Закрыта' }]"
                                     item-title="title"
                                     item-value="value"
                                     variant="outlined"
@@ -343,8 +547,8 @@ const submit = handleSubmit((values) => {
                                     hide-details="auto"
                                 />
                             </FormField>
-                        </v-col>
-                    </v-row>
+                        </div>
+                    </template>
                 </v-form>
             </v-card-text>
 
@@ -352,13 +556,71 @@ const submit = handleSubmit((values) => {
 
             <v-card-actions class="pa-5">
                 <v-btn variant="text" rounded="lg" size="large" :disabled="inertia.processing" @click="open = false">
-                    Бекор кардан
+                    Отмена
                 </v-btn>
                 <v-spacer />
-                <v-btn color="indigo" variant="flat" rounded="lg" size="large" :loading="inertia.processing" class="px-6 font-weight-medium text-white bg-indigo" @click="submit">
-                    Захира кардан
+                <v-btn variant="flat" rounded="lg" size="large" :loading="inertia.processing" class="px-6 font-weight-medium text-white save-btn" @click="submit">
+                    Сохранить
                 </v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>
 </template>
+
+<style scoped>
+/* The dialog mirrors the printed «Заявка на подбор персонала»: navy section
+   bars with the same numbering, light-blue body blocks, document typography. */
+.form-head {
+    background: #0f3d5c;
+    padding: 20px 24px;
+}
+
+.form-head__kicker {
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.form-head__title {
+    color: white;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+}
+
+.form-head__sub {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.78rem;
+    font-style: italic;
+}
+
+.section-bar {
+    background: #0f3d5c;
+    color: #ffffff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 8px 14px;
+    border-radius: 8px 8px 0 0;
+    margin-top: 18px;
+}
+
+.section-bar:first-of-type {
+    margin-top: 0;
+}
+
+.section-body {
+    background: #ffffff;
+    border: 1px solid #dbe5ee;
+    border-top: 0;
+    border-radius: 0 0 8px 8px;
+    padding: 16px 14px 14px;
+}
+
+.save-btn {
+    background: #0f3d5c !important;
+}
+</style>

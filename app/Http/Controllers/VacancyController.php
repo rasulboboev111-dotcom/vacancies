@@ -3,8 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Data\VacancyData;
-use App\Enums\EmploymentType;
+use App\Enums\Education;
+use App\Enums\Experience;
+use App\Enums\HasLabel;
+use App\Enums\OpeningReason;
+use App\Enums\Probation;
+use App\Enums\ScheduleType;
+use App\Enums\VacancyEmploymentType;
+use App\Enums\VacancyPriority;
 use App\Enums\VacancyStatus;
+use App\Enums\WorkFormat;
 use App\Http\Requests\Vacancy\StoreVacancyRequest;
 use App\Http\Requests\Vacancy\UpdateVacancyRequest;
 use App\Models\Branch;
@@ -12,6 +20,7 @@ use App\Models\Department;
 use App\Models\Position;
 use App\Models\Vacancy;
 use App\Services\VacancyService;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -39,7 +48,7 @@ class VacancyController extends Controller
         }
 
         $base = Vacancy::query()
-            ->with(['branch:id,name,code', 'department:id,name', 'position:id,name', 'creator:id,name'])
+            ->with(['branch:id,name,code', 'department:id,name', 'position:id,name', 'creator:id,name', 'languages'])
             ->viewableBy($user)
             ->orderByRaw("CASE WHEN status = 'open' THEN 0 ELSE 1 END")
             ->latest('opened_at')
@@ -68,12 +77,32 @@ class VacancyController extends Controller
             ])->values(),
             'departments' => $departmentsQuery->get(['id', 'branch_id', 'name']),
             'positions' => Position::query()->orderBy('name')->get(['id', 'name']),
-            'employmentTypes' => collect(EmploymentType::cases())->map(fn (EmploymentType $type) => [
-                'value' => $type->value,
-                'label' => $type->label(),
-            ])->values(),
+            'formOptions' => [
+                'educations' => self::enumOptions(Education::cases()),
+                'experiences' => self::enumOptions(Experience::cases()),
+                'employmentTypes' => self::enumOptions(VacancyEmploymentType::cases()),
+                'scheduleTypes' => self::enumOptions(ScheduleType::cases()),
+                'workFormats' => self::enumOptions(WorkFormat::cases()),
+                'probations' => self::enumOptions(Probation::cases()),
+                'openingReasons' => self::enumOptions(OpeningReason::cases()),
+                'priorities' => self::enumOptions(VacancyPriority::cases()),
+                'knownLanguages' => Vacancy::KNOWN_LANGUAGES,
+            ],
             'filters' => $request->input('filter', []),
         ]);
+    }
+
+    /**
+     * Печатная «Заявка на подбор персонала» — one-to-one render of the official
+     * docx form (Приложение № 1 к СОП), filled with the vacancy's data.
+     */
+    public function print(int $id): View
+    {
+        $vacancy = Vacancy::with(['branch', 'department', 'position', 'creator', 'languages'])->findOrFail($id);
+
+        Gate::authorize('view', $vacancy);
+
+        return view('vacancies.print', ['vacancy' => $vacancy]);
     }
 
     /**
@@ -113,6 +142,18 @@ class VacancyController extends Controller
 
         return redirect()->route('vacancies.index', $this->indexParams($request))
             ->with('success', 'Вакансия бомуваффақият нест карда шуд.');
+    }
+
+    /**
+     * @param  list<HasLabel&\BackedEnum>  $cases
+     * @return list<array{value: string, label: string}>
+     */
+    private static function enumOptions(array $cases): array
+    {
+        return array_map(fn ($case) => [
+            'value' => $case->value,
+            'label' => $case->label(),
+        ], $cases);
     }
 
     /**

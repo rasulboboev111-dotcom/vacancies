@@ -2,12 +2,20 @@
 
 namespace App\Models;
 
-use App\Enums\EmploymentType;
+use App\Enums\Education;
+use App\Enums\Experience;
+use App\Enums\OpeningReason;
+use App\Enums\Probation;
+use App\Enums\ScheduleType;
+use App\Enums\VacancyEmploymentType;
+use App\Enums\VacancyPriority;
 use App\Enums\VacancyStatus;
+use App\Enums\WorkFormat;
 use App\Models\Concerns\BranchScoped;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
@@ -16,20 +24,37 @@ class Vacancy extends Model
 {
     use BranchScoped, HasFactory, LogsActivity, SoftDeletes;
 
+    /**
+     * The «Знание языков» checkboxes printed on the form; anything else a
+     * vacancy stores is rendered as «Другой».
+     */
+    public const KNOWN_LANGUAGES = ['Таджикский', 'Русский', 'Английский'];
+
     protected $fillable = [
         'branch_id',
         'department_id',
         'position_id',
         'created_by',
-        'title',
+        'location',
         'openings',
-        'employment_type',
+        'supervisor',
+        'education',
+        'experience',
+        'skills',
         'requirements',
-        'schedule',
+        'responsibilities',
+        'employment_type',
+        'schedule_type',
+        'schedule_other',
+        'work_format',
         'salary',
-        'description',
+        'probation',
+        'probation_other',
+        'opening_reason',
+        'priority',
         'status',
         'opened_at',
+        'deadline',
         'closed_at',
     ];
 
@@ -40,9 +65,17 @@ class Vacancy extends Model
         'created_by' => 'integer',
         'openings' => 'integer',
         'salary' => 'integer',
-        'employment_type' => EmploymentType::class,
+        'education' => Education::class,
+        'experience' => Experience::class,
+        'employment_type' => VacancyEmploymentType::class,
+        'schedule_type' => ScheduleType::class,
+        'work_format' => WorkFormat::class,
+        'probation' => Probation::class,
+        'opening_reason' => OpeningReason::class,
+        'priority' => VacancyPriority::class,
         'status' => VacancyStatus::class,
         'opened_at' => 'date',
+        'deadline' => 'date',
         'closed_at' => 'date',
     ];
 
@@ -53,15 +86,26 @@ class Vacancy extends Model
                 'branch_id',
                 'department_id',
                 'position_id',
-                'title',
+                'location',
                 'openings',
-                'employment_type',
+                'supervisor',
+                'education',
+                'experience',
+                'skills',
                 'requirements',
-                'schedule',
+                'responsibilities',
+                'employment_type',
+                'schedule_type',
+                'schedule_other',
+                'work_format',
                 'salary',
-                'description',
+                'probation',
+                'probation_other',
+                'opening_reason',
+                'priority',
                 'status',
                 'opened_at',
+                'deadline',
                 'closed_at',
             ])
             ->logOnlyDirty()
@@ -78,6 +122,9 @@ class Vacancy extends Model
         return $this->belongsTo(Department::class);
     }
 
+    /**
+     * @return BelongsTo<Position, $this>
+     */
     public function position(): BelongsTo
     {
         return $this->belongsTo(Position::class);
@@ -86,5 +133,22 @@ class Vacancy extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * @return HasMany<VacancyLanguage, $this>
+     */
+    public function languages(): HasMany
+    {
+        return $this->hasMany(VacancyLanguage::class);
+    }
+
+    /**
+     * The vacancy's display name on lists and audit logs — the position name,
+     * now that the duplicate free-text title is gone.
+     */
+    public function displayName(): string
+    {
+        return $this->position->name ?? 'Вакансия №'.$this->id;
     }
 }
