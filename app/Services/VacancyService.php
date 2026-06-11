@@ -17,10 +17,10 @@ class VacancyService
 
     public function create(array $data, User $creator): Vacancy
     {
-        // Resolve the free-text position BEFORE the transaction: LookupResolver
-        // recovers from a concurrent-insert unique violation by re-reading, which
-        // a PostgreSQL aborted-transaction would break. An unused Position row on
-        // rollback is harmless reference data.
+        // Разрешаем свободно вводимую вазифу ДО транзакции: LookupResolver
+        // восстанавливается после unique-нарушения параллельной вставки путём
+        // перечитывания, что сломала бы прерванная транзакция PostgreSQL.
+        // Неиспользованная строка Position при откате — безвредные справочные данные.
         $data = $this->resolvePosition($data);
         $data = $this->clearDanglingOtherFields($data);
         $languages = $this->pullLanguages($data);
@@ -29,7 +29,7 @@ class VacancyService
         $data['opened_at'] = $data['opened_at'] ?? Carbon::today()->toDateString();
         $data['closed_at'] = null;
 
-        // The row save + languages + audit entry are atomic.
+        // Сохранение строки + языки + запись аудита атомарны.
         return DB::transaction(function () use ($data, $languages) {
             $vacancy = new Vacancy($data);
             $vacancy->disableLogging()->save();
@@ -47,13 +47,13 @@ class VacancyService
 
     public function update(Vacancy $vacancy, array $data, ?string $status): Vacancy
     {
-        // See create(): position resolution stays outside the transaction.
+        // См. create(): разрешение вазифы остаётся вне транзакции.
         $data = $this->resolvePosition($data);
         $data = $this->clearDanglingOtherFields($data);
         $languages = $this->pullLanguages($data);
 
-        // Pure in-memory status/closed_at derivation — no DB access, so keep it
-        // out of the transaction (which only needs to wrap the update + audit log).
+        // Чисто in-memory вывод status/closed_at — без обращения к БД, поэтому
+        // держим его вне транзакции (она должна обернуть только update + лог аудита).
         $newStatus = $status !== null ? VacancyStatus::tryFrom($status) : null;
         if ($newStatus !== null) {
             $data['status'] = $newStatus;
@@ -68,6 +68,11 @@ class VacancyService
         }
 
         return DB::transaction(function () use ($vacancy, $data, $languages) {
+            // Сериализуем параллельные правки одной вакансии, чтобы delete+insert
+            // языков в syncLanguages() не привёл две транзакции к гонке за
+            // unique-нарушение (vacancy_id, name).
+            $vacancy->newQuery()->whereKey($vacancy->getKey())->lockForUpdate()->first();
+
             $vacancy->disableLogging()->update($data);
 
             $this->syncLanguages($vacancy, $languages);
@@ -85,8 +90,8 @@ class VacancyService
     {
         $name = $vacancy->displayName();
 
-        // Delete then log, both in one transaction — no phantom "deleted" log if
-        // the delete fails, no lost log if the audit write fails after it.
+        // Удаляем, затем логируем — оба в одной транзакции: нет фантомного лога
+        // «удалено» при сбое удаления и нет потерянного лога, если запись аудита упадёт после него.
         DB::transaction(function () use ($vacancy, $name) {
             $vacancy->disableLogging()->delete();
 
@@ -98,10 +103,10 @@ class VacancyService
     }
 
     /**
-     * Translate the free-text "position" field into a position_id, creating the
-     * position row on the fly (case-insensitive find-or-create). The key is
-     * only touched when present, so a partial update (e.g. a status toggle)
-     * never clears an existing position.
+     * Преобразует свободно вводимое поле «position» в position_id, создавая
+     * строку вазифы на лету (нечувствительный к регистру find-or-create). Ключ
+     * затрагивается только при его наличии, поэтому частичное обновление
+     * (например, переключение статуса) никогда не очищает существующую вазифу.
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
@@ -117,9 +122,9 @@ class VacancyService
     }
 
     /**
-     * The «иной/иное» free-text columns only mean something while their option
-     * is selected — when a request switches the group to a preset option, the
-     * stale text is dropped so the row can't carry contradictory data.
+     * Свободно вводимые столбцы «иной/иное» имеют смысл, только пока выбран их
+     * вариант — когда запрос переключает группу на предустановленный вариант,
+     * устаревший текст сбрасывается, чтобы строка не несла противоречивых данных.
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
@@ -138,9 +143,9 @@ class VacancyService
     }
 
     /**
-     * Extract the «Знание языков» multi-select for the child table. Null means
-     * "the request did not touch languages" (partial update keeps them);
-     * an array (possibly empty) replaces the existing set.
+     * Извлекает мультивыбор «Знание языков» для дочерней таблицы. Null означает
+     * «запрос не затрагивал языки» (частичное обновление сохраняет их);
+     * массив (возможно пустой) заменяет существующий набор.
      *
      * @param  array<string, mixed>  $data
      * @return list<string>|null
@@ -172,8 +177,8 @@ class VacancyService
             return;
         }
 
-        // Replace only when the set actually changed — the common edit that
-        // doesn't touch languages costs one SELECT instead of a rewrite.
+        // Заменяем, только если набор действительно изменился — обычная правка,
+        // не затрагивающая языки, стоит одного SELECT вместо перезаписи.
         $current = $vacancy->languages()->pluck('name')->sort()->values()->all();
         $target = collect($languages)->sort()->values()->all();
         if ($current === $target) {

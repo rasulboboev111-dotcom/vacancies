@@ -9,16 +9,18 @@ const props = defineProps({
 const open = defineModel({ type: Boolean, default: false });
 
 const loading = ref(false);
+const failed = ref(false);
 const employees = ref([]);
 
-// Lazy-load the position's staff only when the dialog actually opens, so the
-// positions grid stays light (it ships counts, not the full employee lists).
+// Ленивая загрузка сотрудников вазифы только при фактическом открытии диалога, чтобы
+// сетка вазиф оставалась лёгкой (она отдаёт счётчики, а не полные списки сотрудников).
 watch(open, (isOpen) => {
     if (!isOpen || !props.position) {
         return;
     }
 
     loading.value = true;
+    failed.value = false;
     employees.value = [];
 
     window.axios
@@ -27,7 +29,9 @@ watch(open, (isOpen) => {
             employees.value = response.data.employees ?? [];
         })
         .catch(() => {
-            employees.value = [];
+            // Показываем ошибку вместо пустого состояния, которое ошибочно читалось бы
+            // как «у этой вазифы нет сотрудников».
+            failed.value = true;
         })
         .finally(() => {
             loading.value = false;
@@ -54,7 +58,10 @@ watch(open, (isOpen) => {
                     <v-progress-circular indeterminate color="indigo" />
                 </div>
                 <template v-else>
-                    <div v-if="employees.length === 0" class="text-center pa-8 text-grey">
+                    <div v-if="failed" class="text-center pa-8 text-error">
+                        Маълумотро боргирӣ карда нашуд. Дубора кӯшиш кунед.
+                    </div>
+                    <div v-else-if="employees.length === 0" class="text-center pa-8 text-grey">
                         Дар ин вазифа ҳоло корманд нест.
                     </div>
                     <v-list v-else lines="two" density="comfortable">

@@ -17,15 +17,21 @@ class UpdateVacancyRequest extends VacancyRequest
     }
 
     /**
-     * Admins may move the vacancy to the chosen branch (falling back to its
-     * current one); branch users keep it on its existing branch.
+     * Администраторы могут переместить вакансию в выбранный филиал (с откатом к
+     * текущему); пользователи филиала оставляют её в существующем филиале.
      */
     protected function prepareForValidation(): void
     {
-        $user = $this->user();
         $vacancy = Vacancy::find($this->route('id'));
 
-        $branchId = $user->isAdmin()
+        // prepareForValidation() выполняется до authorize(); отсутствующий/мягко
+        // удалённый id отклоняется там, поэтому выходим до разыменования null-модели
+        // (иначе неверный id вернёт 500 вместо 403).
+        if ($vacancy === null) {
+            return;
+        }
+
+        $branchId = $this->user()->isAdmin()
             ? ($this->integer('branch_id') ?: $vacancy->branch_id)
             : (int) $vacancy->branch_id;
 

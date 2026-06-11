@@ -7,9 +7,10 @@ import { computed, watch } from 'vue';
 import ChoiceBoxGroup from '@/Components/ChoiceBoxGroup.vue';
 import FormField from '@/Components/FormField.vue';
 import { vacancySchema } from '@/lib/schemas';
+import { mergeLanguages, splitLanguages } from '@/lib/vacancy';
 
 const props = defineProps({
-    vacancy: { type: Object, default: null }, // null → create
+    vacancy: { type: Object, default: null }, // null → создание
     isAdmin: { type: Boolean, default: false },
     branches: { type: Array, default: () => [] },
     departments: { type: Array, default: () => [] },
@@ -62,11 +63,11 @@ const EMPTY_VALUES = {
     status: 'open',
 };
 
-// Server-validated fields, used to map server errors back onto the form.
-// `language_other` is client-only — merged into `languages` before submit.
+// Поля, проверяемые сервером; используются для проброса серверных ошибок обратно в форму.
+// `language_other` — только клиентское, перед отправкой сливается в `languages`.
 const FIELDS = Object.keys(EMPTY_VALUES).filter(field => field !== 'language_other');
 
-// vee-validate owns client-side validation; Inertia owns submit + server errors.
+// vee-validate отвечает за клиентскую валидацию; Inertia — за отправку и серверные ошибки.
 const { defineField, errors, handleSubmit, resetForm, setFieldError } = useVeeForm({
     validationSchema: toTypedSchema(vacancySchema),
     initialValues: { ...EMPTY_VALUES },
@@ -106,8 +107,8 @@ const departmentOptions = computed(() =>
     props.departments.filter(d => Number(d.branch_id) === Number(formBranchId.value)),
 );
 
-// Drop a stale department when the (admin-changed) branch no longer owns it,
-// so a cross-branch department id never reaches the backend.
+// Сбрасываем устаревший отдел, когда (изменённый админом) филиал им больше не владеет,
+// чтобы id отдела из чужого филиала не попал на backend.
 watch(formBranchId, (bid) => {
     if (
         departmentId.value
@@ -132,9 +133,9 @@ watch(open, (visible) => {
         });
         return;
     }
-    // The «Другой» language is whatever the vacancy stores beyond the form's
-    // printed checkboxes.
-    const stored = v.languages ?? [];
+    // Язык «Другой» — всё, что вакансия хранит сверх печатных чекбоксов формы
+    // (целиком, через запятую — а не только первый).
+    const { selected: selectedLanguages, other: otherLanguages } = splitLanguages(v.languages, knownLanguages.value);
     resetForm({
         values: {
             branch_id: v.branch_id,
@@ -145,8 +146,8 @@ watch(open, (visible) => {
             supervisor: v.supervisor ?? '',
             education: v.education,
             experience: v.experience,
-            languages: stored.filter(name => knownLanguages.value.includes(name)),
-            language_other: stored.find(name => !knownLanguages.value.includes(name)) ?? '',
+            languages: selectedLanguages,
+            language_other: otherLanguages,
             skills: v.skills ?? '',
             requirements: v.requirements ?? '',
             responsibilities: v.responsibilities ?? '',
@@ -168,10 +169,7 @@ watch(open, (visible) => {
 
 const submit = handleSubmit((values) => {
     const { language_other: otherLanguage, ...payload } = values;
-    payload.languages = [
-        ...(values.languages ?? []),
-        ...(otherLanguage && otherLanguage.trim() ? [otherLanguage.trim()] : []),
-    ];
+    payload.languages = mergeLanguages(values.languages, otherLanguage);
 
     Object.assign(inertia, payload);
 
@@ -339,6 +337,7 @@ const submit = handleSubmit((values) => {
                                     v-model="languageOther"
                                     v-bind="languageOtherAttrs"
                                     label="Другой"
+                                    placeholder="через запятую"
                                     variant="outlined"
                                     density="compact"
                                     rounded="lg"
@@ -559,8 +558,8 @@ const submit = handleSubmit((values) => {
 </template>
 
 <style scoped>
-/* The dialog keeps the printed form's numbered sections, but framed as the
-   site's white cards with the shared header/accent palette. */
+/* Диалог сохраняет нумерованные разделы печатной формы, но оформляет их как
+   белые карточки сайта с общей палитрой шапки/акцента. */
 .form-head {
     background: #009cf1;
     padding: 20px 24px;

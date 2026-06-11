@@ -138,11 +138,15 @@ class Vacancy extends Model
     }
 
     /**
-     * The vacancy's display name on lists and audit logs — the position name,
-     * now that the duplicate free-text title is gone.
+     * Отображаемое имя вакансии в списках и журналах аудита — название должности,
+     * после того как дублирующий свободно-текстовый заголовок был убран.
      */
     public function displayName(): string
     {
-        return $this->position->name ?? 'Вакансия №'.$this->id;
+        // value() возвращает null, когда строки должности нет (position_id
+        // допускает null), что исключает разыменование null; свойство связи по
+        // данным статического анализа типизировано как non-null, поэтому
+        // nullsafe-доступ там не скомпилируется.
+        return $this->position()->value('name') ?? 'Вакансия №'.$this->id;
     }
 }
