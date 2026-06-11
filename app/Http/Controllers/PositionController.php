@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Exceptions\PositionInUseException;
 use App\Http\Requests\Position\StorePositionRequest;
 use App\Http\Requests\Position\UpdatePositionRequest;
+use App\Models\Employee;
 use App\Models\Position;
 use App\Services\PositionService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -36,6 +38,41 @@ class PositionController extends Controller
 
         return Inertia::render('Positions/Index', [
             'positions' => $positions,
+        ]);
+    }
+
+    /**
+     * List the employees assigned to a position. Lazy-loaded by the positions
+     * grid when a card is opened, so the index stays light (it ships counts,
+     * not the full staff lists). Scoped to the employees the user may view —
+     * the same filter behind the card's employees_count.
+     */
+    public function employees(Request $request, int $id): JsonResponse
+    {
+        Gate::authorize('viewAny', Position::class);
+
+        $position = Position::findOrFail($id);
+
+        $employees = Employee::query()
+            ->where('position_id', $position->id)
+            ->viewableBy($request->user())
+            ->without(['nationalityRef', 'educationRef', 'specialtyRef', 'birthPlaceRef'])
+            ->with(['department:id,name', 'branch:id,name'])
+            ->orderBy('full_name')
+            ->get(['id', 'full_name', 'department_id', 'branch_id'])
+            ->map(fn (Employee $employee) => [
+                'id' => $employee->id,
+                'full_name' => $employee->full_name,
+                'department' => $employee->department?->getAttribute('name'),
+                'branch' => $employee->branch?->getAttribute('name'),
+            ]);
+
+        return response()->json([
+            'position' => [
+                'id' => $position->id,
+                'name' => $position->name,
+            ],
+            'employees' => $employees,
         ]);
     }
 

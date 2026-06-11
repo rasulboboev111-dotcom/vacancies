@@ -39,6 +39,7 @@ Route::middleware(['auth', 'verified', 'throttle:120,1'])->group(function () {
     Route::get('/structure', [StructureController::class, 'index'])->name('structure.index');
     Route::get('/structure/branches/{id}/employees', [StructureController::class, 'branchEmployees'])->name('structure.branch.employees')->whereNumber('id');
     Route::get('/structure/departments/{id}/employees', [StructureController::class, 'departmentEmployees'])->name('structure.department.employees')->whereNumber('id');
+    Route::get('/positions/{id}/employees', [PositionController::class, 'employees'])->name('positions.employees')->whereNumber('id');
     Route::resource('positions', PositionController::class)->except(['show', 'create', 'edit'])->parameters(['positions' => 'id'])->whereNumber('id');
     Route::resource('users', UserController::class)->except(['show', 'create', 'edit'])->parameters(['users' => 'id'])->whereNumber('id');
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
