@@ -485,39 +485,78 @@ class ImportOrgStructure extends Command
     {
         $name = trim((string) $name);
 
+        if ($name === '' && $externalId === null) {
+            return null;
+        }
+
+        // Named titles are the primary identity. Resolve by name, then attach
+        // the source id only when it is free — the table has TWO unique keys
+        // (case-insensitive name AND external_id), and firstOrCreate/create
+        // would only guard the one they query, leaving the other to throw a
+        // 23505 that aborts the whole import transaction.
         if ($name !== '') {
             $key = mb_strtolower($name);
             if (isset($this->positionByName[$key])) {
                 return $this->positionByName[$key];
             }
 
-            $position = Position::whereRaw('LOWER(TRIM(name)) = LOWER(?)', [$name])->first();
-            if ($position !== null) {
-                // Stamp the source id onto a row that does not have one yet.
-                if ($externalId !== null && $position->external_id === null) {
-                    $position->update(['external_id' => $externalId]);
-                }
-            } else {
-                $position = Position::create([
-                    'external_id' => $externalId,
-                    'name' => $name,
-                ]);
+            $position = $this->resolveOrCreatePosition($name, $externalId);
+
+            // Backfill the source id onto a row that lacks one — but never when
+            // another position already owns that id.
+            if ($externalId !== null
+                && $position->external_id === null
+                && ! $this->externalIdTaken($externalId, $position->id)
+            ) {
+                $position->update(['external_id' => $externalId]);
+            }
+
+            if ($position->external_id !== null) {
+                $this->positionByExternal[$position->external_id] = $position->id;
             }
 
             return $this->positionByName[$key] = $position->id;
         }
 
-        if ($externalId === null) {
-            return null;
-        }
+        // Nameless: identify purely by the source id, with a generated label.
         if (isset($this->positionByExternal[$externalId])) {
             return $this->positionByExternal[$externalId];
         }
-        $position = Position::firstOrCreate(
-            ['external_id' => $externalId],
-            ['name' => 'Вазифа '.$externalId],
-        );
+
+        $position = Position::where('external_id', $externalId)->first()
+            ?? $this->resolveOrCreatePosition('Вазифа '.$externalId, $externalId);
+
+        $this->positionByName[mb_strtolower(trim($position->name))] = $position->id;
 
         return $this->positionByExternal[$externalId] = $position->id;
+    }
+
+    /**
+     * Find a position by its case-insensitive name, or create one. Reconciles
+     * both unique keys: an existing name is reused as-is, and the source id is
+     * attached to a new row only when it is not already claimed — so neither
+     * the name nor the external_id unique index can throw a 23505.
+     */
+    private function resolveOrCreatePosition(string $name, ?int $externalId): Position
+    {
+        $existing = Position::whereRaw('LOWER(TRIM(name)) = LOWER(?)', [$name])->first();
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        return Position::create([
+            'name' => $name,
+            'external_id' => $externalId !== null && ! $this->externalIdTaken($externalId) ? $externalId : null,
+        ]);
+    }
+
+    /**
+     * Whether another position already owns this source id (external_id is unique).
+     */
+    private function externalIdTaken(int $externalId, ?int $exceptId = null): bool
+    {
+        return Position::where('external_id', $externalId)
+            ->when($exceptId !== null, fn ($q) => $q->where('id', '!=', $exceptId))
+            ->exists();
     }
 }
