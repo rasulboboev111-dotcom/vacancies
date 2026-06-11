@@ -150,7 +150,7 @@ class VacancyController extends Controller
         }
 
         $filterStatus = $request->input('filter_status');
-        if (in_array($filterStatus, VacancyStatus::values(), true)) {
+        if (is_string($filterStatus) && VacancyStatus::tryFrom($filterStatus) !== null) {
             $filter['status'] = $filterStatus;
         }
 
