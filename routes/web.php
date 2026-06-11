@@ -34,6 +34,7 @@ Route::middleware(['auth', 'verified', 'throttle:120,1'])->group(function () {
     Route::resource('employees', EmployeeController::class)->except(['show', 'create', 'edit'])->parameters(['employees' => 'id'])->whereNumber('id');
     Route::resource('branches', BranchController::class)->only(['store', 'update', 'destroy'])->parameters(['branches' => 'id'])->whereNumber('id');
     Route::resource('departments', DepartmentController::class)->only(['store', 'update', 'destroy'])->parameters(['departments' => 'id'])->whereNumber('id');
+    Route::get('/vacancies/{id}/print', [VacancyController::class, 'print'])->name('vacancies.print')->whereNumber('id');
     Route::resource('vacancies', VacancyController::class)->except(['show', 'create', 'edit'])->parameters(['vacancies' => 'id'])->whereNumber('id');
     Route::get('/structure', [StructureController::class, 'index'])->name('structure.index');
     Route::get('/structure/branches/{id}/employees', [StructureController::class, 'branchEmployees'])->name('structure.branch.employees')->whereNumber('id');
