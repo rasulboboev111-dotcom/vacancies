@@ -17,7 +17,7 @@ const page = usePage();
 const isAdmin = computed(() => page.props.auth.user.roles.includes('Admin'));
 
 const search = ref('');
-// Debounce the local filter so it doesn't recompute on every keystroke (@vueuse/core).
+// Debounce локального фильтра, чтобы он не пересчитывался на каждое нажатие клавиши (@vueuse/core).
 const debouncedSearch = refDebounced(search, 300);
 const dialog = ref(false);
 const deleteDialog = ref(false);
@@ -33,9 +33,9 @@ const filteredPositions = computed(() => {
     return props.positions.filter(p => p.name?.toLowerCase().includes(q));
 });
 
-// Client-side pagination: the dataset is small enough to ship in full, so we
-// keep the instant search over all positions and only page the display (9 per
-// page). Server-side paging would scope the search to the current page.
+// Клиентская пагинация: набор данных достаточно мал, чтобы отдавать его целиком,
+// поэтому мы сохраняем мгновенный поиск по всем вазифам и пагинируем только отображение
+// (9 на страницу). Серверная пагинация ограничила бы поиск текущей страницей.
 const PAGE_SIZE = 9;
 const currentPage = ref(1);
 
@@ -44,8 +44,8 @@ const pagedPositions = computed(() =>
     filteredPositions.value.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE),
 );
 
-// Reset to the first page when the filter changes, and clamp the page if the
-// list shrinks (e.g. after a delete) so the grid never lands on an empty page.
+// Сброс на первую страницу при смене фильтра и ограничение страницы, если список
+// сокращается (например, после удаления), чтобы сетка не попадала на пустую страницу.
 watch(debouncedSearch, () => {
     currentPage.value = 1;
 });
@@ -86,7 +86,6 @@ function openEmployeesDialog(position) {
             </div>
         </template>
 
-        <!-- Search and Action Bar -->
         <v-row class="mb-6 align-end">
             <v-col cols="12" md="6">
                 <label class="filter-label">Ҷустуҷӯ</label>
@@ -120,7 +119,6 @@ function openEmployeesDialog(position) {
             </v-col>
         </v-row>
 
-        <!-- Positions Grid -->
         <v-row>
             <v-col v-for="position in pagedPositions" :key="position.id" cols="12" sm="6" md="4">
                 <PositionCard

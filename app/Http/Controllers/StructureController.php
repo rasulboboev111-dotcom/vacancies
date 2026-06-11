@@ -18,7 +18,7 @@ use Inertia\Response;
 class StructureController extends Controller
 {
     /**
-     * Display the organisational structure (branches + departments) as a graph.
+     * Отображает организационную структуру (филиалы + подразделения) в виде графа.
      */
     public function index(Request $request): Response
     {
@@ -64,10 +64,10 @@ class StructureController extends Controller
             ];
         })->values();
 
-        // The head organisation name (the Business Unit that is not a regional
-        // "Филиал …"), resolved unscoped so branch users — who only see their
-        // own filial — still get the real org name at the tree root instead of
-        // a generic placeholder.
+        // Имя головной организации (бизнес-юнит, не являющийся региональным
+        // "Филиал …"), вычисляется без ограничения по филиалу, чтобы
+        // пользователи филиала — видящие только свой филиал — всё равно
+        // получали реальное имя организации в корне дерева, а не заглушку.
         $organizationName = Branch::query()
             ->where('name', 'not like', 'Филиал%')
             ->orderBy('id')
@@ -88,9 +88,9 @@ class StructureController extends Controller
     }
 
     /**
-     * Return the employees that belong directly to a branch but are not
-     * assigned to any department (department_id IS NULL), so they are not
-     * duplicated by the per-department popups.
+     * Возвращает сотрудников, относящихся напрямую к филиалу, но не назначенных
+     * ни в одно подразделение (department_id IS NULL), чтобы они не дублировались
+     * во всплывающих окнах подразделений.
      */
     public function branchEmployees(Request $request, int $id): JsonResponse
     {
@@ -98,14 +98,14 @@ class StructureController extends Controller
 
         $user = $request->user();
 
-        // Non-admins may only inspect their own branch.
+        // Не-админы могут просматривать только свой филиал.
         if (! $user->isAdmin()) {
             if ($user->branch_id === null || $branch->id !== $user->branch_id) {
                 abort(403);
             }
         }
 
-        // The branch (company) manager is its CEO, referenced by source id.
+        // Руководитель филиала (компании) — её CEO, ссылка по исходному id.
         $manager = $branch->ceo_external_id
             ? Employee::query()
                 ->where('branch_id', $branch->id)
@@ -139,8 +139,8 @@ class StructureController extends Controller
     }
 
     /**
-     * Return the employees that belong directly to a single department
-     * (excluding nested sub-departments) for the structure tree popup.
+     * Возвращает сотрудников, относящихся напрямую к одному подразделению
+     * (без вложенных подподразделений), для всплывающего окна дерева структуры.
      */
     public function departmentEmployees(Request $request, int $id): JsonResponse
     {
@@ -148,7 +148,7 @@ class StructureController extends Controller
 
         $user = $request->user();
 
-        // Non-admins may only inspect departments of their own branch.
+        // Не-админы могут просматривать только подразделения своего филиала.
         if (! $user->isAdmin()) {
             if ($user->branch_id === null || $department->branch_id !== $user->branch_id) {
                 abort(403);
@@ -182,8 +182,9 @@ class StructureController extends Controller
     }
 
     /**
-     * Shape an employee for the structure popup, exposing the derived
-     * is_manager flag (true when the employee's category is "Роҳбарият").
+     * Формирует представление сотрудника для всплывающего окна структуры,
+     * выставляя производный флаг is_manager (true, когда категория сотрудника
+     * — "Роҳбарият").
      *
      * @return array<string, mixed>
      */
@@ -198,7 +199,7 @@ class StructureController extends Controller
     }
 
     /**
-     * Recursively build the department tree with employee and open-vacancy counts.
+     * Рекурсивно строит дерево подразделений со счётчиками сотрудников и открытых вакансий.
      *
      * @param  Collection<int, Department>  $departments
      * @param  Collection<int, object>  $vacancyCounts

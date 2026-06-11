@@ -23,8 +23,9 @@ function logout() {
     router.post(route('logout'));
 }
 
-// Warm a page's data on hover so the click feels instant (Inertia v2 prefetch,
-// cached briefly to avoid re-fetching on repeated hovers).
+// Прогреваем данные страницы при наведении, чтобы клик ощущался мгновенным
+// (prefetch Inertia v2, ненадолго кэшируется, чтобы не перезапрашивать при
+// повторных наведениях).
 function prefetch(name) {
     router.prefetch(route(name), { method: 'get' }, { cacheFor: '30s' });
 }
@@ -32,7 +33,6 @@ function prefetch(name) {
 
 <template>
     <v-app>
-        <!-- Navigation Drawer -->
         <v-navigation-drawer
             v-model="drawer"
             elevation="0"
@@ -158,7 +158,6 @@ function prefetch(name) {
                     </template>
                 </v-list-item>
 
-                <!-- Show only for Admin -->
                 <v-list-item
                     v-if="$page.props.auth.user.roles.includes('Admin')"
                     title="Корбарон"
@@ -206,7 +205,6 @@ function prefetch(name) {
             </v-list>
         </v-navigation-drawer>
 
-        <!-- AppBar / Header -->
         <v-app-bar elevation="0" class="border-b" color="surface">
             <template #prepend>
                 <v-btn icon class="ml-1" @click="drawer = !drawer">
@@ -220,7 +218,6 @@ function prefetch(name) {
 
             <v-spacer />
 
-            <!-- User Menu -->
             <v-menu min-width="200px" rounded="xl">
                 <template #activator="{ props: menuProps }">
                     <v-btn icon v-bind="menuProps" class="mr-3 hover-scale-btn">
@@ -284,10 +281,8 @@ function prefetch(name) {
             </v-menu>
         </v-app-bar>
 
-        <!-- Main Content -->
         <v-main class="bg-background">
             <v-container fluid class="pa-6">
-                <!-- Alert Messages -->
                 <v-slide-y-transition>
                     <v-alert
                         v-if="$page.props.flash && $page.props.flash.success"
@@ -319,8 +314,8 @@ function prefetch(name) {
 </template>
 
 <style scoped>
-/* Match the logo block to the app-bar height (64px) so the header and the
-   sidebar header line up, and make the whole block a link to the dashboard. */
+/* Подгоняем блок логотипа под высоту app-bar (64px), чтобы шапка и заголовок
+   боковой панели выровнялись, и делаем весь блок ссылкой на дашборд. */
 .logo-bar {
     min-height: 64px !important;
     transition: filter 0.2s ease;

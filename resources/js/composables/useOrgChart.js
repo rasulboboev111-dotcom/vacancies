@@ -1,22 +1,23 @@
 /**
- * Build the nested node tree the SVG org chart walks: a single synthetic root
- * (the organisation) → branches → the recursive department tree. Each node is
- * flattened to just what a card needs (uid, kind, label, employee count, child
- * list), with uids prefixed so branch/department numeric ids never collide.
+ * Строит вложенное дерево узлов, которое обходит SVG-оргсхема: один синтетический
+ * корень (организация) → филиалы → рекурсивное дерево отделов. Каждый узел
+ * сведён к тому, что нужно карточке (uid, kind, label, число сотрудников, список
+ * детей), а uid снабжены префиксом, чтобы числовые id филиалов и отделов никогда
+ * не пересекались.
  *
- * A regional filial is mirrored in the source as both a businessUnit (→ our
- * branch) and a root "Филиал …" header department of the same place, which would
- * otherwise render the filial twice. We absorb that header into its branch: its
- * children are hoisted onto the branch node, and the branch carries a `popupId`
- * so a click opens the header's employees (filials hold no staff at branch
- * level). Real departments ("Шуъбаи …", "ҶДММ …") never start with "Филиал", so
- * they are left untouched.
+ * Региональный филиал в источнике продублирован одновременно как businessUnit
+ * (→ наш branch) и как корневой отдел-заголовок «Филиал …» того же места, что
+ * иначе отрисовало бы филиал дважды. Мы поглощаем этот заголовок его филиалом:
+ * его дети поднимаются на узел филиала, а филиал несёт `popupId`, чтобы клик
+ * открывал сотрудников заголовка (на уровне филиала штата нет). Реальные отделы
+ * («Шуъбаи …», «ҶДММ …») никогда не начинаются с «Филиал», поэтому остаются
+ * нетронутыми.
  *
- * @param {Array} structure  branches → departments tree from the server
- * @param {string|null} orgName  the head organisation name, used for the root
- *   when the head company branch is not in the visible set (e.g. a branch user
- *   who only sees their own filial)
- * @returns {object|null} the root node, or null when there is nothing to show
+ * @param {Array} structure  дерево филиалы → отделы с сервера
+ * @param {string|null} orgName  имя головной организации, используется для корня,
+ *   когда филиала головной компании нет в видимом наборе (например, пользователь
+ *   филиала, видящий только свой филиал)
+ * @returns {object|null} корневой узел или null, когда показывать нечего
  */
 export function buildOrgTree(structure, orgName = null) {
     if (!structure || structure.length === 0) {
@@ -60,19 +61,19 @@ export function buildOrgTree(structure, orgName = null) {
 
     const branches = structure.map(mapBranch);
 
-    // The head company is the Business Unit at the top of the org — the only
-    // branch whose name is not a regional "Филиал …". It becomes the tree root
-    // (showing its real name, e.g. ҶСК "Тоҷиктелеком"), with the regional
-    // filials hanging beneath it. This shows the company once, as the top BU,
-    // instead of a synthetic "Organisation" root duplicated by a same-named
-    // company branch.
+    // Головная компания — это Business Unit на вершине организации, единственный
+    // филиал, чьё имя не является региональным «Филиал …». Он становится корнем
+    // дерева (показывая своё настоящее имя, например ҶСК "Тоҷиктелеком"), а
+    // региональные филиалы висят под ним. Так компания показывается один раз, как
+    // верхний BU, вместо синтетического корня «Организация», продублированного
+    // одноимённым филиалом компании.
     const isFilialBranch = branch => String(branch.label ?? '').trim().toLowerCase().startsWith('филиал');
     const headIndex = branches.findIndex(branch => !isFilialBranch(branch));
 
     if (headIndex === -1) {
-        // The head company branch is not visible (e.g. a branch user who only
-        // sees their own filial). Root the tree on the real organisation name
-        // when the server provides it, otherwise a neutral placeholder.
+        // Филиал головной компании не виден (например, пользователь филиала,
+        // видящий только свой филиал). Корнем дерева берём настоящее имя
+        // организации, когда сервер его передаёт, иначе нейтральную заглушку.
         return {
             id: 'root',
             kind: 'root',
@@ -94,13 +95,14 @@ export function buildOrgTree(structure, orgName = null) {
 }
 
 /**
- * The node ids to open on first render — every tier of an assembled tree above
- * `maxDepth` (root is depth 0). Walking the built tree (not the raw payload)
- * keeps the default correct after buildOrgTree merges filial headers.
+ * Id узлов, раскрываемых при первой отрисовке — каждый ярус собранного дерева
+ * выше `maxDepth` (корень — глубина 0). Обход построенного дерева (а не сырого
+ * payload) сохраняет правильное значение по умолчанию после того, как buildOrgTree
+ * слил заголовки филиалов.
  *
- * @param {object|null} root  the root node from buildOrgTree
- * @param {number} maxDepth  number of tiers to open
- * @returns {Set<string>} ids whose children should be drawn on first render
+ * @param {object|null} root  корневой узел из buildOrgTree
+ * @param {number} maxDepth  число раскрываемых ярусов
+ * @returns {Set<string>} id узлов, чьи дети должны отрисоваться при первой отрисовке
  */
 export function expandedToDepth(root, maxDepth = 3) {
     const expanded = new Set();

@@ -28,8 +28,8 @@ const props = defineProps({
 
 const emit = defineEmits(['edit', 'delete', 'add-child']);
 
-// Sub-departments are hidden until asked for, so a deep branch reads as a short
-// list of headings instead of one giant wall of rows.
+// Зершуъбаҳо скрыты до запроса, чтобы глубокая ветка читалась как короткий
+// список заголовков, а не как сплошная стена строк.
 const hasChildren = computed(() => (props.department.children?.length ?? 0) > 0);
 const open = ref(false);
 

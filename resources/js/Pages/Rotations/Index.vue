@@ -16,7 +16,7 @@ function changePage(page) {
     router.get(route('rotations.index'), { page }, { preserveState: true });
 }
 
-// Clear-all confirmation flow (admin only, irreversible).
+// Подтверждение полной очистки (только админ, необратимо).
 const clearDialog = ref(false);
 const clearing = ref(false);
 
@@ -43,7 +43,6 @@ function clearRotations() {
             </div>
         </template>
 
-        <!-- Intro banner: explains the concept + the colour legend -->
         <div class="rot-banner mb-6">
             <div class="rot-banner__main">
                 <div>
@@ -83,7 +82,6 @@ function clearRotations() {
             </button>
         </div>
 
-        <!-- Rotation cards -->
         <div v-if="rotations.data.length > 0" class="rot-list">
             <RotationTimelineItem
                 v-for="(rotation, i) in rotations.data"
@@ -93,7 +91,6 @@ function clearRotations() {
             />
         </div>
 
-        <!-- Empty state -->
         <div v-else class="rot-empty">
             <GitFork class="rot-empty__icon" />
             <p class="rot-empty__text">
@@ -101,7 +98,6 @@ function clearRotations() {
             </p>
         </div>
 
-        <!-- Pagination -->
         <div v-if="rotations.data.length > 0" class="rot-foot mt-2">
             <div class="rot-foot__count">
                 Нишон дода шуд {{ rotations.from || 0 }} – {{ rotations.to || 0 }}
@@ -119,7 +115,6 @@ function clearRotations() {
             />
         </div>
 
-        <!-- Clear-all confirmation (admin) -->
         <v-dialog v-model="clearDialog" max-width="440px">
             <v-card class="rounded-xl overflow-hidden" elevation="8" style="background: #ffffff;">
                 <div class="pa-6 text-center">
@@ -160,7 +155,7 @@ function clearRotations() {
 </template>
 
 <style scoped>
-/* ── Intro banner ── */
+/* ── Вводный баннер ── */
 .rot-banner {
     display: flex;
     align-items: center;
@@ -255,7 +250,7 @@ function clearRotations() {
     color: #94a3b8;
 }
 
-/* ── Admin clear-all button ── */
+/* ── Кнопка полной очистки (админ) ── */
 .rot-clear {
     display: inline-flex;
     align-items: center;
@@ -284,14 +279,14 @@ function clearRotations() {
     color: #fff !important;
 }
 
-/* ── Card list ── */
+/* ── Список карточек ── */
 .rot-list {
     display: flex;
     flex-direction: column;
     gap: 26px;
 }
 
-/* ── Empty ── */
+/* ── Пусто ── */
 .rot-empty {
     text-align: center;
     padding: 64px 24px;
@@ -313,7 +308,7 @@ function clearRotations() {
     color: #94a3b8;
 }
 
-/* ── Footer / pagination ── */
+/* ── Подвал / пагинация ── */
 .rot-foot {
     display: flex;
     align-items: center;

@@ -1,6 +1,6 @@
-// Client-side validation schemas (zod). These mirror the server-side
-// FormRequest rules so the user gets instant feedback before submitting; the
-// backend remains the source of truth and re-validates every request.
+// Клиентские схемы валидации (zod). Они повторяют серверные правила FormRequest,
+// чтобы пользователь получал мгновенную обратную связь до отправки; бэкенд
+// остаётся источником истины и перепроверяет каждый запрос.
 import { z } from 'zod';
 
 function required255(label) {
@@ -35,8 +35,8 @@ const optional255 = z.string().max(255, 'Ҳадди ниҳоӣ 255 аломат'
 
 export const employeeSchema = z
     .object({
-        // Required core fields — a null select fails the type check, which we
-        // relabel as "this field is required".
+        // Обязательные основные поля — пустой select не проходит проверку типа,
+        // что мы переименовываем в «это поле обязательно».
         full_name: required255('Ному насаб'),
         branch_id: z.number({ invalid_type_error: 'Филиал ҳатмист', required_error: 'Филиал ҳатмист' }),
         position_id: z.number({ invalid_type_error: 'Вазифа ҳатмист', required_error: 'Вазифа ҳатмист' }),
@@ -44,7 +44,7 @@ export const employeeSchema = z
         type_id: z.string({ invalid_type_error: 'Намуди шуғл ҳатмист' }).min(1, 'Намуди шуғл ҳатмист'),
         gender: z.string({ invalid_type_error: 'Ҷинс ҳатмист' }).min(1, 'Ҷинс ҳатмист'),
         hire_date: z.string({ required_error: 'Санаи қабул ҳатмист' }).min(1, 'Санаи қабул ҳатмист'),
-        // Optional
+        // Необязательные
         department_id: z.number().nullish(),
         manager_id: z.number().nullish(),
         dismissal_date: z.string().nullish(),
@@ -70,10 +70,10 @@ export const employeeSchema = z
         { message: 'Сабаби озодшавӣ ҳатмист', path: ['dismissal_reason'] },
     );
 
-// Mirrors the «Заявка на подбор персонала» form: every section is optional on
-// the paper form, so only the headcount and choice-group memberships are
-// checked here. `language_other` is client-only — it is merged into the
-// languages array before submitting.
+// Повторяет форму «Заявка на подбор персонала»: каждый раздел на бумажной форме
+// необязателен, поэтому здесь проверяются только число вакансий и принадлежность
+// к группам выбора. `language_other` существует только на клиенте — он
+// объединяется в массив languages перед отправкой.
 export const vacancySchema = z.object({
     branch_id: z.number().nullish(),
     department_id: z.number().nullish(),
@@ -96,7 +96,7 @@ export const vacancySchema = z.object({
     schedule_type: z.string().nullish(),
     schedule_other: z.string().max(255, 'Максимум 255 символов').nullish(),
     work_format: z.string().nullish(),
-    // Salary is a whole number; an empty field is treated as "not specified" (null).
+    // Доход — целое число; пустое поле трактуется как «не указано» (null).
     salary: z.preprocess(
         v => (v === '' || v === null || v === undefined ? null : v),
         z.coerce.number({ invalid_type_error: 'Доход должен быть числом' })
@@ -115,10 +115,10 @@ export const vacancySchema = z.object({
 });
 
 /**
- * The user form is reused for create and edit. On create a password is
- * required; on edit it is optional (blank = keep the current one). Either way,
- * if a password is given the confirmation must match, and the "User" role
- * requires a branch — mirroring StoreUserRequest/UpdateUserRequest.
+ * Форма пользователя переиспользуется для создания и редактирования. При создании
+ * пароль обязателен; при редактировании необязателен (пусто = оставить текущий).
+ * В любом случае, если пароль задан, подтверждение должно совпадать, а роль "User"
+ * требует филиала — повторяя StoreUserRequest/UpdateUserRequest.
  */
 export function userSchema({ isCreate }) {
     const password = isCreate

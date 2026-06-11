@@ -1,9 +1,10 @@
-// Shared helper for surfacing Inertia validation errors in a single line.
+// Общий хелпер для вывода ошибок валидации Inertia одной строкой.
 
 /**
- * Return the first human-readable message from an Inertia error bag, or the
- * fallback. Inertia error values are usually strings but can be arrays — this
- * unwraps to a string so callers can drop it straight into an alert.
+ * Возвращает первое человекочитаемое сообщение из набора ошибок Inertia или
+ * значение fallback. Значения ошибок Inertia обычно строки, но могут быть
+ * массивами — здесь разворачиваем в строку, чтобы вызывающий код мог сразу
+ * подставить её в alert.
  */
 export function firstError(errors, fallback = '') {
     const first = Object.values(errors ?? {})[0];

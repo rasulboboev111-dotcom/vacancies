@@ -142,10 +142,10 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
     backdrop-filter: blur(12px);
 }
 
-/* Three tiers of text contrast carry the hierarchy without colour:
-   title (darkest anchor) → department/schedule (mid) → branch (light). */
-/* Cap the name column so a long position title is truncated to one line with
-   an ellipsis; the full value stays available via the cell's title tooltip. */
+/* Три уровня контраста текста задают иерархию без цвета:
+   заголовок (самый тёмный якорь) → отдел/график (средний) → филиал (светлый). */
+/* Ограничиваем колонку имени, чтобы длинный заголовок должности обрезался в одну
+   строку с многоточием; полное значение остаётся доступным через title-подсказку ячейки. */
 .vac-name {
     max-width: 260px;
     color: #111111;
@@ -159,8 +159,8 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
     color: #999999;
 }
 
-/* Rows read as discrete records: zebra striping plus a hover highlight with a
-   thin indigo bar on the left of the active row. */
+/* Строки читаются как отдельные записи: зебра-полосы плюс подсветка при наведении
+   с тонкой indigo-полосой слева у активной строки. */
 .table-modern tbody tr.vacancy-row {
     cursor: pointer;
 }
@@ -172,8 +172,8 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
     box-shadow: inset 3px 0 0 0 #5c6bc0;
 }
 
-/* Action icons stay quiet grey at rest; their meaning (accent / success /
-   danger) surfaces only on hover. */
+/* Иконки действий остаются спокойно-серыми в покое; их смысл (акцент / успех /
+   опасность) проявляется только при наведении. */
 .act-btn {
     color: #9ca3af !important;
 }

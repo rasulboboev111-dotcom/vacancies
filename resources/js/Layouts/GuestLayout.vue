@@ -7,14 +7,12 @@ onMounted(() => requestAnimationFrame(() => (ready.value = true)));
 
 <template>
     <div class="auth-shell" :class="{ 'is-ready': ready }">
-        <!-- soft ambient brand glows -->
         <div class="auth-shell__glow auth-shell__glow--a" />
         <div class="auth-shell__glow auth-shell__glow--b" />
 
         <div class="auth-card">
             <span class="auth-card__top" />
 
-            <!-- Logo & brand -->
             <div class="auth-brand">
                 <span class="auth-brand__logo">
                     <img src="https://tojiktelecom.tj/logonew.svg" alt="Tojiktelecom">

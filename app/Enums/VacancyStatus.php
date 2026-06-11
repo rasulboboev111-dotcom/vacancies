@@ -16,7 +16,7 @@ enum VacancyStatus: string
     }
 
     /**
-     * The backing values, handy for validation and `in_array` checks.
+     * Backing-значения, удобные для валидации и проверок `in_array`.
      *
      * @return list<string>
      */

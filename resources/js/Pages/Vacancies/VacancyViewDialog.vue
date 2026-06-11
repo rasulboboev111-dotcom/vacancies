@@ -15,7 +15,6 @@ const open = defineModel({ type: Boolean, default: false });
 <template>
     <v-dialog v-model="open" max-width="760px">
         <v-card v-if="vacancy" class="rounded-xl overflow-hidden" elevation="8">
-            <!-- Header -->
             <div style="background: #009cf1; padding: 20px 28px;">
                 <div class="d-flex align-center justify-space-between">
                     <div class="d-flex align-center">

@@ -9,7 +9,7 @@ import { userSchema } from '@/lib/schemas';
 import { getRoleLabel } from '@/Pages/Users/userRoles';
 
 const props = defineProps({
-    user: { type: Object, default: null }, // null → create
+    user: { type: Object, default: null }, // null → создание
     branches: { type: Array, default: () => [] },
     roles: { type: Array, default: () => [] },
 });
@@ -23,7 +23,7 @@ const roleOptions = computed(() =>
     })),
 );
 
-// Schema reacts to create-vs-edit (password is required only on create).
+// Схема зависит от режима создание/редактирование (пароль обязателен только при создании).
 const validationSchema = computed(() => toTypedSchema(userSchema({ isCreate: !props.user })));
 
 const { defineField, errors, handleSubmit, resetForm, setFieldError } = useVeeForm({

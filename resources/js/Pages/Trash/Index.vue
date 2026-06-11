@@ -25,7 +25,7 @@ const canManageTrashedDepartment = department => canManageInBranch('delete depar
 
 const tab = ref('employees');
 
-// Clickable summary tiles, each jumps to its tab.
+// Плитки-сводки кликабельны, каждая переключает на свою вкладку.
 const tiles = computed(() => [
     { key: 'employees', label: 'Кормандон', icon: Users, count: props.employees.length },
     { key: 'departments', label: 'Шуъбаҳо', icon: Network, count: props.departments.length },
@@ -37,7 +37,7 @@ const totalCount = computed(() =>
     props.employees.length + props.departments.length + props.branches.length + props.users.length,
 );
 
-// Action & Confirmation dialog state
+// Состояние диалога действия и подтверждения
 const confirmDialog = ref(false);
 const dialogAction = ref(''); // 'restore' | 'forceDelete'
 const dialogType = ref(''); // 'employee' | 'department' | 'branch' | 'user'
@@ -81,8 +81,8 @@ function handleConfirm() {
         return;
     }
 
-    // Keep the dialog open (and the button busy) until the request resolves, so
-    // a slow connection can't be double-submitted and errors stay visible.
+    // Держим диалог открытым (а кнопку занятой), пока запрос не завершится, чтобы
+    // на медленном соединении нельзя было отправить повторно и ошибки оставались видны.
     processing.value = true;
     actionError.value = '';
     const options = {
@@ -123,7 +123,6 @@ function handleConfirm() {
             {{ actionError }}
         </v-alert>
 
-        <!-- Summary tiles -->
         <v-row class="mb-6" dense>
             <v-col v-for="t in tiles" :key="t.key" cols="6" md="3">
                 <button
@@ -143,7 +142,6 @@ function handleConfirm() {
             </v-col>
         </v-row>
 
-        <!-- Main card -->
         <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass">
             <div class="d-flex align-center justify-space-between mb-2">
                 <div class="text-subtitle-1 font-weight-bold text-grey-darken-4">
@@ -203,7 +201,6 @@ function handleConfirm() {
             </v-window>
         </v-card>
 
-        <!-- Dynamic Action Confirmation Dialog -->
         <TrashConfirmDialog
             v-model="confirmDialog"
             :action="dialogAction"

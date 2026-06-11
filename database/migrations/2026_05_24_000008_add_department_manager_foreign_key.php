@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * departments.manager_id references employees, so its foreign key is added
-     * here — after both tables exist — to resolve the departments↔employees
-     * cycle (employees.department_id already references departments).
+     * departments.manager_id ссылается на employees, поэтому её внешний ключ
+     * добавляется здесь — когда обе таблицы существуют — чтобы разрешить цикл
+     * departments↔employees (employees.department_id уже ссылается на departments).
      */
     public function up(): void
     {

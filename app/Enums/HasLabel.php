@@ -3,8 +3,8 @@
 namespace App\Enums;
 
 /**
- * A backed enum whose cases carry a human-readable label — the exact wording
- * printed on the «Заявка на подбор персонала» form.
+ * Backed enum, кейсы которого несут читаемую человеком метку — точную
+ * формулировку, печатаемую в форме «Заявка на подбор персонала».
  */
 interface HasLabel
 {

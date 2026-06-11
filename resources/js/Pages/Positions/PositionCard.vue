@@ -73,7 +73,7 @@ defineEmits(['view', 'edit', 'delete']);
 .position-card {
     cursor: pointer;
 }
-/* Clickable, but visually static — no hover lift or Vuetify link/hover overlay. */
+/* Кликабельна, но визуально статична — без подъёма при наведении и оверлея ссылки/наведения Vuetify. */
 .position-card :deep(.v-card__overlay) {
     display: none;
 }

@@ -41,8 +41,8 @@ function changePage(p) {
     });
 }
 
-// Auto-apply the text search while typing, debounced so we don't fire a
-// request on every keystroke (@vueuse/core).
+// Применяем текстовый поиск во время ввода с задержкой, чтобы не отправлять
+// запрос на каждое нажатие клавиши (@vueuse/core).
 watchDebounced(search, applyFilters, { debounce: 300 });
 
 function openCreateDialog() {
@@ -72,7 +72,6 @@ function openDeleteDialog(user) {
             </div>
         </template>
 
-        <!-- Search and Action Bar -->
         <v-row class="mb-6 align-end">
             <v-col cols="12" md="6">
                 <label class="filter-label">Ҷустуҷӯ</label>
@@ -115,7 +114,6 @@ function openDeleteDialog(user) {
             @delete="openDeleteDialog"
         />
 
-        <!-- Pagination -->
         <div v-if="users.last_page > 1" class="d-flex justify-center mt-6">
             <v-pagination
                 :length="users.last_page"

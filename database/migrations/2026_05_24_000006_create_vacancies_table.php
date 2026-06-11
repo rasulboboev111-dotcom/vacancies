@@ -38,10 +38,10 @@ return new class extends Migration
             $table->index('department_id');
         });
 
-        // Status enum enforced at the DB level (App\Enums\VacancyStatus).
+        // Enum статуса проверяется на уровне БД (App\Enums\VacancyStatus).
         DB::statement("ALTER TABLE vacancies ADD CONSTRAINT vacancies_status_check CHECK (status IN ('open', 'closed'))");
 
-        // Employment-type value set (NULL passes), matching the employees table.
+        // Набор значений типа занятости (NULL проходит), как в таблице employees.
         DB::statement("ALTER TABLE vacancies ADD CONSTRAINT vacancies_employment_type_check CHECK (employment_type IN ('штатный', 'контракт'))");
     }
 

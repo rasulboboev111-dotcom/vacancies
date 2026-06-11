@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Gate;
 class StoreEmployeeRequest extends EmployeeRequest
 {
     /**
-     * Branch users may only add employees to their own branch.
+     * Пользователи филиала могут добавлять сотрудников только в свой филиал.
      */
     public function authorize(): bool
     {

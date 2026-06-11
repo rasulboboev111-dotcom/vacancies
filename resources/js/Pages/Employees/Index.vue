@@ -16,9 +16,9 @@ const props = defineProps({
     branches: { type: Array, required: true },
     types: { type: Array, required: true },
     departments: { type: Array, default: () => [] },
-    // Deferred (Inertia group "form") — absent on first paint, streamed in
-    // after render, so they default to empty until they arrive. (managers are
-    // fetched on demand inside the form via a searchable endpoint.)
+    // Отложенные (группа Inertia "form") — отсутствуют при первой отрисовке,
+    // подгружаются после рендера, поэтому до их прихода по умолчанию пусты.
+    // (руководители загружаются по требованию внутри формы через поисковый эндпоинт.)
     categories: { type: Array, default: () => [] },
     positions: { type: Array, default: () => [] },
     nationalities: { type: Array, default: () => [] },
@@ -38,14 +38,14 @@ const branchId = ref(props.filters.branch_id ? Number(props.filters.branch_id) :
 const departmentId = ref(props.filters.department_id ? Number(props.filters.department_id) : null);
 const typeId = ref(props.filters.type_id || null);
 
-// Departments shown in the toolbar filter — narrowed to the selected branch.
+// Шуъбы в фильтре панели инструментов — сужены до выбранного филиала.
 const filterDepartments = computed(() =>
     branchId.value
         ? props.departments.filter(d => Number(d.branch_id) === Number(branchId.value))
         : props.departments,
 );
 
-// Drop the chosen department if it no longer belongs to the selected branch.
+// Сбрасываем выбранную шуъбу, если она больше не относится к выбранному филиалу.
 watch(branchId, () => {
     if (
         departmentId.value
@@ -59,8 +59,8 @@ watch([branchId, departmentId, typeId], () => {
     applyFilters();
 });
 
-// Auto-apply the text search while typing, debounced so we don't fire a
-// request on every keystroke (@vueuse/core).
+// Текстовый поиск применяется на лету с задержкой (debounce), чтобы не слать
+// запрос на каждое нажатие клавиши (@vueuse/core).
 watchDebounced(search, applyFilters, { debounce: 400 });
 
 function filterQuery() {
@@ -78,8 +78,8 @@ function applyFilters() {
     router.get(route('employees.index'), filterQuery(), {
         preserveState: true,
         replace: true,
-        // Re-fetch only the list (+ filters echo); the toolbar/form reference
-        // data is unchanged, so keep it out of every filter request.
+        // Перезапрашиваем только список (+ эхо фильтров); справочные данные
+        // панели/формы не меняются, поэтому исключаем их из каждого запроса фильтра.
         only: ['employees', 'filters'],
     });
 }
@@ -91,7 +91,6 @@ function changePage(p) {
     });
 }
 
-// Dialog controllers
 const createEditDialog = ref(false);
 const viewDialog = ref(false);
 const deleteDialog = ref(false);
@@ -139,10 +138,8 @@ function openRotationDialog(employee) {
             </div>
         </template>
 
-        <!-- Filters section -->
         <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass mb-6">
             <v-row class="align-end">
-                <!-- Search bar -->
                 <v-col cols="12" sm="12" md="3">
                     <label class="filter-label">Ҷустуҷӯ</label>
                     <v-text-field
@@ -161,7 +158,7 @@ function openRotationDialog(employee) {
                     </v-text-field>
                 </v-col>
 
-                <!-- Branch Filter (admins only — branch users are scoped to their own branch) -->
+                <!-- Фильтр по филиалу (только для админов — пользователи филиала ограничены своим филиалом) -->
                 <v-col v-if="isAdmin" cols="12" sm="4" md="2">
                     <label class="filter-label">Филиал</label>
                     <v-select
@@ -180,7 +177,6 @@ function openRotationDialog(employee) {
                     />
                 </v-col>
 
-                <!-- Department (Шуъба) Filter -->
                 <v-col cols="12" sm="4" md="2">
                     <label class="filter-label">Шуъба</label>
                     <v-autocomplete
@@ -200,7 +196,6 @@ function openRotationDialog(employee) {
                     />
                 </v-col>
 
-                <!-- Employment Type Filter -->
                 <v-col cols="12" sm="4" md="2">
                     <label class="filter-label">Намуди шуғл</label>
                     <v-select
@@ -219,7 +214,6 @@ function openRotationDialog(employee) {
                     />
                 </v-col>
 
-                <!-- Action buttons -->
                 <v-col cols="12" sm="12" md="3" class="d-flex align-center justify-md-end justify-center gap-2">
                     <v-btn
                         v-if="canCreateEmployees"
@@ -238,7 +232,6 @@ function openRotationDialog(employee) {
             </v-row>
         </v-card>
 
-        <!-- Employee Table -->
         <EmployeesTable
             :employees="employees"
             :can-manage="canManageEmployee"
@@ -249,7 +242,6 @@ function openRotationDialog(employee) {
             @change-page="changePage"
         />
 
-        <!-- Dialogs -->
         <EmployeeViewDialog v-model="viewDialog" :employee="viewEmployee" />
 
         <EmployeeFormDialog

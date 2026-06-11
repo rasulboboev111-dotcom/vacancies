@@ -43,7 +43,6 @@ class UserService
 
         $user->disableLogging()->update($updateData);
 
-        // Sync roles using Spatie
         $user->syncRoles([$data['role']]);
 
         activity()

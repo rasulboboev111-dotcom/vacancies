@@ -6,9 +6,9 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration
 {
     /**
-     * Make vacancies.salary a numeric column instead of free-text varchar, so it
-     * can be validated, sorted and aggregated as a real number. Existing values
-     * are whole numbers; empty strings become NULL.
+     * Делаем vacancies.salary числовым столбцом вместо свободного varchar, чтобы
+     * его можно было валидировать, сортировать и агрегировать как настоящее число.
+     * Существующие значения — целые; пустые строки становятся NULL.
      */
     public function up(): void
     {

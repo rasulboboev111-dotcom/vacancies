@@ -28,8 +28,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 class ActivityLogController extends Controller
 {
     /**
-     * Foreign-key columns that are stored as ids in the activity log but
-     * should be shown as human-readable names. Maps column => [model, display].
+     * Столбцы внешних ключей, которые хранятся в журнале как id, но должны
+     * отображаться человекочитаемыми именами. Карта column => [model, display].
      */
     private const FK_RESOLVERS = [
         'branch_id' => [Branch::class, 'name'],
@@ -44,9 +44,9 @@ class ActivityLogController extends Controller
     ];
 
     /**
-     * Human-readable Tajik labels for the technical column names that show
-     * up in the activity log. Anything not listed falls back to a prettified
-     * version of the raw column name.
+     * Человекочитаемые таджикские подписи для технических имён столбцов,
+     * которые появляются в журнале действий. Всё, чего нет в списке,
+     * откатывается к приукрашенной версии исходного имени столбца.
      */
     private const FIELD_LABELS = [
         // Employee
@@ -112,24 +112,21 @@ class ActivityLogController extends Controller
     ];
 
     /**
-     * Per-request cache of resolved lookup names, keyed by "model:id".
+     * Кэш разрешённых имён в пределах запроса, по ключу "model:id".
      *
      * @var array<string, ?string>
      */
     private array $lookupCache = [];
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): Response
     {
         Gate::authorize('view-audit-logs');
 
         $base = Activity::with('causer')->latest()->latest('id');
 
-        // Branch users (non-admins) only ever see log entries for subjects in
-        // their own branch — defence in depth, independent of who holds the
-        // 'view audit logs' permission.
+        // Пользователи филиала (не админы) всегда видят только записи журнала
+        // по субъектам своего филиала — эшелонированная защита, независимая от
+        // того, у кого есть право 'view audit logs'.
         $user = $request->user();
         Employee::restrictActivitiesTo($base, $user);
 
@@ -158,9 +155,9 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Purge the entire audit trail. Admin-only: clearing the log is a
-     * destructive, non-recoverable action, so it is gated more strictly than
-     * merely viewing the log (which branch users with the permission may do).
+     * Полностью очищает журнал аудита. Только для админов: очистка журнала —
+     * разрушительное, необратимое действие, поэтому ограничено строже, чем
+     * простой просмотр журнала (доступный пользователям филиала с правом).
      */
     public function clear(Request $request): RedirectResponse
     {
@@ -172,9 +169,9 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Replace raw foreign-key ids and enum codes inside the logged
-     * properties with human-readable values, while preserving the
-     * original structure ({ attributes: {...}, old: {...} }).
+     * Заменяет сырые id внешних ключей и коды enum внутри записанных свойств
+     * человекочитаемыми значениями, сохраняя исходную структуру
+     * ({ attributes: {...}, old: {...} }).
      */
     private function humanizeProperties($properties): array
     {
@@ -187,15 +184,16 @@ class ActivityLogController extends Controller
                 continue;
             }
 
-            // Relabel each technical column name to a readable label and
-            // humanize its value. Both sections use the same key => label
-            // mapping, so attributes and old stay aligned on the frontend.
+            // Переименовываем каждое техническое имя столбца в читаемую подпись
+            // и приводим его значение к читаемому виду. Обе секции используют
+            // одну карту key => label, поэтому attributes и old остаются
+            // согласованными на фронтенде.
             $relabeled = [];
             foreach ($props[$section] as $key => $value) {
                 $label = $this->fieldLabel($key);
-                // Two distinct columns can map to the same label (e.g.
-                // nationality_id and nationality). Disambiguate so neither
-                // value is silently overwritten.
+                // Два разных столбца могут давать одинаковую подпись (например,
+                // nationality_id и nationality). Делаем её однозначной, чтобы ни
+                // одно значение не было молча перезаписано.
                 if (array_key_exists($label, $relabeled)) {
                     $label = "{$label} ({$key})";
                 }
@@ -208,8 +206,8 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Map a technical column name to its readable label, falling back to a
-     * prettified version (drop trailing _id, underscores to spaces).
+     * Сопоставляет техническое имя столбца его читаемой подписи, откатываясь к
+     * приукрашенной версии (убрать завершающий _id, подчёркивания в пробелы).
      */
     private function fieldLabel(string $key): string
     {
@@ -221,7 +219,7 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Resolve a single logged value to its human-readable form.
+     * Приводит одно записанное значение к человекочитаемому виду.
      */
     private function humanizeValue(string $key, $value)
     {
@@ -229,9 +227,10 @@ class ActivityLogController extends Controller
             return $value;
         }
 
-        // Some historical log entries stored accessor-shaped values, e.g.
-        // employment_type as {id, name}. Never try to coerce a non-scalar;
-        // surface its name when available, otherwise leave it untouched.
+        // Некоторые исторические записи журнала хранили значения в форме
+        // аксессора, например employment_type как {id, name}. Никогда не
+        // приводим нескалярное значение; показываем его name, если доступно,
+        // иначе оставляем как есть.
         if (! is_scalar($value)) {
             return is_array($value) ? ($value['name'] ?? $value) : $value;
         }
@@ -260,12 +259,12 @@ class ActivityLogController extends Controller
             };
         }
 
-        // Format ISO date/datetime values as a plain dd.mm.yyyy date.
+        // Форматируем значения ISO даты/времени как обычную дату dd.mm.yyyy.
         if (is_string($value) && preg_match('/^\d{4}-\d{2}-\d{2}([ T]|$)/', $value)) {
             try {
                 return Carbon::parse($value)->format('d.m.Y');
             } catch (\Throwable $e) {
-                // Fall through and return the raw value if parsing fails.
+                // При ошибке разбора проваливаемся дальше и возвращаем сырое значение.
             }
         }
 
@@ -273,8 +272,9 @@ class ActivityLogController extends Controller
     }
 
     /**
-     * Look up a referenced record's display value, caching per request and
-     * including soft-deleted rows so historical references stay readable.
+     * Ищет отображаемое значение связанной записи, кэшируя в пределах запроса
+     * и включая мягко удалённые строки, чтобы исторические ссылки оставались
+     * читаемыми.
      */
     private function lookupName(string $model, string $display, $id): ?string
     {

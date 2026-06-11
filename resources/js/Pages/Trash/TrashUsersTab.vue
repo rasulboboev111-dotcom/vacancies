@@ -101,7 +101,7 @@ const filtered = computed(() => {
                             </v-tooltip>
                         </v-btn>
 
-                        <!-- Only Admin can force delete users -->
+                        <!-- Безвозвратно удалять пользователей может только администратор -->
                         <v-btn
                             v-if="isAdmin && currentUserId !== usr.id"
                             variant="text"

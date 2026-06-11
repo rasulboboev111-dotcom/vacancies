@@ -1,15 +1,15 @@
 import { computed, watch } from 'vue';
 
 /**
- * Keeps a form's department selection consistent with its chosen branch.
+ * Поддерживает согласованность выбора отдела в форме с выбранным филиалом.
  *
- * Returns `branchDepartments` — the departments belonging to the form's current
- * branch — and installs a watcher that clears `form.department_id` whenever the
- * selected branch changes such that the department no longer belongs to it.
+ * Возвращает `branchDepartments` — отделы, принадлежащие текущему филиалу формы —
+ * и устанавливает watcher, который очищает `form.department_id`, когда смена
+ * выбранного филиала приводит к тому, что отдел ему больше не принадлежит.
  *
- * `departmentsGetter` is a function returning the full departments list, so the
- * composable stays reactive to prop changes. `form` is the Inertia form holding
- * `branch_id` and `department_id`.
+ * `departmentsGetter` — функция, возвращающая полный список отделов, так что
+ * composable остаётся реактивным к изменениям пропсов. `form` — это форма Inertia,
+ * содержащая `branch_id` и `department_id`.
  */
 export function useBranchDepartments(form, departmentsGetter) {
     const branchDepartments = computed(() =>

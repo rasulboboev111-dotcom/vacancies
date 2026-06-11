@@ -66,14 +66,14 @@ return new class extends Migration
             $table->index('deleted_at');
         });
 
-        // Enum value sets enforced at the database level (App\Enums\*). NULL
-        // passes (UNKNOWN), so nullable enum columns stay optional.
+        // Наборы значений enum проверяются на уровне БД (App\Enums\*). NULL
+        // проходит (UNKNOWN), поэтому nullable-столбцы enum остаются необязательными.
         DB::statement("ALTER TABLE employees ADD CONSTRAINT employees_gender_check CHECK (gender IN ('мужской', 'женский'))");
         DB::statement("ALTER TABLE employees ADD CONSTRAINT employees_employment_type_check CHECK (employment_type IN ('штатный', 'контракт'))");
         DB::statement("ALTER TABLE employees ADD CONSTRAINT employees_category_check CHECK (category IN ('Мутахассис', 'Коргар', 'Роҳбарият'))");
         DB::statement("ALTER TABLE employees ADD CONSTRAINT employees_status_check CHECK (status IN ('Active', 'Inactive'))");
 
-        // Soft-delete-aware partial unique indexes (NULL/empty/trashed exempt).
+        // Частичные unique-индексы с учётом soft-delete (NULL/пустое/удалённое исключены).
         DB::statement('CREATE UNIQUE INDEX employees_external_id_unique ON employees (external_id) WHERE external_id IS NOT NULL AND deleted_at IS NULL');
         DB::statement("CREATE UNIQUE INDEX employees_inn_unique ON employees (inn) WHERE inn IS NOT NULL AND inn <> '' AND deleted_at IS NULL");
         DB::statement("CREATE UNIQUE INDEX employees_sin_unique ON employees (sin) WHERE sin IS NOT NULL AND sin <> '' AND deleted_at IS NULL");

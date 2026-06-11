@@ -19,9 +19,6 @@ class PositionController extends Controller
 {
     public function __construct(private readonly PositionService $positions) {}
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): Response
     {
         Gate::authorize('viewAny', Position::class);
@@ -42,10 +39,11 @@ class PositionController extends Controller
     }
 
     /**
-     * List the employees assigned to a position. Lazy-loaded by the positions
-     * grid when a card is opened, so the index stays light (it ships counts,
-     * not the full staff lists). Scoped to the employees the user may view —
-     * the same filter behind the card's employees_count.
+     * Список сотрудников, назначенных на должность. Подгружается лениво сеткой
+     * должностей при открытии карточки, чтобы индекс оставался лёгким (он
+     * передаёт счётчики, а не полные списки штата). Ограничено сотрудниками,
+     * доступными пользователю — тот же фильтр, что стоит за employees_count
+     * карточки.
      */
     public function employees(Request $request, int $id): JsonResponse
     {
@@ -76,9 +74,6 @@ class PositionController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StorePositionRequest $request): RedirectResponse
     {
         $position = $this->positions->create($request->validated());
@@ -87,9 +82,6 @@ class PositionController extends Controller
             ->with('success', "Вазифаи '{$position->name}' бомуваффақият эҷод шуд.");
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdatePositionRequest $request, int $id): RedirectResponse
     {
         $position = Position::findOrFail($id);
@@ -100,9 +92,6 @@ class PositionController extends Controller
             ->with('success', "Вазифаи '{$position->name}' бомуваффақият навсозӣ шуд.");
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(int $id): RedirectResponse
     {
         $position = Position::findOrFail($id);

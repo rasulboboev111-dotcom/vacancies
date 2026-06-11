@@ -11,7 +11,7 @@ const open = defineModel({ type: Boolean, default: false });
 
 const form = useForm({});
 
-// Positions still assigned to employees cannot be deleted.
+// Вазифу, всё ещё назначенную сотрудникам, нельзя удалить.
 const hasEmployees = computed(() => (props.position?.employees_count ?? 0) > 0);
 
 function confirmDelete() {
@@ -29,7 +29,7 @@ function confirmDelete() {
 <template>
     <v-dialog v-model="open" max-width="460px">
         <v-card class="rounded-xl overflow-hidden" elevation="8">
-            <!-- Red/Yellow Gradient Header based on safety checks -->
+            <!-- Красная/жёлтая шапка в зависимости от проверок безопасности -->
             <div
                 :style="{
                     background: hasEmployees ? '#d97706' : '#dc2626',

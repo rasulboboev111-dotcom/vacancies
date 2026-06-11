@@ -23,7 +23,7 @@ const props = defineProps({
 const { isAdmin, canManageInBranch, canCreateInBranch } = usePermissions();
 
 /* ------------------------------------------------------------------ *
- * Node click → employees popup
+ * Клик по узлу → попап с кормандон
  * ------------------------------------------------------------------ */
 const employeesDialog = ref(false);
 const employeesLoading = ref(false);
@@ -61,14 +61,14 @@ function onNodeClick(node) {
 }
 
 /* ------------------------------------------------------------------ *
- * Permissions
+ * Права доступа
  * ------------------------------------------------------------------ */
 const canCreateDepartments = computed(() => canCreateInBranch('create departments'));
 const canManageDepartment = department => canManageInBranch('edit departments', department.branch_id);
 const canDeleteDepartment = department => canManageInBranch('delete departments', department.branch_id);
 
 /* ------------------------------------------------------------------ *
- * Management panel — shared branch selector
+ * Панель управления — общий выбор филиала
  * ------------------------------------------------------------------ */
 const tab = ref('departments');
 
@@ -92,7 +92,7 @@ watch(
 );
 
 /* ------------------------------------------------------------------ *
- * Departments management
+ * Управление шуъбаҳо
  * ------------------------------------------------------------------ */
 function buildDeptTree(flat, branchId, parentId = null) {
     return flat
@@ -101,7 +101,7 @@ function buildDeptTree(flat, branchId, parentId = null) {
                 Number(d.branch_id) === Number(branchId)
                 && (d.parent_id ?? null) === (parentId ?? null),
         )
-        // Mirror the server ordering (source sort_order, then name).
+        // Повторяет серверную сортировку (sort_order, затем name).
         .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)
             || a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
         .map(d => ({
@@ -161,7 +161,7 @@ function openDeleteDepartment(department) {
 }
 
 /* ------------------------------------------------------------------ *
- * Branches management (Admin only)
+ * Управление филиалами (только для админа)
  * ------------------------------------------------------------------ */
 const branchDialog = ref(false);
 const branchDeleteDialog = ref(false);
@@ -195,10 +195,9 @@ function openDeleteBranch(branch) {
             </div>
         </template>
 
-        <!-- Org chart (read-only) -->
+        <!-- Оргсхема (только для чтения) -->
         <SvgOrgTree :structure="structure" :organization-name="organizationName" @node-click="onNodeClick" />
 
-        <!-- Employees popup -->
         <StructureEmployeesDialog
             v-model="employeesDialog"
             :mode="popupMode"
@@ -208,7 +207,6 @@ function openDeleteBranch(branch) {
             :manager="popupManager"
         />
 
-        <!-- Management panel -->
         <v-card elevation="0" class="rounded-xl border bg-surface-glass overflow-hidden">
             <v-tabs v-model="tab" color="indigo" class="border-b px-2">
                 <v-tab value="departments" class="font-weight-bold text-none">
@@ -222,7 +220,6 @@ function openDeleteBranch(branch) {
             </v-tabs>
 
             <v-window v-model="tab">
-                <!-- Departments management -->
                 <v-window-item value="departments">
                     <div class="pa-4">
                         <v-row class="mb-2 align-end">
@@ -282,7 +279,7 @@ function openDeleteBranch(branch) {
                     </div>
                 </v-window-item>
 
-                <!-- Branches management (Admin only) -->
+                <!-- Управление филиалами (только для админа) -->
                 <v-window-item v-if="isAdmin" value="branches">
                     <div class="pa-4">
                         <v-row class="mb-2 align-center">
@@ -319,7 +316,6 @@ function openDeleteBranch(branch) {
             </v-window>
         </v-card>
 
-        <!-- Dialogs -->
         <DepartmentFormDialog
             v-model="deptDialog"
             :department="editingDepartment"

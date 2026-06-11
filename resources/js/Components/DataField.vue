@@ -1,10 +1,10 @@
 <script setup>
 import { computed, useSlots } from 'vue';
 
-// Boxless read-only field: grey label on top, dark value below. No border,
-// no per-field icon — framing lives at the section level. Empty values are
-// muted (pale dash) so a sea of unfilled fields recedes instead of competing
-// with real data.
+// Поле только для чтения без рамки: серая подпись сверху, тёмное значение
+// снизу. Без рамки и без иконки на поле — обрамление задаётся на уровне секции.
+// Пустые значения приглушены (бледный прочерк), чтобы масса незаполненных полей
+// уходила на второй план, а не конкурировала с реальными данными.
 const props = defineProps({
     label: { type: String, required: true },
     value: { type: [String, Number], default: null },

@@ -20,15 +20,16 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@hr.local'],
             [
                 'name' => 'HR Administrator',
-                // Predictable password only in local/testing; a random one
-                // elsewhere so a production seed never ships a known password.
+                // Предсказуемый пароль только в local/testing; в остальных
+                // случаях случайный, чтобы продакшен-сид никогда не поставлял
+                // известный пароль.
                 'password' => bcrypt(app()->environment('local', 'testing') ? 'password' : Str::random(32)),
             ]
         );
 
-        // Branches, departments and employees come from the org structure
-        // import (php artisan org:import), not from seeders. The default seed
-        // only bootstraps the admin account and the roles/permissions.
+        // Филиалы, подразделения и сотрудники приходят из импорта оргструктуры
+        // (php artisan org:import), а не из сидеров. Стандартный сид лишь
+        // бутстрапит учётную запись администратора и роли/разрешения.
         $this->call([
             RoleAndPermissionSeeder::class,
         ]);

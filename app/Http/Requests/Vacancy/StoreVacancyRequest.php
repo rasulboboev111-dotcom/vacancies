@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Gate;
 class StoreVacancyRequest extends VacancyRequest
 {
     /**
-     * The branch_id the request originally asked for, captured before it is
-     * normalized in prepareForValidation() so authorize() can detect a branch
-     * user trying to target another branch.
+     * Изначально запрошенный branch_id, сохранённый до нормализации в
+     * prepareForValidation(), чтобы authorize() мог распознать пользователя
+     * филиала, пытающегося нацелиться на чужой филиал.
      */
     private ?int $requestedBranchId = null;
 
@@ -35,7 +35,8 @@ class StoreVacancyRequest extends VacancyRequest
     }
 
     /**
-     * Pin the vacancy to a branch: admins choose it, branch users to their own.
+     * Привязывает вакансию к филиалу: администраторы выбирают его, пользователи
+     * филиала — к своему.
      */
     protected function prepareForValidation(): void
     {
@@ -46,7 +47,7 @@ class StoreVacancyRequest extends VacancyRequest
             ? $this->integer('branch_id')
             : (int) ($user->branch_id ?? 0);
 
-        // A vacancy is for at least one person; default to 1 when unspecified.
+        // Вакансия открывается минимум на одного человека; по умолчанию 1, если не указано.
         $this->merge([
             'branch_id' => $branchId,
             'openings' => $this->filled('openings') ? $this->integer('openings') : 1,

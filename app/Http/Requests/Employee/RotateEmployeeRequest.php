@@ -10,8 +10,8 @@ use Illuminate\Validation\Rule;
 class RotateEmployeeRequest extends FormRequest
 {
     /**
-     * Branch users may rotate their own employees (policy) but not into
-     * another branch.
+     * Пользователи филиала могут переводить своих сотрудников (политика), но не
+     * в другой филиал.
      */
     public function authorize(): bool
     {

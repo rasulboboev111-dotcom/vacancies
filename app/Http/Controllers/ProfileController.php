@@ -14,7 +14,7 @@ use Inertia\Response;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Отображает форму профиля пользователя.
      */
     public function edit(Request $request): Response
     {
@@ -32,7 +32,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Обновляет данные профиля пользователя.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -48,7 +48,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete the user's account.
+     * Удаляет учётную запись пользователя.
      */
     public function destroy(Request $request): RedirectResponse
     {

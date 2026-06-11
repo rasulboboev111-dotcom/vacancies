@@ -1,7 +1,7 @@
 <script setup>
-// Clean KPI tile: white card, one calm azure accent on the icon, a large dark
-// number. No full-colour fills — colour here is a brand accent, not a status
-// signal, so all four KPIs read as one consistent family.
+// Чистая KPI-плитка: белая карточка, один спокойный лазурный акцент на иконке,
+// крупное тёмное число. Без сплошных заливок цветом — цвет здесь брендовый
+// акцент, а не сигнал статуса, поэтому все четыре KPI читаются как одна семья.
 defineProps({
     label: { type: String, required: true },
     value: { type: [Number, String], default: 0 },

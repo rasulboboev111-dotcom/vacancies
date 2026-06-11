@@ -7,9 +7,9 @@ use App\Models\VacancyLanguage;
 use Spatie\LaravelData\Data;
 
 /**
- * The shape of a vacancy row sent to the Vacancies/Index page. Keys mirror the
- * column/relation names the Vue components already read; enum columns travel
- * as value + human label («как в бланке»).
+ * Структура строки вакансии, отправляемой на страницу Vacancies/Index. Ключи
+ * повторяют имена колонок/связей, которые уже читают Vue-компоненты; enum-колонки
+ * передаются как значение + человекочитаемая метка («как в бланке»).
  */
 class VacancyData extends Data
 {

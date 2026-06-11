@@ -8,16 +8,16 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Normalize vacancies to the official «Заявка на подбор персонала» form
-     * (Приложение № 1 к СОП): the duplicate free-text title folds into the
-     * positions catalog (position_id stays the single «должность» field), the
-     * free-text schedule splits into a type + «иной» text, the form's checkbox
-     * groups become CHECK-constrained columns, and languages move to a child
-     * table (one row per language).
+     * Нормализуем vacancies под официальный бланк «Заявка на подбор персонала»
+     * (Приложение № 1 к СОП): дублирующий свободный title сворачивается в каталог
+     * positions (position_id остаётся единственным полем «должность»), свободный
+     * график разбивается на тип + текст «иной», чекбокс-группы бланка становятся
+     * столбцами с CHECK-ограничениями, а языки переезжают в дочернюю таблицу
+     * (по строке на язык).
      */
     public function up(): void
     {
-        // Fold title into positions (case-insensitive find-or-create), then drop it.
+        // Сворачиваем title в positions (регистронезависимый find-or-create), затем удаляем его.
         DB::statement(<<<'SQL'
             INSERT INTO positions (name, created_at, updated_at)
             SELECT DISTINCT ON (LOWER(TRIM(v.title))) TRIM(v.title), NOW(), NOW()
@@ -35,7 +35,7 @@ return new class extends Migration
               AND LOWER(TRIM(p.name)) = LOWER(TRIM(v.title))
         SQL);
 
-        // Vacancy employment switches to the form's value set («Тип занятости»).
+        // Тип занятости вакансии переходит на набор значений бланка («Тип занятости»).
         DB::statement('ALTER TABLE vacancies DROP CONSTRAINT IF EXISTS vacancies_employment_type_check');
         DB::statement("UPDATE vacancies SET employment_type = CASE employment_type WHEN 'штатный' THEN 'полная' WHEN 'контракт' THEN 'проектная' ELSE employment_type END");
         DB::statement("ALTER TABLE vacancies ADD CONSTRAINT vacancies_employment_type_check CHECK (employment_type IN ('полная', 'частичная', 'проектная'))");
@@ -56,7 +56,7 @@ return new class extends Migration
             $table->date('deadline')->nullable();
         });
 
-        // Existing free-text schedules become the «Иной» option with the text kept.
+        // Существующие свободные графики становятся опцией «Иной» с сохранением текста.
         DB::statement("UPDATE vacancies SET schedule_type = 'иной', schedule_other = TRIM(schedule) WHERE NULLIF(TRIM(schedule), '') IS NOT NULL");
 
         Schema::table('vacancies', function (Blueprint $table) {
@@ -64,7 +64,7 @@ return new class extends Migration
             $table->renameColumn('description', 'responsibilities');
         });
 
-        // Checkbox groups enforced at the DB level (App\Enums\*).
+        // Чекбокс-группы проверяются на уровне БД (App\Enums\*).
         DB::statement("ALTER TABLE vacancies ADD CONSTRAINT vacancies_education_check CHECK (education IN ('высшее', 'среднее специальное', 'не имеет значения'))");
         DB::statement("ALTER TABLE vacancies ADD CONSTRAINT vacancies_experience_check CHECK (experience IN ('без опыта', 'от 1 года', 'от 3 лет и более'))");
         DB::statement("ALTER TABLE vacancies ADD CONSTRAINT vacancies_schedule_type_check CHECK (schedule_type IN ('5/2', 'иной'))");
@@ -73,7 +73,7 @@ return new class extends Migration
         DB::statement("ALTER TABLE vacancies ADD CONSTRAINT vacancies_opening_reason_check CHECK (opening_reason IN ('расширение штата', 'новая позиция', 'замена уволенного сотрудника', 'декретная ставка / временное замещение'))");
         DB::statement("ALTER TABLE vacancies ADD CONSTRAINT vacancies_priority_check CHECK (priority IN ('низкая', 'средняя', 'высокая'))");
 
-        // «Знание языков» is a multi-select → one row per language.
+        // «Знание языков» — мультивыбор → по строке на язык.
         Schema::create('vacancy_languages', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vacancy_id')->constrained('vacancies')->cascadeOnDelete();
@@ -98,8 +98,8 @@ return new class extends Migration
             $table->string('schedule')->nullable();
         });
 
-        // The original free text is recoverable from the catalog / «иной» field;
-        // a dropped title that already had a position_id stays position-driven.
+        // Исходный свободный текст восстановим из каталога / поля «иной»;
+        // удалённый title, у которого уже был position_id, остаётся привязанным к должности.
         DB::statement('UPDATE vacancies v SET title = p.name FROM positions p WHERE v.position_id = p.id');
         DB::statement('UPDATE vacancies SET schedule = COALESCE(schedule_other, schedule_type)');
 

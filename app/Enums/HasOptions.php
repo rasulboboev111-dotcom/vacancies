@@ -3,15 +3,15 @@
 namespace App\Enums;
 
 /**
- * Shared helpers for the labelled form enums: backing values for validation
- * and {value, label} option pairs for the frontend choice groups.
+ * Общие помощники для enum-ов формы с метками: backing-значения для валидации
+ * и пары {value, label} для групп выбора на фронтенде.
  */
 trait HasOptions
 {
     abstract public function label(): string;
 
     /**
-     * The backing values, handy for validation and `in_array` checks.
+     * Backing-значения, удобные для валидации и проверок `in_array`.
      *
      * @return list<string>
      */

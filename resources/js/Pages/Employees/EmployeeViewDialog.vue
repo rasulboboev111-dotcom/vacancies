@@ -13,7 +13,6 @@ const open = defineModel({ type: Boolean, default: false });
 <template>
     <v-dialog v-model="open" max-width="850px">
         <v-card v-if="employee" class="rounded-xl overflow-hidden" elevation="8">
-            <!-- Header -->
             <div style="background: #009cf1; padding: 20px 28px;">
                 <div class="d-flex align-center justify-space-between">
                     <div class="d-flex align-center">
@@ -36,7 +35,6 @@ const open = defineModel({ type: Boolean, default: false });
             </div>
 
             <v-card-text class="pa-6 overflow-y-auto" style="max-height: 72vh; background-color: #f8fafc;">
-                <!-- Section 1: Personal Data -->
                 <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
                     <div class="d-flex align-center section-title mb-4">
                         <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
@@ -81,7 +79,6 @@ const open = defineModel({ type: Boolean, default: false });
                     </v-row>
                 </v-card>
 
-                <!-- Section 2: Professional Data -->
                 <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
                     <div class="d-flex align-center section-title mb-4">
                         <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
@@ -120,7 +117,6 @@ const open = defineModel({ type: Boolean, default: false });
                     </v-row>
                 </v-card>
 
-                <!-- Section 3: Passport & Identifiers -->
                 <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
                     <div class="d-flex align-center section-title mb-4">
                         <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">

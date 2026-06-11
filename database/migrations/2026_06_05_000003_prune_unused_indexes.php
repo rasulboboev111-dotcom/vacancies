@@ -7,26 +7,27 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Index hygiene from the DB review:
+     * Гигиена индексов по итогам ревью БД:
      *
-     * - Drop plain b-tree indexes that duplicate a partial UNIQUE index already
-     *   serving equality lookups (inn, sin, external_id). The unique covers
-     *   `WHERE col = ?` for live rows, so the plain index is pure write overhead.
-     * - Drop low-selectivity lookup foreign-key indexes on employees that are
-     *   never used in WHERE/JOIN filters (nationality/education/specialty/
-     *   birth_place); Postgres does not require them for the FK itself.
-     * - Drop rotation foreign-key indexes that are never filtered on (the screen
-     *   filters by branch only); rotations is an append-mostly audit table.
-     * - Replace the standalone departments.sort_order index with a
-     *   (branch_id, sort_order) composite, since ordering is always scoped to a
-     *   branch.
+     * - Удаляем обычные b-tree индексы, дублирующие частичный UNIQUE-индекс, уже
+     *   обслуживающий поиск по равенству (inn, sin, external_id). Unique
+     *   покрывает `WHERE col = ?` для живых строк, поэтому обычный индекс — чистый
+     *   оверхед на запись.
+     * - Удаляем низкоселективные индексы внешних ключей-справочников на employees,
+     *   которые никогда не используются в фильтрах WHERE/JOIN (nationality/
+     *   education/specialty/birth_place); Postgres не требует их для самого FK.
+     * - Удаляем индексы внешних ключей rotations, по которым никогда не
+     *   фильтруют (экран фильтрует только по филиалу); rotations — почти
+     *   append-only таблица аудита.
+     * - Заменяем отдельный индекс departments.sort_order составным
+     *   (branch_id, sort_order), так как сортировка всегда в рамках филиала.
      */
     public function up(): void
     {
         Schema::table('employees', function (Blueprint $table) {
-            $table->dropIndex(['inn']);            // employees_inn_index (kept: employees_inn_unique)
-            $table->dropIndex(['sin']);            // employees_sin_index (kept: employees_sin_unique)
-            $table->dropIndex(['external_id']);    // employees_external_id_index (kept: *_unique)
+            $table->dropIndex(['inn']);            // employees_inn_index (оставлен: employees_inn_unique)
+            $table->dropIndex(['sin']);            // employees_sin_index (оставлен: employees_sin_unique)
+            $table->dropIndex(['external_id']);    // employees_external_id_index (оставлен: *_unique)
             $table->dropIndex(['nationality_id']);
             $table->dropIndex(['education_id']);
             $table->dropIndex(['specialty_id']);
@@ -34,11 +35,11 @@ return new class extends Migration
         });
 
         Schema::table('branches', function (Blueprint $table) {
-            $table->dropIndex(['external_id']);    // branches_external_id_index (kept: *_unique)
+            $table->dropIndex(['external_id']);    // branches_external_id_index (оставлен: *_unique)
         });
 
         Schema::table('departments', function (Blueprint $table) {
-            $table->dropIndex(['external_id']);    // departments_external_id_index (kept: *_unique)
+            $table->dropIndex(['external_id']);    // departments_external_id_index (оставлен: *_unique)
             $table->dropIndex(['sort_order']);
             $table->index(['branch_id', 'sort_order']);
         });

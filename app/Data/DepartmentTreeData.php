@@ -6,9 +6,9 @@ use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
 
 /**
- * A node in the org-structure tree rendered on the Structure page. Built by
- * StructureController::buildTree, which injects the per-node employee and
- * open-vacancy counts that are not stored on the model.
+ * Узел дерева оргструктуры, отображаемого на странице "Структура". Строится
+ * в StructureController::buildTree, который добавляет к каждому узлу счётчики
+ * сотрудников и открытых вакансий, не хранящиеся в модели.
  */
 class DepartmentTreeData extends Data
 {

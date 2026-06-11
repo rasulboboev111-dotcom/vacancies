@@ -32,9 +32,6 @@ class VacancyController extends Controller
 {
     public function __construct(private readonly VacancyService $vacancies) {}
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): Response
     {
         Gate::authorize('viewAny', Vacancy::class);
@@ -92,8 +89,8 @@ class VacancyController extends Controller
     }
 
     /**
-     * Печатная «Заявка на подбор персонала» — one-to-one render of the official
-     * docx form (Приложение № 1 к СОП), filled with the vacancy's data.
+     * Печатная «Заявка на подбор персонала» — точное воспроизведение официальной
+     * docx-формы (Приложение № 1 к СОП), заполненное данными вакансии.
      */
     public function print(int $id): View
     {
@@ -104,9 +101,6 @@ class VacancyController extends Controller
         return view('vacancies.print', ['vacancy' => $vacancy]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreVacancyRequest $request): RedirectResponse
     {
         $this->vacancies->create($request->validated(), $request->user());
@@ -115,9 +109,6 @@ class VacancyController extends Controller
             ->with('success', 'Вакансия бомуваффақият эҷод шуд.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateVacancyRequest $request, int $id): RedirectResponse
     {
         $vacancy = Vacancy::findOrFail($id);
@@ -128,9 +119,6 @@ class VacancyController extends Controller
             ->with('success', 'Вакансия бомуваффақият навсозӣ шуд.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Request $request, int $id): RedirectResponse
     {
         $vacancy = Vacancy::findOrFail($id);
@@ -144,9 +132,9 @@ class VacancyController extends Controller
     }
 
     /**
-     * Preserve the list's branch/status filter that the user actually selected,
-     * NOT the branch of the vacancy being changed. Absent filter means
-     * "all branches".
+     * Сохраняет фильтр списка по филиалу/статусу, который пользователь
+     * действительно выбрал, А НЕ филиал изменяемой вакансии. Отсутствие фильтра
+     * означает «все филиалы».
      *
      * @return array<string, mixed>
      */

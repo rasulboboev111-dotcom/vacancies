@@ -17,9 +17,10 @@ const props = defineProps({
 
 const { isAdmin, hasPermission } = usePermissions();
 
-// Reinstating an archived employee is an update — gate the button on the same
-// permission the policy requires (admins receive it via their role). Branch
-// users are scoped to their own branch, so the branch filter is for admins only.
+// Восстановление архивного сотрудника — это обновление, поэтому кнопку
+// ограничиваем тем же правом, что требует политика (админам оно даётся через
+// роль). Пользователи филиала ограничены своим филиалом, поэтому фильтр по
+// филиалам только для админов.
 const canRestore = computed(() => hasPermission('edit employees'));
 
 const search = ref(props.filters.search || '');
@@ -37,8 +38,8 @@ watch([branchId], () => {
     applyFilters();
 });
 
-// Auto-apply the text search while typing, debounced so we don't fire a
-// request on every keystroke (@vueuse/core).
+// Текстовый поиск применяется на лету с задержкой (debounce), чтобы не слать
+// запрос на каждое нажатие клавиши (@vueuse/core).
 watchDebounced(search, applyFilters, { debounce: 400 });
 
 function filterQuery() {
@@ -88,7 +89,7 @@ function confirmRestore() {
             employeeToRestore.value = null;
         },
         onError: (errors) => {
-            // Keep the dialog open and tell the user why the restore failed.
+            // Оставляем диалог открытым и показываем причину сбоя восстановления.
             restoreError.value = firstError(errors, 'Барқарорсозӣ иҷро нашуд. Бори дигар кӯшиш кунед.');
         },
     });
@@ -112,9 +113,7 @@ function changePage(page) {
             </div>
         </template>
 
-        <!-- Main Card -->
         <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass mb-6">
-            <!-- Search & Filters -->
             <v-row class="mb-6 align-end">
                 <v-col cols="12" md="6">
                     <label class="filter-label">Ҷустуҷӯ</label>
@@ -163,7 +162,6 @@ function changePage(page) {
 
             <ArchiveTable :employees="employees.data" :can-restore="canRestore" @view="openViewDialog" @restore="openRestoreDialog" />
 
-            <!-- Pagination -->
             <v-divider class="my-4" />
             <div class="d-flex justify-space-between align-center pa-2">
                 <div class="text-caption text-grey font-weight-bold">
@@ -184,7 +182,6 @@ function changePage(page) {
 
         <ArchivedEmployeeDialog v-model="viewDialog" :employee="selectedEmployee" />
 
-        <!-- Restore confirmation -->
         <v-dialog v-model="restoreDialog" max-width="440px">
             <v-card class="rounded-xl pa-2" elevation="8">
                 <v-card-title class="d-flex align-center font-weight-bold text-h6 text-indigo-darken-3">

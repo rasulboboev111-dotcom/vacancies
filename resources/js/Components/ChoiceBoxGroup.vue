@@ -1,10 +1,10 @@
 <script setup>
 import { computed } from 'vue';
 
-// Docx-style checkbox row for the «Заявка на подбор персонала» choice groups
-// (Образование, Тип занятости, Приоритет…). Single choice by default, but
-// clicking the checked option clears it — every group is optional on the
-// paper form too. `multiple` switches to an array model (Знание языков).
+// Ряд чекбоксов в стиле docx для групп выбора «Заявка на подбор персонала»
+// (Образование, Тип занятости, Приоритет…). По умолчанию выбор одиночный, но
+// клик по отмеченному варианту снимает его — на бумажной форме каждая группа
+// тоже необязательна. `multiple` переключает на модель-массив (Знание языков).
 const props = defineProps({
     options: { type: Array, required: true }, // [{ value, label }]
     modelValue: { type: [String, Array], default: null },

@@ -8,10 +8,11 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Lookup vocabularies referenced by employees/vacancies. The
-     * free-text-derived lookups and positions enforce a case-insensitive
-     * (LOWER(TRIM(name))) unique to mirror the resolver. (Employee category is
-     * a fixed enum, not a lookup table — see App\Enums\Category.)
+     * Справочные словари, на которые ссылаются employees/vacancies. Справочники,
+     * выведенные из свободного текста, и positions требуют регистронезависимый
+     * (LOWER(TRIM(name))) unique, чтобы повторять логику резолвера. (Категория
+     * сотрудника — фиксированный enum, а не справочная таблица, см.
+     * App\Enums\Category.)
      */
     public function up(): void
     {

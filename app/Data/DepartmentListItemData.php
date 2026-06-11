@@ -6,8 +6,8 @@ use App\Models\Department;
 use Spatie\LaravelData\Data;
 
 /**
- * A flat department entry for the Structure page's department picker
- * (departmentsFlat). Keys mirror what the Vue components already read.
+ * Плоская запись отдела для выбора отдела на странице "Структура"
+ * (departmentsFlat). Ключи повторяют то, что уже читают Vue-компоненты.
  */
 class DepartmentListItemData extends Data
 {

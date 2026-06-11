@@ -23,13 +23,12 @@ defineProps({
     },
 });
 
-// Colors list for cards/distributions
 const colors = ['#009cf1', '#10B981', '#F59E0B', '#EF4444', '#009cf1', '#EC4899'];
 
-// Percentage helper for the distribution bars (guards division by zero).
+// Помощник для процентов в полосах распределения (защищает от деления на ноль).
 const pct = (n, total) => (total ? Math.round((n / total) * 100) : 0);
 
-// Sum of a {male, female, unspecified} gender tally.
+// Сумма по разбивке полов {male, female, unspecified}.
 const genderTotal = g => (g ? g.male + g.female + g.unspecified : 0);
 
 const maleColor = '#009cf1';
@@ -47,7 +46,6 @@ const femaleColor = '#EC4899';
             </div>
         </template>
 
-        <!-- KPI Cards -->
         <v-row class="mb-6">
             <v-col cols="12" sm="6" md="3">
                 <StatCard label="Ҳамаи кормандон" :value="stats.total_employees" :icon="Users" />
@@ -67,7 +65,6 @@ const femaleColor = '#EC4899';
             </v-col>
         </v-row>
 
-        <!-- Vacancies by branch -->
         <v-row class="mb-6">
             <v-col cols="12">
                 <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass">
@@ -113,7 +110,6 @@ const femaleColor = '#EC4899';
             </v-col>
         </v-row>
 
-        <!-- Branch Stats -->
         <v-row class="mb-6">
             <v-col cols="12">
                 <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass h-100">
@@ -144,9 +140,7 @@ const femaleColor = '#EC4899';
             </v-col>
         </v-row>
 
-        <!-- Gender distribution -->
         <v-row class="mb-6">
-            <!-- All employees by gender -->
             <v-col cols="12" md="6">
                 <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass h-100">
                     <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
@@ -200,7 +194,6 @@ const femaleColor = '#EC4899';
                 </v-card>
             </v-col>
 
-            <!-- Managers by gender -->
             <v-col cols="12" md="6">
                 <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass h-100">
                     <v-card-title class="px-0 pt-0 pb-4 font-weight-bold text-h6 d-flex align-center text-indigo-darken-4">
@@ -252,7 +245,6 @@ const femaleColor = '#EC4899';
             </v-col>
         </v-row>
 
-        <!-- Category & Type Splits -->
         <v-row>
             <v-col cols="12" md="6">
                 <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass h-100">
@@ -308,8 +300,8 @@ const femaleColor = '#EC4899';
     background: rgba(255, 255, 255, 0.7) !important;
     backdrop-filter: blur(12px);
 }
-/* Vuetify's .border uses a translucent colour that all but disappears on the
-   glass surfaces; give every card on the page a solid, clearly visible edge. */
+/* Vuetify .border использует полупрозрачный цвет, который почти исчезает на
+   «стеклянных» поверхностях; даём каждой карточке сплошную видимую границу. */
 .v-card.border {
     border-color: #dbe2ea !important;
 }

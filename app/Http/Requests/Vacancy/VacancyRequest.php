@@ -14,9 +14,9 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * Shared validation for creating and updating a vacancy — the fields of the
- * «Заявка на подбор персонала» form. Children pin branch_id in their own
- * prepareForValidation() and may tighten individual rules.
+ * Общая валидация для создания и обновления вакансии — поля формы
+ * «Заявка на подбор персонала». Потомки привязывают branch_id в собственном
+ * prepareForValidation() и могут ужесточать отдельные правила.
  */
 abstract class VacancyRequest extends FormRequest
 {

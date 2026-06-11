@@ -11,13 +11,14 @@ use App\Models\Vacancy;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Restore / permanently-delete soft-deleted records. Each restore re-checks the
- * soft-delete-aware unique indexes (a live record may have taken the slot while
- * the row sat in the trash); each force-delete guards the RESTRICT foreign keys.
- * A blocked operation throws TrashConflictException with a user-facing message.
+ * Восстановление / окончательное удаление мягко удалённых записей. Каждое
+ * восстановление повторно проверяет unique-индексы (живая запись могла занять
+ * слот, пока строка лежала в корзине); каждое жёсткое удаление защищает внешние
+ * ключи с RESTRICT. Заблокированная операция бросает TrashConflictException с
+ * сообщением для пользователя.
  *
- * Authorization stays in the controller (policies); this service owns the
- * transactional restore/purge + conflict rules.
+ * Авторизация остаётся в контроллере (политики); этот сервис владеет
+ * транзакционным восстановлением/удалением и правилами конфликтов.
  */
 class TrashService
 {
@@ -119,8 +120,8 @@ class TrashService
     }
 
     /**
-     * Restore a soft-deleted record inside a transaction, logging the action
-     * without the model's automatic activity log (we write an explicit entry).
+     * Восстанавливает мягко удалённую запись внутри транзакции, логируя действие
+     * без автоматического activity-лога модели (мы пишем явную запись).
      *
      * @param  Employee|Branch|Department|User  $model
      */
@@ -134,8 +135,8 @@ class TrashService
     }
 
     /**
-     * Permanently delete a record inside a transaction, logging before the row
-     * disappears so the audit entry keeps its subject.
+     * Окончательно удаляет запись внутри транзакции, логируя до исчезновения
+     * строки, чтобы запись аудита сохранила свой субъект.
      *
      * @param  Employee|Branch|Department|User  $model
      */

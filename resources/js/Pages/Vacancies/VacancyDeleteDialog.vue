@@ -3,7 +3,7 @@ import { AlertTriangle, Trash2 } from '@lucide/vue';
 
 defineProps({
     vacancy: { type: Object, default: null },
-    // Driven by the parent's request lifecycle so it resets on error too.
+    // Управляется жизненным циклом запроса родителя, поэтому сбрасывается и при ошибке.
     processing: { type: Boolean, default: false },
 });
 

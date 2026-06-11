@@ -1,13 +1,13 @@
-// Single source of truth for date formatting across the app.
+// Единый источник истины для форматирования дат во всём приложении.
 import dayjs from 'dayjs';
 
-// `new Date('YYYY-MM-DD')` parses as UTC midnight (shifting the day in negative
-// offsets); dayjs parses date-only strings in LOCAL time, so the workaround the
-// old hand-rolled formatter needed is no longer necessary.
+// `new Date('YYYY-MM-DD')` парсит как полночь UTC (сдвигая день в отрицательных
+// смещениях); dayjs парсит строки-даты в ЛОКАЛЬНОМ времени, поэтому обходной
+// путь, нужный старому самописному форматтеру, больше не требуется.
 
 /**
- * Format a date string as dd.mm.yyyy. Tolerant of already-localised strings
- * and empty values (returns '-'); non-date strings pass through unchanged.
+ * Форматирует строку-дату как dd.mm.yyyy. Терпим к уже локализованным строкам
+ * и пустым значениям (возвращает '-'); строки, не являющиеся датой, проходят без изменений.
  */
 export function formatDate(dateStr) {
     if (!dateStr)
@@ -17,8 +17,8 @@ export function formatDate(dateStr) {
 }
 
 /**
- * Format a date string as dd.mm.yyyy HH:MM. Empty values return '-';
- * non-date strings pass through unchanged.
+ * Форматирует строку-дату как dd.mm.yyyy HH:MM. Пустые значения возвращают '-';
+ * строки, не являющиеся датой, проходят без изменений.
  */
 export function formatDateTime(dateStr) {
     if (!dateStr)
@@ -28,7 +28,7 @@ export function formatDateTime(dateStr) {
 }
 
 /**
- * Today's local date as a `YYYY-MM-DD` string, ready for form/date inputs.
+ * Сегодняшняя локальная дата в виде строки `YYYY-MM-DD`, готовой для полей формы/даты.
  */
 export function today() {
     return dayjs().format('YYYY-MM-DD');

@@ -3,10 +3,10 @@
 namespace App\Enums;
 
 /**
- * Lifecycle status shared by org-structure entities (branch / department /
- * employee), mirroring the source system's "Active"/"Inactive" values. The
- * importer coerces unknown source values to null (or the Active default for
- * branches) so the column only ever holds enum-valid strings.
+ * Статус жизненного цикла, общий для сущностей оргструктуры (филиал / отдел /
+ * сотрудник), повторяющий значения «Active»/«Inactive» исходной системы. Импортёр
+ * приводит неизвестные исходные значения к null (или к значению Active по
+ * умолчанию для филиалов), так что в колонке всегда лежат валидные для enum строки.
  */
 enum OrgStatus: string
 {

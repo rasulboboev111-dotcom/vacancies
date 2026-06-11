@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('rotations', function (Blueprint $table) {
             $table->id();
-            // Rotations are audit/history: a movement keeps meaning even after
-            // the referenced employee or branch is purged, so these are nullable
-            // nullOnDelete (a force-delete must not destroy the history).
+            // Ротации — это аудит/история: перемещение сохраняет смысл даже после
+            // полного удаления связанного сотрудника или филиала, поэтому здесь
+            // nullable nullOnDelete (force-delete не должен уничтожать историю).
             $table->foreignId('employee_id')->nullable()->constrained('employees')->nullOnDelete();
             $table->foreignId('old_branch_id')->nullable()->constrained('branches')->nullOnDelete();
             $table->foreignId('new_branch_id')->nullable()->constrained('branches')->nullOnDelete();

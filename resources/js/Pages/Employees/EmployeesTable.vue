@@ -120,7 +120,6 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
             </tbody>
         </v-table>
 
-        <!-- Pagination Wrapper -->
         <v-divider />
         <div class="d-flex justify-space-between align-center pa-3 bg-surface">
             <div class="text-caption text-grey font-weight-bold">
@@ -146,9 +145,10 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
     backdrop-filter: blur(12px);
 }
 
-/* Cap the text-heavy columns so long job titles / branch names don't stretch
-   the table; the full value stays available via the cell's title tooltip.
-   Ному насаб (full name) is left uncapped so it always shows in full. */
+/* Ограничиваем ширину текстовых колонок, чтобы длинные названия должностей /
+   филиалов не растягивали таблицу; полное значение доступно через всплывающую
+   подсказку (title) ячейки. Ному насаб (полное имя) не ограничиваем, чтобы оно
+   всегда показывалось целиком. */
 .col-position {
     max-width: 280px;
 }
@@ -156,8 +156,8 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
     max-width: 200px;
 }
 
-/* Three tiers of text contrast carry the hierarchy without colour:
-   name (darkest anchor) → position (mid) → branch/category/dashes (light). */
+/* Три уровня контраста текста передают иерархию без цвета:
+   имя (самый тёмный якорь) → должность (средний) → филиал/категория/прочерки (светлый). */
 .emp-name {
     color: #111111;
     font-weight: 600;
@@ -171,8 +171,8 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
     color: #999999;
 }
 
-/* Rows read as discrete records: zebra striping plus a hover highlight with a
-   thin indigo bar on the left of the active row. */
+/* Строки воспринимаются как отдельные записи: зебра-полосы плюс подсветка при
+   наведении с тонкой полосой indigo слева у активной строки. */
 .table-modern tbody tr.employee-row {
     cursor: pointer;
 }
@@ -184,8 +184,8 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
     box-shadow: inset 3px 0 0 0 #5c6bc0;
 }
 
-/* Action icons stay quiet grey at rest; their meaning (accent / danger)
-   surfaces only on hover. */
+/* Иконки действий в покое остаются спокойно-серыми; их смысл (акцент / опасность)
+   проявляется только при наведении. */
 .act-btn {
     color: #9ca3af !important;
 }

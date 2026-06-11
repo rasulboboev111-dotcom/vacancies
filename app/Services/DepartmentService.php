@@ -55,15 +55,15 @@ class DepartmentService
     {
         $name = $department->name;
 
-        // The child-existence guard runs INSIDE the transaction so a concurrent
-        // sub-department insert cannot slip between the check and the delete.
-        // Soft-deleting does not fire the DB-level ON DELETE SET NULL (that only
-        // triggers on a hard delete), so detach references explicitly;
-        // withTrashed() also clears archived employees/vacancies.
+        // Проверка наличия дочерних шуъб выполняется ВНУТРИ транзакции, чтобы
+        // параллельная вставка зершуъбы не проскользнула между проверкой и удалением.
+        // Мягкое удаление не запускает ON DELETE SET NULL на уровне БД (срабатывает
+        // только при жёстком удалении), поэтому ссылки отвязываются явно;
+        // withTrashed() также очищает архивных кормандов/вакансии.
         $deleted = DB::transaction(function () use ($department) {
-            // Include soft-deleted children: one still points here via parent_id,
-            // so blocking on it prevents a dangling parent_id after the child is
-            // later restored.
+            // Учитываем мягко удалённые дочерние шуъбы: одна из них всё ещё
+            // ссылается сюда через parent_id, поэтому блокировка предотвращает
+            // повисший parent_id после её последующего восстановления.
             if (Department::withTrashed()->where('parent_id', $department->id)->exists()) {
                 return false;
             }
@@ -94,8 +94,8 @@ class DepartmentService
     }
 
     /**
-     * Ensure a chosen parent exists, is not the department itself, and lives in
-     * the same branch. Throws a validation error otherwise.
+     * Проверяет, что выбранная родительская шуъба существует, не является самой
+     * шуъбой и принадлежит тому же филиалу. Иначе бросает ошибку валидации.
      */
     private function assertParentIsValid(?int $parentId, int $branchId, ?Department $department = null): void
     {

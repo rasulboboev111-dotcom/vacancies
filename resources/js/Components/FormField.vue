@@ -1,7 +1,8 @@
 <script setup>
-// Static field label that always sits above the input — no floating/placeholder
-// labels. Keeps every label visible while typing and gives errors a stable
-// anchor. Required fields get a red asterisk so the user knows before submit.
+// Статичная подпись поля, всегда над вводом — без плавающих подписей и
+// плейсхолдеров. Подпись остаётся видимой при наборе и даёт ошибкам стабильную
+// привязку. Обязательные поля получают красную звёздочку, чтобы пользователь
+// видел это до отправки.
 defineProps({
     label: { type: String, required: true },
     required: { type: Boolean, default: false },

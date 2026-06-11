@@ -3,9 +3,9 @@ import { useForm } from '@inertiajs/vue3';
 import { AlertTriangle, Trash2 } from '@lucide/vue';
 
 /**
- * Shared delete-confirmation dialog (red header + body slot + Cancel/Delete).
- * Self-submits a DELETE to `deleteUrl` and closes on success. `form.processing`
- * drives the loading/disabled state and resets automatically on error.
+ * Общий диалог подтверждения удаления (красная шапка + слот тела + Отмена/Удалить).
+ * Сам отправляет DELETE на `deleteUrl` и закрывается при успехе. `form.processing`
+ * управляет состоянием загрузки/блокировки и сбрасывается автоматически при ошибке.
  */
 const props = defineProps({
     title: { type: String, required: true },
