@@ -46,7 +46,9 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
             <tbody>
                 <tr v-for="vacancy in vacancies" :key="vacancy.id" class="vacancy-row" @click="$emit('view', vacancy)">
                     <td class="pa-3">
-                        <span class="vac-name">{{ vacancy.position?.name || '—' }}</span>
+                        <div class="text-truncate vac-name" :title="vacancy.position?.name || '—'">
+                            {{ vacancy.position?.name || '—' }}
+                        </div>
                     </td>
                     <td class="pa-3 vac-position">
                         {{ vacancy.department?.name || '—' }}
@@ -142,7 +144,10 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
 
 /* Three tiers of text contrast carry the hierarchy without colour:
    title (darkest anchor) → department/schedule (mid) → branch (light). */
+/* Cap the name column so a long position title is truncated to one line with
+   an ellipsis; the full value stays available via the cell's title tooltip. */
 .vac-name {
+    max-width: 260px;
     color: #111111;
     font-weight: 600;
 }

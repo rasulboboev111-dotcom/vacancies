@@ -33,6 +33,14 @@ describe('vacancyTable', () => {
         expect(w.emitted('view')[0]).toEqual([vacancy]);
     });
 
+    it('truncates the name to one line and keeps the full text in the title', () => {
+        const w = mountTable();
+
+        const name = w.get('.vac-name');
+        expect(name.classes()).toContain('text-truncate');
+        expect(name.attributes('title')).toBe(vacancy.position.name);
+    });
+
     it('no longer renders a separate view (eye) action button', () => {
         const w = mountTable();
 
