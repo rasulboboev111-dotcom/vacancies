@@ -336,7 +336,6 @@ const submit = handleSubmit((values) => {
                                 <v-text-field
                                     v-model="languageOther"
                                     v-bind="languageOtherAttrs"
-                                    label="Другой"
                                     placeholder="через запятую"
                                     variant="outlined"
                                     density="compact"
