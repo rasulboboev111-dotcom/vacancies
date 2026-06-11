@@ -1,5 +1,5 @@
 <script setup>
-import { DoorOpen, Eye, Lock, Pencil, Printer, Trash2, Unlock } from '@lucide/vue';
+import { DoorOpen, Lock, Pencil, Printer, Trash2, Unlock } from '@lucide/vue';
 import { scheduleText } from '@/lib/vacancy';
 
 defineProps({
@@ -44,11 +44,9 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="vacancy in vacancies" :key="vacancy.id" class="vacancy-row">
+                <tr v-for="vacancy in vacancies" :key="vacancy.id" class="vacancy-row" @click="$emit('view', vacancy)">
                     <td class="pa-3">
-                        <button type="button" class="vac-name" @click="$emit('view', vacancy)">
-                            {{ vacancy.position?.name || '—' }}
-                        </button>
+                        <span class="vac-name">{{ vacancy.position?.name || '—' }}</span>
                     </td>
                     <td class="pa-3 vac-position">
                         {{ vacancy.department?.name || '—' }}
@@ -85,11 +83,7 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
                         </v-chip>
                     </td>
                     <td class="pa-3 text-center">
-                        <v-btn variant="text" size="small" class="mr-1 hover-scale-btn act-btn act-accent" title="Дидан" @click="$emit('view', vacancy)">
-                            <Eye style="width: 16px; height: 16px;" />
-                        </v-btn>
-
-                        <v-btn variant="text" size="small" class="mr-1 hover-scale-btn act-btn act-accent" title="Чопи заявка" @click="$emit('print', vacancy)">
+                        <v-btn variant="text" size="small" class="mr-1 hover-scale-btn act-btn act-accent" title="Чопи заявка" @click.stop="$emit('print', vacancy)">
                             <Printer style="width: 16px; height: 16px;" />
                         </v-btn>
 
@@ -100,7 +94,7 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
                             class="mr-1 hover-scale-btn act-btn"
                             :class="vacancy.status === 'open' ? 'act-accent' : 'act-success'"
                             :title="vacancy.status === 'open' ? 'Бастани вакансия' : 'Кушодани вакансия'"
-                            @click="$emit('toggle', vacancy)"
+                            @click.stop="$emit('toggle', vacancy)"
                         >
                             <Lock v-if="vacancy.status === 'open'" style="width: 16px; height: 16px;" />
                             <Unlock v-else style="width: 16px; height: 16px;" />
@@ -112,7 +106,7 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
                             size="small"
                             class="mr-1 hover-scale-btn act-btn act-accent"
                             title="Таҳрир"
-                            @click="$emit('edit', vacancy)"
+                            @click.stop="$emit('edit', vacancy)"
                         >
                             <Pencil style="width: 16px; height: 16px;" />
                         </v-btn>
@@ -123,7 +117,7 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
                             size="small"
                             class="hover-scale-btn act-btn act-danger"
                             title="Нест кардан"
-                            @click="$emit('delete', vacancy)"
+                            @click.stop="$emit('delete', vacancy)"
                         >
                             <Trash2 style="width: 16px; height: 16px;" />
                         </v-btn>
@@ -149,18 +143,8 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
 /* Three tiers of text contrast carry the hierarchy without colour:
    title (darkest anchor) → department/schedule (mid) → branch (light). */
 .vac-name {
-    font: inherit;
     color: #111111;
     font-weight: 600;
-    padding: 0;
-    border: 0;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-}
-.vac-name:hover {
-    color: #3f51b5;
-    text-decoration: underline;
 }
 .vac-position,
 .vac-secondary {
@@ -172,6 +156,9 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
 
 /* Rows read as discrete records: zebra striping plus a hover highlight with a
    thin indigo bar on the left of the active row. */
+.table-modern tbody tr.vacancy-row {
+    cursor: pointer;
+}
 .table-modern tbody tr.vacancy-row:nth-child(even) {
     background: #fafafb;
 }
