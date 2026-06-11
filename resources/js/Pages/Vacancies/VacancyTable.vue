@@ -1,6 +1,6 @@
 <script setup>
 import { DoorOpen, Lock, Pencil, Printer, Trash2, Unlock } from '@lucide/vue';
-import { salaryText, scheduleText } from '@/lib/vacancy';
+import { salaryText, scheduleText, statusLabel } from '@/lib/vacancy';
 
 defineProps({
     vacancies: { type: Array, required: true },
@@ -81,7 +81,7 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
                             variant="tonal"
                             class="font-weight-bold text-uppercase"
                         >
-                            {{ vacancy.status === 'open' ? 'Кушода' : 'Баста' }}
+                            {{ statusLabel(vacancy, 'tg') }}
                         </v-chip>
                     </td>
                     <td class="pa-3 text-center">

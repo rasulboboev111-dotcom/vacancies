@@ -5,7 +5,9 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm as useVeeForm } from 'vee-validate';
 import { computed, watch } from 'vue';
 import ChoiceBoxGroup from '@/Components/ChoiceBoxGroup.vue';
+import DialogHeader from '@/Components/DialogHeader.vue';
 import FormField from '@/Components/FormField.vue';
+import { useBranchDepartments } from '@/composables/useBranchDepartments';
 import { vacancySchema } from '@/lib/schemas';
 import { mergeLanguages, splitLanguages } from '@/lib/vacancy';
 
@@ -103,21 +105,13 @@ const inertia = useInertiaForm(Object.fromEntries(FIELDS.map(f => [f, null])));
 
 const formBranchId = computed(() => (props.isAdmin ? branchId.value : props.userBranchId));
 
-const departmentOptions = computed(() =>
-    props.departments.filter(d => Number(d.branch_id) === Number(formBranchId.value)),
-);
-
-// Сбрасываем устаревший отдел, когда (изменённый админом) филиал им больше не владеет,
-// чтобы id отдела из чужого филиала не попал на backend.
-watch(formBranchId, (bid) => {
-    if (
-        departmentId.value
-        && !props.departments.some(
-            d => Number(d.id) === Number(departmentId.value) && Number(d.branch_id) === Number(bid),
-        )
-    ) {
-        departmentId.value = null;
-    }
+// Сбрасываем устаревший отдел, когда (изменённый админом) филиал им больше не
+// владеет, чтобы id отдела из чужого филиала не попал на backend.
+const { branchDepartments: departmentOptions } = useBranchDepartments({
+    getBranchId: () => formBranchId.value,
+    getDepartmentId: () => departmentId.value,
+    setDepartmentId: (value) => { departmentId.value = value; },
+    getDepartments: () => props.departments,
 });
 
 watch(open, (visible) => {
@@ -194,24 +188,15 @@ const submit = handleSubmit((values) => {
 <template>
     <v-dialog v-model="open" max-width="780px" persistent scrollable>
         <v-card class="rounded-xl overflow-hidden" elevation="8">
-            <div class="form-head">
-                <div class="d-flex align-center">
-                    <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
-                        <ClipboardList style="width: 22px; height: 22px; color: white;" />
-                    </v-avatar>
-                    <div class="ml-4">
-                        <div class="form-head__kicker">
-                            {{ vacancy ? 'Редактирование' : 'Новая заявка' }}
-                        </div>
-                        <div class="form-head__title">
-                            Заявка на подбор персонала
-                        </div>
-                        <div class="form-head__sub">
-                            описание вакансии: заполняется руководителем подразделения
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <DialogHeader
+                :kicker="vacancy ? 'Редактирование' : 'Новая заявка'"
+                title="Заявка на подбор персонала"
+                subtitle="описание вакансии: заполняется руководителем подразделения"
+            >
+                <template #icon>
+                    <ClipboardList style="width: 22px; height: 22px; color: white;" />
+                </template>
+            </DialogHeader>
 
             <v-card-text class="pa-0" style="background: #f8fafc;">
                 <v-form class="app-form pa-5 pt-4" @submit.prevent="submit">
@@ -558,33 +543,7 @@ const submit = handleSubmit((values) => {
 
 <style scoped>
 /* Диалог сохраняет нумерованные разделы печатной формы, но оформляет их как
-   белые карточки сайта с общей палитрой шапки/акцента. */
-.form-head {
-    background: #009cf1;
-    padding: 20px 24px;
-}
-
-.form-head__kicker {
-    color: rgba(255, 255, 255, 0.65);
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-}
-
-.form-head__title {
-    color: white;
-    font-size: 1.15rem;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-}
-
-.form-head__sub {
-    color: rgba(255, 255, 255, 0.55);
-    font-size: 0.78rem;
-    font-style: italic;
-}
-
+   белые карточки сайта с общей палитрой шапки/акцента (шапка — DialogHeader). */
 .section-title {
     font-size: 0.95rem;
     font-weight: 600;

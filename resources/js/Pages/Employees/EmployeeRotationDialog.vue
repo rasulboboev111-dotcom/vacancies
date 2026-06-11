@@ -23,7 +23,12 @@ const form = useForm({
     reason: '',
 });
 
-const { branchDepartments } = useBranchDepartments(form, () => props.departments);
+const { branchDepartments } = useBranchDepartments({
+    getBranchId: () => form.branch_id,
+    getDepartmentId: () => form.department_id,
+    setDepartmentId: (value) => { form.department_id = value; },
+    getDepartments: () => props.departments,
+});
 
 watch(open, (visible) => {
     if (!visible || !props.employee) {

@@ -43,6 +43,18 @@ export function salaryText(salary, suffix = 'сомонӣ') {
     return `${salary.toLocaleString('ru-RU')} ${suffix}`;
 }
 
+// Подписи статуса вакансии в одном месте: ru для карточки просмотра, tg для
+// списков на таджикском. Третий статус добавляется здесь, а не в шаблонах.
+const STATUS_LABELS = {
+    ru: { open: 'Открыта', closed: 'Закрыта' },
+    tg: { open: 'Кушода', closed: 'Баста' },
+};
+
+export function statusLabel(vacancy, locale = 'ru') {
+    const labels = STATUS_LABELS[locale] ?? STATUS_LABELS.ru;
+    return vacancy?.status === 'open' ? labels.open : labels.closed;
+}
+
 // Разбивает сохранённые языки вакансии на предустановленные чекбоксы и свободное
 // поле «Другой». Каждый язык, не входящий в предустановленные, сохраняется (через
 // запятую), так что редактирование вакансии никогда не теряет молча

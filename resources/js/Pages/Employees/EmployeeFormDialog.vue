@@ -4,8 +4,9 @@ import { FileText, IdCard, User, UserPlus } from '@lucide/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { watchDebounced } from '@vueuse/core';
 import { useForm as useVeeForm } from 'vee-validate';
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import FormField from '@/Components/FormField.vue';
+import { useBranchDepartments } from '@/composables/useBranchDepartments';
 import { employeeSchema } from '@/lib/schemas';
 
 const props = defineProps({
@@ -190,20 +191,12 @@ const [employmentStartDate, employmentStartDateAttrs] = defineField('employment_
 const inertia = useInertiaForm({ ...EMPTY });
 
 // Шуъбы фильтруются по выбранному филиалу; сбрасываем шуъбу, когда она больше
-// не относится к выбранному филиалу (раньше это делал composable
-// useBranchDepartments, рассчитанный на форму Inertia).
-const branchDepartments = computed(() =>
-    props.departments.filter(d => Number(d.branch_id) === Number(branchId.value)),
-);
-watch(branchId, (newBranchId) => {
-    if (
-        departmentId.value
-        && !props.departments.some(
-            d => Number(d.id) === Number(departmentId.value) && Number(d.branch_id) === Number(newBranchId),
-        )
-    ) {
-        departmentId.value = null;
-    }
+// не относится к выбранному филиалу.
+const { branchDepartments } = useBranchDepartments({
+    getBranchId: () => branchId.value,
+    getDepartmentId: () => departmentId.value,
+    setDepartmentId: (value) => { departmentId.value = value; },
+    getDepartments: () => props.departments,
 });
 
 // Очистка даты увольнения сбрасывает ставшую неактуальной причину увольнения.

@@ -1,8 +1,9 @@
 <script setup>
 import { BadgeCheck, Briefcase, Clock, DoorOpen, FileText, Flag, ListChecks } from '@lucide/vue';
 import DataField from '@/Components/DataField.vue';
+import DialogHeader from '@/Components/DialogHeader.vue';
 import { formatDate } from '@/lib/date';
-import { probationText, salaryText, scheduleText } from '@/lib/vacancy';
+import { probationText, salaryText, scheduleText, statusLabel } from '@/lib/vacancy';
 
 defineProps({
     vacancy: { type: Object, default: null },
@@ -15,23 +16,11 @@ const open = defineModel({ type: Boolean, default: false });
 <template>
     <v-dialog v-model="open" max-width="760px">
         <v-card v-if="vacancy" class="rounded-xl overflow-hidden" elevation="8">
-            <div style="background: #009cf1; padding: 20px 28px;">
-                <div class="d-flex align-center justify-space-between">
-                    <div class="d-flex align-center">
-                        <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
-                            <DoorOpen style="width: 22px; height: 22px; color: white;" />
-                        </v-avatar>
-                        <div class="ml-4">
-                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">
-                                Заявка на подбор персонала
-                            </div>
-                            <div style="color: white; font-size: 1.1rem; font-weight: 700;">
-                                {{ vacancy.position?.name || 'Вакансия' }}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <DialogHeader kicker="Заявка на подбор персонала" :title="vacancy.position?.name || 'Вакансия'">
+                <template #icon>
+                    <DoorOpen style="width: 22px; height: 22px; color: white;" />
+                </template>
+            </DialogHeader>
 
             <v-card-text class="pa-6 overflow-y-auto" style="max-height: 72vh; background-color: #f8fafc;">
                 <!-- 1. Информация о вакансии -->
@@ -170,7 +159,7 @@ const open = defineModel({ type: Boolean, default: false });
                     </div>
                     <v-row dense>
                         <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Статус вакансии" :value="vacancy.status === 'open' ? 'Открыта' : 'Закрыта'" />
+                            <DataField label="Статус вакансии" :value="statusLabel(vacancy)" />
                         </v-col>
                         <v-col v-if="vacancy.closed_at" cols="12" sm="6" class="py-2">
                             <DataField label="Дата закрытия" :value="formatDate(vacancy.closed_at)" />

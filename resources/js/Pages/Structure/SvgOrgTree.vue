@@ -1,6 +1,6 @@
 <script setup>
 import { ChevronsDownUp, ChevronsUpDown, Maximize2, Minimize2, Network } from '@lucide/vue';
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { buildOrgTree, expandedToDepth } from '@/composables/useOrgChart';
 
 const props = defineProps({
@@ -19,10 +19,10 @@ const H_GAP = 24;
 const V_GAP = 80;
 
 /* ------------------------------------------------------------------ *
- * Палитра (светлая / тёмная), повторяющая исходник: синий для компании
- * и филиалов, зелёный для шуъбаҳо.
+ * Палитра, повторяющая исходник: синий для компании и филиалов, зелёный
+ * для шуъбаҳо. Тёмной темы в приложении нет, поэтому палитра одна.
  * ------------------------------------------------------------------ */
-const LIGHT = {
+const c = {
     lineStart: '#3b82f6',
     lineEnd: '#6366f1',
     buCardBg: '#ffffff',
@@ -46,33 +46,6 @@ const LIGHT = {
     expandText: '#3b82f6',
     shadowOpacity: 0.12,
 };
-const DARK = {
-    lineStart: '#60a5fa',
-    lineEnd: '#818cf8',
-    buCardBg: '#1e293b',
-    buBorder: '#3b82f6',
-    buAccentStart: '#3b82f6',
-    buAccentEnd: '#8b5cf6',
-    buIconBg: '#1e3a5f',
-    buIconColor: '#60a5fa',
-    buText: '#f1f5f9',
-    buSubText: '#94a3b8',
-    deptCardBg: '#1e293b',
-    deptBorder: '#22c55e',
-    deptAccentStart: '#22c55e',
-    deptAccentEnd: '#10b981',
-    deptIconBg: '#14532d',
-    deptIconColor: '#4ade80',
-    deptText: '#f1f5f9',
-    deptSubText: '#94a3b8',
-    divider: '#334155',
-    expandBg: '#1e293b',
-    expandText: '#60a5fa',
-    shadowOpacity: 0.4,
-};
-
-const isDark = ref(false);
-const c = computed(() => (isDark.value ? DARK : LIGHT));
 
 /* ------------------------------------------------------------------ *
  * Дерево + состояние раскрытия. По умолчанию раскрывает три верхних уровня
@@ -398,23 +371,8 @@ function onContainerClickCapture(e) {
     }
 }
 
-let observer = null;
-
-function syncDark() {
-    isDark.value = document.documentElement.classList.contains('dark');
-}
-
 onMounted(() => {
-    syncDark();
-    observer = new MutationObserver(syncDark);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     centerScroll();
-});
-
-onBeforeUnmount(() => {
-    if (observer) {
-        observer.disconnect();
-    }
 });
 </script>
 

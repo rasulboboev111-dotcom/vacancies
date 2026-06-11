@@ -3,27 +3,31 @@ import { computed, watch } from 'vue';
 /**
  * Поддерживает согласованность выбора отдела в форме с выбранным филиалом.
  *
- * Возвращает `branchDepartments` — отделы, принадлежащие текущему филиалу формы —
- * и устанавливает watcher, который очищает `form.department_id`, когда смена
- * выбранного филиала приводит к тому, что отдел ему больше не принадлежит.
+ * Возвращает `branchDepartments` — отделы текущего филиала формы — и ставит
+ * watcher, который очищает выбранный отдел, когда смена филиала делает его
+ * чужим. Работает через геттеры/сеттер, поэтому одинаково подходит и форме
+ * Inertia (`form.branch_id`), и полям vee-validate (`ref.value`), и computed.
  *
- * `departmentsGetter` — функция, возвращающая полный список отделов, так что
- * composable остаётся реактивным к изменениям пропсов. `form` — это форма Inertia,
- * содержащая `branch_id` и `department_id`.
+ * @param {object}   io
+ * @param {function} io.getBranchId       — текущий branch_id формы
+ * @param {function} io.getDepartmentId   — текущий department_id формы
+ * @param {function} io.setDepartmentId   — сбрасывает department_id (вызывается с null)
+ * @param {function} io.getDepartments    — полный список отделов (реактивный геттер)
  */
-export function useBranchDepartments(form, departmentsGetter) {
+export function useBranchDepartments({ getBranchId, getDepartmentId, setDepartmentId, getDepartments }) {
     const branchDepartments = computed(() =>
-        departmentsGetter().filter(d => Number(d.branch_id) === Number(form.branch_id)),
+        getDepartments().filter(d => Number(d.branch_id) === Number(getBranchId())),
     );
 
-    watch(() => form.branch_id, (newBranchId) => {
+    watch(getBranchId, (newBranchId) => {
+        const departmentId = getDepartmentId();
         if (
-            form.department_id
-            && !departmentsGetter().some(
-                d => Number(d.id) === Number(form.department_id) && Number(d.branch_id) === Number(newBranchId),
+            departmentId
+            && !getDepartments().some(
+                d => Number(d.id) === Number(departmentId) && Number(d.branch_id) === Number(newBranchId),
             )
         ) {
-            form.department_id = null;
+            setDepartmentId(null);
         }
     });
 

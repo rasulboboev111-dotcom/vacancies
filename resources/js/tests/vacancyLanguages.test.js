@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mergeLanguages, probationText, salaryText, scheduleText, splitLanguages } from '@/lib/vacancy';
+import { mergeLanguages, probationText, salaryText, scheduleText, splitLanguages, statusLabel } from '@/lib/vacancy';
 
 const known = ['Таджикский', 'Русский', 'Английский'];
 
@@ -63,5 +63,14 @@ describe('vacancy display helpers', () => {
         expect(norm(salaryText(5000, 'сом.'))).toBe('5 000 сом.');
         expect(salaryText(null)).toBeNull();
         expect(salaryText(undefined)).toBeNull();
+    });
+
+    it('statusLabel resolves open/closed per locale', () => {
+        expect(statusLabel({ status: 'open' })).toBe('Открыта');
+        expect(statusLabel({ status: 'closed' })).toBe('Закрыта');
+        expect(statusLabel({ status: 'open' }, 'tg')).toBe('Кушода');
+        expect(statusLabel({ status: 'closed' }, 'tg')).toBe('Баста');
+        // Неизвестная локаль откатывается на русский.
+        expect(statusLabel({ status: 'open' }, 'xx')).toBe('Открыта');
     });
 });
