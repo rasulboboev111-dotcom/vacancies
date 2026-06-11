@@ -1,5 +1,5 @@
 <script setup>
-import { ArrowLeftRight, Eye, Pencil, Trash2, UserX } from '@lucide/vue';
+import { ArrowLeftRight, Pencil, Trash2, UserX } from '@lucide/vue';
 import { formatDate } from '@/lib/date';
 
 defineProps({
@@ -45,11 +45,9 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="employee in employees.data" :key="employee.id" class="employee-row">
+                <tr v-for="employee in employees.data" :key="employee.id" class="employee-row" @click="$emit('view', employee)">
                     <td class="pa-3">
-                        <button type="button" class="emp-name" @click="$emit('view', employee)">
-                            {{ employee.full_name }}
-                        </button>
+                        <span class="emp-name">{{ employee.full_name }}</span>
                     </td>
                     <td class="pa-3">
                         <div class="text-truncate col-position emp-position" :title="employee.position?.name || '-'">
@@ -79,17 +77,13 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
                         {{ formatDate(employee.employment_start_date) }}
                     </td>
                     <td class="pa-3 text-center">
-                        <v-btn variant="text" size="small" class="mr-1 hover-scale-btn act-btn act-accent" title="Дидан" @click="$emit('view', employee)">
-                            <Eye style="width: 16px; height: 16px;" />
-                        </v-btn>
-
                         <v-btn
                             v-if="canManage(employee)"
                             variant="text"
                             size="small"
                             class="mr-1 hover-scale-btn act-btn act-accent"
                             title="Ротатсия"
-                            @click="$emit('rotate', employee)"
+                            @click.stop="$emit('rotate', employee)"
                         >
                             <ArrowLeftRight style="width: 16px; height: 16px;" />
                         </v-btn>
@@ -100,7 +94,7 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
                             size="small"
                             class="mr-1 hover-scale-btn act-btn act-accent"
                             title="Таҳрир"
-                            @click="$emit('edit', employee)"
+                            @click.stop="$emit('edit', employee)"
                         >
                             <Pencil style="width: 16px; height: 16px;" />
                         </v-btn>
@@ -111,7 +105,7 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
                             size="small"
                             class="hover-scale-btn act-btn act-danger"
                             title="Нест кардан"
-                            @click="$emit('delete', employee)"
+                            @click.stop="$emit('delete', employee)"
                         >
                             <Trash2 style="width: 16px; height: 16px;" />
                         </v-btn>
@@ -165,19 +159,8 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
 /* Three tiers of text contrast carry the hierarchy without colour:
    name (darkest anchor) → position (mid) → branch/category/dashes (light). */
 .emp-name {
-    font: inherit;
     color: #111111;
     font-weight: 600;
-    padding: 0;
-    border: 0;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-}
-/* The one resting accent that means something: the clickable name on hover. */
-.emp-name:hover {
-    color: #3f51b5;
-    text-decoration: underline;
 }
 .emp-position,
 .emp-secondary {
@@ -190,6 +173,9 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
 
 /* Rows read as discrete records: zebra striping plus a hover highlight with a
    thin indigo bar on the left of the active row. */
+.table-modern tbody tr.employee-row {
+    cursor: pointer;
+}
 .table-modern tbody tr.employee-row:nth-child(even) {
     background: #fafafb;
 }

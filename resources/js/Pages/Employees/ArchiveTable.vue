@@ -1,5 +1,5 @@
 <script setup>
-import { Eye, RotateCcw } from '@lucide/vue';
+import { RotateCcw } from '@lucide/vue';
 import { formatDate } from '@/lib/date';
 
 defineProps({
@@ -41,7 +41,7 @@ defineEmits(['view', 'restore']);
             </tr>
         </thead>
         <tbody>
-            <tr v-for="employee in employees" :key="employee.id" class="employee-row">
+            <tr v-for="employee in employees" :key="employee.id" class="employee-row" style="cursor: pointer;" @click="$emit('view', employee)">
                 <td class="pa-4 font-weight-bold text-indigo-darken-4">
                     {{ employee.full_name }}
                 </td>
@@ -67,16 +67,6 @@ defineEmits(['view', 'restore']);
                 </td>
                 <td class="pa-4 text-center">
                     <v-btn
-                        color="indigo"
-                        icon
-                        variant="text"
-                        size="small"
-                        class="hover-scale-btn"
-                        @click="$emit('view', employee)"
-                    >
-                        <Eye style="width: 18px; height: 18px;" />
-                    </v-btn>
-                    <v-btn
                         v-if="canRestore"
                         color="success"
                         icon
@@ -84,7 +74,7 @@ defineEmits(['view', 'restore']);
                         size="small"
                         class="hover-scale-btn"
                         title="Барқарор кардан"
-                        @click="$emit('restore', employee)"
+                        @click.stop="$emit('restore', employee)"
                     >
                         <RotateCcw style="width: 18px; height: 18px;" />
                     </v-btn>
