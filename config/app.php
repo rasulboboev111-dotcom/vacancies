@@ -58,26 +58,14 @@ return [
     | Application Timezone
     |--------------------------------------------------------------------------
     |
-    | Here you may specify the default timezone for your application, which
-    | will be used by the PHP date and date-time functions. The timezone
-    | is set to "UTC" by default as it is suitable for most use cases.
+    | Компания работает в Таджикистане, поэтому метки времени и хранятся, и
+    | отображаются в Asia/Dushanbe (UTC+5). Колонки timestamp в Postgres — без
+    | таймзоны: значение пишется и читается в этом поясе, отдельная конвертация
+    | при выводе не нужна.
     |
     */
 
     'timezone' => 'Asia/Dushanbe',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Display Timezone
-    |--------------------------------------------------------------------------
-    |
-    | Timestamps are stored in UTC (above) but rendered to users in this zone.
-    | The company operates in Tajikistan, so datetimes shown in the UI are
-    | converted to Dushanbe time (UTC+5) at the point of formatting.
-    |
-    */
-
-    'display_timezone' => env('APP_DISPLAY_TIMEZONE', 'Asia/Dushanbe'),
 
     /*
     |--------------------------------------------------------------------------

@@ -26,7 +26,7 @@ class ProfileController extends Controller
             'status' => session('status'),
             'profile' => [
                 'branch_name' => $user->branch?->name,
-                'joined_at' => $user->created_at?->timezone(config('app.display_timezone'))->translatedFormat('d F Y'),
+                'joined_at' => $user->created_at?->translatedFormat('d F Y'),
             ],
         ]);
     }
