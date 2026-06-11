@@ -323,6 +323,76 @@ function centerScroll() {
 
 watch(() => canvas.value.width, centerScroll);
 
+/* ------------------------------------------------------------------ *
+ * Drag-to-pan — mouse only; touch keeps its native momentum scrolling.
+ * A drag past the threshold also swallows the trailing click so panning
+ * never opens a node popup.
+ * ------------------------------------------------------------------ */
+const PAN_THRESHOLD = 6;
+const isPanning = ref(false);
+let panActive = false;
+let panMoved = false;
+let panStartX = 0;
+let panStartY = 0;
+let panScrollLeft = 0;
+let panScrollTop = 0;
+
+function onPanStart(e) {
+    if (e.pointerType !== 'mouse' || e.button !== 0) {
+        return;
+    }
+    const el = container.value;
+    if (!el) {
+        return;
+    }
+    panActive = true;
+    panMoved = false;
+    panStartX = e.clientX;
+    panStartY = e.clientY;
+    panScrollLeft = el.scrollLeft;
+    panScrollTop = el.scrollTop;
+}
+
+function onPanMove(e) {
+    if (!panActive) {
+        return;
+    }
+    const dx = e.clientX - panStartX;
+    const dy = e.clientY - panStartY;
+    if (!panMoved && Math.hypot(dx, dy) < PAN_THRESHOLD) {
+        return;
+    }
+    const el = container.value;
+    if (!panMoved) {
+        panMoved = true;
+        isPanning.value = true;
+        el.setPointerCapture?.(e.pointerId);
+    }
+    el.scrollLeft = panScrollLeft - dx;
+    el.scrollTop = panScrollTop - dy;
+}
+
+function onPanEnd(e) {
+    if (!panActive) {
+        return;
+    }
+    panActive = false;
+    isPanning.value = false;
+    const el = container.value;
+    if (el?.hasPointerCapture?.(e.pointerId)) {
+        el.releasePointerCapture(e.pointerId);
+    }
+}
+
+// Runs in the capture phase before any node's click handler, so a click that
+// merely ends a pan gesture is swallowed instead of opening the node popup.
+function onContainerClickCapture(e) {
+    if (panMoved) {
+        e.stopPropagation();
+        panMoved = false;
+    }
+}
+
 let observer = null;
 
 function syncDark() {
@@ -381,7 +451,16 @@ onBeforeUnmount(() => {
                 </div>
             </div>
 
-            <div ref="container" class="svg-org-tree">
+            <div
+                ref="container"
+                class="svg-org-tree"
+                :class="{ 'is-panning': isPanning }"
+                @pointerdown="onPanStart"
+                @pointermove="onPanMove"
+                @pointerup="onPanEnd"
+                @pointercancel="onPanEnd"
+                @click.capture="onContainerClickCapture"
+            >
                 <svg :width="canvas.width" :height="canvas.height" class="d-block">
                     <defs>
                         <linearGradient id="orgLineGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" :y2="canvas.height">
@@ -610,19 +689,34 @@ onBeforeUnmount(() => {
     width: 100%;
     min-height: 0;
     overflow: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
+    cursor: grab;
+    scrollbar-width: auto;
+    scrollbar-color: #94a3b8 #eef2f7;
+}
+.svg-org-tree.is-panning {
+    cursor: grabbing;
+    user-select: none;
 }
 .svg-org-tree::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 14px;
+    height: 14px;
 }
 .svg-org-tree::-webkit-scrollbar-track {
-    background: transparent;
+    background: #eef2f7;
 }
 .svg-org-tree::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 4px;
+    background-color: #94a3b8;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    border-radius: 7px;
+}
+.svg-org-tree::-webkit-scrollbar-thumb:hover {
+    background-color: #64748b;
+}
+/* Keep the horizontal scrollbar handle long (easy to grab) even when the chart
+   is very wide and the thumb would otherwise shrink. */
+.svg-org-tree::-webkit-scrollbar-thumb:horizontal {
+    min-width: 251px;
 }
 .node-group {
     cursor: pointer;
