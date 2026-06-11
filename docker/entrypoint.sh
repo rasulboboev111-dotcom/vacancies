@@ -32,6 +32,7 @@ if [ "${RUN_MIGRATIONS}" = "true" ]; then
     fi
 fi
 
+cp -r /tmp/public_build/. /var/www/html/public/build/
 # ── Optimized caches ─────────────────────────────────────────────────────────
 # Built at runtime so they capture the environment injected by compose. Only
 # config:cache is required; the rest are best-effort optimizations.

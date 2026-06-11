@@ -1,0 +1,40 @@
+name: Trigger Central Deploy (vacancies)
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send dispatch to central
+        env:
+          PAT: ${{ secrets.DISPATCH_PAT }}
+          CENTRAL_REPO: Hadamot/tech-conditions
+          WORKING_PATH: /var/opt/Docker/vacancies
+          ENV_FILE_URL: ${{ secrets.ENV_FILE_URL }}
+          REPO: ${{ github.repository }}
+          REF: ${{ github.ref }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg repo "$REPO" \
+            --arg ref "$REF" \
+            --arg path "$WORKING_PATH" \
+            --arg env_url "$ENV_FILE_URL" \
+            --arg env_fetch "$ENV_FETCHER" \
+            '{
+              event_type: "trigger-deploy",
+              client_payload: {
+                repository: $repo,
+                ref: $ref,
+                working_path: $path,
+                env_url: $env_url
+              }
+            }')
+
+          curl -X POST -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: token $PAT" \
+          https://api.github.com/repos/$CENTRAL_REPO/dispatches \
+          -d "$PAYLOAD"
