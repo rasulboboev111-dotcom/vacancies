@@ -4,13 +4,11 @@ namespace App\Data;
 
 use App\Models\Department;
 use Spatie\LaravelData\Data;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * A flat department entry for the Structure page's department picker
  * (departmentsFlat). Keys mirror what the Vue components already read.
  */
-#[TypeScript]
 class DepartmentListItemData extends Data
 {
     public function __construct(

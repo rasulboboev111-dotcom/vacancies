@@ -9,25 +9,9 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
-use Spatie\LaravelTypeScriptTransformer\TypeScriptTransformerApplicationServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        // The TypeScript-transformer provider extends a class from the
-        // (dev-only) spatie/laravel-typescript-transformer package. In
-        // production (`composer install --no-dev`) that package is absent, so
-        // registering it unconditionally would fatal at boot. Only register it
-        // when the package is actually installed.
-        if (class_exists(TypeScriptTransformerApplicationServiceProvider::class)) {
-            $this->app->register(TypeScriptTransformerServiceProvider::class);
-        }
-    }
-
     /**
      * Bootstrap any application services.
      */

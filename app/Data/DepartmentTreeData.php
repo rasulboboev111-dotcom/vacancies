@@ -4,14 +4,12 @@ namespace App\Data;
 
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Data;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * A node in the org-structure tree rendered on the Structure page. Built by
  * StructureController::buildTree, which injects the per-node employee and
  * open-vacancy counts that are not stored on the model.
  */
-#[TypeScript]
 class DepartmentTreeData extends Data
 {
     /**
