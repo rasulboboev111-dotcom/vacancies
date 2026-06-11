@@ -2,7 +2,7 @@
 import { BadgeCheck, Briefcase, Clock, DoorOpen, FileText, Flag, ListChecks } from '@lucide/vue';
 import DataField from '@/Components/DataField.vue';
 import { formatDate } from '@/lib/date';
-import { probationText, scheduleText } from '@/lib/vacancy';
+import { probationText, salaryText, scheduleText } from '@/lib/vacancy';
 
 defineProps({
     vacancy: { type: Object, default: null },
@@ -125,7 +125,7 @@ const open = defineModel({ type: Boolean, default: false });
                             <DataField label="Формат работы" :value="vacancy.work_format_label" />
                         </v-col>
                         <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Предполагаемый уровень дохода" :value="vacancy.salary != null ? `${vacancy.salary.toLocaleString('ru-RU')} сомонӣ` : null" />
+                            <DataField label="Предполагаемый уровень дохода" :value="salaryText(vacancy.salary)" />
                         </v-col>
                         <v-col cols="12" sm="6" class="py-2">
                             <DataField label="Испытательный срок" :value="probationText(vacancy)" />

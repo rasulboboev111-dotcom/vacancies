@@ -323,7 +323,7 @@
     /** @var \App\Models\Vacancy $vacancy */
     $known = config('hiring.known_languages');
     $storedLanguages = $vacancy->languages->pluck('name')->all();
-    $otherLanguage = collect($storedLanguages)->first(fn (string $name) => ! in_array($name, $known, true));
+    $otherLanguage = collect($storedLanguages)->reject(fn (string $name) => in_array($name, $known, true))->implode(', ');
     $opt = fn (bool $on, string $label) => '<span class="opt'.($on ? ' on' : '').'"><span class="cb">'.($on ? '✓' : '').'</span>'.e($label).'</span>';
 @endphp
 
@@ -343,7 +343,7 @@
         </div>
         <div class="doc-header__approve">
             <div class="approve-title">«УТВЕРЖДАЮ»</div>
-            <div class="approve-line">{!! implode('<br>', array_map('e', explode('|', config('hiring.approver_position')))) !!}</div>
+            <div class="approve-line">{!! implode('<br>', array_map('e', (array) config('hiring.approver_position'))) !!}</div>
             <div class="approve-sign">____________ / ____________________</div>
             <div class="approve-date">«____» ______________ 20____ г.</div>
         </div>
@@ -438,9 +438,9 @@
         <tr>
             <td class="lbl">График работы</td>
             <td class="val">
-                <div class="optline">{!! $opt($vacancy->schedule_type === \App\Enums\ScheduleType::STANDARD, '5/2, 08:00–17:00') !!}</div>
+                <div class="optline">{!! $opt($vacancy->schedule_type === \App\Enums\ScheduleType::STANDARD, \App\Enums\ScheduleType::STANDARD->label()) !!}</div>
                 <div class="optline">
-                    <span class="opt{{ $vacancy->schedule_type === \App\Enums\ScheduleType::OTHER ? ' on' : '' }}"><span class="cb">{{ $vacancy->schedule_type === \App\Enums\ScheduleType::OTHER ? '✓' : '' }}</span>Иной (сменный, 2/2, дежурство) — укажите:</span>
+                    <span class="opt{{ $vacancy->schedule_type === \App\Enums\ScheduleType::OTHER ? ' on' : '' }}"><span class="cb">{{ $vacancy->schedule_type === \App\Enums\ScheduleType::OTHER ? '✓' : '' }}</span>{{ \App\Enums\ScheduleType::OTHER->label() }} — укажите:</span>
                     @if ($vacancy->schedule_type === \App\Enums\ScheduleType::OTHER && $vacancy->schedule_other)
                         <span class="fill-line">{{ $vacancy->schedule_other }}</span>
                     @else

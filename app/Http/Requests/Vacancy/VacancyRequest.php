@@ -27,7 +27,7 @@ abstract class VacancyRequest extends FormRequest
     {
         $branchId = (int) $this->input('branch_id');
 
-        return [
+        $rules = [
             'branch_id' => ['required', 'integer', Rule::exists('branches', 'id')],
             'department_id' => [
                 'nullable',
@@ -47,16 +47,26 @@ abstract class VacancyRequest extends FormRequest
             'responsibilities' => ['nullable', 'string', 'max:5000'],
             'employment_type' => ['nullable', Rule::enum(VacancyEmploymentType::class)],
             'schedule_type' => ['nullable', Rule::enum(ScheduleType::class)],
-            'schedule_other' => ['nullable', 'string', 'max:255'],
+            // «Иной» график обязан нести текст — иначе бланк печатает «Иной: ___» без значения.
+            'schedule_other' => ['nullable', 'required_if:schedule_type,'.ScheduleType::OTHER->value, 'string', 'max:255'],
             'work_format' => ['nullable', Rule::enum(WorkFormat::class)],
             'salary' => ['nullable', 'integer', 'min:0', 'max:1000000000'],
             'probation' => ['nullable', Rule::enum(Probation::class)],
-            'probation_other' => ['nullable', 'string', 'max:255'],
+            'probation_other' => ['nullable', 'required_if:probation,'.Probation::OTHER->value, 'string', 'max:255'],
             'opening_reason' => ['nullable', Rule::enum(OpeningReason::class)],
             'priority' => ['nullable', Rule::enum(VacancyPriority::class)],
             'opened_at' => ['nullable', 'date'],
             'deadline' => ['nullable', 'date'],
         ];
+
+        // Дедлайн не может быть раньше даты заявки. Проверяем только когда дата
+        // подачи задана: после её ввода after_or_equal сравнивает поля, иначе
+        // правило приняло бы «opened_at» за литеральную дату и отклоняло бы любой дедлайн.
+        if ($this->filled('opened_at')) {
+            $rules['deadline'][] = 'after_or_equal:opened_at';
+        }
+
+        return $rules;
     }
 
     /**

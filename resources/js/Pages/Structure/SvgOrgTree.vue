@@ -364,6 +364,10 @@ function onPanMove(e) {
         return;
     }
     const el = container.value;
+    // Контейнер мог размонтироваться, пока кнопка зажата (смена страницы и т.п.).
+    if (!el) {
+        return;
+    }
     if (!panMoved) {
         panMoved = true;
         isPanning.value = true;

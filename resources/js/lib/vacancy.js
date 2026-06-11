@@ -3,20 +3,44 @@
 // «иной/иное» показывает введённый пользователем свободный текст (с откатом на
 // подпись варианта).
 
-export function scheduleText(vacancy) {
-    if (!vacancy?.schedule_type)
+// Backing-значения вариантов «иной/иное» — копия App\Enums\ScheduleType::OTHER
+// и App\Enums\Probation::OTHER. Держим их одной константой, чтобы строка не
+// разъезжалась по компонентам.
+export const SCHEDULE_OTHER = 'иной';
+export const PROBATION_OTHER = 'иное';
+
+// Общая логика «иной»-группы: при выбранном «ином» варианте показываем свободный
+// текст (с откатом на подпись), иначе — подпись предустановленного варианта.
+function otherableText(value, otherValue, freeText, label) {
+    if (!value)
         return null;
-    return vacancy.schedule_type === 'иной'
-        ? (vacancy.schedule_other || vacancy.schedule_type_label)
-        : vacancy.schedule_type_label;
+    return value === otherValue ? (freeText || label) : label;
+}
+
+export function scheduleText(vacancy) {
+    return otherableText(
+        vacancy?.schedule_type,
+        SCHEDULE_OTHER,
+        vacancy?.schedule_other,
+        vacancy?.schedule_type_label,
+    );
 }
 
 export function probationText(vacancy) {
-    if (!vacancy?.probation)
+    return otherableText(
+        vacancy?.probation,
+        PROBATION_OTHER,
+        vacancy?.probation_other,
+        vacancy?.probation_label,
+    );
+}
+
+// Единое форматирование дохода для списков и карточек, чтобы число не
+// форматировалось по-разному в разных местах.
+export function salaryText(salary, suffix = 'сомонӣ') {
+    if (salary == null)
         return null;
-    return vacancy.probation === 'иное'
-        ? (vacancy.probation_other || vacancy.probation_label)
-        : vacancy.probation_label;
+    return `${salary.toLocaleString('ru-RU')} ${suffix}`;
 }
 
 // Разбивает сохранённые языки вакансии на предустановленные чекбоксы и свободное
@@ -33,11 +57,20 @@ export function splitLanguages(stored, known) {
 }
 
 // Снова объединяет выбор чекбоксов с текстом «Другой» через запятую в плоский
-// список языков, который ожидает бэкенд.
+// список языков, который ожидает бэкенд. Дедупим без учёта регистра (как
+// VacancyService::pullLanguages), чтобы «Русский» + «русский» не упёрлись в
+// серверное правило distinct:ignore_case и не дали 422.
 export function mergeLanguages(selected, otherText) {
     const extras = (otherText ?? '')
         .split(',')
         .map(name => name.trim())
         .filter(Boolean);
-    return [...(selected ?? []), ...extras];
+
+    const seen = new Map();
+    for (const name of [...(selected ?? []), ...extras]) {
+        const key = name.toLocaleLowerCase('ru-RU');
+        if (!seen.has(key))
+            seen.set(key, name);
+    }
+    return [...seen.values()];
 }

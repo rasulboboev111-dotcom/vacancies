@@ -1,6 +1,6 @@
 <script setup>
 import { DoorOpen, Lock, Pencil, Printer, Trash2, Unlock } from '@lucide/vue';
-import { scheduleText } from '@/lib/vacancy';
+import { salaryText, scheduleText } from '@/lib/vacancy';
 
 defineProps({
     vacancies: { type: Array, required: true },
@@ -72,7 +72,7 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
                         {{ scheduleText(vacancy) || '—' }}
                     </td>
                     <td class="pa-3 vac-secondary text-center">
-                        {{ vacancy.salary != null ? `${vacancy.salary.toLocaleString('ru-RU')} сом.` : '—' }}
+                        {{ salaryText(vacancy.salary, 'сом.') || '—' }}
                     </td>
                     <td class="pa-3 text-center">
                         <v-chip
