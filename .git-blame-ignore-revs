@@ -1,0 +1,6 @@
+# Коммиты, которые git blame должен пропускать (косметика, логика не менялась).
+# Включить локально: git config blame.ignoreRevsFile .git-blame-ignore-revs
+# GitHub/GitLab учитывают этот файл в веб-blame автоматически.
+
+# style: перевод всех комментариев на русский + чистка шума
+64bdb83e9d20d748b860d922c83c056eafc51f6a
