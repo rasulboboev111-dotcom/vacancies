@@ -5,14 +5,12 @@ namespace App\Data;
 use App\Models\Vacancy;
 use App\Models\VacancyLanguage;
 use Spatie\LaravelData\Data;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * The shape of a vacancy row sent to the Vacancies/Index page. Keys mirror the
  * column/relation names the Vue components already read; enum columns travel
  * as value + human label («как в бланке»).
  */
-#[TypeScript]
 class VacancyData extends Data
 {
     /**
