@@ -1,6 +1,6 @@
 <script setup>
 import { useForm as useInertiaForm } from '@inertiajs/vue3';
-import { ClipboardList } from '@lucide/vue';
+import { BadgeCheck, Briefcase, ClipboardList, Clock, FileText, Flag, ListChecks } from '@lucide/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm as useVeeForm } from 'vee-validate';
 import { computed, watch } from 'vue';
@@ -198,7 +198,7 @@ const submit = handleSubmit((values) => {
         <v-card class="rounded-xl overflow-hidden" elevation="8">
             <div class="form-head">
                 <div class="d-flex align-center">
-                    <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.12);">
+                    <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
                         <ClipboardList style="width: 22px; height: 22px; color: white;" />
                     </v-avatar>
                     <div class="ml-4">
@@ -218,10 +218,13 @@ const submit = handleSubmit((values) => {
             <v-card-text class="pa-0" style="background: #f8fafc;">
                 <v-form class="app-form pa-5 pt-4" @submit.prevent="submit">
                     <!-- 1. Информация о вакансии -->
-                    <div class="section-bar">
-                        1&ensp;Информация о вакансии
-                    </div>
-                    <div class="section-body">
+                    <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
+                        <div class="d-flex align-center section-title mb-4">
+                            <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                                <Briefcase style="width: 16px; height: 16px;" />
+                            </v-avatar>
+                            1. Информация о вакансии
+                        </div>
                         <FormField v-if="isAdmin" label="Филиал" class="mb-4">
                             <v-select
                                 v-model="branchId"
@@ -311,13 +314,16 @@ const submit = handleSubmit((values) => {
                                 :error-messages="errors.supervisor"
                             />
                         </FormField>
-                    </div>
+                    </v-card>
 
                     <!-- 2. Требования к кандидату -->
-                    <div class="section-bar">
-                        2&ensp;Требования к кандидату
-                    </div>
-                    <div class="section-body">
+                    <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
+                        <div class="d-flex align-center section-title mb-4">
+                            <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                                <FileText style="width: 16px; height: 16px;" />
+                            </v-avatar>
+                            2. Требования к кандидату
+                        </div>
                         <FormField label="Образование" class="mb-4">
                             <ChoiceBoxGroup v-model="education" :options="formOptions.educations ?? []" />
                         </FormField>
@@ -370,13 +376,16 @@ const submit = handleSubmit((values) => {
                                 :error-messages="errors.requirements"
                             />
                         </FormField>
-                    </div>
+                    </v-card>
 
                     <!-- 3. Должностные обязанности -->
-                    <div class="section-bar">
-                        3&ensp;Должностные обязанности
-                    </div>
-                    <div class="section-body">
+                    <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
+                        <div class="d-flex align-center section-title mb-4">
+                            <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                                <ListChecks style="width: 16px; height: 16px;" />
+                            </v-avatar>
+                            3. Должностные обязанности
+                        </div>
                         <FormField label="Основные обязанности" class="mb-1">
                             <v-textarea
                                 v-model="responsibilities"
@@ -390,13 +399,16 @@ const submit = handleSubmit((values) => {
                                 :error-messages="errors.responsibilities"
                             />
                         </FormField>
-                    </div>
+                    </v-card>
 
                     <!-- 4. Условия работы -->
-                    <div class="section-bar">
-                        4&ensp;Условия работы
-                    </div>
-                    <div class="section-body">
+                    <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
+                        <div class="d-flex align-center section-title mb-4">
+                            <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                                <Clock style="width: 16px; height: 16px;" />
+                            </v-avatar>
+                            4. Условия работы
+                        </div>
                         <FormField label="Тип занятости" class="mb-4">
                             <ChoiceBoxGroup v-model="employmentType" :options="formOptions.employmentTypes ?? []" />
                         </FormField>
@@ -456,13 +468,16 @@ const submit = handleSubmit((values) => {
                                 />
                             </div>
                         </FormField>
-                    </div>
+                    </v-card>
 
                     <!-- 5. Причина открытия позиции и сроки -->
-                    <div class="section-bar">
-                        5&ensp;Причина открытия позиции и сроки
-                    </div>
-                    <div class="section-body">
+                    <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
+                        <div class="d-flex align-center section-title mb-4">
+                            <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                                <Flag style="width: 16px; height: 16px;" />
+                            </v-avatar>
+                            5. Причина открытия позиции и сроки
+                        </div>
                         <FormField label="Причина открытия позиции" class="mb-4">
                             <ChoiceBoxGroup v-model="openingReason" :options="formOptions.openingReasons ?? []" />
                         </FormField>
@@ -471,7 +486,7 @@ const submit = handleSubmit((values) => {
                             <ChoiceBoxGroup v-model="priority" :options="formOptions.priorities ?? []" />
                         </FormField>
 
-                        <v-row dense>
+                        <v-row dense align="end">
                             <v-col cols="12" md="6">
                                 <FormField label="Дата подачи заявки" class="mb-1">
                                     <v-text-field
@@ -501,29 +516,30 @@ const submit = handleSubmit((values) => {
                                 </FormField>
                             </v-col>
                         </v-row>
-                    </div>
+                    </v-card>
 
                     <!-- 6. Согласование заявки (статус — только при редактировании) -->
-                    <template v-if="vacancy">
-                        <div class="section-bar">
-                            6&ensp;Согласование заявки
+                    <v-card v-if="vacancy" elevation="0" class="rounded-xl border pa-5 bg-white">
+                        <div class="d-flex align-center section-title mb-4">
+                            <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                                <BadgeCheck style="width: 16px; height: 16px;" />
+                            </v-avatar>
+                            6. Согласование заявки
                         </div>
-                        <div class="section-body">
-                            <FormField label="Статус вакансии" class="mb-1">
-                                <v-select
-                                    v-model="status"
-                                    v-bind="statusAttrs"
-                                    :items="[{ value: 'open', title: 'Открыта' }, { value: 'closed', title: 'Закрыта' }]"
-                                    item-title="title"
-                                    item-value="value"
-                                    variant="outlined"
-                                    density="comfortable"
-                                    rounded="lg"
-                                    hide-details="auto"
-                                />
-                            </FormField>
-                        </div>
-                    </template>
+                        <FormField label="Статус вакансии" class="mb-1">
+                            <v-select
+                                v-model="status"
+                                v-bind="statusAttrs"
+                                :items="[{ value: 'open', title: 'Открыта' }, { value: 'closed', title: 'Закрыта' }]"
+                                item-title="title"
+                                item-value="value"
+                                variant="outlined"
+                                density="comfortable"
+                                rounded="lg"
+                                hide-details="auto"
+                            />
+                        </FormField>
+                    </v-card>
                 </v-form>
             </v-card-text>
 
@@ -534,7 +550,7 @@ const submit = handleSubmit((values) => {
                     Отмена
                 </v-btn>
                 <v-spacer />
-                <v-btn variant="flat" rounded="lg" size="large" :loading="inertia.processing" class="px-6 font-weight-medium text-white save-btn" @click="submit">
+                <v-btn color="indigo" variant="flat" rounded="lg" size="large" :loading="inertia.processing" class="bg-indigo px-6 font-weight-medium text-white" @click="submit">
                     Сохранить
                 </v-btn>
             </v-card-actions>
@@ -543,10 +559,10 @@ const submit = handleSubmit((values) => {
 </template>
 
 <style scoped>
-/* The dialog mirrors the printed «Заявка на подбор персонала»: navy section
-   bars with the same numbering, light-blue body blocks, document typography. */
+/* The dialog keeps the printed form's numbered sections, but framed as the
+   site's white cards with the shared header/accent palette. */
 .form-head {
-    background: #0f3d5c;
+    background: #009cf1;
     padding: 20px 24px;
 }
 
@@ -571,31 +587,9 @@ const submit = handleSubmit((values) => {
     font-style: italic;
 }
 
-.section-bar {
-    background: #0f3d5c;
-    color: #ffffff;
-    font-size: 0.82rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 8px 14px;
-    border-radius: 8px 8px 0 0;
-    margin-top: 18px;
-}
-
-.section-bar:first-of-type {
-    margin-top: 0;
-}
-
-.section-body {
-    background: #ffffff;
-    border: 1px solid #dbe5ee;
-    border-top: 0;
-    border-radius: 0 0 8px 8px;
-    padding: 16px 14px 14px;
-}
-
-.save-btn {
-    background: #0f3d5c !important;
+.section-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e1b4b;
 }
 </style>
