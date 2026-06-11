@@ -269,10 +269,7 @@ class EmployeeController extends Controller
 
             // Отложено (группа "form") — используется только диалогами, поэтому
             // не утяжеляет начальную загрузку списка и его частичные перезагрузки.
-            'categories' => Inertia::defer(fn () => collect(Category::cases())->map(fn (Category $c) => [
-                'value' => $c->value,
-                'label' => $c->label(),
-            ]), 'form'),
+            'categories' => Inertia::defer(fn () => Category::options(), 'form'),
             'positions' => Inertia::defer(fn () => $canManage ? Position::orderBy('name')->get() : collect(), 'form'),
             // руководители подгружаются по запросу через поисковый эндпоинт
             // (employees.managers) — никогда не передаются полным списком.

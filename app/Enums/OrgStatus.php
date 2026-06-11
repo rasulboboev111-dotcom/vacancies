@@ -8,8 +8,10 @@ namespace App\Enums;
  * приводит неизвестные исходные значения к null (или к значению Active по
  * умолчанию для филиалов), так что в колонке всегда лежат валидные для enum строки.
  */
-enum OrgStatus: string
+enum OrgStatus: string implements HasLabel
 {
+    use HasOptions;
+
     case ACTIVE = 'Active';
     case INACTIVE = 'Inactive';
 

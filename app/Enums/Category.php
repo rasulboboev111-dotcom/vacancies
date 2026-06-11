@@ -7,8 +7,10 @@ namespace App\Enums;
  * строковый enum (App\Enums), а не справочная таблица. Хранимое значение уже
  * является отображаемым текстом, поэтому label() возвращает его как есть.
  */
-enum Category: string
+enum Category: string implements HasLabel
 {
+    use HasOptions;
+
     case SPECIALIST = 'Мутахассис';
     case WORKER = 'Коргар';
     case MANAGEMENT = 'Роҳбарият';
