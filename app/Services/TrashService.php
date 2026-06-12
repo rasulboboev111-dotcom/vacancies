@@ -8,6 +8,7 @@ use App\Models\Department;
 use App\Models\Employee;
 use App\Models\User;
 use App\Models\Vacancy;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -33,11 +34,13 @@ class TrashService
         ])->filter(fn ($label, $col) => filled($employee->{$col})
             && Employee::where($col, $employee->{$col})->whereKeyNot($employee->id)->exists());
 
+        $conflictMessage = "Барқарорсозии корманд '{$employee->full_name}' имконнопазир: маълумоти беназири он аллакай аз ҷониби корманди фаъоли дигар истифода мешавад.";
+
         if ($conflicts->isNotEmpty()) {
             throw new TrashConflictException("Барқарорсозии корманд '{$employee->full_name}' имконнопазир: {$conflicts->implode(', ')} аллакай аз ҷониби корманди фаъоли дигар истифода мешавад.");
         }
 
-        $this->restore($employee, "Корманд аз сабад барқарор карда шуд: {$employee->full_name}");
+        $this->restore($employee, "Корманд аз сабад барқарор карда шуд: {$employee->full_name}", $conflictMessage);
     }
 
     public function forceDeleteEmployee(Employee $employee): void
@@ -47,11 +50,13 @@ class TrashService
 
     public function restoreBranch(Branch $branch): void
     {
+        $conflictMessage = "Барқарорсозии филиал '{$branch->name}' имконнопазир: рамзи '{$branch->code}' аллакай аз ҷониби филиали фаъол истифода мешавад.";
+
         if (Branch::where('code', $branch->code)->whereKeyNot($branch->id)->exists()) {
-            throw new TrashConflictException("Барқарорсозии филиал '{$branch->name}' имконнопазир: рамзи '{$branch->code}' аллакай аз ҷониби филиали фаъол истифода мешавад.");
+            throw new TrashConflictException($conflictMessage);
         }
 
-        $this->restore($branch, "Филиал аз сабад барқарор карда шуд: {$branch->name}");
+        $this->restore($branch, "Филиал аз сабад барқарор карда шуд: {$branch->name}", $conflictMessage);
     }
 
     public function forceDeleteBranch(Branch $branch): void
@@ -85,11 +90,13 @@ class TrashService
         $externalTaken = $department->external_id !== null
             && Department::where('external_id', $department->external_id)->whereKeyNot($department->id)->exists();
 
+        $conflictMessage = "Барқарорсозии шуъба '{$department->name}' имконнопазир: шуъбаи фаъол бо ҳамин ном аллакай вуҷуд дорад.";
+
         if ($nameTaken || $externalTaken) {
-            throw new TrashConflictException("Барқарорсозии шуъба '{$department->name}' имконнопазир: шуъбаи фаъол бо ҳамин ном аллакай вуҷуд дорад.");
+            throw new TrashConflictException($conflictMessage);
         }
 
-        $this->restore($department, "Шуъба аз сабад барқарор карда шуд: {$department->name}");
+        $this->restore($department, "Шуъба аз сабад барқарор карда шуд: {$department->name}", $conflictMessage);
     }
 
     public function forceDeleteDepartment(Department $department): void
@@ -107,11 +114,13 @@ class TrashService
             ->whereKeyNot($user->id)
             ->exists();
 
+        $conflictMessage = "Барқарорсозии корбар '{$user->name}' имконнопазир: почтаи '{$user->email}' аллакай аз ҷониби корбари фаъол истифода мешавад.";
+
         if ($emailTaken) {
-            throw new TrashConflictException("Барқарорсозии корбар '{$user->name}' имконнопазир: почтаи '{$user->email}' аллакай аз ҷониби корбари фаъол истифода мешавад.");
+            throw new TrashConflictException($conflictMessage);
         }
 
-        $this->restore($user, "Корбар аз сабад барқарор карда шуд: {$user->name}");
+        $this->restore($user, "Корбар аз сабад барқарор карда шуд: {$user->name}", $conflictMessage);
     }
 
     public function forceDeleteUser(User $user): void
@@ -123,15 +132,23 @@ class TrashService
      * Восстанавливает мягко удалённую запись внутри транзакции, логируя действие
      * без автоматического activity-лога модели (мы пишем явную запись).
      *
+     * Предпроверки конфликтов выше неатомарны: слот unique-индекса могут занять
+     * между проверкой и этим UPDATE. Ловим нарушение и отдаём дружелюбный
+     * TrashConflictException вместо необработанного 500.
+     *
      * @param  Employee|Branch|Department|User  $model
      */
-    private function restore($model, string $logMessage): void
+    private function restore($model, string $logMessage, string $conflictMessage): void
     {
-        DB::transaction(function () use ($model, $logMessage) {
-            $model->disableLogging()->restore();
+        try {
+            DB::transaction(function () use ($model, $logMessage) {
+                $model->disableLogging()->restore();
 
-            activity()->performedOn($model)->event('updated')->log($logMessage);
-        });
+                activity()->performedOn($model)->event('updated')->log($logMessage);
+            });
+        } catch (UniqueConstraintViolationException) {
+            throw new TrashConflictException($conflictMessage);
+        }
     }
 
     /**

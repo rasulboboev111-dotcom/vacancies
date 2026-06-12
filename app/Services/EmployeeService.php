@@ -63,14 +63,17 @@ class EmployeeService
      */
     public function reinstate(Employee $employee): Employee
     {
-        // Отключаем авто-лог, чтобы получить одну явную запись «восстановлен»
-        // вместо обобщённого diff «обновлено».
-        $employee->disableLogging()->update(['dismissal_date' => null, 'dismissal_reason' => null]);
+        // Обновление и его аудит-запись — в одной транзакции (как delete/rotate),
+        // чтобы восстановление не осталось без явной записи «восстановлен».
+        // Отключаем авто-лог, чтобы получить одну явную запись вместо diff.
+        DB::transaction(function () use ($employee) {
+            $employee->disableLogging()->update(['dismissal_date' => null, 'dismissal_reason' => null]);
 
-        activity()
-            ->performedOn($employee)
-            ->event('updated')
-            ->log("Корманд аз бойгонӣ барқарор карда шуд: {$employee->full_name}");
+            activity()
+                ->performedOn($employee)
+                ->event('updated')
+                ->log("Корманд аз бойгонӣ барқарор карда шуд: {$employee->full_name}");
+        });
 
         return $employee;
     }
@@ -98,9 +101,9 @@ class EmployeeService
         $oldBranchName = $employee->branch?->name ?? 'Филиали номаълум';
         $oldPosition = $employee->position?->name ?? 'Вазифаи номаълум';
 
-        // Запись ротации и перевод корманда должны быть атомарны — иначе сбой
-        // обновления оставит осиротевшую строку ротации.
-        $rotation = DB::transaction(function () use ($employee, $data) {
+        // Запись ротации, перевод корманда и аудит-лог должны быть атомарны —
+        // иначе сбой оставит осиротевшую ротацию или перевод без записи аудита.
+        return DB::transaction(function () use ($employee, $data, $oldBranchName, $oldPosition) {
             $rotation = Rotation::create([
                 'employee_id' => $employee->id,
                 'old_branch_id' => $employee->branch_id,
@@ -120,18 +123,16 @@ class EmployeeService
                 'department_id' => $data['department_id'] ?? null,
             ]);
 
+            $newBranchName = Branch::find($data['branch_id'])?->name ?? 'Филиали номаълум';
+            $newPositionName = Position::find($data['position_id'])?->name ?? 'Вазифаи номаълум';
+
+            activity()
+                ->performedOn($employee)
+                ->event('updated')
+                ->log("Ротатсияи корманд {$employee->full_name} анҷом дода шуд. Аз {$oldBranchName} ({$oldPosition}) ба {$newBranchName} ({$newPositionName}) гузаронида шуд");
+
             return $rotation;
         });
-
-        $newBranchName = Branch::find($data['branch_id'])?->name ?? 'Филиали номаълум';
-        $newPositionName = Position::find($data['position_id'])?->name ?? 'Вазифаи номаълум';
-
-        activity()
-            ->performedOn($employee)
-            ->event('updated')
-            ->log("Ротатсияи корманд {$employee->full_name} анҷом дода шуд. Аз {$oldBranchName} ({$oldPosition}) ба {$newBranchName} ({$newPositionName}) гузаронида шуд");
-
-        return $rotation;
     }
 
     /**

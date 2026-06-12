@@ -13,7 +13,7 @@ class VacancyPolicy
             return true;
         }
 
-        return $user->hasPermissionTo('view vacancies');
+        return $user->branch_id !== null && $user->hasPermissionTo('view vacancies');
     }
 
     public function view(User $user, Vacancy $vacancy): bool

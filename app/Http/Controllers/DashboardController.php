@@ -185,7 +185,7 @@ class DashboardController extends Controller
                     'event' => $activity->event,
                     'causer_name' => $activity->causer ? $activity->causer->name : 'Низом',
                     'properties' => $activity->properties,
-                    'created_at' => $activity->created_at->format('d.m.Y H:i'),
+                    'created_at' => $activity->created_at?->format('d.m.Y H:i'),
                 ];
             });
     }
