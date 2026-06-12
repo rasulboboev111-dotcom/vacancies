@@ -360,6 +360,12 @@ function onPanEnd(e) {
     if (el?.hasPointerCapture?.(e.pointerId)) {
         el.releasePointerCapture(e.pointerId);
     }
+    // pointerup оставляет panMoved выставленным, чтобы click-capture поглотил клик,
+    // завершающий жест. pointercancel завершающего клика не даёт, поэтому сбрасываем
+    // флаг сразу — иначе он повис бы и проглотил следующий настоящий клик.
+    if (e.type === 'pointercancel') {
+        panMoved = false;
+    }
 }
 
 // Выполняется в фазе перехвата раньше любого обработчика клика узла, поэтому клик,

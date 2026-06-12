@@ -48,4 +48,9 @@ class UpdateVacancyRequest extends VacancyRequest
 
         return $rules;
     }
+
+    protected function storedOpenedAt(): ?string
+    {
+        return Vacancy::find($this->route('id'))?->opened_at?->format('Y-m-d');
+    }
 }

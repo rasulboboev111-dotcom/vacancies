@@ -68,6 +68,23 @@ describe('svgOrgTree drag-to-pan', () => {
         expect(w.emitted('node-click')).toBeUndefined();
     });
 
+    it('does not swallow the next click after a cancelled pan', async () => {
+        const w = mountTree();
+        await expandAll(w);
+        const el = w.get('.svg-org-tree').element;
+
+        // Pan past the threshold, then the browser cancels the pointer — no
+        // trailing click follows a pointercancel, so panMoved must not linger.
+        firePointer(el, 'pointerdown', { clientX: 200, clientY: 100 });
+        firePointer(el, 'pointermove', { clientX: 110, clientY: 100 });
+        firePointer(el, 'pointercancel', { clientX: 110, clientY: 100 });
+
+        // A fresh, genuine click must still open the node.
+        await lastNode(w).trigger('click');
+
+        expect(w.emitted('node-click')?.length).toBeGreaterThan(0);
+    });
+
     it('treats sub-threshold movement as a normal click, not a drag', async () => {
         const w = mountTree();
         await expandAll(w);

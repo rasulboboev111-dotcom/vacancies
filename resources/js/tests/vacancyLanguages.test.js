@@ -73,4 +73,12 @@ describe('vacancy display helpers', () => {
         // Неизвестная локаль откатывается на русский.
         expect(statusLabel({ status: 'open' }, 'xx')).toBe('Открыта');
     });
+
+    it('statusLabel returns null for a missing or unknown status, not «closed»', () => {
+        expect(statusLabel({ status: null })).toBeNull();
+        expect(statusLabel({ status: 'draft' })).toBeNull();
+        expect(statusLabel({})).toBeNull();
+        expect(statusLabel(null)).toBeNull();
+        expect(statusLabel(undefined)).toBeNull();
+    });
 });

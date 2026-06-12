@@ -52,7 +52,14 @@ const STATUS_LABELS = {
 
 export function statusLabel(vacancy, locale = 'ru') {
     const labels = STATUS_LABELS[locale] ?? STATUS_LABELS.ru;
-    return vacancy?.status === 'open' ? labels.open : labels.closed;
+    // Только известные статусы; отсутствующий/неизвестный → null, а не «закрыта».
+    if (vacancy?.status === 'open') {
+        return labels.open;
+    }
+    if (vacancy?.status === 'closed') {
+        return labels.closed;
+    }
+    return null;
 }
 
 // Разбивает сохранённые языки вакансии на предустановленные чекбоксы и свободное

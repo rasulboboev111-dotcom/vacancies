@@ -59,14 +59,26 @@ abstract class VacancyRequest extends FormRequest
             'deadline' => ['nullable', 'date'],
         ];
 
-        // Дедлайн не может быть раньше даты заявки. Проверяем только когда дата
-        // подачи задана: после её ввода after_or_equal сравнивает поля, иначе
-        // правило приняло бы «opened_at» за литеральную дату и отклоняло бы любой дедлайн.
+        // Дедлайн не может быть раньше даты заявки. Если запрос несёт opened_at —
+        // сравниваем с ним (сверяя в т.ч. новую дату); иначе при частичном
+        // обновлении сверяем с уже сохранённой датой подачи, чтобы PATCH одного
+        // дедлайна не проскользнул мимо проверки.
         if ($this->filled('opened_at')) {
             $rules['deadline'][] = 'after_or_equal:opened_at';
+        } elseif (($storedOpenedAt = $this->storedOpenedAt()) !== null) {
+            $rules['deadline'][] = 'after_or_equal:'.$storedOpenedAt;
         }
 
         return $rules;
+    }
+
+    /**
+     * Уже сохранённая дата подачи (Y-m-d) для сверки дедлайна при частичном
+     * обновлении. У создания её нет; UpdateVacancyRequest берёт из вакансии.
+     */
+    protected function storedOpenedAt(): ?string
+    {
+        return null;
     }
 
     /**
