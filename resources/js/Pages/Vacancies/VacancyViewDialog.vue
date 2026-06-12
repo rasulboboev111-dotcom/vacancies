@@ -31,7 +31,7 @@ const open = defineModel({ type: Boolean, default: false });
                         </v-avatar>
                         1. Информация о вакансии
                     </div>
-                    <v-row dense>
+                    <v-row density="comfortable">
                         <v-col cols="12" sm="6" class="py-2">
                             <DataField label="Должность (позиция)" :value="vacancy.position?.name" />
                         </v-col>
@@ -61,7 +61,7 @@ const open = defineModel({ type: Boolean, default: false });
                         </v-avatar>
                         2. Требования к кандидату
                     </div>
-                    <v-row dense>
+                    <v-row density="comfortable">
                         <v-col cols="12" sm="6" class="py-2">
                             <DataField label="Образование" :value="vacancy.education_label" />
                         </v-col>
@@ -88,7 +88,7 @@ const open = defineModel({ type: Boolean, default: false });
                         </v-avatar>
                         3. Должностные обязанности
                     </div>
-                    <v-row dense>
+                    <v-row density="comfortable">
                         <v-col cols="12" class="py-2">
                             <DataField label="Основные обязанности" :value="vacancy.responsibilities" multiline />
                         </v-col>
@@ -103,7 +103,7 @@ const open = defineModel({ type: Boolean, default: false });
                         </v-avatar>
                         4. Условия работы
                     </div>
-                    <v-row dense>
+                    <v-row density="comfortable">
                         <v-col cols="12" sm="6" class="py-2">
                             <DataField label="Тип занятости" :value="vacancy.employment_type_label" />
                         </v-col>
@@ -130,7 +130,7 @@ const open = defineModel({ type: Boolean, default: false });
                         </v-avatar>
                         5. Причина открытия позиции и сроки
                     </div>
-                    <v-row dense>
+                    <v-row density="comfortable">
                         <v-col cols="12" sm="6" class="py-2">
                             <DataField label="Причина открытия позиции" :value="vacancy.opening_reason_label" />
                         </v-col>
@@ -157,7 +157,7 @@ const open = defineModel({ type: Boolean, default: false });
                         </v-avatar>
                         6. Согласование заявки
                     </div>
-                    <v-row dense>
+                    <v-row density="comfortable">
                         <v-col cols="12" sm="6" class="py-2">
                             <DataField label="Статус вакансии" :value="statusLabel(vacancy)" />
                         </v-col>

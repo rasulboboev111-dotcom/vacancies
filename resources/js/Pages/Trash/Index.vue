@@ -123,7 +123,7 @@ function handleConfirm() {
             {{ actionError }}
         </v-alert>
 
-        <v-row class="mb-6" dense>
+        <v-row class="mb-6" density="comfortable">
             <v-col v-for="t in tiles" :key="t.key" cols="6" md="3">
                 <button
                     type="button"

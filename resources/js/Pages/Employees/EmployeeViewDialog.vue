@@ -42,7 +42,7 @@ const open = defineModel({ type: Boolean, default: false });
                         </v-avatar>
                         Маълумоти асосӣ ва шахсӣ
                     </div>
-                    <v-row dense>
+                    <v-row density="comfortable">
                         <v-col cols="12" class="py-2">
                             <DataField label="Ному насаб" :value="employee.full_name" />
                         </v-col>
@@ -86,7 +86,7 @@ const open = defineModel({ type: Boolean, default: false });
                         </v-avatar>
                         Фаъолияти меҳнатӣ
                     </div>
-                    <v-row dense>
+                    <v-row density="comfortable">
                         <v-col cols="12" sm="4" class="py-2">
                             <DataField label="Вазифа" :value="employee.position?.name" />
                         </v-col>
@@ -124,7 +124,7 @@ const open = defineModel({ type: Boolean, default: false });
                         </v-avatar>
                         Маълумоти шиноснома ва рамзҳо
                     </div>
-                    <v-row dense>
+                    <v-row density="comfortable">
                         <v-col cols="12" sm="4" class="py-2">
                             <DataField label="Рақами шиноснома" :value="employee.passport_number" mono />
                         </v-col>

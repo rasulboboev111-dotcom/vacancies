@@ -88,7 +88,7 @@ function clearLogs() {
         </template>
 
         <v-card elevation="0" class="rounded-xl border pa-4 bg-surface-glass mb-6 app-form">
-            <v-row class="align-end" dense>
+            <v-row class="align-end" density="comfortable">
                 <v-col cols="12" md="5">
                     <label class="filter-label">Ҷустуҷӯ</label>
                     <v-text-field
