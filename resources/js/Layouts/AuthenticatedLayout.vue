@@ -218,6 +218,10 @@ function prefetch(name) {
 
             <v-spacer />
 
+            <span class="text-subtitle-2 font-weight-bold text-indigo-darken-3 mr-3 d-none d-sm-inline">
+                {{ $page.props.auth.user.name }}
+            </span>
+
             <v-menu min-width="200px" rounded="xl">
                 <template #activator="{ props: menuProps }">
                     <v-btn icon v-bind="menuProps" class="mr-3 hover-scale-btn">
