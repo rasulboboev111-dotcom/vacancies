@@ -41,6 +41,10 @@ class RoleAndPermissionSeeder extends Seeder
             'create vacancies',
             'edit vacancies',
             'delete vacancies',
+            'view applications',
+            'create applications',
+            'edit applications',
+            'delete applications',
             'view audit logs',
         ];
 
@@ -68,6 +72,10 @@ class RoleAndPermissionSeeder extends Seeder
             'create vacancies',
             'edit vacancies',
             'delete vacancies',
+            'view applications',
+            'create applications',
+            'edit applications',
+            'delete applications',
         ]);
 
         $this->removeLegacyRoles();
