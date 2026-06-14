@@ -20,6 +20,8 @@ class Application extends Model
     ];
 
     protected $casts = [
+        'branch_id' => 'integer',
+        'vacancy_id' => 'integer',
         'survey' => 'array',
         'source_created_at' => 'datetime',
     ];
