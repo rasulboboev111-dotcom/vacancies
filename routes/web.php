@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
@@ -35,6 +36,13 @@ Route::middleware(['auth', 'verified', 'throttle:120,1'])->group(function () {
     Route::resource('branches', BranchController::class)->only(['store', 'update', 'destroy'])->parameters(['branches' => 'id'])->whereNumber('id');
     Route::resource('departments', DepartmentController::class)->only(['store', 'update', 'destroy'])->parameters(['departments' => 'id'])->whereNumber('id');
     Route::resource('vacancies', VacancyController::class)->except(['show', 'create', 'edit'])->parameters(['vacancies' => 'id'])->whereNumber('id');
+
+    Route::get('/applications/{id}/resume', [ApplicationController::class, 'downloadResume'])
+        ->name('applications.resume')->whereNumber('id');
+    Route::resource('applications', ApplicationController::class)
+        ->except(['show', 'create', 'edit'])
+        ->parameters(['applications' => 'id'])
+        ->whereNumber('id');
     Route::get('/structure', [StructureController::class, 'index'])->name('structure.index');
     Route::get('/structure/branches/{id}/employees', [StructureController::class, 'branchEmployees'])->name('structure.branch.employees')->whereNumber('id');
     Route::get('/structure/departments/{id}/employees', [StructureController::class, 'departmentEmployees'])->name('structure.department.employees')->whereNumber('id');
