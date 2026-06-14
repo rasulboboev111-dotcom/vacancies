@@ -70,6 +70,16 @@ export const employeeSchema = z
         { message: 'Сабаби озодшавӣ ҳатмист', path: ['dismissal_reason'] },
     );
 
+export const applicationSchema = z.object({
+    name: required255('Ному насаб'),
+    phone: z.string().trim().max(64, 'Ҳадди ниҳоӣ 64 аломат').nullish(),
+    email: z
+        .union([z.literal(''), z.string().email('Формати почта нодуруст').max(255)])
+        .nullish(),
+    source: z.string().nullish(),
+    branch_id: z.number().nullish(),
+});
+
 export const vacancySchema = z.object({
     branch_id: z.number().nullish(),
     department_id: z.number().nullish(),

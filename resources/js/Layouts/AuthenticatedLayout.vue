@@ -3,6 +3,7 @@ import { router } from '@inertiajs/vue3';
 import {
     Archive,
     Briefcase,
+    ClipboardList,
     DoorOpen,
     GitFork,
     History,
@@ -127,6 +128,21 @@ function prefetch(name) {
                 >
                     <template #prepend>
                         <DoorOpen class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
+                    </template>
+                </v-list-item>
+
+                <v-list-item
+                    v-if="$page.props.auth.user.permissions.includes('view applications')"
+                    title="Аризаҳо"
+                    :active="route().current('applications.*')"
+                    color="indigo"
+                    rounded="lg"
+                    class="mb-1"
+                    @mouseenter="prefetch('applications.index')"
+                    @click="router.visit(route('applications.index'))"
+                >
+                    <template #prepend>
+                        <ClipboardList class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
                     </template>
                 </v-list-item>
 
