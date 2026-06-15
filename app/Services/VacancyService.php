@@ -29,17 +29,14 @@ class VacancyService
         $data['opened_at'] = $data['opened_at'] ?? Carbon::today()->toDateString();
         $data['closed_at'] = null;
 
-        // Сохранение строки + языки + запись аудита атомарны.
+        // Сохранение строки + языки + запись аудита атомарны. Логирование идёт
+        // через трейт LogsActivity (детально, по полям) — как у заявок, чтобы в
+        // журнале работала кнопка «Тафсилоти тағйирот».
         return DB::transaction(function () use ($data, $languages) {
             $vacancy = new Vacancy($data);
-            $vacancy->disableLogging()->save();
+            $vacancy->save();
 
             $this->syncLanguages($vacancy, $languages);
-
-            activity()
-                ->performedOn($vacancy)
-                ->event('created')
-                ->log("Вакансия эҷод шуд: {$vacancy->displayName()}");
 
             return $vacancy;
         });
@@ -73,14 +70,10 @@ class VacancyService
             // unique-нарушение (vacancy_id, name).
             $vacancy->newQuery()->whereKey($vacancy->getKey())->lockForUpdate()->first();
 
-            $vacancy->disableLogging()->update($data);
+            // Авто-лог трейта пишет изменённые поля (старое→новое) — детально, как у заявок.
+            $vacancy->update($data);
 
             $this->syncLanguages($vacancy, $languages);
-
-            activity()
-                ->performedOn($vacancy)
-                ->event('updated')
-                ->log("Вакансия навсозӣ шуд: {$vacancy->displayName()}");
 
             return $vacancy;
         });
@@ -88,18 +81,8 @@ class VacancyService
 
     public function delete(Vacancy $vacancy): void
     {
-        $name = $vacancy->displayName();
-
-        // Удаляем, затем логируем — оба в одной транзакции: нет фантомного лога
-        // «удалено» при сбое удаления и нет потерянного лога, если запись аудита упадёт после него.
-        DB::transaction(function () use ($vacancy, $name) {
-            $vacancy->disableLogging()->delete();
-
-            activity()
-                ->performedOn($vacancy)
-                ->event('deleted')
-                ->log("Вакансия нест карда шуд: {$name}");
-        });
+        // Удаление логируется трейтом LogsActivity (событие 'deleted').
+        $vacancy->delete();
     }
 
     /**
@@ -190,9 +173,12 @@ class VacancyService
 
         // VacancyLanguage не логируется автоматически (нет LogsActivity) и не входит
         // в logOnly вакансии, поэтому смену языков фиксируем отдельной аудит-записью.
-        activity()
-            ->performedOn($vacancy)
-            ->event('updated')
-            ->log('Забонҳои вакансия тағйир дода шуданд: '.(implode(', ', $target) ?: '—'));
+        // На создании вакансии пропускаем — там уже есть запись 'created'.
+        if (! $vacancy->wasRecentlyCreated) {
+            activity()
+                ->performedOn($vacancy)
+                ->event('updated')
+                ->log('Забонҳои вакансия тағйир дода шуданд: '.(implode(', ', $target) ?: '—'));
+        }
     }
 }
