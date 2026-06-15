@@ -12,24 +12,20 @@ class ApplicationIntakeService
 {
     /**
      * Upsert an application by external_id (idempotent two-phase intake) and
-     * optionally store the résumé. By default every intake is attached to the
-     * configured default branch (ҶСК «Тоҷиктелеком»); the vacancy is matched
-     * within that branch. If the default branch is missing, branch/vacancy fall
-     * back to resolution from the matching vacancy.
+     * optionally store the résumé. Every intake is attached to the configured
+     * default branch (ҶСК «Тоҷиктелеком»); the vacancy is matched within that
+     * branch. If the default branch isn't configured/present, branch & vacancy
+     * stay unresolved (null) for manual triage.
      *
      * @param  array<string, mixed>  $data
      */
     public function upsert(array $data, ?UploadedFile $resume): Application
     {
         return DB::transaction(function () use ($data, $resume) {
-            $defaultBranchId = $this->defaultBranchId();
-
-            if ($defaultBranchId !== null) {
-                $branchId = $defaultBranchId;
-                $vacancyId = $this->resolveVacancyId($data['vacancy'] ?? null, $defaultBranchId);
-            } else {
-                [$branchId, $vacancyId] = $this->resolveVacancy($data['vacancy'] ?? null);
-            }
+            $branchId = $this->defaultBranchId();
+            $vacancyId = $branchId !== null
+                ? $this->resolveVacancyId($data['vacancy'] ?? null, $branchId)
+                : null;
 
             $attrs = [
                 'name' => $data['name'] ?? 'Номаълум',
@@ -93,23 +89,5 @@ class ApplicationIntakeService
             ->value('id');
 
         return $id !== null ? (int) $id : null;
-    }
-
-    /**
-     * Запасное определение филиала и вакансии из совпавшей вакансии — когда
-     * филиал по умолчанию не настроен/не найден.
-     *
-     * @return array{0: int|null, 1: int|null} [branch_id, vacancy_id]
-     */
-    private function resolveVacancy(?string $title): array
-    {
-        $title = trim((string) $title);
-        if ($title === '') {
-            return [null, null];
-        }
-
-        $vacancy = Vacancy::whereHas('position', fn ($q) => $q->whereRaw('LOWER(TRIM(name)) = LOWER(?)', [$title]))->first();
-
-        return $vacancy ? [$vacancy->branch_id, $vacancy->id] : [null, null];
     }
 }

@@ -29,6 +29,10 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->index('branch_id');
+            // source — колонка фильтра в списке; vacancy_id — FK (в Postgres FK
+            // не создаёт индекс на ссылающейся колонке). Оба используются в WHERE.
+            $table->index('source');
+            $table->index('vacancy_id');
         });
 
         // Уникальность external_id только среди активных (не удалённых) заявок:

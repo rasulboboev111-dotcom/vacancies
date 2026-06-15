@@ -2,18 +2,20 @@
 
 namespace App\Http\Requests\Application;
 
+use App\Enums\ApplicationSource;
 use App\Models\Application;
+use App\Rules\VacancyInBranch;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class UpdateApplicationRequest extends FormRequest
 {
+    private ?Application $application = null;
+
     public function authorize(): bool
     {
-        $application = Application::findOrFail($this->route('id'));
-
-        return Gate::allows('update', $application);
+        return Gate::allows('update', $this->application());
     }
 
     /**
@@ -23,17 +25,12 @@ class UpdateApplicationRequest extends FormRequest
     {
         // Вакансия должна принадлежать филиалу заявки — иначе можно привязать
         // вакансию чужого филиала.
-        $branchId = Application::findOrFail($this->route('id'))->branch_id;
-        $vacancyExists = $branchId
-            ? Rule::exists('vacancies', 'id')->where('branch_id', $branchId)
-            : 'exists:vacancies,id';
-
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:64'],
-            'vacancy_id' => ['nullable', 'integer', $vacancyExists],
-            'source' => ['nullable', 'string', 'max:32'],
+            'vacancy_id' => ['nullable', 'integer', new VacancyInBranch($this->application()->branch_id)],
+            'source' => ['nullable', Rule::in(ApplicationSource::values())],
             'resume' => [
                 'nullable',
                 'file',
@@ -41,5 +38,14 @@ class UpdateApplicationRequest extends FormRequest
                 'max:'.config('intake.resume_max_kb'),
             ],
         ];
+    }
+
+    /**
+     * Заявка из маршрута, загружаемая один раз за запрос (используется и в
+     * authorize(), и в rules()).
+     */
+    private function application(): Application
+    {
+        return $this->application ??= Application::findOrFail($this->route('id'));
     }
 }

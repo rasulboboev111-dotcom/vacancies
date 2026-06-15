@@ -21,9 +21,9 @@ class VacancyService
         // восстанавливается после unique-нарушения параллельной вставки путём
         // перечитывания, что сломала бы прерванная транзакция PostgreSQL.
         // Неиспользованная строка Position при откате — безвредные справочные данные.
-        $data = $this->resolvePosition($data);
+        $data = $this->findOrCreatePosition($data);
         $data = $this->clearDanglingOtherFields($data);
-        $languages = $this->pullLanguages($data);
+        [$languages, $data] = $this->pullLanguages($data);
         $data['created_by'] = $creator->id;
         $data['status'] = VacancyStatus::OPEN;
         $data['opened_at'] = $data['opened_at'] ?? Carbon::today()->toDateString();
@@ -45,9 +45,9 @@ class VacancyService
     public function update(Vacancy $vacancy, array $data, ?string $status): Vacancy
     {
         // См. create(): разрешение вазифы остаётся вне транзакции.
-        $data = $this->resolvePosition($data);
+        $data = $this->findOrCreatePosition($data);
         $data = $this->clearDanglingOtherFields($data);
-        $languages = $this->pullLanguages($data);
+        [$languages, $data] = $this->pullLanguages($data);
 
         // Чисто in-memory вывод status/closed_at — без обращения к БД, поэтому
         // держим его вне транзакции (она должна обернуть только update + лог аудита).
@@ -94,7 +94,7 @@ class VacancyService
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>
      */
-    private function resolvePosition(array $data): array
+    private function findOrCreatePosition(array $data): array
     {
         if (array_key_exists('position', $data)) {
             $data['position_id'] = $this->lookups->resolve(Position::class, $data['position']);
@@ -130,13 +130,16 @@ class VacancyService
      * «запрос не затрагивал языки» (частичное обновление сохраняет их);
      * массив (возможно пустой) заменяет существующий набор.
      *
+     * Возвращает [languages, data без ключа languages] — без мутации аргумента
+     * по ссылке (вызывающий явно переприсваивает $data).
+     *
      * @param  array<string, mixed>  $data
-     * @return list<string>|null
+     * @return array{0: list<string>|null, 1: array<string, mixed>}
      */
-    private function pullLanguages(array &$data): ?array
+    private function pullLanguages(array $data): array
     {
         if (! array_key_exists('languages', $data)) {
-            return null;
+            return [null, $data];
         }
 
         $languages = collect($data['languages'] ?? [])
@@ -148,7 +151,7 @@ class VacancyService
 
         unset($data['languages']);
 
-        return $languages;
+        return [$languages, $data];
     }
 
     /**

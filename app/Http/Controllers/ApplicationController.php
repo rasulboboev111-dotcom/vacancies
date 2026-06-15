@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Data\ApplicationData;
+use App\Enums\ApplicationSource;
 use App\Http\Requests\Application\StoreApplicationRequest;
 use App\Http\Requests\Application\UpdateApplicationRequest;
 use App\Models\Application;
@@ -44,7 +45,7 @@ class ApplicationController extends Controller
             'applications' => $applications,
             'filters' => $request->input('filter', []),
             'branches' => $user->isAdmin() ? Branch::orderBy('name')->get(['id', 'name']) : [],
-            'sources' => ['telegram', 'email', 'somon', 'manual'],
+            'sources' => ApplicationSource::values(),
         ]);
     }
 

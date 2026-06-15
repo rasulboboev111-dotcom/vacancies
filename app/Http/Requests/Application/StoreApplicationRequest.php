@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests\Application;
 
+use App\Enums\ApplicationSource;
 use App\Models\Application;
+use App\Rules\VacancyInBranch;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -34,7 +36,7 @@ class StoreApplicationRequest extends FormRequest
 
         $this->merge([
             'branch_id' => $branchId,
-            'source' => $this->filled('source') ? $this->input('source') : 'manual',
+            'source' => $this->filled('source') ? $this->input('source') : ApplicationSource::MANUAL->value,
         ]);
     }
 
@@ -44,23 +46,17 @@ class StoreApplicationRequest extends FormRequest
     public function rules(): array
     {
         $user = $this->user();
-
-        // Вакансия должна принадлежать тому же филиалу, что и заявка, иначе
-        // пользователь филиала смог бы привязать чужую вакансию.
         $branchId = $this->input('branch_id');
-        $vacancyExists = $branchId
-            ? Rule::exists('vacancies', 'id')->where('branch_id', $branchId)
-            : 'exists:vacancies,id';
 
         return [
             'branch_id' => $user->isAdmin()
                 ? ['nullable', 'integer', 'exists:branches,id']
                 : ['required', 'integer', 'exists:branches,id'],
-            'vacancy_id' => ['nullable', 'integer', $vacancyExists],
+            'vacancy_id' => ['nullable', 'integer', new VacancyInBranch($branchId ? (int) $branchId : null)],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:64'],
-            'source' => ['nullable', 'string', 'max:32'],
+            'source' => ['nullable', Rule::in(ApplicationSource::values())],
             'resume' => [
                 'nullable',
                 'file',
