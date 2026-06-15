@@ -1,6 +1,6 @@
 // Хелперы отображения ролей для страниц пользователей.
 
-export const roleLabels = {
+const roleLabels = {
     Admin: 'Админ',
     User: 'Корбар',
 };

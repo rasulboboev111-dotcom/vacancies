@@ -9,7 +9,7 @@ import DialogHeader from '@/Components/DialogHeader.vue';
 import FormField from '@/Components/FormField.vue';
 import { useBranchDepartments } from '@/composables/useBranchDepartments';
 import { vacancySchema } from '@/lib/schemas';
-import { mergeLanguages, splitLanguages } from '@/lib/vacancy';
+import { mergeLanguages, PROBATION_OTHER, SCHEDULE_OTHER, splitLanguages } from '@/lib/vacancy';
 
 const props = defineProps({
     vacancy: { type: Object, default: null }, // null → создание
@@ -408,7 +408,7 @@ const submit = handleSubmit((values) => {
                                     rounded="lg"
                                     hide-details="auto"
                                     style="max-width: 240px;"
-                                    :disabled="scheduleType !== 'иной'"
+                                    :disabled="scheduleType !== SCHEDULE_OTHER"
                                     :error-messages="errors.schedule_other"
                                 />
                             </div>
@@ -446,7 +446,7 @@ const submit = handleSubmit((values) => {
                                     rounded="lg"
                                     hide-details="auto"
                                     style="max-width: 180px;"
-                                    :disabled="probation !== 'иное'"
+                                    :disabled="probation !== PROBATION_OTHER"
                                     :error-messages="errors.probation_other"
                                 />
                             </div>

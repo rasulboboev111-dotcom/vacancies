@@ -1,14 +1,5 @@
 // Хелперы отображения событий журнала активности.
 
-export function getEventColor(event) {
-    switch (event) {
-        case 'created': return 'success';
-        case 'updated': return 'indigo';
-        case 'deleted': return 'error';
-        default: return 'grey';
-    }
-}
-
 export function getEventText(event) {
     switch (event) {
         case 'created': return 'Эҷодшуда';

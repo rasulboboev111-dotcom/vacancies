@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { formatDate, formatDateTime } from '@/lib/date';
-import { getEventColor, getEventText, getSubjectText } from '@/Pages/ActivityLogs/activityEvents';
+import { getEventText, getSubjectText } from '@/Pages/ActivityLogs/activityEvents';
 
 describe('activityEvents', () => {
     it('translates known events to Tajik', () => {
@@ -21,13 +21,6 @@ describe('activityEvents', () => {
         expect(getSubjectText('User')).toBe('Корбар');
         expect(getSubjectText('')).toBe('Низом');
         expect(getSubjectText('Unknown')).toBe('Unknown');
-    });
-
-    it('maps events to colours', () => {
-        expect(getEventColor('created')).toBe('success');
-        expect(getEventColor('updated')).toBe('indigo');
-        expect(getEventColor('deleted')).toBe('error');
-        expect(getEventColor('x')).toBe('grey');
     });
 });
 
