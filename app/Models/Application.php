@@ -55,11 +55,17 @@ class Application extends Model implements HasMedia
             ->useDisk(config('intake.disk'));
     }
 
+    /**
+     * @return BelongsTo<Branch, $this>
+     */
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
+    /**
+     * @return BelongsTo<Vacancy, $this>
+     */
     public function vacancy(): BelongsTo
     {
         return $this->belongsTo(Vacancy::class);
