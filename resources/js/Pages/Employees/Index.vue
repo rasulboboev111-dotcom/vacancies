@@ -3,6 +3,7 @@ import { Head, router } from '@inertiajs/vue3';
 import { Plus, Search, Users } from '@lucide/vue';
 import { watchDebounced } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
+import { useCrudDialogs } from '@/composables/useCrudDialogs';
 import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import EmployeeDeleteDialog from '@/Pages/Employees/EmployeeDeleteDialog.vue';
@@ -91,35 +92,22 @@ function changePage(p) {
     });
 }
 
-const createEditDialog = ref(false);
-const viewDialog = ref(false);
-const deleteDialog = ref(false);
+// Общий CRUD-набор (форма/просмотр/удаление); ротация — локальный диалог.
+const {
+    formDialog: createEditDialog,
+    viewDialog,
+    deleteDialog,
+    editing: editingEmployee,
+    viewing: viewEmployee,
+    toDelete: employeeToDelete,
+    openCreate: openCreateDialog,
+    openEdit: openEditDialog,
+    openView: openViewDialog,
+    openDelete: openDeleteDialog,
+} = useCrudDialogs();
+
 const rotationDialog = ref(false);
-
-const editingEmployee = ref(null);
-const viewEmployee = ref(null);
-const employeeToDelete = ref(null);
 const rotationEmployee = ref(null);
-
-function openCreateDialog() {
-    editingEmployee.value = null;
-    createEditDialog.value = true;
-}
-
-function openEditDialog(employee) {
-    editingEmployee.value = employee;
-    createEditDialog.value = true;
-}
-
-function openViewDialog(employee) {
-    viewEmployee.value = employee;
-    viewDialog.value = true;
-}
-
-function openDeleteDialog(employee) {
-    employeeToDelete.value = employee;
-    deleteDialog.value = true;
-}
 
 function openRotationDialog(employee) {
     rotationEmployee.value = employee;

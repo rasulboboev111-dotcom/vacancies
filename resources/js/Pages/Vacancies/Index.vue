@@ -2,6 +2,7 @@
 import { Head, router } from '@inertiajs/vue3';
 import { DoorOpen, Plus } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
+import { useCrudDialogs } from '@/composables/useCrudDialogs';
 import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { firstError } from '@/lib/errors';
@@ -88,29 +89,21 @@ const filterParams = computed(() => {
 watch(selectedBranchId, reload);
 watch(selectedStatus, reload);
 
-const dialog = ref(false);
-const deleteDialog = ref(false);
+// Общий CRUD-набор (форма/просмотр/удаление).
+const {
+    formDialog: dialog,
+    viewDialog,
+    deleteDialog,
+    editing,
+    viewing: viewVacancy,
+    toDelete: vacancyToDelete,
+    openCreate: openCreateDialog,
+    openEdit: openEditDialog,
+    openView: openViewDialog,
+    openDelete: openDeleteDialog,
+} = useCrudDialogs();
+
 const deleting = ref(false);
-const editing = ref(null);
-const vacancyToDelete = ref(null);
-
-const viewDialog = ref(false);
-const viewVacancy = ref(null);
-
-function openViewDialog(vacancy) {
-    viewVacancy.value = vacancy;
-    viewDialog.value = true;
-}
-
-function openCreateDialog() {
-    editing.value = null;
-    dialog.value = true;
-}
-
-function openEditDialog(vacancy) {
-    editing.value = vacancy;
-    dialog.value = true;
-}
 
 function toggleStatus(vacancy) {
     // Защита от быстрого двойного клика, порождающего два конкурирующих PUT
@@ -139,11 +132,6 @@ function toggleStatus(vacancy) {
 // docx-форму заявки; открываем в отдельной вкладке для печати / сохранения в PDF.
 function printVacancy(vacancy) {
     window.open(route('vacancies.print', { id: vacancy.id }), '_blank');
-}
-
-function openDeleteDialog(vacancy) {
-    vacancyToDelete.value = vacancy;
-    deleteDialog.value = true;
 }
 
 function confirmDelete() {

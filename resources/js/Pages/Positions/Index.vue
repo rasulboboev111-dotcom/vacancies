@@ -3,6 +3,7 @@ import { Head, usePage } from '@inertiajs/vue3';
 import { Briefcase, Plus, Search } from '@lucide/vue';
 import { refDebounced } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
+import { useCrudDialogs } from '@/composables/useCrudDialogs';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PositionCard from '@/Pages/Positions/PositionCard.vue';
 import PositionDeleteDialog from '@/Pages/Positions/PositionDeleteDialog.vue';
@@ -19,11 +20,18 @@ const isAdmin = computed(() => page.props.auth.user.roles.includes('Admin'));
 const search = ref('');
 // Debounce локального фильтра, чтобы он не пересчитывался на каждое нажатие клавиши (@vueuse/core).
 const debouncedSearch = refDebounced(search, 300);
-const dialog = ref(false);
-const deleteDialog = ref(false);
+// Общий CRUD-набор (форма/удаление); диалог сотрудников должности — локальный.
+const {
+    formDialog: dialog,
+    deleteDialog,
+    editing: editingPosition,
+    toDelete: positionToDelete,
+    openCreate: openCreateDialog,
+    openEdit: openEditDialog,
+    openDelete: openDeleteDialog,
+} = useCrudDialogs();
+
 const employeesDialog = ref(false);
-const editingPosition = ref(null);
-const positionToDelete = ref(null);
 const selectedPosition = ref(null);
 
 const filteredPositions = computed(() => {
@@ -53,21 +61,6 @@ watch(pageCount, (count) => {
     if (currentPage.value > count)
         currentPage.value = count;
 });
-
-function openCreateDialog() {
-    editingPosition.value = null;
-    dialog.value = true;
-}
-
-function openEditDialog(position) {
-    editingPosition.value = position;
-    dialog.value = true;
-}
-
-function openDeleteDialog(position) {
-    positionToDelete.value = position;
-    deleteDialog.value = true;
-}
 
 function openEmployeesDialog(position) {
     selectedPosition.value = position;

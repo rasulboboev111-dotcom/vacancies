@@ -4,6 +4,7 @@ import { ClipboardList, Plus, Search } from '@lucide/vue';
 import { watchDebounced } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
 import ConfirmDeleteDialog from '@/Components/ConfirmDeleteDialog.vue';
+import { useCrudDialogs } from '@/composables/useCrudDialogs';
 import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import ApplicationFormDialog from '@/Pages/Applications/ApplicationFormDialog.vue';
@@ -56,34 +57,19 @@ function changePage(p) {
     });
 }
 
-// Dialog controllers
-const formDialog = ref(false);
-const deleteDialog = ref(false);
-const viewDialog = ref(false);
-
-const editingApplication = ref(null);
-const applicationToDelete = ref(null);
-const viewingApplication = ref(null);
-
-function openViewDialog(application) {
-    viewingApplication.value = application;
-    viewDialog.value = true;
-}
-
-function openCreateDialog() {
-    editingApplication.value = null;
-    formDialog.value = true;
-}
-
-function openEditDialog(application) {
-    editingApplication.value = application;
-    formDialog.value = true;
-}
-
-function openDeleteDialog(application) {
-    applicationToDelete.value = application;
-    deleteDialog.value = true;
-}
+// Dialog controllers (общий CRUD-набор: форма/просмотр/удаление)
+const {
+    formDialog,
+    viewDialog,
+    deleteDialog,
+    editing: editingApplication,
+    viewing: viewingApplication,
+    toDelete: applicationToDelete,
+    openCreate: openCreateDialog,
+    openEdit: openEditDialog,
+    openView: openViewDialog,
+    openDelete: openDeleteDialog,
+} = useCrudDialogs();
 
 const canManageApp = application => canManageInBranch('delete applications', application.branch_id);
 </script>
