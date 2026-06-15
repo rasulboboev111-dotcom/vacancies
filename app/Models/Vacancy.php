@@ -143,10 +143,15 @@ class Vacancy extends Model
      */
     public function displayName(): string
     {
-        // value() возвращает null, когда строки должности нет (position_id
-        // допускает null), что исключает разыменование null; свойство связи по
-        // данным статического анализа типизировано как non-null, поэтому
-        // nullsafe-доступ там не скомпилируется.
-        return $this->position()->value('name') ?? 'Вакансия №'.$this->id;
+        // Если связь position уже загружена (eager load) — берём имя из неё без
+        // лишнего запроса (иначе был бы N+1 в списках); getRelation() возвращает
+        // mixed, что допускает nullsafe. Без загрузки делаем точечный запрос
+        // только за именем. value() даёт null, когда должности нет (position_id
+        // допускает null).
+        $name = $this->relationLoaded('position')
+            ? $this->getRelation('position')?->name
+            : $this->position()->value('name');
+
+        return $name ?? 'Вакансия №'.$this->id;
     }
 }
