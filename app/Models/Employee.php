@@ -8,14 +8,12 @@ use App\Enums\Gender;
 use App\Enums\OrgStatus;
 use App\Models\Concerns\BranchScoped;
 use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\LogOptions;
-use Spatie\Activitylog\Models\Activity;
 use Spatie\Activitylog\Traits\LogsActivity;
 
 class Employee extends Model
@@ -204,65 +202,6 @@ class Employee extends Model
                 ->orWhereHas('position', fn ($posQ) => $posQ->where('name', 'like', "%{$term}%"))
                 ->orWhere('inn', 'like', "%{$term}%");
         });
-    }
-
-    /**
-     * Ограничивает запрос журнала активности субъектами, принадлежащими данному
-     * филиалу (его сотрудники, вакансии, отделы, заявки, ротации или сам филиал).
-     * Субъекты без привязки к филиалу (например, должности, пользователи) исключаются.
-     * Внутренний помощник для restrictActivitiesTo().
-     *
-     * @param  Builder<Activity>  $query
-     */
-    private static function filterActivitiesByBranch($query, int $branchId): void
-    {
-        $query->where(function ($outer) use ($branchId) {
-            $outer->where(function ($q) use ($branchId) {
-                $q->where('subject_type', Employee::class)
-                    ->whereIn('subject_id', Employee::withTrashed()->where('branch_id', $branchId)->select('id'));
-            })->orWhere(function ($q) use ($branchId) {
-                $q->where('subject_type', Vacancy::class)
-                    ->whereIn('subject_id', Vacancy::withTrashed()->where('branch_id', $branchId)->select('id'));
-            })->orWhere(function ($q) use ($branchId) {
-                $q->where('subject_type', Department::class)
-                    ->whereIn('subject_id', Department::withTrashed()->where('branch_id', $branchId)->select('id'));
-            })->orWhere(function ($q) use ($branchId) {
-                $q->where('subject_type', Application::class)
-                    ->whereIn('subject_id', Application::withTrashed()->where('branch_id', $branchId)->select('id'));
-            })->orWhere(function ($q) use ($branchId) {
-                // Ротации не имеют своего branch_id — привязываем через корманда.
-                $q->where('subject_type', Rotation::class)
-                    ->whereIn('subject_id', Rotation::whereIn(
-                        'employee_id',
-                        Employee::withTrashed()->where('branch_id', $branchId)->select('id')
-                    )->select('id'));
-            })->orWhere(function ($q) use ($branchId) {
-                $q->where('subject_type', Branch::class)->where('subject_id', $branchId);
-            });
-        });
-    }
-
-    /**
-     * Применяет полное правило видимости журнала активности для пользователя:
-     * админы видят всё, пользователь филиала — только субъекты своего филиала, а
-     * не-админ без филиала не видит ничего. Используется и дашбордом, и
-     * списком журнала активности, чтобы правило жило ровно в одном месте.
-     *
-     * @param  Builder<Activity>  $query
-     */
-    public static function restrictActivitiesTo($query, User $user): void
-    {
-        if ($user->isAdmin()) {
-            return;
-        }
-
-        if ($user->branch_id === null) {
-            $query->whereRaw('1=0');
-
-            return;
-        }
-
-        self::filterActivitiesByBranch($query, $user->branch_id);
     }
 
     public function branch(): BelongsTo

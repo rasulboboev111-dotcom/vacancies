@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use App\Models\User;
+use App\Rules\UniqueCaseInsensitive;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
@@ -34,11 +35,7 @@ class UpdateUserRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => [
                 'required', 'string', 'email', 'max:255',
-                function ($attribute, $value, $fail) use ($ignoreId) {
-                    if (User::whereRaw('LOWER(TRIM(email)) = ?', [$value])->where('id', '!=', $ignoreId)->exists()) {
-                        $fail('Корбар бо чунин почтаи электронӣ аллакай мавҷуд аст.');
-                    }
-                },
+                new UniqueCaseInsensitive(User::class, 'email', 'Корбар бо чунин почтаи электронӣ аллакай мавҷуд аст.', $ignoreId),
             ],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'branch_id' => [

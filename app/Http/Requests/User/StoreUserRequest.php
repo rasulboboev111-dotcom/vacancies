@@ -3,6 +3,7 @@
 namespace App\Http\Requests\User;
 
 use App\Models\User;
+use App\Rules\UniqueCaseInsensitive;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -29,11 +30,7 @@ class StoreUserRequest extends FormRequest
             'name' => 'required|string|max:255',
             'email' => [
                 'required', 'string', 'email', 'max:255',
-                function ($attribute, $value, $fail) {
-                    if (User::whereRaw('LOWER(TRIM(email)) = ?', [$value])->exists()) {
-                        $fail('Корбар бо чунин почтаи электронӣ аллакай мавҷуд аст.');
-                    }
-                },
+                new UniqueCaseInsensitive(User::class, 'email', 'Корбар бо чунин почтаи электронӣ аллакай мавҷуд аст.'),
             ],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'branch_id' => [

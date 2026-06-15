@@ -10,6 +10,7 @@ use App\Models\Branch;
 use App\Models\Employee;
 use App\Models\User;
 use App\Models\Vacancy;
+use App\Support\ActivityLogVisibility;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -172,7 +173,7 @@ class DashboardController extends Controller
     private function recentActivities(User $user): Collection
     {
         $recentActivitiesQuery = Activity::with('causer');
-        Employee::restrictActivitiesTo($recentActivitiesQuery, $user);
+        ActivityLogVisibility::restrictTo($recentActivitiesQuery, $user);
 
         return $recentActivitiesQuery->latest()
             ->limit(10)

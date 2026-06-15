@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Position;
 
 use App\Models\Position;
+use App\Rules\UniqueCaseInsensitive;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
@@ -28,12 +29,7 @@ class StorePositionRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                function ($attribute, $value, $fail) {
-                    $exists = Position::whereRaw('LOWER(TRIM(name)) = ?', [strtolower(trim($value))])->exists();
-                    if ($exists) {
-                        $fail('Чунин вазифа аллакай дар пойгоҳи додаҳо мавҷуд аст.');
-                    }
-                },
+                new UniqueCaseInsensitive(Position::class, 'name', 'Чунин вазифа аллакай дар пойгоҳи додаҳо мавҷуд аст.'),
             ],
         ];
     }

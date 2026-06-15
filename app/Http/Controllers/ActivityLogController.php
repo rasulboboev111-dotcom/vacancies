@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
 use App\Support\ActivityLogPresenter;
+use App\Support\ActivityLogVisibility;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -25,7 +25,7 @@ class ActivityLogController extends Controller
         // по субъектам своего филиала — эшелонированная защита, независимая от
         // того, у кого есть право 'view audit logs'.
         $user = $request->user();
-        Employee::restrictActivitiesTo($base, $user);
+        ActivityLogVisibility::restrictTo($base, $user);
 
         $logs = QueryBuilder::for($base)
             ->allowedFilters([

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Position;
 
 use App\Models\Position;
+use App\Rules\UniqueCaseInsensitive;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
@@ -25,21 +26,12 @@ class UpdatePositionRequest extends FormRequest
      */
     public function rules(): array
     {
-        $ignoreId = $this->route('id');
-
         return [
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                function ($attribute, $value, $fail) use ($ignoreId) {
-                    $exists = Position::whereRaw('LOWER(TRIM(name)) = ?', [strtolower(trim($value))])
-                        ->where('id', '!=', $ignoreId)
-                        ->exists();
-                    if ($exists) {
-                        $fail('Чунин вазифа аллакай дар пойгоҳи додаҳо мавҷуд аст.');
-                    }
-                },
+                new UniqueCaseInsensitive(Position::class, 'name', 'Чунин вазифа аллакай дар пойгоҳи додаҳо мавҷуд аст.', $this->route('id')),
             ],
         ];
     }
