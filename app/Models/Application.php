@@ -7,16 +7,19 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Application extends Model
+class Application extends Model implements HasMedia
 {
     use BranchScoped;
+    use InteractsWithMedia;
     use SoftDeletes;
 
     protected $fillable = [
         'external_id', 'branch_id', 'vacancy_id', 'name', 'email', 'phone',
         'vacancy_title', 'source', 'summary', 'survey',
-        'resume_path', 'resume_filename', 'source_created_at',
+        'source_created_at',
     ];
 
     protected $casts = [
@@ -25,6 +28,13 @@ class Application extends Model
         'survey' => 'array',
         'source_created_at' => 'datetime',
     ];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('resumes')
+            ->singleFile()
+            ->useDisk(config('intake.disk'));
+    }
 
     public function branch(): BelongsTo
     {
