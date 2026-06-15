@@ -25,7 +25,7 @@ class ApplicationController extends Controller
         $user = $request->user();
 
         $base = Application::query()
-            ->with(['branch:id,name,code', 'vacancy:id,title', 'media'])
+            ->with(['branch:id,name,code', 'vacancy:id,position_id', 'vacancy.position:id,name', 'media'])
             ->viewableBy($user)
             ->latest()
             ->latest('id');

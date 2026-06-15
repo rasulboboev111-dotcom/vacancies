@@ -61,8 +61,7 @@ class ApplicationIntakeService
             return [null, null];
         }
 
-        $vacancy = Vacancy::where('title', $title)->first()
-            ?? Vacancy::whereHas('position', fn ($q) => $q->whereRaw('LOWER(TRIM(name)) = LOWER(?)', [$title]))->first();
+        $vacancy = Vacancy::whereHas('position', fn ($q) => $q->whereRaw('LOWER(TRIM(name)) = LOWER(?)', [$title]))->first();
 
         return $vacancy ? [$vacancy->branch_id, $vacancy->id] : [null, null];
     }

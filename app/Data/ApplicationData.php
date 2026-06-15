@@ -5,13 +5,11 @@ namespace App\Data;
 use App\Models\Application;
 use Illuminate\Support\Facades\Route;
 use Spatie\LaravelData\Data;
-use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * The shape of an application row sent to the Applications/Index page. Keys mirror the
  * column/relation names the Vue components already read.
  */
-#[TypeScript]
 class ApplicationData extends Data
 {
     /**
@@ -49,7 +47,7 @@ class ApplicationData extends Data
             branch_id: $a->branch_id,
             branch: $a->branch?->only(['id', 'name', 'code']),
             vacancy_id: $a->vacancy_id,
-            vacancy: $a->vacancy?->only(['id', 'title']),
+            vacancy: $a->vacancy ? ['id' => $a->vacancy->id, 'title' => $a->vacancy->displayName()] : null,
             name: $a->name,
             email: $a->email,
             phone: $a->phone,
