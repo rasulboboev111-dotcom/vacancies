@@ -11,6 +11,25 @@ const props = defineProps({
 
 const open = defineModel({ type: Boolean, default: false });
 
+// Таджикские подписи полей анкеты. Ключи приходят от бота в snake_case
+// (bot/survey_handlers.py::SURVEY_QUESTIONS); неизвестные ключи показываем как есть.
+const SURVEY_LABELS = {
+    full_name: 'Ному насаб',
+    residence: 'Маҳалли зист',
+    phone: 'Рақами телефон',
+    specialization: 'Ихтисос',
+    employment: 'Шуғл',
+    commute_time: 'Вақти роҳ то ҷойи кор',
+    disability: 'Маъюбӣ',
+    work_experience: 'Таҷрибаи корӣ',
+    criminal_record: 'Доғи судӣ',
+    marital_status: 'Вазъи оилавӣ',
+    previous_workplace: 'Ҷойи кори қаблӣ',
+    previous_experience: 'Таҷриба дар ҷойи қаблӣ',
+    previous_employer_contact: 'Корфармои қаблӣ (ному насаб, телефон)',
+    military_service: 'Хидмати ҳарбӣ',
+};
+
 // Анкета бота приходит произвольным объектом ключ→значение. Нескалярные значения
 // приводим к строке, чтобы массивы/объекты не отрисовывались как «[object Object]».
 const surveyEntries = computed(() => {
@@ -20,6 +39,7 @@ const surveyEntries = computed(() => {
     }
     return Object.entries(survey).map(([key, value]) => ({
         key,
+        label: SURVEY_LABELS[key] ?? key,
         value: value !== null && typeof value === 'object' ? JSON.stringify(value) : value,
     }));
 });
@@ -93,7 +113,7 @@ const vacancyTitle = computed(
                     </div>
                     <v-row density="comfortable">
                         <v-col v-for="entry in surveyEntries" :key="entry.key" cols="12" class="py-2">
-                            <DataField :label="entry.key" :value="entry.value" multiline />
+                            <DataField :label="entry.label" :value="entry.value" multiline />
                         </v-col>
                     </v-row>
                 </v-card>
