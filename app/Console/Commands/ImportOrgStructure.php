@@ -22,10 +22,10 @@ class ImportOrgStructure extends Command
 
     protected $description = 'Import the Tojiktelecom org structure (company → departments → employees) from the API JSON dump, 1:1 with the source tree';
 
-    /** @var array<string,int> position external_id (jobTitleId) => positions.id */
+    /** @var array<string,int> external_id должности (jobTitleId) => positions.id */
     private array $positionByExternal = [];
 
-    /** @var array<string,int> position name (lowercased) => positions.id */
+    /** @var array<string,int> имя должности (в нижнем регистре) => positions.id */
     private array $positionByName = [];
 
     public function handle(): int
@@ -47,29 +47,30 @@ class ImportOrgStructure extends Command
             return self::FAILURE;
         }
 
-        // The top-level entries are the companies (businessUnits). Each owns a
-        // recursive department tree. We keep the whole tree of one company in a
-        // single branch so it stays connected exactly like the source, and we
-        // record each node's own businessUnit as metadata.
+        // Записи верхнего уровня — это компании (businessUnits). Каждая владеет
+        // рекурсивным деревом подразделений. Всё дерево одной компании держим в
+        // одном филиале (branch), чтобы оно оставалось связным ровно как в
+        // источнике, и записываем собственный businessUnit каждого узла как
+        // метаданные.
         $companies = $json['data'];
 
-        // Flatten every company's tree into id => node (pre-order: parents
-        // first), tagging each node with its owning company and a global
-        // sort_order that mirrors the source ordering.
+        // Разворачиваем дерево каждой компании в id => node (pre-order: родители
+        // первыми), помечая каждый узел владеющей компанией и глобальным
+        // sort_order, отражающим порядок в источнике.
         $nodes = [];
         $order = 0;
         foreach ($companies as $company) {
             $this->flatten($company['departments'] ?? [], null, (int) $company['id'], $nodes, $order);
         }
 
-        // Repair the company↔filial boundary before anything is built: the API
-        // tags each filial's header node with the parent company's unit, which
-        // would otherwise strand the filial's root department and its staff in
-        // the wrong branch. See normalizeBusinessUnits().
+        // Чиним границу компания↔филиал до того, как что-либо строится: API
+        // помечает узел-заголовок каждого филиала unit'ом родительской компании,
+        // что иначе оставило бы корневое подразделение филиала и его сотрудников
+        // в неправильном филиале. См. normalizeBusinessUnits().
         $promoted = $this->normalizeBusinessUnits($nodes);
         $this->info('Companies: '.count($companies).' / Source nodes: '.count($nodes).' / Filial headers re-tagged: '.$promoted);
 
-        // Activity logging is suppressed so we do not emit hundreds of log rows.
+        // Логирование активности подавлено, чтобы не плодить сотни записей лога.
         activity()->withoutLogs(function () use ($companies, $nodes) {
             DB::transaction(function () use ($companies, $nodes) {
                 if ($this->option('fresh')) {
@@ -77,9 +78,9 @@ class ImportOrgStructure extends Command
                     DB::table('rotations')->delete();
                     DB::table('vacancies')->delete();
                     DB::table('employees')->delete(); // departments.manager_id -> SET NULL
-                    // parent_id is RESTRICT, so delete the tree leaves-first
-                    // (nulling parent_id would clash with the partial unique
-                    // index on root department names).
+                    // parent_id — это RESTRICT, поэтому удаляем дерево от листьев
+                    // (обнуление parent_id конфликтовало бы с частичным unique-
+                    // индексом по именам корневых подразделений).
                     do {
                         $removed = DB::table('departments')
                             ->whereNotExists(function ($q) {
@@ -92,10 +93,11 @@ class ImportOrgStructure extends Command
                     DB::table('branches')->delete(); // users.branch_id -> SET NULL
                 }
 
-                // 1. Branches: one per distinct businessUnit (the company plus
-                //    each regional filial). Top-level company entries carry the
-                //    rich metadata (legalName/tin/CEO); filial units only have a
-                //    name, taken from businessUnitName on their nodes.
+                // 1. Филиалы (branches): по одному на каждый отдельный
+                //    businessUnit (компания плюс каждый региональный филиал).
+                //    Записи компаний верхнего уровня несут полные метаданные
+                //    (legalName/tin/CEO); unit'ы филиалов имеют только имя,
+                //    взятое из businessUnitName их узлов.
                 $companyMeta = [];
                 foreach ($companies as $company) {
                     $companyMeta[(int) $company['id']] = $company;
@@ -128,10 +130,10 @@ class ImportOrgStructure extends Command
                 }
                 $this->info('Branches: '.count($branchMap));
 
-                // 2. Departments: scoped per businessUnit. A node keeps its
-                //    headOffice as parent only when that parent is in the same
-                //    branch; otherwise it becomes a root of its own filial
-                //    branch (so each filial renders as a self-contained tree).
+                // 2. Подразделения (departments): в рамках своего businessUnit.
+                //    Узел сохраняет родителя только если тот в том же филиале;
+                //    иначе становится корнем собственного филиала (чтобы каждый
+                //    филиал рисовался как самодостаточное дерево).
                 $deptMap = [];
                 foreach ($nodes as $n) {
                     $bu = $this->businessUnit($n);
@@ -162,21 +164,22 @@ class ImportOrgStructure extends Command
                 }
                 $this->info('Departments: '.count($deptMap));
 
-                // 3. Employees.
-                $personMap = []; // source personId    => employee.id
-                $empById = [];   // source employee id => employee.id
+                // 3. Сотрудники.
+                $personMap = []; // personId источника    => employee.id
+                $empById = [];   // id сотрудника источника => employee.id
                 $empOrder = 0;
                 $empCount = 0;
-                $seenEmails = []; // exact email value => true, to honour the unique index
+                $seenEmails = []; // точное значение email => true, чтобы соблюсти unique-индекс
                 foreach ($nodes as $n) {
                     $branchId = $branchMap[$this->businessUnit($n)];
                     $deptId = $deptMap[$n['id']] ?? null;
 
                     foreach ($n['employees'] as $e) {
-                        // Email is unique per employee (partial unique index, NULL
-                        // exempt). The source data shares placeholder addresses
-                        // (e.g. net@info.tj) across many people, so keep the first
-                        // occurrence and NULL the rest instead of crashing.
+                        // Email уникален на сотрудника (частичный unique-индекс,
+                        // NULL исключён). В источнике один и тот же адрес-заглушка
+                        // (например, net@info.tj) встречается у множества людей,
+                        // поэтому оставляем первое вхождение, а остальным ставим
+                        // NULL вместо падения.
                         $email = isset($e['email']) && is_string($e['email']) && trim($e['email']) !== ''
                             ? trim($e['email'])
                             : null;
@@ -213,9 +216,10 @@ class ImportOrgStructure extends Command
                 }
                 $this->info('Employees: '.$empCount);
 
-                // 4. Manager links: the source managerId is an employee id (a
-                //    personId is kept only as a legacy fallback). Set the
-                //    department's manager and point each member at that manager.
+                // 4. Связи с руководителями: managerId источника — это id
+                //    сотрудника (personId оставлен лишь как устаревший запасной
+                //    вариант). Назначаем руководителя подразделения и указываем
+                //    его каждому участнику.
                 $deptLinked = 0;
                 $empLinked = 0;
                 foreach ($nodes as $n) {
@@ -251,9 +255,9 @@ class ImportOrgStructure extends Command
     }
 
     /**
-     * Read the structure JSON from the local --file dump.
+     * Читает JSON структуры из локального дампа --file.
      *
-     * @return array<string,mixed>|null null on any error (already reported)
+     * @return array<string,mixed>|null null при любой ошибке (уже сообщена)
      */
     private function readFromFile(): ?array
     {
@@ -275,15 +279,15 @@ class ImportOrgStructure extends Command
     }
 
     /**
-     * Fetch the structure live from the Tojiktelecom org-structure API.
+     * Получает структуру вживую из API оргструктуры Tojiktelecom.
      *
-     * The versioned endpoint (/api/v1/organization/structure) authenticates with
-     * a static bearer token, so a single GET returns the whole company →
-     * departments → employees tree. The updateOrCreate mapping below then
-     * reconciles our tables with the source — keyed on external_id everywhere,
-     * so re-runs update existing rows in place rather than duplicating them.
+     * Версионированный эндпоинт (/api/v1/organization/structure) аутентифицируется
+     * статичным bearer-токеном, поэтому один GET возвращает всё дерево компания →
+     * подразделения → сотрудники. Маппинг updateOrCreate ниже затем сверяет наши
+     * таблицы с источником — везде по ключу external_id, так что повторные запуски
+     * обновляют существующие строки на месте, а не дублируют их.
      *
-     * @return array<string,mixed>|null null on any error (already reported)
+     * @return array<string,mixed>|null null при любой ошибке (уже сообщена)
      */
     private function fetchFromApi(): ?array
     {
@@ -325,9 +329,9 @@ class ImportOrgStructure extends Command
     }
 
     /**
-     * Flatten the tree (nests via "departments" and/or "children") into a
-     * pre-order map keyed by node id, capturing the parent id, owning company
-     * and a monotonically increasing sort_order for each node.
+     * Разворачивает дерево (вложенность через "departments" и/или "children") в
+     * pre-order карту по id узла, фиксируя id родителя, владеющую компанию и
+     * монотонно возрастающий sort_order для каждого узла.
      *
      * @param  array<int,array<string,mixed>>  $nodes
      * @param  array<int,array<string,mixed>>  $out
@@ -362,8 +366,8 @@ class ImportOrgStructure extends Command
     }
 
     /**
-     * The business unit a flattened node belongs to: its own businessUnitId
-     * when tagged, otherwise the owning company id (always present).
+     * Business unit, которому принадлежит развёрнутый узел: его собственный
+     * businessUnitId, если он проставлен, иначе id владеющей компании (всегда есть).
      *
      * @param  array<string,mixed>  $node
      */
@@ -373,29 +377,30 @@ class ImportOrgStructure extends Command
     }
 
     /**
-     * Repair the company↔filial business-unit boundary in the source data.
+     * Чинит границу business-unit компания↔филиал в данных источника.
      *
-     * The source nests its whole org as one parent→child tree and renders it
-     * that way; the businessUnit tags are an unreliable second layer. A filial
-     * is introduced by a "Филиал …" header node (the regional offices and the
-     * central filial); real departments never start with that word. The API
-     * tags each filial header with the *company's* unit and is inconsistent
-     * about the departments beneath it:
+     * Источник вкладывает всю оргструктуру как одно дерево родитель→потомок и так
+     * же её отображает; теги businessUnit — ненадёжный второй слой. Филиал вводится
+     * узлом-заголовком «Филиал …» (региональные офисы и центральный филиал);
+     * настоящие подразделения никогда не начинаются с этого слова. API помечает
+     * каждый заголовок филиала unit'ом *компании* и непоследователен в отношении
+     * подразделений под ним:
      *
-     *  - Regional filials (Суғд, Хатлон, …): every department carries the
-     *    filial's own unit, so the unit is obvious from the subtree.
-     *  - The central filial (#137): all but one of its departments are
-     *    mis-tagged as the company, leaving a single correctly-tagged node to
-     *    reveal the real unit — which is enough.
+     *  - Региональные филиалы (Суғд, Хатлон, …): каждое подразделение несёт
+     *    собственный unit филиала, поэтому unit очевиден из поддерева.
+     *  - Центральный филиал (#137): все его подразделения, кроме одного, ошибочно
+     *    помечены как компания, оставляя единственный корректно помеченный узел,
+     *    раскрывающий настоящий unit — этого достаточно.
      *
-     * So for each filial header we take the dominant *non-company* unit found
-     * anywhere in its subtree and re-tag the header and its whole subtree to it.
-     * That rebuilds each filial as one connected branch matching the source
-     * tree, instead of stranding the header (and most of its departments) in the
-     * company while a lone child forms a 1-department filial.
+     * Поэтому для каждого заголовка филиала берём доминирующий *не-компанийный*
+     * unit, найденный где-либо в его поддереве, и перемечаем им заголовок и всё
+     * его поддерево. Это перестраивает каждый филиал как один связный филиал,
+     * соответствующий дереву источника, вместо того чтобы оставить заголовок (и
+     * большинство его подразделений) в компании, пока одинокий потомок образует
+     * филиал из одного подразделения.
      *
-     * @param  array<int,array<string,mixed>>  $nodes  id => node, by reference
-     * @return int number of nodes re-tagged
+     * @param  array<int,array<string,mixed>>  $nodes  id => node, по ссылке
+     * @return int количество перемеченных узлов
      */
     private function normalizeBusinessUnits(array &$nodes): int
     {
@@ -411,8 +416,8 @@ class ImportOrgStructure extends Command
             return str_starts_with(mb_strtolower(trim((string) ($n['name'] ?? ''))), 'филиал');
         };
 
-        // First businessUnitName seen for each unit, so a re-tagged subtree can
-        // carry the filial's display name.
+        // Первое businessUnitName, встреченное для каждого unit, чтобы
+        // перемеченное поддерево могло нести отображаемое имя филиала.
         $buName = [];
         foreach ($nodes as $n) {
             $bu = $n['businessUnitId'] ?? null;
@@ -421,7 +426,7 @@ class ImportOrgStructure extends Command
             }
         }
 
-        // Collect a node's descendants without crossing a nested filial header.
+        // Собирает потомков узла, не пересекая вложенный заголовок филиала.
         $descendants = function (int $rootId) use ($childrenOf, $isFilialHeader, $nodes): array {
             $out = [];
             $stack = $childrenOf[$rootId] ?? [];
@@ -447,7 +452,7 @@ class ImportOrgStructure extends Command
             $company = $n['companyId'];
             $subtree = array_merge([$id], $descendants($id));
 
-            // Dominant non-company unit across the header and its subtree.
+            // Доминирующий не-компанийный unit по заголовку и его поддереву.
             $tally = [];
             foreach ($subtree as $nid) {
                 $bu = $nodes[$nid]['businessUnitId'] ?? $company;
@@ -456,7 +461,7 @@ class ImportOrgStructure extends Command
                 }
             }
             if (! $tally) {
-                continue; // a company-level node merely named "Филиал…" — leave it
+                continue; // узел уровня компании, просто названный «Филиал…» — оставляем
             }
             arsort($tally);
             $filialBu = array_key_first($tally);
@@ -475,49 +480,89 @@ class ImportOrgStructure extends Command
     }
 
     /**
-     * Resolve a job title to a Position id. The title NAME is the local
-     * identity (positions enforce a case-insensitive unique name), so we match
-     * by name first and merely record the source jobTitleId on that row. This
-     * is required because the source legitimately reuses the same title text
-     * under several distinct jobTitleIds (e.g. "Муҳандиси пешбар" = 193 & 196).
+     * Сопоставляет должность с id Position. ИМЯ должности — локальная идентичность
+     * (positions требуют регистронезависимое уникальное имя), поэтому сначала
+     * матчим по имени и лишь записываем jobTitleId источника на эту строку. Это
+     * необходимо, потому что источник правомерно переиспользует один и тот же
+     * текст должности под несколькими разными jobTitleId (например, «Муҳандиси
+     * пешбар» = 193 и 196).
      */
     private function resolvePosition(?int $externalId, ?string $name): ?int
     {
         $name = trim((string) $name);
 
+        if ($name === '' && $externalId === null) {
+            return null;
+        }
+
+        // Именованные должности — первичная идентичность. Резолвим по имени,
+        // затем привязываем id источника, только если он свободен — у таблицы ДВА
+        // unique-ключа (регистронезависимое имя И external_id), а
+        // firstOrCreate/create защитили бы лишь тот, по которому делают запрос,
+        // оставляя второй бросить 23505, который прерывает всю транзакцию импорта.
         if ($name !== '') {
             $key = mb_strtolower($name);
             if (isset($this->positionByName[$key])) {
                 return $this->positionByName[$key];
             }
 
-            $position = Position::whereRaw('LOWER(TRIM(name)) = LOWER(?)', [$name])->first();
-            if ($position !== null) {
-                // Stamp the source id onto a row that does not have one yet.
-                if ($externalId !== null && $position->external_id === null) {
-                    $position->update(['external_id' => $externalId]);
-                }
-            } else {
-                $position = Position::create([
-                    'external_id' => $externalId,
-                    'name' => $name,
-                ]);
+            $position = $this->resolveOrCreatePosition($name, $externalId);
+
+            // Дописываем id источника на строку, где его нет — но никогда, если
+            // этим id уже владеет другая должность.
+            if ($externalId !== null
+                && $position->external_id === null
+                && ! $this->externalIdTaken($externalId, $position->id)
+            ) {
+                $position->update(['external_id' => $externalId]);
+            }
+
+            if ($position->external_id !== null) {
+                $this->positionByExternal[$position->external_id] = $position->id;
             }
 
             return $this->positionByName[$key] = $position->id;
         }
 
-        if ($externalId === null) {
-            return null;
-        }
+        // Без имени: идентифицируем чисто по id источника, со сгенерированной меткой.
         if (isset($this->positionByExternal[$externalId])) {
             return $this->positionByExternal[$externalId];
         }
-        $position = Position::firstOrCreate(
-            ['external_id' => $externalId],
-            ['name' => 'Вазифа '.$externalId],
-        );
+
+        $position = Position::where('external_id', $externalId)->first()
+            ?? $this->resolveOrCreatePosition('Вазифа '.$externalId, $externalId);
+
+        $this->positionByName[mb_strtolower(trim($position->name))] = $position->id;
 
         return $this->positionByExternal[$externalId] = $position->id;
+    }
+
+    /**
+     * Находит должность по её регистронезависимому имени либо создаёт. Сверяет оба
+     * unique-ключа: существующее имя переиспользуется как есть, а id источника
+     * привязывается к новой строке, только если он ещё не занят — так что ни
+     * unique-индекс имени, ни external_id не смогут бросить 23505.
+     */
+    private function resolveOrCreatePosition(string $name, ?int $externalId): Position
+    {
+        $existing = Position::whereRaw('LOWER(TRIM(name)) = LOWER(?)', [$name])->first();
+        if ($existing !== null) {
+            return $existing;
+        }
+
+        return Position::create([
+            'name' => $name,
+            'external_id' => $externalId !== null && ! $this->externalIdTaken($externalId) ? $externalId : null,
+        ]);
+    }
+
+    /**
+     * Владеет ли уже этим id источника другая должность (external_id уникален).
+     */
+    private function externalIdTaken(int $externalId, ?int $exceptId = null): bool
+    {
+        return Position::where('external_id', $externalId)
+            ->when($exceptId !== null, fn ($q) => $q->where('id', '!=', $exceptId))
+            ->exists();
     }
 }

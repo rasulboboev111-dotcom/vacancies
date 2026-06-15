@@ -2,8 +2,10 @@
 
 namespace App\Enums;
 
-enum Gender: string
+enum Gender: string implements HasLabel
 {
+    use HasOptions;
+
     case MALE = 'мужской';
     case FEMALE = 'женский';
 

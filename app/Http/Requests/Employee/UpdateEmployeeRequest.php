@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Gate;
 class UpdateEmployeeRequest extends EmployeeRequest
 {
     /**
-     * Branch users may update employees of their own branch (policy) and may
-     * not transfer them to another branch.
+     * Пользователи филиала могут обновлять сотрудников своего филиала (политика)
+     * и не могут переводить их в другой филиал.
      */
     public function authorize(): bool
     {

@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Exceptions\PositionInUseException;
 use App\Http\Requests\Position\StorePositionRequest;
 use App\Http\Requests\Position\UpdatePositionRequest;
+use App\Models\Employee;
 use App\Models\Position;
 use App\Services\PositionService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -17,9 +19,6 @@ class PositionController extends Controller
 {
     public function __construct(private readonly PositionService $positions) {}
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): Response
     {
         Gate::authorize('viewAny', Position::class);
@@ -40,8 +39,41 @@ class PositionController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Список сотрудников, назначенных на должность. Подгружается лениво сеткой
+     * должностей при открытии карточки, чтобы индекс оставался лёгким (он
+     * передаёт счётчики, а не полные списки штата). Ограничено сотрудниками,
+     * доступными пользователю — тот же фильтр, что стоит за employees_count
+     * карточки.
      */
+    public function employees(Request $request, int $id): JsonResponse
+    {
+        Gate::authorize('viewAny', Position::class);
+
+        $position = Position::findOrFail($id);
+
+        $employees = Employee::query()
+            ->where('position_id', $position->id)
+            ->viewableBy($request->user())
+            ->without(['nationalityRef', 'educationRef', 'specialtyRef', 'birthPlaceRef'])
+            ->with(['department:id,name', 'branch:id,name'])
+            ->orderBy('full_name')
+            ->get(['id', 'full_name', 'department_id', 'branch_id'])
+            ->map(fn (Employee $employee) => [
+                'id' => $employee->id,
+                'full_name' => $employee->full_name,
+                'department' => $employee->department?->getAttribute('name'),
+                'branch' => $employee->branch?->getAttribute('name'),
+            ]);
+
+        return response()->json([
+            'position' => [
+                'id' => $position->id,
+                'name' => $position->name,
+            ],
+            'employees' => $employees,
+        ]);
+    }
+
     public function store(StorePositionRequest $request): RedirectResponse
     {
         $position = $this->positions->create($request->validated());
@@ -50,9 +82,6 @@ class PositionController extends Controller
             ->with('success', "Вазифаи '{$position->name}' бомуваффақият эҷод шуд.");
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdatePositionRequest $request, int $id): RedirectResponse
     {
         $position = Position::findOrFail($id);
@@ -63,9 +92,6 @@ class PositionController extends Controller
             ->with('success', "Вазифаи '{$position->name}' бомуваффақият навсозӣ шуд.");
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(int $id): RedirectResponse
     {
         $position = Position::findOrFail($id);

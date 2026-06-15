@@ -1,6 +1,6 @@
 <script setup>
 import { ChevronsDownUp, ChevronsUpDown, Maximize2, Minimize2, Network } from '@lucide/vue';
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
 import { buildOrgTree, expandedToDepth } from '@/composables/useOrgChart';
 
 const props = defineProps({
@@ -11,7 +11,7 @@ const props = defineProps({
 const emit = defineEmits(['node-click']);
 
 /* ------------------------------------------------------------------ *
- * Geometry — same card size and spacing the source site uses.
+ * Геометрия — те же размеры карточек и отступы, что и на исходном сайте.
  * ------------------------------------------------------------------ */
 const NODE_W = 160;
 const NODE_H = 90;
@@ -19,10 +19,10 @@ const H_GAP = 24;
 const V_GAP = 80;
 
 /* ------------------------------------------------------------------ *
- * Palette (light / dark), mirroring the source: blue for the company
- * and branches, green for departments.
+ * Палитра, повторяющая исходник: синий для компании и филиалов, зелёный
+ * для шуъбаҳо. Тёмной темы в приложении нет, поэтому палитра одна.
  * ------------------------------------------------------------------ */
-const LIGHT = {
+const c = {
     lineStart: '#3b82f6',
     lineEnd: '#6366f1',
     buCardBg: '#ffffff',
@@ -46,37 +46,10 @@ const LIGHT = {
     expandText: '#3b82f6',
     shadowOpacity: 0.12,
 };
-const DARK = {
-    lineStart: '#60a5fa',
-    lineEnd: '#818cf8',
-    buCardBg: '#1e293b',
-    buBorder: '#3b82f6',
-    buAccentStart: '#3b82f6',
-    buAccentEnd: '#8b5cf6',
-    buIconBg: '#1e3a5f',
-    buIconColor: '#60a5fa',
-    buText: '#f1f5f9',
-    buSubText: '#94a3b8',
-    deptCardBg: '#1e293b',
-    deptBorder: '#22c55e',
-    deptAccentStart: '#22c55e',
-    deptAccentEnd: '#10b981',
-    deptIconBg: '#14532d',
-    deptIconColor: '#4ade80',
-    deptText: '#f1f5f9',
-    deptSubText: '#94a3b8',
-    divider: '#334155',
-    expandBg: '#1e293b',
-    expandText: '#60a5fa',
-    shadowOpacity: 0.4,
-};
-
-const isDark = ref(false);
-const c = computed(() => (isDark.value ? DARK : LIGHT));
 
 /* ------------------------------------------------------------------ *
- * Tree + expansion state. Opens the top three tiers by default and
- * resets to that whenever the structure reloads (Inertia/CRUD).
+ * Дерево + состояние раскрытия. По умолчанию раскрывает три верхних уровня
+ * и сбрасывается к ним при каждой перезагрузке структуры (Inertia/CRUD).
  * ------------------------------------------------------------------ */
 const tree = computed(() => buildOrgTree(props.structure, props.organizationName));
 const expanded = ref(expandedToDepth(tree.value));
@@ -102,10 +75,11 @@ function toggle(id, event) {
 }
 
 /* ------------------------------------------------------------------ *
- * Layout — recursive subtree-width packing, top-down. A collapsed node
- * is measured as a single column so the canvas hugs what's visible.
+ * Раскладка — рекурсивная упаковка по ширине поддерева, сверху вниз.
+ * Свёрнутый узел измеряется как одна колонка, чтобы холст плотно
+ * охватывал только видимое.
  * ------------------------------------------------------------------ */
-// Total width the open children occupy side by side, gaps included.
+// Суммарная ширина, которую открытые дети занимают в ряд, с учётом отступов.
 function childrenSpan(node) {
     return node.children.reduce((sum, child) => sum + subtreeWidth(child) + H_GAP, -H_GAP);
 }
@@ -157,9 +131,9 @@ const layout = computed(() => {
 
 const canvas = computed(() => ({ width: layout.value.width, height: layout.value.height }));
 
-// Wrap a label into at most two lines of ≤14 chars so it never spills past the
-// card edge: long words are hard-broken, and an overflowing label is clipped
-// with an ellipsis on the last visible line.
+// Переносит подпись максимум в две строки по ≤14 символов, чтобы она не вылезала
+// за край карточки: длинные слова жёстко разрываются, а не помещающаяся подпись
+// обрезается многоточием на последней видимой строке.
 const MAX_CHARS = 14;
 const MAX_LINES = 2;
 
@@ -168,7 +142,7 @@ function wrapLabel(label) {
     const lines = [];
 
     words.forEach((word) => {
-        // Break a single word that can never fit on one line.
+        // Разрываем отдельное слово, которое никогда не поместится в одну строку.
         while (word.length > MAX_CHARS) {
             lines.push(word.slice(0, MAX_CHARS));
             word = word.slice(MAX_CHARS);
@@ -224,8 +198,8 @@ const placed = computed(() => {
     return out;
 });
 
-// Square elbow connectors: a stem down from the parent, a trunk across the
-// children, and a drop into each child — exactly the source's path shapes.
+// Прямоугольные коленчатые соединители: стебель вниз от родителя, ствол поперёк
+// детей и спуск к каждому ребёнку — в точности формы путей из исходника.
 const links = computed(() => {
     const out = [];
     const root = tree.value;
@@ -269,7 +243,7 @@ const links = computed(() => {
 });
 
 /* ------------------------------------------------------------------ *
- * Controls
+ * Управление
  * ------------------------------------------------------------------ */
 function expandAll() {
     const set = new Set();
@@ -298,8 +272,8 @@ function onCardClick(node) {
     if (node.kind === 'root') {
         return;
     }
-    // A filial whose header department was absorbed routes its click to that
-    // department's people (the filial itself holds no branch-level staff).
+    // Филиал, чья головная шуъба была поглощена, перенаправляет клик на
+    // кормандон той шуъбы (сам филиал не держит персонал уровня филиала).
     if (node.popupId) {
         emit('node-click', { id: node.popupId, data: { kind: node.popupKind, label: node.label } });
         return;
@@ -308,7 +282,7 @@ function onCardClick(node) {
 }
 
 /* ------------------------------------------------------------------ *
- * Container — keep the chart centred horizontally and track dark mode.
+ * Контейнер — держит схему по центру по горизонтали и отслеживает тёмную тему.
  * ------------------------------------------------------------------ */
 const container = ref(null);
 
@@ -323,23 +297,88 @@ function centerScroll() {
 
 watch(() => canvas.value.width, centerScroll);
 
-let observer = null;
+/* ------------------------------------------------------------------ *
+ * Перетаскивание для панорамирования — только мышью; для касаний остаётся
+ * нативная инерционная прокрутка. Перетаскивание за порог также поглощает
+ * завершающий клик, чтобы панорамирование никогда не открывало попап узла.
+ * ------------------------------------------------------------------ */
+const PAN_THRESHOLD = 6;
+const isPanning = ref(false);
+let panActive = false;
+let panMoved = false;
+let panStartX = 0;
+let panStartY = 0;
+let panScrollLeft = 0;
+let panScrollTop = 0;
 
-function syncDark() {
-    isDark.value = document.documentElement.classList.contains('dark');
+function onPanStart(e) {
+    if (e.pointerType !== 'mouse' || e.button !== 0) {
+        return;
+    }
+    const el = container.value;
+    if (!el) {
+        return;
+    }
+    panActive = true;
+    panMoved = false;
+    panStartX = e.clientX;
+    panStartY = e.clientY;
+    panScrollLeft = el.scrollLeft;
+    panScrollTop = el.scrollTop;
+}
+
+function onPanMove(e) {
+    if (!panActive) {
+        return;
+    }
+    const dx = e.clientX - panStartX;
+    const dy = e.clientY - panStartY;
+    if (!panMoved && Math.hypot(dx, dy) < PAN_THRESHOLD) {
+        return;
+    }
+    const el = container.value;
+    // Контейнер мог размонтироваться, пока кнопка зажата (смена страницы и т.п.).
+    if (!el) {
+        return;
+    }
+    if (!panMoved) {
+        panMoved = true;
+        isPanning.value = true;
+        el.setPointerCapture?.(e.pointerId);
+    }
+    el.scrollLeft = panScrollLeft - dx;
+    el.scrollTop = panScrollTop - dy;
+}
+
+function onPanEnd(e) {
+    if (!panActive) {
+        return;
+    }
+    panActive = false;
+    isPanning.value = false;
+    const el = container.value;
+    if (el?.hasPointerCapture?.(e.pointerId)) {
+        el.releasePointerCapture(e.pointerId);
+    }
+    // pointerup оставляет panMoved выставленным, чтобы click-capture поглотил клик,
+    // завершающий жест. pointercancel завершающего клика не даёт, поэтому сбрасываем
+    // флаг сразу — иначе он повис бы и проглотил следующий настоящий клик.
+    if (e.type === 'pointercancel') {
+        panMoved = false;
+    }
+}
+
+// Выполняется в фазе перехвата раньше любого обработчика клика узла, поэтому клик,
+// который лишь завершает жест панорамирования, поглощается вместо открытия попапа узла.
+function onContainerClickCapture(e) {
+    if (panMoved) {
+        e.stopPropagation();
+        panMoved = false;
+    }
 }
 
 onMounted(() => {
-    syncDark();
-    observer = new MutationObserver(syncDark);
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
     centerScroll();
-});
-
-onBeforeUnmount(() => {
-    if (observer) {
-        observer.disconnect();
-    }
 });
 </script>
 
@@ -381,7 +420,16 @@ onBeforeUnmount(() => {
                 </div>
             </div>
 
-            <div ref="container" class="svg-org-tree">
+            <div
+                ref="container"
+                class="svg-org-tree"
+                :class="{ 'is-panning': isPanning }"
+                @pointerdown="onPanStart"
+                @pointermove="onPanMove"
+                @pointerup="onPanEnd"
+                @pointercancel="onPanEnd"
+                @click.capture="onContainerClickCapture"
+            >
                 <svg :width="canvas.width" :height="canvas.height" class="d-block">
                     <defs>
                         <linearGradient id="orgLineGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" :y2="canvas.height">
@@ -405,7 +453,7 @@ onBeforeUnmount(() => {
                         </filter>
                     </defs>
 
-                    <!-- Connectors -->
+                    <!-- Соединители -->
                     <path
                         v-for="link in links"
                         :key="link.id"
@@ -416,7 +464,7 @@ onBeforeUnmount(() => {
                         stroke-linecap="round"
                     />
 
-                    <!-- Nodes -->
+                    <!-- Узлы -->
                     <g
                         v-for="node in placed"
                         :key="node.id"
@@ -442,7 +490,7 @@ onBeforeUnmount(() => {
                             stroke-opacity="0.3"
                         />
 
-                        <!-- Icon -->
+                        <!-- Иконка -->
                         <g transform="translate(14, 14)">
                             <rect width="32" height="32" rx="8" :fill="node.isBu ? c.buIconBg : c.deptIconBg" />
                             <g v-if="node.isBu" transform="translate(8, 8)" fill="none" :stroke="c.buIconColor" stroke-width="1.5">
@@ -458,7 +506,7 @@ onBeforeUnmount(() => {
                             </g>
                         </g>
 
-                        <!-- Title -->
+                        <!-- Заголовок -->
                         <text
                             transform="translate(54, 16)"
                             text-anchor="start"
@@ -477,7 +525,7 @@ onBeforeUnmount(() => {
                             >{{ line }}</tspan>
                         </text>
 
-                        <!-- Divider + employee count -->
+                        <!-- Разделитель + число кормандон -->
                         <template v-if="node.employeeCount">
                             <line
                                 x1="12"
@@ -501,7 +549,7 @@ onBeforeUnmount(() => {
                             </g>
                         </template>
 
-                        <!-- BU / DEP tag -->
+                        <!-- Метка BU / DEP -->
                         <text
                             :transform="`translate(${NODE_W - 10}, 14)`"
                             text-anchor="end"
@@ -512,7 +560,7 @@ onBeforeUnmount(() => {
                             class="select-none"
                         >{{ node.isBu ? 'BU' : 'DEP' }}</text>
 
-                        <!-- Expand / collapse circle -->
+                        <!-- Круг раскрытия / сворачивания -->
                         <g
                             v-if="node.hasChildren"
                             class="expand-btn"
@@ -551,9 +599,9 @@ onBeforeUnmount(() => {
 .org-fullscreen {
     position: fixed;
     inset: 0;
-    /* Above Vuetify's app bar / navigation drawer (~1005) so the header and its
-       exit button stay visible, but below dialogs (~2400) so the employees
-       popup still opens on top. */
+    /* Выше app bar / navigation drawer у Vuetify (~1005), чтобы заголовок и его
+       кнопка выхода оставались видимыми, но ниже диалогов (~2400), чтобы попап
+       кормандон по-прежнему открывался поверх. */
     z-index: 2000;
     height: 100vh !important;
     width: 100vw;
@@ -610,19 +658,34 @@ onBeforeUnmount(() => {
     width: 100%;
     min-height: 0;
     overflow: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
+    cursor: grab;
+    scrollbar-width: auto;
+    scrollbar-color: #94a3b8 #eef2f7;
+}
+.svg-org-tree.is-panning {
+    cursor: grabbing;
+    user-select: none;
 }
 .svg-org-tree::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 14px;
+    height: 14px;
 }
 .svg-org-tree::-webkit-scrollbar-track {
-    background: transparent;
+    background: #eef2f7;
 }
 .svg-org-tree::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 4px;
+    background-color: #94a3b8;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    border-radius: 7px;
+}
+.svg-org-tree::-webkit-scrollbar-thumb:hover {
+    background-color: #64748b;
+}
+/* Держит ползунок горизонтальной полосы прокрутки длинным (удобно захватывать),
+   даже когда схема очень широкая и ползунок иначе бы сжался. */
+.svg-org-tree::-webkit-scrollbar-thumb:horizontal {
+    min-width: 251px;
 }
 .node-group {
     cursor: pointer;

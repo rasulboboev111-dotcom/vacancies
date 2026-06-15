@@ -7,7 +7,7 @@ use App\Models\User;
 class UserPolicy
 {
     /**
-     * User administration is reserved for admins across the board.
+     * Управление пользователями целиком доступно только администраторам.
      */
     public function viewAny(User $user): bool
     {

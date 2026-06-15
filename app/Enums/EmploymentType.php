@@ -2,8 +2,10 @@
 
 namespace App\Enums;
 
-enum EmploymentType: string
+enum EmploymentType: string implements HasLabel
 {
+    use HasOptions;
+
     case FULL_TIME = 'штатный';
     case CONTRACT = 'контракт';
 

@@ -35,7 +35,6 @@ import {
 
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createApp, h } from 'vue';
-// Vuetify
 import { createVuetify } from 'vuetify';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import '../css/app.css';
@@ -43,10 +42,10 @@ import '../css/app.css';
 import './bootstrap';
 import 'vuetify/styles';
 
-// Vuetify renders its own internal icons (select chevrons, clearable ✕,
-// checkboxes, pagination arrows, alerts, …) through these aliases. Map them to
-// lucide components so we can drop the 1.3 MB @mdi/font webfont entirely; the
-// `.v-icon svg { width:1em }` rule in app.css scales them to the icon size.
+// Vuetify рисует свои внутренние иконки (стрелки select, крестик clearable,
+// чекбоксы, стрелки пагинации, алерты и т. д.) через эти алиасы. Подменяем их
+// на компоненты lucide, чтобы полностью отказаться от веб-шрифта @mdi/font на
+// 1.3 МБ; правило `.v-icon svg { width:1em }` в app.css масштабирует их под размер иконки.
 const aliases = {
     complete: Check,
     cancel: CircleX,

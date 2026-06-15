@@ -1,14 +1,15 @@
 <script setup>
 import { computed, useSlots } from 'vue';
 
-// Boxless read-only field: grey label on top, dark value below. No border,
-// no per-field icon — framing lives at the section level. Empty values are
-// muted (pale dash) so a sea of unfilled fields recedes instead of competing
-// with real data.
+// Поле только для чтения без рамки: серая подпись сверху, тёмное значение
+// снизу. Без рамки и без иконки на поле — обрамление задаётся на уровне секции.
+// Пустые значения приглушены (бледный прочерк), чтобы масса незаполненных полей
+// уходила на второй план, а не конкурировала с реальными данными.
 const props = defineProps({
     label: { type: String, required: true },
     value: { type: [String, Number], default: null },
     mono: { type: Boolean, default: false },
+    multiline: { type: Boolean, default: false },
 });
 
 const slots = useSlots();
@@ -27,7 +28,7 @@ const isEmpty = computed(() => {
         <span class="data-field__label">{{ label }}</span>
         <span
             class="data-field__value"
-            :class="{ 'data-field__value--empty': isEmpty, 'data-field__value--mono': mono }"
+            :class="{ 'data-field__value--empty': isEmpty, 'data-field__value--mono': mono, 'data-field__value--multiline': multiline }"
         >
             <slot>{{ isEmpty ? '—' : value }}</slot>
         </span>
@@ -62,5 +63,8 @@ const isEmpty = computed(() => {
 }
 .data-field__value--mono {
     font-family: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+}
+.data-field__value--multiline {
+    white-space: pre-line;
 }
 </style>

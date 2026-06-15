@@ -11,8 +11,9 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    // Public self-registration is intentionally disabled: this is an internal
-    // admin-managed tool. Accounts are created only by admins via UserController.
+    // Публичная саморегистрация намеренно отключена: это внутренний инструмент,
+    // управляемый администраторами. Учётные записи создают только админы через
+    // UserController.
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 

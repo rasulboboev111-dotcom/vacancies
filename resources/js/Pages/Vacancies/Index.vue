@@ -15,7 +15,7 @@ const props = defineProps({
     branches: { type: Array, required: true },
     departments: { type: Array, required: true },
     positions: { type: Array, required: true },
-    employmentTypes: { type: Array, required: true },
+    formOptions: { type: Object, required: true },
     filters: { type: Object, required: true },
 });
 
@@ -56,7 +56,7 @@ function reload() {
     });
 }
 
-// Jump to a page while keeping the active filters.
+// Переход на другую страницу с сохранением активных фильтров.
 function changePage(page) {
     router.get(route('vacancies.index'), {
         page,
@@ -71,8 +71,8 @@ function changePage(page) {
     });
 }
 
-// Current list filters, forwarded to mutating actions so the redirect back to
-// the list keeps the same view instead of jumping to the vacancy's branch.
+// Текущие фильтры списка передаются изменяющим действиям, чтобы редирект назад
+// к списку сохранял тот же вид, а не перескакивал на филиал вакансии.
 const filterParams = computed(() => {
     const params = {};
     if (isAdmin.value && selectedBranchId.value) {
@@ -112,34 +112,32 @@ function openEditDialog(vacancy) {
 }
 
 function toggleStatus(vacancy) {
-    // Guard against a rapid double-click firing two racing PUTs (open→closed
-    // then closed→open) that would net to a no-op while colliding mid-flight.
+    // Защита от быстрого двойного клика, порождающего два конкурирующих PUT
+    // (open→closed, затем closed→open), которые в сумме дают no-op, но сталкиваются на лету.
     if (toggling.value) {
         return;
     }
     toggling.value = true;
     toggleError.value = '';
+    // Частичное обновление: отсутствующие поля не доходят до validated(), поэтому
+    // переключение не затирает остальную часть формы.
     router.put(route('vacancies.update', { id: vacancy.id, ...filterParams.value }), {
-        branch_id: vacancy.branch_id,
-        department_id: vacancy.department_id,
-        position: vacancy.position?.name ?? null,
-        title: vacancy.title,
-        employment_type: vacancy.employment_type,
-        requirements: vacancy.requirements,
-        schedule: vacancy.schedule,
-        salary: vacancy.salary,
-        description: vacancy.description,
-        opened_at: vacancy.opened_at,
         status: vacancy.status === 'open' ? 'closed' : 'open',
     }, {
         preserveScroll: true,
         onError: (errors) => {
-            // The row keeps its real status (Inertia preserves state on error);
-            // tell the user the toggle didn't go through instead of failing mute.
+            // Строка сохраняет реальный статус (Inertia сохраняет состояние при ошибке);
+            // сообщаем пользователю о неудаче, вместо того чтобы молча провалиться.
             toggleError.value = firstError(errors, 'Ҳолати вакансия иваз нашуд. Бори дигар кӯшиш кунед.');
         },
         onFinish: () => { toggling.value = false; },
     });
+}
+
+// Страница печати — отдельное Blade-представление, стилизованное 1:1 под официальную
+// docx-форму заявки; открываем в отдельной вкладке для печати / сохранения в PDF.
+function printVacancy(vacancy) {
+    window.open(route('vacancies.print', { id: vacancy.id }), '_blank');
 }
 
 function openDeleteDialog(vacancy) {
@@ -236,9 +234,9 @@ function confirmDelete() {
             @edit="openEditDialog"
             @delete="openDeleteDialog"
             @toggle="toggleStatus"
+            @print="printVacancy"
         />
 
-        <!-- Pagination -->
         <div v-if="vacancies.data.length > 0" class="d-flex align-center justify-space-between flex-wrap gap-3 mt-4 pt-3" style="border-top: 1px solid #e9edf3;">
             <div class="text-caption font-weight-bold" style="color: #94a3b8;">
                 Нишон дода шуд {{ vacancies.from || 0 }} – {{ vacancies.to || 0 }} аз {{ vacancies.total || 0 }} вакансия
@@ -262,7 +260,7 @@ function confirmDelete() {
             :branches="branches"
             :departments="departments"
             :positions="positions"
-            :employment-types="employmentTypes"
+            :form-options="formOptions"
             :default-branch-id="selectedBranchId"
             :user-branch-id="authUser?.branch_id ?? null"
             :filter-params="filterParams"

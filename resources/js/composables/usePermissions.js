@@ -2,9 +2,9 @@ import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 /**
- * Authorisation helpers shared by the management pages. Mirrors the server
- * policies: admins may do everything; branch users need the permission AND
- * must act within their own branch.
+ * Хелперы авторизации, общие для страниц управления. Повторяют серверные
+ * политики: админам можно всё; пользователям филиала нужно разрешение И они
+ * должны действовать в пределах своего филиала.
  */
 export function usePermissions() {
     const page = usePage();

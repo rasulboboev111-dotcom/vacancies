@@ -34,12 +34,11 @@ class PositionService
     }
 
     /**
-     * @throws PositionInUseException when active or soft-deleted employees are
-     *                                still linked to the position.
+     * @throws PositionInUseException когда с вазифой всё ещё связаны активные
+     *                                или мягко удалённые корманды.
      */
     public function delete(Position $position): void
     {
-        // Safety check: Prevent deletion if any active or soft-deleted employee is linked to this position
         $employeeCount = Employee::withTrashed()->where('position_id', $position->id)->count();
         if ($employeeCount > 0) {
             throw new PositionInUseException("Вазифаи '{$position->name}'-ро нест кардан мумкин нест, зеро он ба кормандон таъин шудааст ({$employeeCount} нафар). Аввал онҳоро ба вазифаи дигар гузаронед.");

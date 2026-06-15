@@ -1,4 +1,4 @@
-// Shared presentation helpers for activity-log events.
+// Хелперы отображения событий журнала активности.
 
 export function getEventColor(event) {
     switch (event) {
@@ -18,7 +18,7 @@ export function getEventText(event) {
     }
 }
 
-// Tajik label for the subject type shown in each log row (class basename).
+// Таджикская подпись типа субъекта в строке журнала (basename класса).
 export function getSubjectText(subjectType) {
     switch (subjectType) {
         case 'Employee': return 'Корманд';

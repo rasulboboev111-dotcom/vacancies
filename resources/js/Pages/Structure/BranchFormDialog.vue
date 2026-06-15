@@ -8,12 +8,12 @@ import FormField from '@/Components/FormField.vue';
 import { branchSchema } from '@/lib/schemas';
 
 const props = defineProps({
-    branch: { type: Object, default: null }, // null → create
+    branch: { type: Object, default: null }, // null → создание
 });
 
 const open = defineModel({ type: Boolean, default: false });
 
-// vee-validate owns client-side validation; Inertia owns submit + server errors.
+// vee-validate отвечает за клиентскую валидацию; Inertia — за отправку и серверные ошибки.
 const { defineField, errors, handleSubmit, resetForm, setFieldError } = useVeeForm({
     validationSchema: toTypedSchema(branchSchema),
     initialValues: { name: '', code: '', address: '' },

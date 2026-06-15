@@ -2,14 +2,12 @@
 
 namespace App\Http\Requests\Vacancy;
 
-use App\Enums\EmploymentType;
 use App\Enums\VacancyStatus;
 use App\Models\Vacancy;
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
-class UpdateVacancyRequest extends FormRequest
+class UpdateVacancyRequest extends VacancyRequest
 {
     public function authorize(): bool
     {
@@ -19,15 +17,21 @@ class UpdateVacancyRequest extends FormRequest
     }
 
     /**
-     * Admins may move the vacancy to the chosen branch (falling back to its
-     * current one); branch users keep it on its existing branch.
+     * Администраторы могут переместить вакансию в выбранный филиал (с откатом к
+     * текущему); пользователи филиала оставляют её в существующем филиале.
      */
     protected function prepareForValidation(): void
     {
-        $user = $this->user();
         $vacancy = Vacancy::find($this->route('id'));
 
-        $branchId = $user->isAdmin()
+        // prepareForValidation() выполняется до authorize(); отсутствующий/мягко
+        // удалённый id отклоняется там, поэтому выходим до разыменования null-модели
+        // (иначе неверный id вернёт 500 вместо 403).
+        if ($vacancy === null) {
+            return;
+        }
+
+        $branchId = $this->user()->isAdmin()
             ? ($this->integer('branch_id') ?: $vacancy->branch_id)
             : (int) $vacancy->branch_id;
 
@@ -39,46 +43,14 @@ class UpdateVacancyRequest extends FormRequest
      */
     public function rules(): array
     {
-        $branchId = (int) $this->input('branch_id');
-        $employmentTypes = array_map(fn (EmploymentType $type) => $type->value, EmploymentType::cases());
+        $rules = parent::rules();
+        $rules['status'] = ['nullable', Rule::enum(VacancyStatus::class)];
 
-        return [
-            'branch_id' => ['required', 'integer', Rule::exists('branches', 'id')],
-            'department_id' => [
-                'nullable',
-                'integer',
-                Rule::exists('departments', 'id')->where('branch_id', $branchId)->whereNull('deleted_at'),
-            ],
-            'position' => ['nullable', 'string', 'max:255'],
-            'title' => ['nullable', 'string', 'max:255'],
-            'openings' => ['sometimes', 'required', 'integer', 'min:1', 'max:10000'],
-            'employment_type' => ['nullable', Rule::in($employmentTypes)],
-            'requirements' => ['nullable', 'string', 'max:5000'],
-            'schedule' => ['nullable', 'string', 'max:255'],
-            'salary' => ['nullable', 'integer', 'min:0', 'max:1000000000'],
-            'description' => ['nullable', 'string', 'max:5000'],
-            'opened_at' => ['nullable', 'date'],
-            'status' => ['nullable', Rule::enum(VacancyStatus::class)],
-        ];
+        return $rules;
     }
 
-    /**
-     * @return array<string, string>
-     */
-    public function attributes(): array
+    protected function storedOpenedAt(): ?string
     {
-        return [
-            'branch_id' => 'филиал',
-            'department_id' => 'шуъба',
-            'position' => 'вазифа',
-            'title' => 'ном',
-            'openings' => 'шумораи кормандон',
-            'employment_type' => 'намуди шуғл',
-            'requirements' => 'талабот',
-            'schedule' => 'ҷадвал',
-            'salary' => 'маош',
-            'description' => 'тавсиф',
-            'opened_at' => 'санаи кушодашавӣ',
-        ];
+        return Vacancy::find($this->route('id'))?->opened_at?->format('Y-m-d');
     }
 }

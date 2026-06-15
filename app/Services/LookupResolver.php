@@ -8,10 +8,10 @@ use Illuminate\Database\UniqueConstraintViolationException;
 class LookupResolver
 {
     /**
-     * Resolve a free-text value to the id of a lookup row, creating the row
-     * when it does not yet exist. Empty input resolves to null. Matching is
-     * case-insensitive and whitespace-insensitive to mirror the unique
-     * indexes enforced at the database level.
+     * Разрешает свободно вводимое значение в id строки справочника, создавая
+     * строку, если её ещё нет. Пустой ввод даёт null. Сравнение
+     * нечувствительно к регистру и пробелам, повторяя unique-индексы,
+     * установленные на уровне базы данных.
      *
      * @param  class-string<Model>  $modelClass
      */
@@ -29,8 +29,8 @@ class LookupResolver
             try {
                 $model = $modelClass::create(['name' => $name]);
             } catch (UniqueConstraintViolationException) {
-                // A concurrent request inserted the same value first — re-read it
-                // (the case-insensitive unique index guarantees a single row).
+                // Параллельный запрос вставил то же значение первым — перечитываем
+                // его (нечувствительный к регистру unique-индекс гарантирует одну строку).
                 $model = $modelClass::whereRaw('LOWER(TRIM(name)) = LOWER(?)', [$name])->firstOrFail();
             }
         }

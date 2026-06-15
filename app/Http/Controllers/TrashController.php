@@ -19,20 +19,20 @@ class TrashController extends Controller
     public function __construct(private readonly TrashService $trash) {}
 
     /**
-     * Display a listing of the soft-deleted resources.
+     * Отображает список мягко удалённых ресурсов.
      */
     public function index(Request $request): Response
     {
         $user = $request->user();
 
-        // Branch users see only their own branch's trashed employees (viewableBy);
-        // trashed branches and users are admin-only.
+        // Пользователи филиала видят только удалённых сотрудников своего филиала
+        // (viewableBy); удалённые филиалы и пользователи доступны только админам.
         $employeesQuery = Employee::onlyTrashed()->with(['branch', 'position', 'manager'])->viewableBy($user);
         $usersQuery = User::onlyTrashed()->with('branch');
         $branchesQuery = Branch::onlyTrashed();
 
-        // Departments are branch-scoped: a branch manager sees only their own
-        // branch's trashed departments, the same as employees.
+        // Подразделения ограничены филиалом: руководитель филиала видит только
+        // удалённые подразделения своего филиала, как и сотрудников.
         $departmentsQuery = Department::onlyTrashed()->with('branch');
 
         if (! $user->isAdmin()) {

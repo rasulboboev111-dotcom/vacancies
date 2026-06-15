@@ -18,13 +18,14 @@ class EmployeeService
 
     public function create(array $data): Employee
     {
-        // Resolve free-text lookups BEFORE the transaction: LookupResolver catches
-        // a concurrent-insert unique violation and re-reads, but on PostgreSQL a
-        // caught error inside a transaction poisons it (aborted state) and the
-        // re-read would fail. An unused lookup row on rollback is harmless.
+        // Разрешаем свободно вводимые справочники ДО транзакции: LookupResolver
+        // ловит unique-нарушение от параллельной вставки и перечитывает строку,
+        // но в PostgreSQL пойманная ошибка внутри транзакции переводит её в
+        // прерванное (aborted) состояние, и перечитывание упадёт. Неиспользованная
+        // строка справочника при откате безвредна.
         $data = $this->normalize($data);
 
-        // The row save + audit entry are atomic (no half-written record, no orphan log).
+        // Сохранение строки + запись аудита атомарны (нет недописанной записи, нет осиротевшего лога).
         return DB::transaction(function () use ($data) {
             $employee = new Employee($data);
             $employee->disableLogging()->save();
@@ -41,7 +42,7 @@ class EmployeeService
 
     public function update(Employee $employee, array $data): Employee
     {
-        // See create(): lookup resolution stays outside the transaction.
+        // См. create(): разрешение справочников остаётся вне транзакции.
         $data = $this->normalize($data);
 
         return DB::transaction(function () use ($employee, $data) {
@@ -57,19 +58,22 @@ class EmployeeService
     }
 
     /**
-     * Reinstate a dismissed (archived) employee by clearing the dismissal date,
-     * returning them to the active roster.
+     * Восстанавливает уволенного (архивного) корманда, очищая дату увольнения и
+     * возвращая его в активный состав.
      */
     public function reinstate(Employee $employee): Employee
     {
-        // Disable the auto-log to keep a single, explicit "reinstated" entry
-        // instead of a generic "updated" diff.
-        $employee->disableLogging()->update(['dismissal_date' => null, 'dismissal_reason' => null]);
+        // Обновление и его аудит-запись — в одной транзакции (как delete/rotate),
+        // чтобы восстановление не осталось без явной записи «восстановлен».
+        // Отключаем авто-лог, чтобы получить одну явную запись вместо diff.
+        DB::transaction(function () use ($employee) {
+            $employee->disableLogging()->update(['dismissal_date' => null, 'dismissal_reason' => null]);
 
-        activity()
-            ->performedOn($employee)
-            ->event('updated')
-            ->log("Корманд аз бойгонӣ барқарор карда шуд: {$employee->full_name}");
+            activity()
+                ->performedOn($employee)
+                ->event('updated')
+                ->log("Корманд аз бойгонӣ барқарор карда шуд: {$employee->full_name}");
+        });
 
         return $employee;
     }
@@ -78,9 +82,9 @@ class EmployeeService
     {
         $fullName = $employee->full_name;
 
-        // One transaction so the delete and its audit entry commit together —
-        // no phantom "deleted" log if the delete fails, no lost log if the
-        // audit write fails after the delete.
+        // Одна транзакция, чтобы удаление и его запись аудита фиксировались
+        // вместе — нет фантомного лога «удалён» при сбое удаления и нет
+        // потерянного лога, если запись аудита упадёт после удаления.
         DB::transaction(function () use ($employee, $fullName) {
             $employee->disableLogging()->delete();
 
@@ -93,13 +97,13 @@ class EmployeeService
 
     public function rotate(Employee $employee, array $data): Rotation
     {
-        // Names of the source branch/position before the move (for the log).
+        // Названия исходного филиала/вазифы до перевода (для лога).
         $oldBranchName = $employee->branch?->name ?? 'Филиали номаълум';
         $oldPosition = $employee->position?->name ?? 'Вазифаи номаълум';
 
-        // The rotation record and the employee move must be atomic — otherwise a
-        // failed update would leave an orphaned rotation row.
-        $rotation = DB::transaction(function () use ($employee, $data) {
+        // Запись ротации, перевод корманда и аудит-лог должны быть атомарны —
+        // иначе сбой оставит осиротевшую ротацию или перевод без записи аудита.
+        return DB::transaction(function () use ($employee, $data, $oldBranchName, $oldPosition) {
             $rotation = Rotation::create([
                 'employee_id' => $employee->id,
                 'old_branch_id' => $employee->branch_id,
@@ -112,31 +116,29 @@ class EmployeeService
                 'reason' => $data['reason'] ?? null,
             ]);
 
-            // Disable the auto-log; the rotation narrative below is the single entry.
+            // Отключаем авто-лог; единственной записью служит текст о ротации ниже.
             $employee->disableLogging()->update([
                 'branch_id' => $data['branch_id'],
                 'position_id' => $data['position_id'],
                 'department_id' => $data['department_id'] ?? null,
             ]);
 
+            $newBranchName = Branch::find($data['branch_id'])?->name ?? 'Филиали номаълум';
+            $newPositionName = Position::find($data['position_id'])?->name ?? 'Вазифаи номаълум';
+
+            activity()
+                ->performedOn($employee)
+                ->event('updated')
+                ->log("Ротатсияи корманд {$employee->full_name} анҷом дода шуд. Аз {$oldBranchName} ({$oldPosition}) ба {$newBranchName} ({$newPositionName}) гузаронида шуд");
+
             return $rotation;
         });
-
-        $newBranchName = Branch::find($data['branch_id'])?->name ?? 'Филиали номаълум';
-        $newPositionName = Position::find($data['position_id'])?->name ?? 'Вазифаи номаълум';
-
-        activity()
-            ->performedOn($employee)
-            ->event('updated')
-            ->log("Ротатсияи корманд {$employee->full_name} анҷом дода шуд. Аз {$oldBranchName} ({$oldPosition}) ба {$newBranchName} ({$newPositionName}) гузаронида шуд");
-
-        return $rotation;
     }
 
     /**
-     * Translate the validated form payload into a column-ready attribute set:
-     * map the employment type, and resolve the free-text vocabulary fields to
-     * their normalized lookup FK ids (creating rows on the fly).
+     * Преобразует проверенные данные формы в готовый к записи набор атрибутов:
+     * маппит тип занятости и разрешает свободно вводимые словарные поля в
+     * нормализованные FK-id справочников (создавая строки на лету).
      *
      * @param  array<string, mixed>  $data
      * @return array<string, mixed>

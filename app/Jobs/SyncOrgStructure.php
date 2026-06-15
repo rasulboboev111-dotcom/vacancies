@@ -8,24 +8,24 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Artisan;
 
 /**
- * Runs the Tojiktelecom org-structure import on the queue worker instead of the
- * caller's process. The heavy work (API fetch + full tree reconciliation in one
- * transaction) lives in the `org:import` command; this job simply invokes it in
- * `--sync` mode from the background so the dispatcher returns immediately.
+ * Запускает импорт оргструктуры Tojiktelecom на воркере очереди, а не в процессе
+ * вызывающей стороны. Тяжёлая работа (запрос к API + полная сверка дерева в одной
+ * транзакции) живёт в команде `org:import`; эта задача просто вызывает её в
+ * режиме `--sync` из фона, чтобы диспетчер вернулся немедленно.
  */
 class SyncOrgStructure implements ShouldBeUnique, ShouldQueue
 {
     use Queueable;
 
     /**
-     * The import can take a while (API timeout + retries + a large transaction),
-     * so give it generous headroom — this overrides the worker's --timeout.
+     * Импорт может занять время (таймаут API + повторы + большая транзакция),
+     * поэтому даём щедрый запас — это переопределяет --timeout воркера.
      */
     public int $timeout = 1800;
 
     /**
-     * Never auto-retry a partial run: a re-dispatch is idempotent, a mid-flight
-     * retry is not.
+     * Никогда не повторяем частичный прогон автоматически: повторная отправка
+     * идемпотентна, а повтор на середине — нет.
      */
     public int $tries = 1;
 
@@ -36,8 +36,8 @@ class SyncOrgStructure implements ShouldBeUnique, ShouldQueue
     ) {}
 
     /**
-     * Hold the unique lock for the whole run so an overlapping manual and nightly
-     * dispatch cannot import concurrently.
+     * Удерживаем уникальную блокировку весь прогон, чтобы пересекающиеся ручная и
+     * ночная отправки не запустили импорт одновременно.
      */
     public function uniqueFor(): int
     {

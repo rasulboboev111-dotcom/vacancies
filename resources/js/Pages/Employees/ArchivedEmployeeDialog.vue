@@ -12,7 +12,6 @@ const open = defineModel({ type: Boolean, default: false });
 <template>
     <v-dialog v-model="open" max-width="800px" scrollable>
         <v-card v-if="employee" class="rounded-2xl border" style="overflow: hidden;">
-            <!-- Header -->
             <div class="pa-6 text-white d-flex align-center justify-space-between" style="background: #009cf1">
                 <div class="d-flex align-center">
                     <v-avatar color="white" size="48" class="mr-4 shadow-sm">
@@ -34,7 +33,6 @@ const open = defineModel({ type: Boolean, default: false });
 
             <v-divider />
 
-            <!-- Body content -->
             <v-card-text class="pa-6 bg-slate-50" style="max-height: 60vh;">
                 <div class="text-h6 text-indigo font-weight-bold mb-3 d-flex align-center">
                     <IdCard style="width: 20px; height: 20px; margin-right: 8px;" class="text-indigo" /> Маълумоти шахсӣ

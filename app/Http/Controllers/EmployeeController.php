@@ -30,11 +30,12 @@ use Spatie\QueryBuilder\QueryBuilder;
 class EmployeeController extends Controller
 {
     /**
-     * Relations eager-loaded for the employee list & archive screens, projected
-     * to just the columns the table, view and edit dialogs read — so serializing
-     * the page never hydrates four full related models, and the appended
-     * nationality/education/specialty/birth_place accessors don't fire four lazy
-     * lookups per row.
+     * Связи, жадно загружаемые для экранов списка и архива сотрудников, со
+     * выборкой только тех столбцов, что читают таблица, диалоги просмотра и
+     * редактирования — чтобы сериализация страницы не гидрировала четыре полные
+     * связанные модели, а добавленные аксессоры
+     * nationality/education/specialty/birth_place не порождали четыре ленивых
+     * запроса на строку.
      *
      * @var list<string>
      */
@@ -46,7 +47,7 @@ class EmployeeController extends Controller
     public function __construct(private readonly EmployeeService $employees) {}
 
     /**
-     * Display a listing of the active employees.
+     * Отображает список активных сотрудников.
      */
     public function index(Request $request): Response
     {
@@ -78,9 +79,9 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Search employees for the "direct manager" picker (server-side, capped),
-     * so the form never has to ship the entire workforce. Scoped to the user's
-     * branch for non-admins, mirroring the employees they may manage.
+     * Ищет сотрудников для выбора "непосредственного руководителя" (на сервере,
+     * с лимитом), чтобы форма не передавала весь штат. Для не-админов ограничено
+     * филиалом пользователя — теми сотрудниками, кем он может управлять.
      */
     public function managers(Request $request): JsonResponse
     {
@@ -100,9 +101,6 @@ class EmployeeController extends Controller
         return response()->json($managers);
     }
 
-    /**
-     * Store a newly created employee.
-     */
     public function store(StoreEmployeeRequest $request): RedirectResponse
     {
         $this->employees->create($request->validated());
@@ -111,9 +109,6 @@ class EmployeeController extends Controller
             ->with('success', 'Корманд бомуваффақият илова шуд.');
     }
 
-    /**
-     * Update the specified employee.
-     */
     public function update(UpdateEmployeeRequest $request, int $id): RedirectResponse
     {
         $employee = Employee::findOrFail($id);
@@ -124,9 +119,6 @@ class EmployeeController extends Controller
             ->with('success', 'Корманд бомуваффақият навсозӣ шуд.');
     }
 
-    /**
-     * Remove the specified employee.
-     */
     public function destroy(int $id): RedirectResponse
     {
         $employee = Employee::findOrFail($id);
@@ -140,7 +132,7 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Reinstate a dismissed (archived) employee back to the active roster.
+     * Восстанавливает уволенного (архивного) сотрудника в активный состав.
      */
     public function restore(int $id): RedirectResponse
     {
@@ -155,7 +147,7 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Display a listing of the dismissed/archived employees.
+     * Отображает список уволенных/архивных сотрудников.
      */
     public function archive(Request $request): Response
     {
@@ -189,7 +181,7 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Rotate the specified employee to a new branch, position, or department.
+     * Переводит (ротация) сотрудника в новый филиал, на новую должность или в подразделение.
      */
     public function rotate(RotateEmployeeRequest $request, int $id): RedirectResponse
     {
@@ -202,7 +194,7 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Display a timeline/list of all rotations.
+     * Отображает хронологию/список всех ротаций.
      */
     public function rotationsIndex(Request $request): Response
     {
@@ -212,7 +204,7 @@ class EmployeeController extends Controller
 
         $rotations = Rotation::with(['employee', 'oldBranch', 'newBranch', 'oldPosition', 'newPosition', 'oldDepartment', 'newDepartment'])
             ->when(! $user->isAdmin(), function ($q) use ($user) {
-                // Branch users see only rotations into or out of their own branch.
+                // Пользователи филиала видят только ротации в свой филиал или из него.
                 if ($user->branch_id === null) {
                     $q->whereRaw('1=0');
                 } else {
@@ -230,8 +222,8 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Wipe the whole rotation history. Admin-only and irreversible — mirrors the
-     * activity-log clear action.
+     * Полностью стирает историю ротаций. Только для админов и необратимо —
+     * аналогично очистке журнала действий.
      */
     public function clearRotations(Request $request): RedirectResponse
     {
@@ -243,14 +235,15 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Reference vocabularies for the employees screen.
+     * Справочные данные для экрана сотрудников.
      *
-     * Only branches/departments/types are needed for the toolbar filters on
-     * first paint, so they load immediately. Everything else is consumed solely
-     * by the create/edit & rotation dialogs, so it is deferred (Inertia group
-     * "form"): the list renders first and the form data streams in afterwards,
-     * and it is skipped on filter/pagination partial reloads (`only`). A user
-     * without a branch (and not an admin) may not manage employees → empty lists.
+     * Для фильтров панели инструментов при первой отрисовке нужны только
+     * филиалы/подразделения/типы, поэтому они загружаются сразу. Всё остальное
+     * используется только диалогами создания/редактирования и ротации, поэтому
+     * откладывается (группа Inertia "form"): сначала рендерится список, а данные
+     * формы подгружаются после, и они пропускаются при частичных перезагрузках
+     * по фильтру/пагинации (`only`). Пользователь без филиала (и не админ) не
+     * может управлять сотрудниками → пустые списки.
      *
      * @return array<string, mixed>
      */
@@ -261,7 +254,7 @@ class EmployeeController extends Controller
         $branchId = $user->branch_id;
 
         return [
-            // Immediate — required by the toolbar filters.
+            // Сразу — нужны фильтрам панели инструментов.
             'branches' => $canManage ? Branch::orderBy('name')->get() : collect(),
             'departments' => $canManage
                 ? Department::query()
@@ -274,15 +267,12 @@ class EmployeeController extends Controller
                 'name' => $t->label(),
             ]),
 
-            // Deferred (group "form") — only the dialogs consume these, so they
-            // never bloat the list's initial load or its partial reloads.
-            'categories' => Inertia::defer(fn () => collect(Category::cases())->map(fn (Category $c) => [
-                'value' => $c->value,
-                'label' => $c->label(),
-            ]), 'form'),
+            // Отложено (группа "form") — используется только диалогами, поэтому
+            // не утяжеляет начальную загрузку списка и его частичные перезагрузки.
+            'categories' => Inertia::defer(fn () => Category::options(), 'form'),
             'positions' => Inertia::defer(fn () => $canManage ? Position::orderBy('name')->get() : collect(), 'form'),
-            // managers are fetched on demand via the searchable endpoint
-            // (employees.managers) — never shipped as a full list.
+            // руководители подгружаются по запросу через поисковый эндпоинт
+            // (employees.managers) — никогда не передаются полным списком.
             'nationalities' => Inertia::defer(fn () => Nationality::orderBy('name')->pluck('name'), 'form'),
             'educations' => Inertia::defer(fn () => Education::orderBy('name')->pluck('name'), 'form'),
             'specialties' => Inertia::defer(fn () => Specialty::orderBy('name')->pluck('name'), 'form'),

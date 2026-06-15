@@ -5,7 +5,7 @@ import { formatDate } from '@/lib/date';
 
 const props = defineProps({
     rotation: { type: Object, required: true },
-    // Position in the list — drives the staggered entrance animation.
+    // Позиция в списке — задаёт ступенчатую анимацию появления.
     index: { type: Number, default: 0 },
 });
 
@@ -13,7 +13,7 @@ const employeeName = computed(() =>
     props.rotation.employee?.full_name?.trim() || 'Корманди несткардашуда',
 );
 
-// Two-letter monogram for the avatar (first + second word initials).
+// Двухбуквенная монограмма для аватара (инициалы первого и второго слова).
 const initials = computed(() => {
     const parts = employeeName.value.split(/\s+/).filter(Boolean);
     const a = parts[0]?.[0] ?? '';
@@ -21,9 +21,9 @@ const initials = computed(() => {
     return (a + b).toUpperCase() || '—';
 });
 
-// The three things a rotation can change. We compute each one's before/after
-// and whether it actually moved, so the card can spotlight the real changes
-// and quietly grey out whatever stayed the same.
+// Три вещи, которые может изменить ротация. Для каждой вычисляем до/после
+// и действительно ли значение изменилось, чтобы карточка подсвечивала реальные
+// изменения и приглушала серым то, что осталось прежним.
 const rows = computed(() => {
     const r = props.rotation;
     return [
@@ -63,7 +63,6 @@ const entranceDelay = computed(() => `${Math.min(props.index, 12) * 55}ms`);
                 </span>
             </header>
 
-            <!-- Per-attribute before → after diff -->
             <div class="rot-diff">
                 <div v-for="row in rows" :key="row.key" class="rot-row" :class="{ 'is-changed': row.changed }">
                     <span class="rot-row__label">
@@ -79,7 +78,6 @@ const entranceDelay = computed(() => `${Math.min(props.index, 12) * 55}ms`);
                 </div>
             </div>
 
-            <!-- Reason -->
             <div v-if="rotation.reason" class="rot-reason">
                 <Quote class="rot-reason__icon" />
                 <p class="rot-reason__text">
@@ -116,7 +114,7 @@ const entranceDelay = computed(() => `${Math.min(props.index, 12) * 55}ms`);
     box-shadow: 0 18px 38px -22px rgba(15, 23, 42, 0.4);
 }
 
-/* ── Header ── */
+/* ── Шапка ── */
 .rot-head {
     display: flex;
     align-items: center;
@@ -195,7 +193,7 @@ const entranceDelay = computed(() => `${Math.min(props.index, 12) * 55}ms`);
     color: #64748b;
 }
 
-/* ── Diff rows ── */
+/* ── Строки различий ── */
 .rot-diff {
     display: flex;
     flex-direction: column;
@@ -239,7 +237,7 @@ const entranceDelay = computed(() => `${Math.min(props.index, 12) * 55}ms`);
     flex-wrap: wrap;
 }
 .rot-val {
-    /* Show the full name — wrap long values instead of clipping them. */
+    /* Показываем имя полностью — длинные значения переносим, а не обрезаем. */
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -248,7 +246,7 @@ const entranceDelay = computed(() => `${Math.min(props.index, 12) * 55}ms`);
     font-size: 0.84rem;
     font-weight: 600;
 }
-/* Resting state: both sides quiet grey (nothing moved) */
+/* Состояние покоя: обе стороны спокойного серого цвета (ничего не изменилось) */
 .rot-val--from,
 .rot-val--to {
     color: #64748b;
@@ -271,7 +269,7 @@ const entranceDelay = computed(() => `${Math.min(props.index, 12) * 55}ms`);
     color: #aab4c4;
 }
 
-/* Changed row: rose origin → emerald destination, arrow glows indigo */
+/* Изменённая строка: розовый источник → изумрудное назначение, стрелка светится индиго */
 .is-changed .rot-val--from {
     color: #be123c;
     background: rgba(244, 63, 94, 0.1);
@@ -292,7 +290,7 @@ const entranceDelay = computed(() => `${Math.min(props.index, 12) * 55}ms`);
     50% { transform: translateX(3px); }
 }
 
-/* ── Reason ── */
+/* ── Причина ── */
 .rot-reason {
     display: flex;
     gap: 10px;

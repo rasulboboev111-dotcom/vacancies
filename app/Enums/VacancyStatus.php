@@ -2,8 +2,10 @@
 
 namespace App\Enums;
 
-enum VacancyStatus: string
+enum VacancyStatus: string implements HasLabel
 {
+    use HasOptions;
+
     case OPEN = 'open';
     case CLOSED = 'closed';
 
@@ -13,15 +15,5 @@ enum VacancyStatus: string
             self::OPEN => 'Кушода',
             self::CLOSED => 'Пӯшида',
         };
-    }
-
-    /**
-     * The backing values, handy for validation and `in_array` checks.
-     *
-     * @return list<string>
-     */
-    public static function values(): array
-    {
-        return array_map(fn (self $case) => $case->value, self::cases());
     }
 }

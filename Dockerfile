@@ -42,6 +42,7 @@ COPY . .
 COPY --from=vendor /app/vendor ./vendor
 COPY --from=frontend /app/public/build ./public/build
 
+COPY --from=frontend /app/public/build /tmp/public_build
 # Cache the package manifest (needs the PHP extensions above) and fix writable dirs.
 RUN php artisan package:discover --ansi \
     && chown -R www-data:www-data storage bootstrap/cache
@@ -58,4 +59,3 @@ CMD ["php-fpm"]
 # ─────────────────────────────────────────────────────────────────────────────
 FROM nginx:alpine AS web
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY --from=frontend /app/public /var/www/html/public

@@ -1,5 +1,5 @@
 <script setup>
-import { ArrowLeftRight, Eye, Pencil, Trash2, UserX } from '@lucide/vue';
+import { ArrowLeftRight, Pencil, Trash2, UserX } from '@lucide/vue';
 import { formatDate } from '@/lib/date';
 
 defineProps({
@@ -45,11 +45,9 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="employee in employees.data" :key="employee.id" class="employee-row">
+                <tr v-for="employee in employees.data" :key="employee.id" class="employee-row" @click="$emit('view', employee)">
                     <td class="pa-3">
-                        <button type="button" class="emp-name" @click="$emit('view', employee)">
-                            {{ employee.full_name }}
-                        </button>
+                        <span class="emp-name">{{ employee.full_name }}</span>
                     </td>
                     <td class="pa-3">
                         <div class="text-truncate col-position emp-position" :title="employee.position?.name || '-'">
@@ -79,17 +77,13 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
                         {{ formatDate(employee.employment_start_date) }}
                     </td>
                     <td class="pa-3 text-center">
-                        <v-btn variant="text" size="small" class="mr-1 hover-scale-btn act-btn act-accent" title="Дидан" @click="$emit('view', employee)">
-                            <Eye style="width: 16px; height: 16px;" />
-                        </v-btn>
-
                         <v-btn
                             v-if="canManage(employee)"
                             variant="text"
                             size="small"
                             class="mr-1 hover-scale-btn act-btn act-accent"
                             title="Ротатсия"
-                            @click="$emit('rotate', employee)"
+                            @click.stop="$emit('rotate', employee)"
                         >
                             <ArrowLeftRight style="width: 16px; height: 16px;" />
                         </v-btn>
@@ -100,7 +94,7 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
                             size="small"
                             class="mr-1 hover-scale-btn act-btn act-accent"
                             title="Таҳрир"
-                            @click="$emit('edit', employee)"
+                            @click.stop="$emit('edit', employee)"
                         >
                             <Pencil style="width: 16px; height: 16px;" />
                         </v-btn>
@@ -111,7 +105,7 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
                             size="small"
                             class="hover-scale-btn act-btn act-danger"
                             title="Нест кардан"
-                            @click="$emit('delete', employee)"
+                            @click.stop="$emit('delete', employee)"
                         >
                             <Trash2 style="width: 16px; height: 16px;" />
                         </v-btn>
@@ -126,7 +120,6 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
             </tbody>
         </v-table>
 
-        <!-- Pagination Wrapper -->
         <v-divider />
         <div class="d-flex justify-space-between align-center pa-3 bg-surface">
             <div class="text-caption text-grey font-weight-bold">
@@ -152,9 +145,10 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
     backdrop-filter: blur(12px);
 }
 
-/* Cap the text-heavy columns so long job titles / branch names don't stretch
-   the table; the full value stays available via the cell's title tooltip.
-   Ному насаб (full name) is left uncapped so it always shows in full. */
+/* Ограничиваем ширину текстовых колонок, чтобы длинные названия должностей /
+   филиалов не растягивали таблицу; полное значение доступно через всплывающую
+   подсказку (title) ячейки. Ному насаб (полное имя) не ограничиваем, чтобы оно
+   всегда показывалось целиком. */
 .col-position {
     max-width: 280px;
 }
@@ -162,22 +156,11 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
     max-width: 200px;
 }
 
-/* Three tiers of text contrast carry the hierarchy without colour:
-   name (darkest anchor) → position (mid) → branch/category/dashes (light). */
+/* Три уровня контраста текста передают иерархию без цвета:
+   имя (самый тёмный якорь) → должность (средний) → филиал/категория/прочерки (светлый). */
 .emp-name {
-    font: inherit;
     color: #111111;
     font-weight: 600;
-    padding: 0;
-    border: 0;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-}
-/* The one resting accent that means something: the clickable name on hover. */
-.emp-name:hover {
-    color: #3f51b5;
-    text-decoration: underline;
 }
 .emp-position,
 .emp-secondary {
@@ -188,8 +171,11 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
     color: #999999;
 }
 
-/* Rows read as discrete records: zebra striping plus a hover highlight with a
-   thin indigo bar on the left of the active row. */
+/* Строки воспринимаются как отдельные записи: зебра-полосы плюс подсветка при
+   наведении с тонкой полосой indigo слева у активной строки. */
+.table-modern tbody tr.employee-row {
+    cursor: pointer;
+}
 .table-modern tbody tr.employee-row:nth-child(even) {
     background: #fafafb;
 }
@@ -198,8 +184,8 @@ defineEmits(['view', 'rotate', 'edit', 'delete', 'change-page']);
     box-shadow: inset 3px 0 0 0 #5c6bc0;
 }
 
-/* Action icons stay quiet grey at rest; their meaning (accent / danger)
-   surfaces only on hover. */
+/* Иконки действий в покое остаются спокойно-серыми; их смысл (акцент / опасность)
+   проявляется только при наведении. */
 .act-btn {
     color: #9ca3af !important;
 }

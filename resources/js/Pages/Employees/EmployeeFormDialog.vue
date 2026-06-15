@@ -4,12 +4,13 @@ import { FileText, IdCard, User, UserPlus } from '@lucide/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { watchDebounced } from '@vueuse/core';
 import { useForm as useVeeForm } from 'vee-validate';
-import { computed, ref, watch } from 'vue';
+import { ref, watch } from 'vue';
 import FormField from '@/Components/FormField.vue';
+import { useBranchDepartments } from '@/composables/useBranchDepartments';
 import { employeeSchema } from '@/lib/schemas';
 
 const props = defineProps({
-    employee: { type: Object, default: null }, // null → create
+    employee: { type: Object, default: null }, // null → создание
     branches: { type: Array, default: () => [] },
     categories: { type: Array, default: () => [] },
     types: { type: Array, default: () => [] },
@@ -27,14 +28,14 @@ const open = defineModel({ type: Boolean, default: false });
 
 const activeTab = ref(0);
 
-// Gender options: canonical enum value submitted to the backend, label shown.
+// Варианты пола: каноническое значение enum отправляется на бэкенд, метка — для показа.
 const genderOptions = [
     { value: 'мужской', title: 'Мард' },
     { value: 'женский', title: 'Зан' },
 ];
 
-// Suggested dismissal reasons; the field is a free-text combobox so any custom
-// reason can be typed in as well.
+// Подсказки причин увольнения; поле — combobox со свободным вводом, поэтому
+// можно ввести и любую другую причину.
 const dismissalReasonOptions = [
     'Бо хоҳиши худ',
     'Ихтисор',
@@ -43,6 +44,7 @@ const dismissalReasonOptions = [
     'Вайронкунии интизом',
     'Рухсатии таваллуд',
     'Рухсатии бемузд',
+    'Вафот кард',
 ];
 
 const FIELDS = [
@@ -103,7 +105,7 @@ const EMPTY = {
     employment_start_date: '',
 };
 
-// vee-validate owns client-side validation; Inertia owns submit + server errors.
+// vee-validate отвечает за валидацию на клиенте; Inertia — за отправку и ошибки сервера.
 const { defineField, errors, handleSubmit, resetForm, setFieldError } = useVeeForm({
     validationSchema: toTypedSchema(employeeSchema),
     initialValues: { ...EMPTY },
@@ -118,15 +120,15 @@ const [positionId, positionIdAttrs] = defineField('position_id');
 const [departmentId, departmentIdAttrs] = defineField('department_id');
 const [managerId, managerIdAttrs] = defineField('manager_id');
 
-// Direct-manager picker: searched server-side (employees.managers, capped at
-// 20) instead of shipping the whole workforce. Options are refreshed as the
-// user types; the currently-selected manager is always kept in the list so its
-// name renders even when it isn't in the latest search results.
+// Выбор непосредственного руководителя: поиск на сервере (employees.managers,
+// не более 20) вместо передачи всего штата. Варианты обновляются по мере ввода;
+// текущий выбранный руководитель всегда остаётся в списке, чтобы его имя
+// отображалось, даже если его нет в последних результатах поиска.
 const managerOptions = ref([]);
 const managerSearch = ref('');
 const managerLoading = ref(false);
-// Monotonic request id: only the latest in-flight search may write results,
-// so out-of-order responses can't clobber a newer query.
+// Монотонный id запроса: записать результаты может только последний активный
+// поиск, поэтому ответы, пришедшие не по порядку, не затирают более новый запрос.
 let managerReq = 0;
 
 async function fetchManagers() {
@@ -137,7 +139,7 @@ async function fetchManagers() {
             params: { search: managerSearch.value },
         });
         if (reqId !== managerReq) {
-            return; // superseded by a newer request
+            return; // вытеснен более новым запросом
         }
         const selected = managerOptions.value.find(m => m.id === managerId.value);
         managerOptions.value = selected && !data.some(m => m.id === selected.id)
@@ -145,8 +147,8 @@ async function fetchManagers() {
             : data;
     }
     catch {
-        // Keep the field usable (selected manager stays visible); don't surface
-        // a hard error for a lookup helper.
+        // Оставляем поле рабочим (выбранный руководитель остаётся виден); не
+        // показываем грубую ошибку для вспомогательного поиска.
         if (reqId === managerReq) {
             managerOptions.value = managerOptions.value.filter(m => m.id === managerId.value);
         }
@@ -159,8 +161,8 @@ async function fetchManagers() {
 }
 
 watchDebounced(managerSearch, (term) => {
-    // Vuetify echoes the selected item's title back into the search field on
-    // selection — skip that no-op to avoid a redundant request.
+    // Vuetify при выборе возвращает заголовок выбранного элемента обратно в поле
+    // поиска — пропускаем это пустое действие, чтобы не слать лишний запрос.
     const selected = managerOptions.value.find(m => m.id === managerId.value);
     if (selected && term === selected.full_name) {
         return;
@@ -188,31 +190,23 @@ const [employmentStartDate, employmentStartDateAttrs] = defineField('employment_
 
 const inertia = useInertiaForm({ ...EMPTY });
 
-// Departments filtered by the chosen branch; clear the department when it no
-// longer belongs to the selected branch (was the useBranchDepartments
-// composable, which assumed an Inertia form).
-const branchDepartments = computed(() =>
-    props.departments.filter(d => Number(d.branch_id) === Number(branchId.value)),
-);
-watch(branchId, (newBranchId) => {
-    if (
-        departmentId.value
-        && !props.departments.some(
-            d => Number(d.id) === Number(departmentId.value) && Number(d.branch_id) === Number(newBranchId),
-        )
-    ) {
-        departmentId.value = null;
-    }
+// Шуъбы фильтруются по выбранному филиалу; сбрасываем шуъбу, когда она больше
+// не относится к выбранному филиалу.
+const { branchDepartments } = useBranchDepartments({
+    getBranchId: () => branchId.value,
+    getDepartmentId: () => departmentId.value,
+    setDepartmentId: (value) => { departmentId.value = value; },
+    getDepartments: () => props.departments,
 });
 
-// Clearing the dismissal date drops the now-irrelevant dismissal reason.
+// Очистка даты увольнения сбрасывает ставшую неактуальной причину увольнения.
 watch(dismissalDate, (date) => {
     if (!date)
         dismissalReason.value = '';
 });
 
-// Maps each form field to the tab it lives on, so a validation error can
-// surface the right tab.
+// Сопоставляет каждое поле формы с вкладкой, на которой оно находится, чтобы
+// ошибка валидации могла открыть нужную вкладку.
 const fieldTabMap = {
     full_name: 0,
     branch_id: 0,
@@ -252,15 +246,15 @@ function focusFirstErrorTab(errs) {
 
 const iso10 = value => (value ? String(value).substring(0, 10) : '');
 
-// Populate the form whenever the dialog opens (create vs edit).
+// Заполняем форму при каждом открытии диалога (создание или редактирование).
 watch(open, (visible) => {
     if (!visible)
         return;
     activeTab.value = 0;
 
     const e = props.employee;
-    // Seed the manager picker so the current manager's name shows on edit, then
-    // (re)load the first page of options for the dropdown.
+    // Заполняем выбор руководителя, чтобы при редактировании показывалось имя
+    // текущего руководителя, затем (пере)загружаем первую страницу вариантов.
     managerOptions.value = e?.manager_id && e?.manager
         ? [{ id: Number(e.manager_id), full_name: e.manager.full_name }]
         : [];
@@ -335,7 +329,6 @@ const submit = handleSubmit(
 <template>
     <v-dialog v-model="open" max-width="850px" persistent>
         <v-card class="rounded-xl overflow-hidden" elevation="8">
-            <!-- Premium Gradient Header -->
             <div style="background: #009cf1; padding: 20px 28px;">
                 <div class="d-flex align-center">
                     <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
@@ -352,7 +345,6 @@ const submit = handleSubmit(
                 </div>
             </div>
 
-            <!-- Horizontal Tabs for neat grouping -->
             <v-tabs v-model="activeTab" color="indigo" align-tabs="start" class="px-4 pt-2" show-arrows>
                 <v-tab :value="0">
                     <div class="d-flex align-center">
@@ -387,7 +379,6 @@ const submit = handleSubmit(
                 </v-alert>
                 <v-form class="app-form" @submit.prevent="submit">
                     <v-window v-model="activeTab">
-                        <!-- Tab 1: Маълумоти асосии корӣ -->
                         <v-window-item :value="0">
                             <v-row>
                                 <v-col cols="12" sm="6">
@@ -458,7 +449,6 @@ const submit = handleSubmit(
                             </v-row>
                         </v-window-item>
 
-                        <!-- Tab 2: Маълумоти шахсӣ -->
                         <v-window-item :value="1">
                             <v-row>
                                 <v-col cols="12" sm="4">
@@ -517,7 +507,6 @@ const submit = handleSubmit(
                             </v-row>
                         </v-window-item>
 
-                        <!-- Tab 3: Шиноснома ва рамзҳо -->
                         <v-window-item :value="2">
                             <v-row>
                                 <v-col cols="12" sm="4">

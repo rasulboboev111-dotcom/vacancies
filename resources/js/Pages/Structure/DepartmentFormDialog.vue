@@ -8,16 +8,16 @@ import FormField from '@/Components/FormField.vue';
 import { departmentSchema } from '@/lib/schemas';
 
 const props = defineProps({
-    department: { type: Object, default: null }, // null → create
+    department: { type: Object, default: null }, // null → создание
     parentOptions: { type: Array, default: () => [] },
     branchId: { type: Number, default: null },
-    initialParentId: { type: Number, default: null }, // preset parent on create
+    initialParentId: { type: Number, default: null }, // предустановленный родитель при создании
 });
 
 const open = defineModel({ type: Boolean, default: false });
 
-// vee-validate owns client-side validation; branch_id is fixed server-side
-// (from the branchId prop), so only the user-editable fields are validated.
+// vee-validate отвечает за клиентскую валидацию; branch_id задаётся на сервере
+// (из пропа branchId), поэтому валидируются только редактируемые пользователем поля.
 const { defineField, errors, handleSubmit, resetForm, setFieldError } = useVeeForm({
     validationSchema: toTypedSchema(departmentSchema),
     initialValues: { parent_id: null, name: '', code: '' },

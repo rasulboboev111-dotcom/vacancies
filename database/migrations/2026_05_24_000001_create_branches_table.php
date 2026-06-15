@@ -28,13 +28,13 @@ return new class extends Migration
             $table->index('deleted_at');
         });
 
-        // Soft-delete-aware unique import key (NULLs and trashed rows exempt).
+        // Уникальный ключ импорта с учётом soft-delete (NULL и удалённые строки исключены).
         DB::statement('CREATE UNIQUE INDEX branches_external_id_unique ON branches (external_id) WHERE external_id IS NOT NULL AND deleted_at IS NULL');
 
-        // Soft-delete-aware unique code: a trashed branch's code can be reused.
+        // Уникальный code с учётом soft-delete: code удалённого филиала можно переиспользовать.
         DB::statement('CREATE UNIQUE INDEX branches_code_unique ON branches (code) WHERE deleted_at IS NULL');
 
-        // Status enum enforced at the DB level (App\Enums\OrgStatus); NULL passes.
+        // Enum статуса проверяется на уровне БД (App\Enums\OrgStatus); NULL проходит.
         DB::statement("ALTER TABLE branches ADD CONSTRAINT branches_status_check CHECK (status IN ('Active', 'Inactive'))");
     }
 

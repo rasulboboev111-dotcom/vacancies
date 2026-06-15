@@ -20,8 +20,9 @@ Route::get('/', function () {
         : redirect()->route('login');
 });
 
-// throttle:120,1 — a generous 120 requests/min per user caps scripted abuse
-// (mass restore/force-delete, scraping) without affecting normal interactive use.
+// throttle:120,1 — щедрые 120 запросов/мин на пользователя ограничивают
+// скриптовые злоупотребления (массовое восстановление/force-delete, скрейпинг),
+// не мешая обычной интерактивной работе.
 Route::middleware(['auth', 'verified', 'throttle:120,1'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -35,6 +36,7 @@ Route::middleware(['auth', 'verified', 'throttle:120,1'])->group(function () {
     Route::resource('employees', EmployeeController::class)->except(['show', 'create', 'edit'])->parameters(['employees' => 'id'])->whereNumber('id');
     Route::resource('branches', BranchController::class)->only(['store', 'update', 'destroy'])->parameters(['branches' => 'id'])->whereNumber('id');
     Route::resource('departments', DepartmentController::class)->only(['store', 'update', 'destroy'])->parameters(['departments' => 'id'])->whereNumber('id');
+    Route::get('/vacancies/{id}/print', [VacancyController::class, 'print'])->name('vacancies.print')->whereNumber('id');
     Route::resource('vacancies', VacancyController::class)->except(['show', 'create', 'edit'])->parameters(['vacancies' => 'id'])->whereNumber('id');
 
     Route::get('/applications/{id}/resume', [ApplicationController::class, 'downloadResume'])
@@ -46,12 +48,12 @@ Route::middleware(['auth', 'verified', 'throttle:120,1'])->group(function () {
     Route::get('/structure', [StructureController::class, 'index'])->name('structure.index');
     Route::get('/structure/branches/{id}/employees', [StructureController::class, 'branchEmployees'])->name('structure.branch.employees')->whereNumber('id');
     Route::get('/structure/departments/{id}/employees', [StructureController::class, 'departmentEmployees'])->name('structure.department.employees')->whereNumber('id');
+    Route::get('/positions/{id}/employees', [PositionController::class, 'employees'])->name('positions.employees')->whereNumber('id');
     Route::resource('positions', PositionController::class)->except(['show', 'create', 'edit'])->parameters(['positions' => 'id'])->whereNumber('id');
     Route::resource('users', UserController::class)->except(['show', 'create', 'edit'])->parameters(['users' => 'id'])->whereNumber('id');
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     Route::delete('/activity-logs', [ActivityLogController::class, 'clear'])->name('activity-logs.clear');
 
-    // Trash / Recycle Bin
     Route::get('/trash', [TrashController::class, 'index'])->name('trash.index');
     Route::post('/trash/employees/{id}/restore', [TrashController::class, 'restoreEmployee'])->name('trash.employees.restore')->whereNumber('id');
     Route::delete('/trash/employees/{id}/force', [TrashController::class, 'forceDeleteEmployee'])->name('trash.employees.force')->whereNumber('id');

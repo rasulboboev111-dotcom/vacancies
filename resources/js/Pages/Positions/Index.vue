@@ -2,10 +2,11 @@
 import { Head, usePage } from '@inertiajs/vue3';
 import { Briefcase, Plus, Search } from '@lucide/vue';
 import { refDebounced } from '@vueuse/core';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PositionCard from '@/Pages/Positions/PositionCard.vue';
 import PositionDeleteDialog from '@/Pages/Positions/PositionDeleteDialog.vue';
+import PositionEmployeesDialog from '@/Pages/Positions/PositionEmployeesDialog.vue';
 import PositionFormDialog from '@/Pages/Positions/PositionFormDialog.vue';
 
 const props = defineProps({
@@ -16,18 +17,41 @@ const page = usePage();
 const isAdmin = computed(() => page.props.auth.user.roles.includes('Admin'));
 
 const search = ref('');
-// Debounce the local filter so it doesn't recompute on every keystroke (@vueuse/core).
+// Debounce локального фильтра, чтобы он не пересчитывался на каждое нажатие клавиши (@vueuse/core).
 const debouncedSearch = refDebounced(search, 300);
 const dialog = ref(false);
 const deleteDialog = ref(false);
+const employeesDialog = ref(false);
 const editingPosition = ref(null);
 const positionToDelete = ref(null);
+const selectedPosition = ref(null);
 
 const filteredPositions = computed(() => {
     if (!debouncedSearch.value)
         return props.positions;
     const q = debouncedSearch.value.toLowerCase();
     return props.positions.filter(p => p.name?.toLowerCase().includes(q));
+});
+
+// Клиентская пагинация: набор данных достаточно мал, чтобы отдавать его целиком,
+// поэтому мы сохраняем мгновенный поиск по всем вазифам и пагинируем только отображение
+// (9 на страницу). Серверная пагинация ограничила бы поиск текущей страницей.
+const PAGE_SIZE = 9;
+const currentPage = ref(1);
+
+const pageCount = computed(() => Math.ceil(filteredPositions.value.length / PAGE_SIZE) || 1);
+const pagedPositions = computed(() =>
+    filteredPositions.value.slice((currentPage.value - 1) * PAGE_SIZE, currentPage.value * PAGE_SIZE),
+);
+
+// Сброс на первую страницу при смене фильтра и ограничение страницы, если список
+// сокращается (например, после удаления), чтобы сетка не попадала на пустую страницу.
+watch(debouncedSearch, () => {
+    currentPage.value = 1;
+});
+watch(pageCount, (count) => {
+    if (currentPage.value > count)
+        currentPage.value = count;
 });
 
 function openCreateDialog() {
@@ -44,6 +68,11 @@ function openDeleteDialog(position) {
     positionToDelete.value = position;
     deleteDialog.value = true;
 }
+
+function openEmployeesDialog(position) {
+    selectedPosition.value = position;
+    employeesDialog.value = true;
+}
 </script>
 
 <template>
@@ -57,7 +86,6 @@ function openDeleteDialog(position) {
             </div>
         </template>
 
-        <!-- Search and Action Bar -->
         <v-row class="mb-6 align-end">
             <v-col cols="12" md="6">
                 <label class="filter-label">Ҷустуҷӯ</label>
@@ -91,12 +119,12 @@ function openDeleteDialog(position) {
             </v-col>
         </v-row>
 
-        <!-- Positions Grid -->
         <v-row>
-            <v-col v-for="position in filteredPositions" :key="position.id" cols="12" sm="6" md="4">
+            <v-col v-for="position in pagedPositions" :key="position.id" cols="12" sm="6" md="4">
                 <PositionCard
                     :position="position"
                     :is-admin="isAdmin"
+                    @view="openEmployeesDialog"
                     @edit="openEditDialog"
                     @delete="openDeleteDialog"
                 />
@@ -110,7 +138,19 @@ function openDeleteDialog(position) {
             </v-col>
         </v-row>
 
+        <div v-if="pageCount > 1" class="d-flex justify-center mt-6">
+            <v-pagination
+                v-model="currentPage"
+                :length="pageCount"
+                :total-visible="5"
+                density="comfortable"
+                rounded="lg"
+                active-color="indigo"
+            />
+        </div>
+
         <PositionFormDialog v-model="dialog" :position="editingPosition" />
         <PositionDeleteDialog v-model="deleteDialog" :position="positionToDelete" />
+        <PositionEmployeesDialog v-model="employeesDialog" :position="selectedPosition" />
     </AuthenticatedLayout>
 </template>

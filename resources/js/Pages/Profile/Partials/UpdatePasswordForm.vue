@@ -13,7 +13,7 @@ const form = useForm({
     password_confirmation: '',
 });
 
-// Lightweight client-side strength hint (server enforces the real rules).
+// Лёгкая клиентская подсказка о надёжности (реальные правила проверяет сервер).
 const strength = computed(() => {
     const v = form.password;
     if (!v) return 0;
@@ -102,7 +102,6 @@ function updatePassword() {
             </template>
         </v-text-field>
 
-        <!-- Strength meter -->
         <div v-if="form.password" class="d-flex align-center ga-3 mb-4 px-1">
             <v-progress-linear
                 :model-value="strength * 25"

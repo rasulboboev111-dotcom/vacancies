@@ -4,7 +4,7 @@ import { computed } from 'vue';
 
 const props = defineProps({
     action: { type: String, default: '' }, // 'restore' | 'forceDelete'
-    type: { type: String, default: '' }, // 'employee' | 'branch' | 'user'
+    type: { type: String, default: '' }, // 'employee' | 'department' | 'branch' | 'user'
     item: { type: Object, default: null },
     processing: { type: Boolean, default: false },
 });
@@ -50,7 +50,6 @@ const message = computed(() => {
 <template>
     <v-dialog v-model="open" max-width="550px" scrollable>
         <v-card class="rounded-2xl border overflow-hidden">
-            <!-- Header with Action Color -->
             <div
                 class="pa-6 text-white d-flex align-center justify-space-between"
                 :style="{ background: action === 'restore' ? '#059669' : '#e11d48' }"
@@ -70,12 +69,10 @@ const message = computed(() => {
 
             <v-divider />
 
-            <!-- Message Body -->
             <v-card-text class="pa-6 bg-slate-50 text-body-1 font-weight-medium text-slate-700 whitespace-pre-line">
                 {{ message }}
             </v-card-text>
 
-            <!-- Actions -->
             <v-card-actions class="px-6 py-4 bg-slate-100 d-flex justify-end border-t">
                 <v-btn variant="outlined" color="grey" rounded="lg" class="px-5 font-weight-bold" :disabled="processing" @click="open = false">
                     Бекор кардан

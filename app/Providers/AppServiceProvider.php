@@ -9,33 +9,14 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
-use Spatie\LaravelTypeScriptTransformer\TypeScriptTransformerApplicationServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
-    public function register(): void
-    {
-        // The TypeScript-transformer provider extends a class from the
-        // (dev-only) spatie/laravel-typescript-transformer package. In
-        // production (`composer install --no-dev`) that package is absent, so
-        // registering it unconditionally would fatal at boot. Only register it
-        // when the package is actually installed.
-        if (class_exists(TypeScriptTransformerApplicationServiceProvider::class)) {
-            $this->app->register(TypeScriptTransformerServiceProvider::class);
-        }
-    }
-
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        // Force HTTPS URL generation in production so links, redirects and
-        // assets are never emitted over plain HTTP (avoids mixed-content and
-        // protocol-downgrade exposure). Local/testing stay on http.
+        // Принудительно генерируем URL по HTTPS в production, чтобы ссылки,
+        // редиректы и ассеты никогда не отдавались по обычному HTTP (избегаем
+        // mixed-content и понижения протокола). Local/testing остаются на http.
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
@@ -46,9 +27,10 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasPermissionTo('view audit logs') || $user->isAdmin();
         });
 
-        // Branch scope for raw query-builder aggregations (e.g. the dashboard
-        // stats run on DB::table to skip Eloquent casts/appends). Eloquent
-        // models use the BranchScoped trait's viewableBy() scope instead.
+        // Ограничение по филиалу для агрегаций на сыром query-builder (например,
+        // статистика дашборда работает через DB::table, минуя касты/appends
+        // Eloquent). Модели Eloquent вместо этого используют скоуп viewableBy()
+        // трейта BranchScoped.
         QueryBuilder::macro('viewableByBranch', function (User $user, string $column = 'branch_id') {
             /** @var QueryBuilder $this */
             return BranchScope::apply($this, $user, $column);

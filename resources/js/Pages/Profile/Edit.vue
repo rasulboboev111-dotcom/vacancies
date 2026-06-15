@@ -37,7 +37,6 @@ const roleLabel = computed(() =>
             </div>
         </template>
 
-        <!-- Hero header -->
         <v-card elevation="0" class="profile-hero rounded-xl mb-6 overflow-hidden">
             <div class="profile-hero__bg" />
             <div class="profile-hero__content d-flex flex-column flex-sm-row align-center pa-6">
@@ -72,7 +71,6 @@ const roleLabel = computed(() =>
             </div>
         </v-card>
 
-        <!-- Forms -->
         <v-row>
             <v-col cols="12" md="6">
                 <v-card elevation="0" class="rounded-xl profile-card pa-6 bg-surface-glass h-100">

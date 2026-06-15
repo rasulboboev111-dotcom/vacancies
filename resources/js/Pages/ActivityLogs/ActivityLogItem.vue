@@ -13,7 +13,7 @@ function hasChanges(properties) {
     return properties && (properties.attributes || properties.old);
 }
 
-// Show a placeholder for null/empty field values in the diff table.
+// Показываем заглушку для null/пустых значений полей в таблице различий.
 function displayValue(value) {
     return value !== null && value !== '' ? value : 'холӣ';
 }

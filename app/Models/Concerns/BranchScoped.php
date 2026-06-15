@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 trait BranchScoped
 {
     /**
-     * Restrict the query to what the given user may see (see BranchScope).
+     * Ограничивает запрос тем, что разрешено видеть данному пользователю (см. BranchScope).
      *
      * @param  Builder<static>  $query
      * @return Builder<static>
@@ -20,8 +20,8 @@ trait BranchScoped
     }
 
     /**
-     * The column that ties this model to a branch. Defaults to the branch
-     * foreign key; the Branch model overrides this with its own primary key.
+     * Колонка, связывающая модель с филиалом. По умолчанию — внешний ключ
+     * branch_id; модель Branch переопределяет её собственным первичным ключом.
      */
     protected function branchColumn(): string
     {

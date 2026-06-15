@@ -21,6 +21,13 @@ class UpdateDepartmentRequest extends FormRequest
         $user = $this->user();
         $department = Department::find($this->route('id'));
 
+        // prepareForValidation() выполняется до authorize(); отсутствующий/мягко
+        // удалённый id отклоняется там (403), поэтому выходим до разыменования
+        // null-модели — иначе неверный id вернул бы 500 вместо 403.
+        if ($department === null) {
+            return;
+        }
+
         $branchId = $user->isAdmin()
             ? $this->integer('branch_id')
             : (int) $department->branch_id;

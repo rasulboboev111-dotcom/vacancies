@@ -13,9 +13,6 @@ class DepartmentController extends Controller
 {
     public function __construct(private readonly DepartmentService $departments) {}
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreDepartmentRequest $request): RedirectResponse
     {
         $this->departments->create($request->validated());
@@ -24,9 +21,6 @@ class DepartmentController extends Controller
             ->with('success', 'Шуъба бомуваффақият эҷод шуд.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateDepartmentRequest $request, int $id): RedirectResponse
     {
         $department = Department::findOrFail($id);
@@ -37,9 +31,6 @@ class DepartmentController extends Controller
             ->with('success', 'Шуъба бомуваффақият навсозӣ шуд.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(int $id): RedirectResponse
     {
         $department = Department::findOrFail($id);
@@ -47,8 +38,8 @@ class DepartmentController extends Controller
         Gate::authorize('delete', $department);
 
         if (! $this->departments->delete($department)) {
-            // Distinguish a visible blocker (active children) from a hidden one
-            // (only soft-deleted children) so the message is actionable.
+            // Различаем видимое препятствие (активные подразделения) и скрытое
+            // (только мягко удалённые), чтобы сообщение подсказывало действие.
             $message = $department->children()->exists()
                 ? 'Шуъбаро бо зершуъбаҳояш нест кардан мумкин нест.'
                 : 'Ин шуъба зершуъбаҳои бойгонишуда (дар сабад) дорад. Аввал онҳоро аз сабад тамоман нест кунед.';

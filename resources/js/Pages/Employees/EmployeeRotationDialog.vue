@@ -23,7 +23,12 @@ const form = useForm({
     reason: '',
 });
 
-const { branchDepartments } = useBranchDepartments(form, () => props.departments);
+const { branchDepartments } = useBranchDepartments({
+    getBranchId: () => form.branch_id,
+    getDepartmentId: () => form.department_id,
+    setDepartmentId: (value) => { form.department_id = value; },
+    getDepartments: () => props.departments,
+});
 
 watch(open, (visible) => {
     if (!visible || !props.employee) {
@@ -51,7 +56,6 @@ function submit() {
 <template>
     <v-dialog v-model="open" max-width="620px" persistent>
         <v-card class="rounded-xl overflow-hidden" elevation="8">
-            <!-- Premium Gradient Header -->
             <div style="background: #009cf1; padding: 24px 28px;">
                 <div class="d-flex align-center justify-space-between">
                     <div class="d-flex align-center">

@@ -14,7 +14,7 @@ use Inertia\Response;
 class ProfileController extends Controller
 {
     /**
-     * Display the user's profile form.
+     * Отображает форму профиля пользователя.
      */
     public function edit(Request $request): Response
     {
@@ -26,13 +26,13 @@ class ProfileController extends Controller
             'status' => session('status'),
             'profile' => [
                 'branch_name' => $user->branch?->name,
-                'joined_at' => $user->created_at?->timezone(config('app.display_timezone'))->translatedFormat('d F Y'),
+                'joined_at' => $user->created_at?->translatedFormat('d F Y'),
             ],
         ]);
     }
 
     /**
-     * Update the user's profile information.
+     * Обновляет данные профиля пользователя.
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -48,7 +48,7 @@ class ProfileController extends Controller
     }
 
     /**
-     * Delete the user's account.
+     * Удаляет учётную запись пользователя.
      */
     public function destroy(Request $request): RedirectResponse
     {

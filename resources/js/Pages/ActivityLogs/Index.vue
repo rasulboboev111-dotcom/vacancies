@@ -17,7 +17,7 @@ const eventFilter = ref(props.filters.event || null);
 
 watch(eventFilter, applyFilters);
 
-// Auto-apply the text search while typing, debounced (@vueuse/core).
+// Применяем текстовый поиск во время ввода с задержкой (@vueuse/core).
 watchDebounced(search, applyFilters, { debounce: 400 });
 
 function applyFilters() {
@@ -33,9 +33,9 @@ function applyFilters() {
 }
 
 function resetFilters() {
-    // A fresh (non-preserveState) visit remounts the page with empty filters,
-    // which re-initialises the search/event refs — so we must NOT clear them
-    // here, or the watchers would fire a second, redundant request.
+    // Свежий (без preserveState) переход перемонтирует страницу с пустыми фильтрами,
+    // что заново инициализирует ref'ы search/event — поэтому здесь их очищать НЕ нужно,
+    // иначе наблюдатели отправили бы второй, лишний запрос.
     router.get(route('activity-logs.index'));
 }
 
@@ -51,9 +51,9 @@ function changePage(page) {
     });
 }
 
-// Tajik-labelled options for the event filter dropdown. The leading null
-// option ("Ҳама") is the default, so the field always shows a centred value
-// instead of a floating placeholder.
+// Варианты для выпадающего фильтра событий с подписями на таджикском. Ведущий
+// вариант null ("Ҳама") — значение по умолчанию, так что поле всегда показывает
+// выбранное значение, а не плавающий placeholder.
 const eventFilterOptions = [
     { value: null, title: 'Ҳама' },
     { value: 'created', title: 'Эҷодшуда' },
@@ -61,7 +61,6 @@ const eventFilterOptions = [
     { value: 'deleted', title: 'Несткардашуда' },
 ];
 
-// Clear-log confirmation flow.
 const clearDialog = ref(false);
 const clearing = ref(false);
 
@@ -88,9 +87,8 @@ function clearLogs() {
             </div>
         </template>
 
-        <!-- Toolbar: filters + clear -->
         <v-card elevation="0" class="rounded-xl border pa-4 bg-surface-glass mb-6 app-form">
-            <v-row class="align-end" dense>
+            <v-row class="align-end" density="comfortable">
                 <v-col cols="12" md="5">
                     <label class="filter-label">Ҷустуҷӯ</label>
                     <v-text-field
@@ -156,7 +154,6 @@ function clearLogs() {
             </v-row>
         </v-card>
 
-        <!-- Activity feed -->
         <v-card elevation="0" class="rounded-xl border pa-5 bg-surface-glass">
             <div class="d-flex align-center justify-space-between mb-4">
                 <div class="text-subtitle-1 font-weight-bold text-indigo-darken-4">
@@ -198,7 +195,6 @@ function clearLogs() {
             </template>
         </v-card>
 
-        <!-- Clear confirmation -->
         <v-dialog v-model="clearDialog" max-width="440px">
             <v-card class="rounded-xl overflow-hidden" elevation="8">
                 <div class="pa-6 text-center">

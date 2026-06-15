@@ -20,9 +20,6 @@ class UserController extends Controller
 {
     public function __construct(private readonly UserService $users) {}
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request): Response
     {
         Gate::authorize('viewAny', User::class);
@@ -58,9 +55,6 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreUserRequest $request): RedirectResponse
     {
         $this->users->create($request->validated());
@@ -69,9 +63,6 @@ class UserController extends Controller
             ->with('success', 'Корбар бомуваффақият эҷод шуд.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateUserRequest $request, int $id): RedirectResponse
     {
         $user = User::findOrFail($id);
@@ -82,9 +73,6 @@ class UserController extends Controller
             ->with('success', 'Корбар бомуваффақият навсозӣ шуд.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Request $request, int $id): RedirectResponse
     {
         $user = User::findOrFail($id);

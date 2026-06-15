@@ -10,8 +10,8 @@ use Illuminate\Validation\Rule;
 class StoreDepartmentRequest extends FormRequest
 {
     /**
-     * The branch_id the request originally asked for, captured before it is
-     * normalized so authorize() can reject a branch user targeting another.
+     * Изначально запрошенный branch_id, сохранённый до нормализации, чтобы
+     * authorize() мог отклонить пользователя филиала, нацелившегося на чужой.
      */
     private ?int $requestedBranchId = null;
 

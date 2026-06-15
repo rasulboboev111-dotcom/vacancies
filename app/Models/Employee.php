@@ -95,8 +95,8 @@ class Employee extends Model
         'department_id' => 'integer',
         'position_id' => 'integer',
         'manager_id' => 'integer',
-        // External system's person identifier, populated by the org importer
-        // (ImportOrgStructure: $e['personId']); not a local foreign key.
+        // Идентификатор человека из внешней системы, заполняется импортёром
+        // оргструктуры (ImportOrgStructure: $e['personId']); это не локальный внешний ключ.
         'person_id' => 'integer',
         'category' => Category::class,
         'sort_order' => 'integer',
@@ -106,8 +106,8 @@ class Employee extends Model
         'birth_place_id' => 'integer',
         'employment_type' => EmploymentType::class,
         'gender' => Gender::class,
-        // External-system HR status mirrored by the org importer. NOT the
-        // active/dismissed flag — that is `dismissal_date` (see scopeActive).
+        // HR-статус из внешней системы, зеркалируется импортёром оргструктуры. Это НЕ
+        // признак работает/уволен — им служит `dismissal_date` (см. scopeActive).
         'status' => OrgStatus::class,
         'hire_date' => 'date',
         'dismissal_date' => 'date',
@@ -118,8 +118,8 @@ class Employee extends Model
     ];
 
     /**
-     * Mirror the DB-side default so a freshly instantiated (unsaved) model
-     * reports the same employment type the database would store.
+     * Дублирует значение по умолчанию из БД, чтобы только что созданная
+     * (несохранённая) модель показывала тот же тип занятости, что записала бы база.
      *
      * @var array<string, mixed>
      */
@@ -128,8 +128,8 @@ class Employee extends Model
     ];
 
     /**
-     * The lookup relations behind the appended name accessors are always
-     * serialized, so eager-load them everywhere to avoid per-row N+1 queries.
+     * Справочные связи за добавляемыми (appended) аксессорами имён всегда
+     * сериализуются, поэтому загружаем их везде, чтобы избежать N+1 запросов по строкам.
      *
      * @var list<string>
      */
@@ -138,7 +138,7 @@ class Employee extends Model
     protected $appends = ['age', 'gender_label', 'employment_type_label', 'nationality', 'education', 'specialty', 'birth_place'];
 
     /**
-     * Get employee's age based on birth date.
+     * Возраст сотрудника, вычисленный по дате рождения.
      */
     public function getAgeAttribute(): ?int
     {
@@ -150,8 +150,8 @@ class Employee extends Model
     }
 
     /**
-     * Human-readable gender label (e.g. "Мужской") for the frontend,
-     * derived from the canonical Gender enum value stored in the column.
+     * Человекочитаемая метка пола (например, "Мужской") для фронтенда,
+     * выводится из канонического значения enum Gender, хранящегося в колонке.
      */
     public function getGenderLabelAttribute(): ?string
     {
@@ -159,10 +159,10 @@ class Employee extends Model
     }
 
     /**
-     * Whether the employee is a manager (роҳбар). Determined by the employee's
-     * category being "Роҳбарият" (the management category) set on the employee
-     * form — not by whether they head a department. Requires the `category`
-     * column to be loaded.
+     * Является ли сотрудник руководителем (роҳбар). Определяется тем, что
+     * категория сотрудника — "Роҳбарият" (категория руководства), заданная в форме
+     * сотрудника, а не тем, возглавляет ли он отдел. Требует загруженной
+     * колонки `category`.
      */
     public function getIsManagerAttribute(): bool
     {
@@ -170,12 +170,12 @@ class Employee extends Model
     }
 
     /**
-     * Only employees that are still employed (no dismissal date).
+     * Только работающие сотрудники (без даты увольнения).
      *
-     * `dismissal_date` is the single source of truth for active vs dismissed
-     * across the whole app. The `status` column (OrgStatus: Active/Inactive) is
-     * the HR status mirrored from the external system by the org importer and is
-     * NOT used for this distinction — do not branch active/dismissed logic on it.
+     * `dismissal_date` — единственный источник истины для различия
+     * работает/уволен во всём приложении. Колонка `status` (OrgStatus: Active/Inactive) —
+     * это HR-статус, зеркалируемый из внешней системы импортёром оргструктуры, и он
+     * НЕ используется для этого различия — не стройте на нём логику работает/уволен.
      */
     public function scopeActive($query)
     {
@@ -183,7 +183,7 @@ class Employee extends Model
     }
 
     /**
-     * Only dismissed/archived employees.
+     * Только уволенные/архивные сотрудники.
      */
     public function scopeDismissed($query)
     {
@@ -191,7 +191,7 @@ class Employee extends Model
     }
 
     /**
-     * Full-text-ish search across name, position name and INN.
+     * Псевдополнотекстовый поиск по имени, названию должности и ИНН.
      */
     public function scopeSearch($query, ?string $term)
     {
@@ -207,10 +207,10 @@ class Employee extends Model
     }
 
     /**
-     * Restrict an activity-log query to subjects that belong to the given
-     * branch (its employees, vacancies, departments, or the branch itself).
-     * Subjects without a branch dimension (e.g. positions, users) are excluded.
-     * Internal helper for restrictActivitiesTo().
+     * Ограничивает запрос журнала активности субъектами, принадлежащими данному
+     * филиалу (его сотрудники, вакансии, отделы или сам филиал).
+     * Субъекты без привязки к филиалу (например, должности, пользователи) исключаются.
+     * Внутренний помощник для restrictActivitiesTo().
      *
      * @param  Builder<Activity>  $query
      */
@@ -233,10 +233,10 @@ class Employee extends Model
     }
 
     /**
-     * Apply the full activity-log visibility rule for a user: admins see
-     * everything, a branch user sees only their branch's subjects, and a
-     * branch-less non-admin sees nothing. Shared by the dashboard and the
-     * activity-log listing so the rule lives in exactly one place.
+     * Применяет полное правило видимости журнала активности для пользователя:
+     * админы видят всё, пользователь филиала — только субъекты своего филиала, а
+     * не-админ без филиала не видит ничего. Используется и дашбордом, и
+     * списком журнала активности, чтобы правило жило ровно в одном месте.
      *
      * @param  Builder<Activity>  $query
      */
@@ -255,16 +255,13 @@ class Employee extends Model
         self::filterActivitiesByBranch($query, $user->branch_id);
     }
 
-    /**
-     * Get the branch that the employee belongs to.
-     */
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
     }
 
     /**
-     * Get the department (new org tree) that the employee belongs to.
+     * Отдел (из нового дерева оргструктуры), к которому относится сотрудник.
      */
     public function department(): BelongsTo
     {
@@ -272,27 +269,24 @@ class Employee extends Model
     }
 
     /**
-     * Human-readable employment-type label (e.g. "Штатӣ") for the frontend,
-     * derived from the canonical EmploymentType enum stored in the column.
+     * Человекочитаемая метка типа занятости (например, "Штатӣ") для фронтенда,
+     * выводится из канонического enum EmploymentType, хранящегося в колонке.
      */
     public function getEmploymentTypeLabelAttribute(): ?string
     {
         return EmploymentType::tryFrom($this->attributes['employment_type'] ?? '')?->label();
     }
 
-    /**
-     * Get the position that the employee belongs to.
-     */
     public function position(): BelongsTo
     {
         return $this->belongsTo(Position::class);
     }
 
     /**
-     * Lookup relationships for the normalized free-text attributes.
-     * They are suffixed with "Ref" so the bare attribute names
-     * (nationality, education, specialty, birth_place) can expose the
-     * resolved string value via accessors for frontend compatibility.
+     * Справочные связи для нормализованных свободно-текстовых атрибутов.
+     * Имеют суффикс "Ref", чтобы голые имена атрибутов
+     * (nationality, education, specialty, birth_place) могли отдавать
+     * разрешённое строковое значение через аксессоры для совместимости с фронтендом.
      */
     public function nationalityRef(): BelongsTo
     {
@@ -315,9 +309,9 @@ class Employee extends Model
     }
 
     /**
-     * String accessors that keep the frontend contract: employee.nationality,
-     * employee.education, employee.specialty and employee.birth_place are
-     * serialized as plain strings (the lookup name) rather than objects.
+     * Строковые аксессоры, сохраняющие контракт с фронтендом: employee.nationality,
+     * employee.education, employee.specialty и employee.birth_place
+     * сериализуются как обычные строки (название из справочника), а не как объекты.
      */
     public function getNationalityAttribute(): ?string
     {
@@ -340,7 +334,7 @@ class Employee extends Model
     }
 
     /**
-     * Get the direct manager of the employee.
+     * Непосредственный руководитель сотрудника.
      */
     public function manager(): BelongsTo
     {
@@ -348,7 +342,7 @@ class Employee extends Model
     }
 
     /**
-     * Get rotations history of the employee.
+     * История ротаций сотрудника.
      */
     public function rotations(): HasMany
     {

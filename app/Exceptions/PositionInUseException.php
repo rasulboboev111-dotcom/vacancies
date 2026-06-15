@@ -5,8 +5,8 @@ namespace App\Exceptions;
 use RuntimeException;
 
 /**
- * Thrown by PositionService when a position cannot be deleted because active or
- * archived employees are still assigned to it. The message is user-facing
- * (already localised) and surfaced as a flash error.
+ * Бросается PositionService, когда вазифу нельзя удалить, потому что к ней всё
+ * ещё прикреплены активные или архивные корманды. Сообщение предназначено для
+ * пользователя (уже локализовано) и показывается как flash-ошибка.
  */
 class PositionInUseException extends RuntimeException {}

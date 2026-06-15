@@ -399,8 +399,17 @@ body {
     box-shadow: 0 0 0 3px rgba(0, 156, 241, 0.15), 0 2px 4px rgba(0, 0, 0, 0.2) !important;
 }
 
+/* Vuetify positions the v-select placeholder as an absolute, top-anchored
+   one-line input (align-self: flex-start in VSelect.css), so it sits a few
+   pixels below the visual middle — unlike v-text-field, whose input fills the
+   field and centers its text. Re-center it to match. */
+.v-select .v-field .v-field__input > input {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 /* Explicitly hide native browser borders, outlines, shadows, and default styling on all Vuetify input elements */
-.v-field input, 
+.v-field input,
 .v-field select, 
 .v-field textarea,
 .v-field__input input,

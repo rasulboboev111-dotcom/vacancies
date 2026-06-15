@@ -1,5 +1,6 @@
 <script setup>
-import { DoorOpen, Eye, Lock, Pencil, Trash2, Unlock } from '@lucide/vue';
+import { DoorOpen, Lock, Pencil, Printer, Trash2, Unlock } from '@lucide/vue';
+import { salaryText, scheduleText, statusLabel } from '@/lib/vacancy';
 
 defineProps({
     vacancies: { type: Array, required: true },
@@ -8,7 +9,7 @@ defineProps({
     canDelete: { type: Function, required: true },
 });
 
-defineEmits(['view', 'edit', 'delete', 'toggle']);
+defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
 </script>
 
 <template>
@@ -43,13 +44,10 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="vacancy in vacancies" :key="vacancy.id" class="vacancy-row">
+                <tr v-for="vacancy in vacancies" :key="vacancy.id" class="vacancy-row" @click="$emit('view', vacancy)">
                     <td class="pa-3">
-                        <button type="button" class="vac-name" @click="$emit('view', vacancy)">
-                            {{ vacancy.title || vacancy.position?.name || '—' }}
-                        </button>
-                        <div v-if="vacancy.title && vacancy.position" class="text-caption vac-secondary">
-                            {{ vacancy.position.name }}
+                        <div class="text-truncate vac-name" :title="vacancy.position?.name || '—'">
+                            {{ vacancy.position?.name || '—' }}
                         </div>
                     </td>
                     <td class="pa-3 vac-position">
@@ -71,10 +69,10 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
                         <span v-else class="vac-branch">—</span>
                     </td>
                     <td class="pa-3 vac-secondary text-center">
-                        {{ vacancy.schedule || '—' }}
+                        {{ scheduleText(vacancy) || '—' }}
                     </td>
                     <td class="pa-3 vac-secondary text-center">
-                        {{ vacancy.salary != null ? `${vacancy.salary.toLocaleString('ru-RU')} сом.` : '—' }}
+                        {{ salaryText(vacancy.salary, 'сом.') || '—' }}
                     </td>
                     <td class="pa-3 text-center">
                         <v-chip
@@ -83,12 +81,12 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
                             variant="tonal"
                             class="font-weight-bold text-uppercase"
                         >
-                            {{ vacancy.status === 'open' ? 'Кушода' : 'Баста' }}
+                            {{ statusLabel(vacancy, 'tg') }}
                         </v-chip>
                     </td>
                     <td class="pa-3 text-center">
-                        <v-btn variant="text" size="small" class="mr-1 hover-scale-btn act-btn act-accent" title="Дидан" @click="$emit('view', vacancy)">
-                            <Eye style="width: 16px; height: 16px;" />
+                        <v-btn variant="text" size="small" class="mr-1 hover-scale-btn act-btn act-accent" title="Чопи заявка" @click.stop="$emit('print', vacancy)">
+                            <Printer style="width: 16px; height: 16px;" />
                         </v-btn>
 
                         <v-btn
@@ -98,7 +96,7 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
                             class="mr-1 hover-scale-btn act-btn"
                             :class="vacancy.status === 'open' ? 'act-accent' : 'act-success'"
                             :title="vacancy.status === 'open' ? 'Бастани вакансия' : 'Кушодани вакансия'"
-                            @click="$emit('toggle', vacancy)"
+                            @click.stop="$emit('toggle', vacancy)"
                         >
                             <Lock v-if="vacancy.status === 'open'" style="width: 16px; height: 16px;" />
                             <Unlock v-else style="width: 16px; height: 16px;" />
@@ -110,7 +108,7 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
                             size="small"
                             class="mr-1 hover-scale-btn act-btn act-accent"
                             title="Таҳрир"
-                            @click="$emit('edit', vacancy)"
+                            @click.stop="$emit('edit', vacancy)"
                         >
                             <Pencil style="width: 16px; height: 16px;" />
                         </v-btn>
@@ -121,7 +119,7 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
                             size="small"
                             class="hover-scale-btn act-btn act-danger"
                             title="Нест кардан"
-                            @click="$emit('delete', vacancy)"
+                            @click.stop="$emit('delete', vacancy)"
                         >
                             <Trash2 style="width: 16px; height: 16px;" />
                         </v-btn>
@@ -144,21 +142,14 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
     backdrop-filter: blur(12px);
 }
 
-/* Three tiers of text contrast carry the hierarchy without colour:
-   title (darkest anchor) → department/schedule (mid) → branch (light). */
+/* Три уровня контраста текста задают иерархию без цвета:
+   заголовок (самый тёмный якорь) → отдел/график (средний) → филиал (светлый). */
+/* Ограничиваем колонку имени, чтобы длинный заголовок должности обрезался в одну
+   строку с многоточием; полное значение остаётся доступным через title-подсказку ячейки. */
 .vac-name {
-    font: inherit;
+    max-width: 260px;
     color: #111111;
     font-weight: 600;
-    padding: 0;
-    border: 0;
-    background: none;
-    text-align: left;
-    cursor: pointer;
-}
-.vac-name:hover {
-    color: #3f51b5;
-    text-decoration: underline;
 }
 .vac-position,
 .vac-secondary {
@@ -168,8 +159,11 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
     color: #999999;
 }
 
-/* Rows read as discrete records: zebra striping plus a hover highlight with a
-   thin indigo bar on the left of the active row. */
+/* Строки читаются как отдельные записи: зебра-полосы плюс подсветка при наведении
+   с тонкой indigo-полосой слева у активной строки. */
+.table-modern tbody tr.vacancy-row {
+    cursor: pointer;
+}
 .table-modern tbody tr.vacancy-row:nth-child(even) {
     background: #fafafb;
 }
@@ -178,8 +172,8 @@ defineEmits(['view', 'edit', 'delete', 'toggle']);
     box-shadow: inset 3px 0 0 0 #5c6bc0;
 }
 
-/* Action icons stay quiet grey at rest; their meaning (accent / success /
-   danger) surfaces only on hover. */
+/* Иконки действий остаются спокойно-серыми в покое; их смысл (акцент / успех /
+   опасность) проявляется только при наведении. */
 .act-btn {
     color: #9ca3af !important;
 }

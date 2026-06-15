@@ -1,7 +1,9 @@
 <script setup>
-import { Briefcase, DoorOpen, FileText } from '@lucide/vue';
+import { BadgeCheck, Briefcase, Clock, DoorOpen, FileText, Flag, ListChecks } from '@lucide/vue';
 import DataField from '@/Components/DataField.vue';
+import DialogHeader from '@/Components/DialogHeader.vue';
 import { formatDate } from '@/lib/date';
+import { probationText, salaryText, scheduleText, statusLabel } from '@/lib/vacancy';
 
 defineProps({
     vacancy: { type: Object, default: null },
@@ -14,87 +16,153 @@ const open = defineModel({ type: Boolean, default: false });
 <template>
     <v-dialog v-model="open" max-width="760px">
         <v-card v-if="vacancy" class="rounded-xl overflow-hidden" elevation="8">
-            <!-- Header -->
-            <div style="background: #009cf1; padding: 20px 28px;">
-                <div class="d-flex align-center justify-space-between">
-                    <div class="d-flex align-center">
-                        <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
-                            <DoorOpen style="width: 22px; height: 22px; color: white;" />
-                        </v-avatar>
-                        <div class="ml-4">
-                            <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">
-                                Маълумот дар бораи вакансия
-                            </div>
-                            <div style="color: white; font-size: 1.1rem; font-weight: 700;">
-                                {{ vacancy.title }}
-                            </div>
-                        </div>
-                    </div>
-                    <v-chip color="white" variant="flat" class="font-weight-medium" size="small" :style="{ color: vacancy.status === 'open' ? '#b45309' : '#475569' }">
-                        {{ vacancy.status === 'open' ? 'Кушода' : 'Баста' }}
-                    </v-chip>
-                </div>
-            </div>
+            <DialogHeader kicker="Заявка на подбор персонала" :title="vacancy.position?.name || 'Вакансия'">
+                <template #icon>
+                    <DoorOpen style="width: 22px; height: 22px; color: white;" />
+                </template>
+            </DialogHeader>
 
             <v-card-text class="pa-6 overflow-y-auto" style="max-height: 72vh; background-color: #f8fafc;">
+                <!-- 1. Информация о вакансии -->
                 <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
                     <div class="d-flex align-center section-title mb-4">
                         <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
                             <Briefcase style="width: 16px; height: 16px;" />
                         </v-avatar>
-                        Маълумоти асосӣ
+                        1. Информация о вакансии
                     </div>
-                    <v-row dense>
+                    <v-row density="comfortable">
                         <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Вазифа" :value="vacancy.position?.name" />
+                            <DataField label="Должность (позиция)" :value="vacancy.position?.name" />
                         </v-col>
                         <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Шумораи кормандони зарур" :value="vacancy.openings" />
-                        </v-col>
-                        <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Шуъба" :value="vacancy.department?.name" />
+                            <DataField label="Структурное подразделение" :value="vacancy.department?.name" />
                         </v-col>
                         <v-col v-if="isAdmin" cols="12" sm="6" class="py-2">
                             <DataField label="Филиал" :value="vacancy.branch?.name" />
                         </v-col>
                         <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Намуди шуғл" :value="vacancy.employment_type" />
+                            <DataField label="Место деятельности / локация" :value="vacancy.location" />
                         </v-col>
                         <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Ҷадвали корӣ" :value="vacancy.schedule" />
+                            <DataField label="Количество вакансий" :value="vacancy.openings" />
                         </v-col>
                         <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Маош" :value="vacancy.salary != null ? `${vacancy.salary.toLocaleString('ru-RU')} сомонӣ` : null" />
-                        </v-col>
-                        <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Санаи кушодашавӣ" :value="formatDate(vacancy.opened_at)" />
-                        </v-col>
-                        <v-col v-if="vacancy.closed_at" cols="12" sm="6" class="py-2">
-                            <DataField label="Санаи пӯшидашавӣ" :value="formatDate(vacancy.closed_at)" />
-                        </v-col>
-                        <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Эҷодкунанда" :value="vacancy.creator?.name" />
+                            <DataField label="Непосредственный руководитель" :value="vacancy.supervisor" />
                         </v-col>
                     </v-row>
                 </v-card>
 
-                <v-card v-if="vacancy.requirements || vacancy.description" elevation="0" class="rounded-xl border pa-5 bg-white">
+                <!-- 2. Требования к кандидату -->
+                <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
                     <div class="d-flex align-center section-title mb-4">
                         <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
                             <FileText style="width: 16px; height: 16px;" />
                         </v-avatar>
-                        Талабот ва тавсиф
+                        2. Требования к кандидату
                     </div>
-                    <v-row dense>
-                        <v-col v-if="vacancy.requirements" cols="12" class="py-2">
-                            <DataField label="Талабот ба номзад">
-                                <span style="white-space: pre-line;">{{ vacancy.requirements }}</span>
-                            </DataField>
+                    <v-row density="comfortable">
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="Образование" :value="vacancy.education_label" />
                         </v-col>
-                        <v-col v-if="vacancy.description" cols="12" class="py-2">
-                            <DataField label="Тавсиф">
-                                <span style="white-space: pre-line;">{{ vacancy.description }}</span>
-                            </DataField>
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="Опыт работы" :value="vacancy.experience_label" />
+                        </v-col>
+                        <v-col cols="12" class="py-2">
+                            <DataField label="Знание языков" :value="vacancy.languages?.length ? vacancy.languages.join(', ') : null" />
+                        </v-col>
+                        <v-col cols="12" class="py-2">
+                            <DataField label="Ключевые навыки и знание программ" :value="vacancy.skills" multiline />
+                        </v-col>
+                        <v-col cols="12" class="py-2">
+                            <DataField label="Дополнительные требования к кандидату" :value="vacancy.requirements" multiline />
+                        </v-col>
+                    </v-row>
+                </v-card>
+
+                <!-- 3. Должностные обязанности -->
+                <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
+                    <div class="d-flex align-center section-title mb-4">
+                        <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                            <ListChecks style="width: 16px; height: 16px;" />
+                        </v-avatar>
+                        3. Должностные обязанности
+                    </div>
+                    <v-row density="comfortable">
+                        <v-col cols="12" class="py-2">
+                            <DataField label="Основные обязанности" :value="vacancy.responsibilities" multiline />
+                        </v-col>
+                    </v-row>
+                </v-card>
+
+                <!-- 4. Условия работы -->
+                <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
+                    <div class="d-flex align-center section-title mb-4">
+                        <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                            <Clock style="width: 16px; height: 16px;" />
+                        </v-avatar>
+                        4. Условия работы
+                    </div>
+                    <v-row density="comfortable">
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="Тип занятости" :value="vacancy.employment_type_label" />
+                        </v-col>
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="График работы" :value="scheduleText(vacancy)" />
+                        </v-col>
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="Формат работы" :value="vacancy.work_format_label" />
+                        </v-col>
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="Предполагаемый уровень дохода" :value="salaryText(vacancy.salary)" />
+                        </v-col>
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="Испытательный срок" :value="probationText(vacancy)" />
+                        </v-col>
+                    </v-row>
+                </v-card>
+
+                <!-- 5. Причина открытия и сроки -->
+                <v-card elevation="0" class="rounded-xl border pa-5 bg-white mb-5">
+                    <div class="d-flex align-center section-title mb-4">
+                        <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                            <Flag style="width: 16px; height: 16px;" />
+                        </v-avatar>
+                        5. Причина открытия позиции и сроки
+                    </div>
+                    <v-row density="comfortable">
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="Причина открытия позиции" :value="vacancy.opening_reason_label" />
+                        </v-col>
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="Приоритет / срочность" :value="vacancy.priority_label" />
+                        </v-col>
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="Дата подачи заявки" :value="formatDate(vacancy.opened_at)" />
+                        </v-col>
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="Планируемая дата закрытия (Дедлайн)" :value="formatDate(vacancy.deadline)" />
+                        </v-col>
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="Инициатор заявки" :value="vacancy.creator?.name" />
+                        </v-col>
+                    </v-row>
+                </v-card>
+
+                <!-- 6. Согласование заявки -->
+                <v-card elevation="0" class="rounded-xl border pa-5 bg-white">
+                    <div class="d-flex align-center section-title mb-4">
+                        <v-avatar color="indigo-lighten-5" size="32" class="mr-3 text-indigo">
+                            <BadgeCheck style="width: 16px; height: 16px;" />
+                        </v-avatar>
+                        6. Согласование заявки
+                    </div>
+                    <v-row density="comfortable">
+                        <v-col cols="12" sm="6" class="py-2">
+                            <DataField label="Статус вакансии" :value="statusLabel(vacancy)" />
+                        </v-col>
+                        <v-col v-if="vacancy.closed_at" cols="12" sm="6" class="py-2">
+                            <DataField label="Дата закрытия" :value="formatDate(vacancy.closed_at)" />
                         </v-col>
                     </v-row>
                 </v-card>
@@ -104,7 +172,7 @@ const open = defineModel({ type: Boolean, default: false });
 
             <v-card-actions class="px-6 py-4 bg-white d-flex justify-end">
                 <v-btn color="indigo" variant="flat" size="large" class="bg-indigo px-6 font-weight-medium text-white" rounded="lg" @click="open = false">
-                    Пӯшидан
+                    Закрыть
                 </v-btn>
             </v-card-actions>
         </v-card>

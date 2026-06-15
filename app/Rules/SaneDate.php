@@ -8,13 +8,13 @@ use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 /**
- * Crash-safe date validation. Laravel's native date comparison rules
- * (after_or_equal/before_or_equal/...) convert the value to a Unix timestamp,
- * which throws an unhandled "Epoch doesn't fit in a PHP integer" ValueError
- * (HTTP 500) for absurdly large years. This rule validates the format, caps the
- * year, and performs the optional "after or equal" comparison using Carbon's
- * datetime comparison — never getTimestamp() — so an out-of-range year fails
- * cleanly with a 422 instead of crashing.
+ * Защищённая от падений валидация дат. Нативные правила сравнения дат Laravel
+ * (after_or_equal/before_or_equal/...) переводят значение в Unix-таймстамп, что
+ * для абсурдно больших годов бросает необработанный ValueError «Epoch doesn't fit
+ * in a PHP integer» (HTTP 500). Это правило проверяет формат, ограничивает год и
+ * выполняет необязательное сравнение «после или равно» через datetime-сравнение
+ * Carbon — никогда getTimestamp() — так что год вне диапазона аккуратно
+ * проваливается с 422 вместо падения.
  */
 class SaneDate implements DataAwareRule, ValidationRule
 {
@@ -62,9 +62,9 @@ class SaneDate implements DataAwareRule, ValidationRule
     }
 
     /**
-     * Parse a date string without ever touching the epoch. Returns null for
-     * empty, unparseable, or out-of-range-low values (year < 1000) so callers
-     * treat them as invalid rather than crashing.
+     * Разбирает строку даты, ни разу не обращаясь к эпохе. Возвращает null для
+     * пустых, неразбираемых или слишком малых значений (год < 1000), чтобы
+     * вызывающий код считал их недопустимыми, а не падал.
      */
     private function safeParse(mixed $value): ?CarbonImmutable
     {

@@ -6,11 +6,16 @@ defineProps({
     isAdmin: { type: Boolean, default: false },
 });
 
-defineEmits(['edit', 'delete']);
+defineEmits(['view', 'edit', 'delete']);
 </script>
 
 <template>
-    <v-card elevation="0" class="rounded-xl border pa-5 h-100 d-flex flex-column transition-hover position-relative overflow-hidden">
+    <v-card
+        elevation="0"
+        :ripple="false"
+        class="rounded-xl border pa-5 h-100 d-flex flex-column position-relative overflow-hidden position-card"
+        @click="$emit('view', position)"
+    >
         <div class="d-flex justify-space-between align-start mb-3">
             <div class="d-flex align-center ga-3 position-head" style="min-width: 0;">
                 <span class="position-icon">
@@ -23,7 +28,7 @@ defineEmits(['edit', 'delete']);
 
             <v-menu v-if="isAdmin">
                 <template #activator="{ props: menuProps }">
-                    <v-btn icon variant="text" size="small" class="hover-scale-btn" v-bind="menuProps">
+                    <v-btn icon variant="text" size="small" class="hover-scale-btn" v-bind="menuProps" @click.stop>
                         <MoreVertical style="width: 16px; height: 16px;" />
                     </v-btn>
                 </template>
@@ -65,6 +70,13 @@ defineEmits(['edit', 'delete']);
 </template>
 
 <style scoped>
+.position-card {
+    cursor: pointer;
+}
+/* Кликабельна, но визуально статична — без подъёма при наведении и оверлея ссылки/наведения Vuetify. */
+.position-card :deep(.v-card__overlay) {
+    display: none;
+}
 .position-icon {
     display: inline-flex;
     align-items: center;

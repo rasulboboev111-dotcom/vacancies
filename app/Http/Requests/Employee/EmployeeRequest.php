@@ -12,9 +12,9 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Unique;
 
 /**
- * Shared validation rules for creating and updating an employee. The owning
- * row (on update) is ignored by the INN/passport unique checks; empty values
- * are exempt so they may repeat.
+ * Общие правила валидации для создания и обновления сотрудника. Редактируемая
+ * запись (при обновлении) исключается из проверок уникальности ИНН/паспорта;
+ * пустые значения освобождены от проверки и могут повторяться.
  */
 abstract class EmployeeRequest extends FormRequest
 {
@@ -30,11 +30,12 @@ abstract class EmployeeRequest extends FormRequest
         $currentManagerId = $employee?->manager_id;
         $currentBranchId = $employee?->branch_id;
 
-        // Validate manager_id strictly (same branch, not soft-deleted, not self)
-        // EXCEPT when nothing relevant changed: same existing manager AND same
-        // branch. That spares an unrelated edit from re-validating a manager that
-        // is legitimately archived or cross-branch (e.g. set by org:import). A
-        // branch move, or a null->value change, still goes through the strict rule.
+        // Строгая валидация manager_id (тот же филиал, не удалён мягко, не сам
+        // сотрудник), КРОМЕ случая, когда ничего значимого не изменилось: тот же
+        // существующий руководитель И тот же филиал. Это избавляет несвязанное
+        // редактирование от повторной проверки руководителя, который законно
+        // архивирован или из другого филиала (например, заданного org:import).
+        // Смена филиала или переход null->значение всё равно проходят строгое правило.
         $managerId = $this->input('manager_id');
         $managerUnchanged = $ignoreId !== null
             && $managerId !== null
@@ -98,9 +99,10 @@ abstract class EmployeeRequest extends FormRequest
     }
 
     /**
-     * Soft-delete-aware uniqueness for a government-issued identifier: the value
-     * must be unique among live (non-trashed) employees, empty values may repeat,
-     * and the row being updated is ignored.
+     * Проверка уникальности с учётом мягкого удаления для государственного
+     * идентификатора: значение должно быть уникальным среди живых (не удалённых)
+     * сотрудников, пустые значения могут повторяться, а редактируемая запись
+     * исключается.
      */
     private function uniqueLiveValue(string $column, mixed $ignoreId): Unique
     {

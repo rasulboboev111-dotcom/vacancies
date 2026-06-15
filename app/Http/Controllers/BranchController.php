@@ -13,9 +13,6 @@ class BranchController extends Controller
 {
     public function __construct(private readonly BranchService $branches) {}
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreBranchRequest $request): RedirectResponse
     {
         $this->branches->create($request->validated());
@@ -24,9 +21,6 @@ class BranchController extends Controller
             ->with('success', 'Филиал бомуваффақият эҷод шуд.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateBranchRequest $request, int $id): RedirectResponse
     {
         $branch = Branch::findOrFail($id);
@@ -37,9 +31,6 @@ class BranchController extends Controller
             ->with('success', 'Филиал бомуваффақият навсозӣ шуд.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(int $id): RedirectResponse
     {
         $branch = Branch::findOrFail($id);

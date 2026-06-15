@@ -32,7 +32,7 @@ const open = defineModel({ type: Boolean, default: false });
                     <v-progress-circular indeterminate color="indigo" />
                 </div>
                 <template v-else>
-                    <!-- Manager (Роҳбар) — separate highlighted row on top -->
+                    <!-- Роҳбар — отдельная выделенная строка наверху -->
                     <v-list v-if="manager" density="comfortable" class="py-0">
                         <v-list-item class="manager-row">
                             <template #prepend>

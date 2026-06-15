@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations. manager_id references employees, which does not exist
-     * yet, so its foreign key is added later (add_department_manager_foreign_key).
+     * manager_id ссылается на employees, которой ещё не существует, поэтому её
+     * внешний ключ добавляется позже (add_department_manager_foreign_key).
      */
     public function up(): void
     {
@@ -27,8 +27,8 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
             $table->index(['branch_id', 'parent_id']);
-            // Postgres does not auto-index a foreign key's referencing column;
-            // manager_id is joined/filtered, so index it explicitly.
+            // Postgres не индексирует автоматически ссылающийся столбец внешнего
+            // ключа; manager_id используется в join/фильтрах, поэтому индексируем явно.
             $table->index('manager_id');
         });
 
@@ -36,7 +36,7 @@ return new class extends Migration
         DB::statement('CREATE UNIQUE INDEX departments_branch_parent_name_unique ON departments (branch_id, parent_id, name) WHERE parent_id IS NOT NULL AND deleted_at IS NULL');
         DB::statement('CREATE UNIQUE INDEX departments_external_id_unique ON departments (external_id) WHERE external_id IS NOT NULL AND deleted_at IS NULL');
 
-        // Status enum enforced at the DB level (App\Enums\OrgStatus); NULL passes.
+        // Enum статуса проверяется на уровне БД (App\Enums\OrgStatus); NULL проходит.
         DB::statement("ALTER TABLE departments ADD CONSTRAINT departments_status_check CHECK (status IN ('Active', 'Inactive'))");
     }
 

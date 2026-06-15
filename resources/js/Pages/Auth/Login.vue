@@ -35,7 +35,6 @@ function submit() {
         </div>
 
         <form class="login-form" @submit.prevent="submit">
-            <!-- Email -->
             <div class="field">
                 <label for="email" class="field__label">Почтаи электронӣ</label>
                 <div class="field__control" :class="{ 'is-error': form.errors.email }">
@@ -53,7 +52,6 @@ function submit() {
                 <InputError class="field__error" :message="form.errors.email" />
             </div>
 
-            <!-- Password -->
             <div class="field">
                 <label for="password" class="field__label">Парол</label>
                 <div class="field__control" :class="{ 'is-error': form.errors.password }">
@@ -78,14 +76,12 @@ function submit() {
                 <InputError class="field__error" :message="form.errors.password" />
             </div>
 
-            <!-- Remember -->
             <label class="remember">
                 <input v-model="form.remember" type="checkbox">
                 <span class="remember__box" />
                 <span class="remember__text">Маро дар хотир нигоҳ доред</span>
             </label>
 
-            <!-- Submit -->
             <button type="submit" class="login-btn" :class="{ 'is-loading': form.processing }" :disabled="form.processing">
                 <span>{{ form.processing ? 'Лутфан интизор шавед…' : 'Ворид шудан' }}</span>
                 <ArrowRight class="login-btn__arrow" />
@@ -158,8 +154,8 @@ function submit() {
     min-width: 0;
 }
 .field__control input::placeholder { color: #b6c2d2; font-weight: 500; }
-/* Hide the native square reveal/clear buttons Edge & IE paint inside
-   password/email inputs (we provide our own show/hide toggle). */
+/* Прячем нативные квадратные кнопки показа/очистки, которые Edge и IE рисуют
+   внутри полей пароля/почты (у нас свой переключатель показа). */
 .field__control input::-ms-reveal,
 .field__control input::-ms-clear {
     display: none;
@@ -172,7 +168,7 @@ function submit() {
     display: none !important;
     pointer-events: none;
 }
-/* Kill the inner border/background Chrome paints on autofilled inputs. */
+/* Убираем внутреннюю рамку/фон, которые Chrome рисует на автозаполненных полях. */
 .field__control input:-webkit-autofill,
 .field__control input:-webkit-autofill:hover,
 .field__control input:-webkit-autofill:focus {

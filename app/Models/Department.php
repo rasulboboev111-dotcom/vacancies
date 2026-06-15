@@ -66,7 +66,7 @@ class Department extends Model
     }
 
     /**
-     * The employee that manages this department (the API "managerId").
+     * Сотрудник, руководящий этим отделом (поле "managerId" из API).
      */
     public function manager(): BelongsTo
     {
@@ -88,16 +88,16 @@ class Department extends Model
             return true;
         }
 
-        // A cycle forms only if the chosen parent already sits below this
-        // department. The recursive CTE is built without global scopes, so the
-        // walk passes through soft-deleted nodes — a cycle routed through an
-        // archived department is still caught.
+        // Цикл возникает, только если выбранный родитель уже находится ниже
+        // этого отдела. Рекурсивный CTE строится без глобальных scope, поэтому
+        // обход проходит и через soft-deleted узлы — цикл через
+        // архивный отдел тоже будет пойман.
         return $this->descendants()->whereKey($newParentId)->exists();
     }
 
     /**
-     * Order departments the way the source API returns them: by the captured
-     * sort_order first, then natural code, then name as a final tiebreaker.
+     * Сортирует отделы так, как их возвращает исходный API: сначала по
+     * сохранённому sort_order, затем по code, и по name как финальный критерий.
      *
      * @param  Collection<int, Department>  $departments
      * @return Collection<int, Department>

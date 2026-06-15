@@ -16,7 +16,7 @@ class Branch extends Model
     use BranchScoped, HasFactory, LogsActivity, SoftDeletes;
 
     /**
-     * The Branch is scoped on its own primary key, not a branch_id column.
+     * Branch ограничивается по собственному первичному ключу, а не по колонке branch_id.
      */
     protected function branchColumn(): string
     {
@@ -60,25 +60,16 @@ class Branch extends Model
         ];
     }
 
-    /**
-     * Get the employees for the branch.
-     */
     public function employees(): HasMany
     {
         return $this->hasMany(Employee::class);
     }
 
-    /**
-     * Get the departments for the branch.
-     */
     public function departments(): HasMany
     {
         return $this->hasMany(Department::class);
     }
 
-    /**
-     * Get the vacancies for the branch.
-     */
     public function vacancies(): HasMany
     {
         return $this->hasMany(Vacancy::class);

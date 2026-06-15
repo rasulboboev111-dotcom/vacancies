@@ -1,4 +1,4 @@
-// Shared role presentation helpers for the Users pages.
+// Хелперы отображения ролей для страниц пользователей.
 
 export const roleLabels = {
     Admin: 'Админ',
@@ -22,9 +22,9 @@ export function getRoleColor(roleName) {
     return roleColors[roleName] ?? 'grey';
 }
 
-// Admin is the privileged role, so it gets a solid, prominent chip; everyone
-// else stays calm and subtle (tonal). This makes the role legible at a glance
-// without having to read the label.
+// Admin — привилегированная роль, поэтому у неё сплошной заметный чип; остальные
+// остаются спокойными и приглушёнными (tonal). Так роль читается с первого
+// взгляда, без необходимости вчитываться в подпись.
 export function getRoleVariant(roleName) {
     return roleName === 'Admin' ? 'flat' : 'tonal';
 }

@@ -20,12 +20,12 @@ use Spatie\Activitylog\Models\Activity;
 class DashboardController extends Controller
 {
     /**
-     * Display fallback for an employee whose category/type is unset.
+     * Отображаемая заглушка для сотрудника, у которого не задана категория/тип.
      */
     private const NOT_SPECIFIED = 'Зикр нашудааст';
 
     /**
-     * Display the dashboard statistics.
+     * Отображает статистику панели управления.
      */
     public function index(Request $request): Response
     {
@@ -33,8 +33,8 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard', [
             'stats' => [
-                // Employee figures count only active (non-dismissed) staff —
-                // archived/dismissed employees (dismissal_date set) are excluded.
+                // В число сотрудников входят только активные (неуволенные) —
+                // архивные/уволенные (с заполненным dismissal_date) исключаются.
                 'total_employees' => Employee::query()->whereNull('dismissal_date')->viewableBy($user)->count(),
                 'total_branches' => Branch::query()->viewableBy($user)->count(),
                 'branch_stats' => $this->branchStats($user),
@@ -53,7 +53,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Branch distribution (active employees only).
+     * Распределение по филиалам (только активные сотрудники).
      */
     private function branchStats(User $user): Collection
     {
@@ -71,9 +71,9 @@ class DashboardController extends Controller
     }
 
     /**
-     * Category distribution. Aggregates run on the query builder (not Eloquent)
-     * so the COALESCE fallback isn't fed through the category enum cast, and no
-     * Employee $with/$appends are hydrated per row.
+     * Распределение по категориям. Агрегаты выполняются на query builder
+     * (не Eloquent), чтобы заглушка COALESCE не проходила через каст enum
+     * категории и чтобы не гидрировались Employee $with/$appends на каждую строку.
      */
     private function categoryStats(User $user): Collection
     {
@@ -86,7 +86,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Type distribution.
+     * Распределение по типам занятости.
      */
     private function typeStats(User $user): Collection
     {
@@ -108,10 +108,10 @@ class DashboardController extends Controller
     }
 
     /**
-     * Gender distribution — overall and among managers. A manager is an
-     * employee whose category is "Роҳбарият", the same rule that backs
-     * Employee::is_manager. Aggregated on the query builder so no Employee
-     * appends/relations are hydrated per row.
+     * Распределение по полу — в целом и среди руководителей. Руководитель —
+     * сотрудник с категорией "Роҳбарият", по тому же правилу, что и
+     * Employee::is_manager. Агрегируется на query builder, чтобы не
+     * гидрировать Employee appends/relations на каждую строку.
      *
      * @return array{male: int, female: int, unspecified: int}
      */
@@ -142,7 +142,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Open/closed vacancies broken down by branch (branches with at least one).
+     * Открытые/закрытые вакансии в разрезе филиалов (только филиалы хотя бы с одной).
      */
     private function vacancyByBranch(User $user): Collection
     {
@@ -167,7 +167,7 @@ class DashboardController extends Controller
     }
 
     /**
-     * Recent activity log entries, scoped to what the user may see.
+     * Последние записи журнала действий, ограниченные тем, что доступно пользователю.
      */
     private function recentActivities(User $user): Collection
     {
@@ -185,7 +185,7 @@ class DashboardController extends Controller
                     'event' => $activity->event,
                     'causer_name' => $activity->causer ? $activity->causer->name : 'Низом',
                     'properties' => $activity->properties,
-                    'created_at' => $activity->created_at->timezone(config('app.display_timezone'))->format('d.m.Y H:i'),
+                    'created_at' => $activity->created_at?->format('d.m.Y H:i'),
                 ];
             });
     }
