@@ -5,6 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm as useVeeForm } from 'vee-validate';
 import { ref, watch } from 'vue';
 import FormField from '@/Components/FormField.vue';
+import { applyServerErrors } from '@/lib/errors';
 import { applicationSchema } from '@/lib/schemas';
 
 const props = defineProps({
@@ -84,10 +85,7 @@ const submit = handleSubmit((values) => {
     };
 
     const onError = (serverErrors) => {
-        for (const field of FIELDS) {
-            if (serverErrors[field])
-                setFieldError(field, serverErrors[field]);
-        }
+        applyServerErrors(serverErrors, FIELDS, setFieldError);
     };
 
     if (props.application) {

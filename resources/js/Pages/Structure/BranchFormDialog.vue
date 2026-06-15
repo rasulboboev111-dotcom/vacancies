@@ -5,6 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm as useVeeForm } from 'vee-validate';
 import { watch } from 'vue';
 import FormField from '@/Components/FormField.vue';
+import { applyServerErrors } from '@/lib/errors';
 import { branchSchema } from '@/lib/schemas';
 
 const props = defineProps({
@@ -45,10 +46,7 @@ const submit = handleSubmit((values) => {
         open.value = false;
     };
     const onError = (serverErrors) => {
-        for (const field of ['name', 'code', 'address']) {
-            if (serverErrors[field])
-                setFieldError(field, serverErrors[field]);
-        }
+        applyServerErrors(serverErrors, ['name', 'code', 'address'], setFieldError);
     };
 
     if (props.branch)

@@ -5,6 +5,7 @@ import { toTypedSchema } from '@vee-validate/zod';
 import { useForm as useVeeForm } from 'vee-validate';
 import { computed, watch } from 'vue';
 import FormField from '@/Components/FormField.vue';
+import { applyServerErrors } from '@/lib/errors';
 import { userSchema } from '@/lib/schemas';
 import { getRoleLabel } from '@/Pages/Users/userRoles';
 
@@ -68,10 +69,7 @@ const submit = handleSubmit((values) => {
         open.value = false;
     };
     const onError = (serverErrors) => {
-        for (const field of ['name', 'email', 'password', 'password_confirmation', 'branch_id', 'role']) {
-            if (serverErrors[field])
-                setFieldError(field, serverErrors[field]);
-        }
+        applyServerErrors(serverErrors, ['name', 'email', 'password', 'password_confirmation', 'branch_id', 'role'], setFieldError);
     };
 
     if (props.user)
