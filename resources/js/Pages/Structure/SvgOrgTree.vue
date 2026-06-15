@@ -1,7 +1,9 @@
 <script setup>
 import { ChevronsDownUp, ChevronsUpDown, Maximize2, Minimize2, Network } from '@lucide/vue';
 import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { useDragPan } from '@/composables/useDragPan';
 import { buildOrgTree, expandedToDepth } from '@/composables/useOrgChart';
+import { wrapLabel } from '@/lib/wrapLabel';
 
 const props = defineProps({
     structure: { type: Array, required: true },
@@ -130,39 +132,6 @@ const layout = computed(() => {
 });
 
 const canvas = computed(() => ({ width: layout.value.width, height: layout.value.height }));
-
-// Переносит подпись максимум в две строки по ≤14 символов, чтобы она не вылезала
-// за край карточки: длинные слова жёстко разрываются, а не помещающаяся подпись
-// обрезается многоточием на последней видимой строке.
-const MAX_CHARS = 14;
-const MAX_LINES = 2;
-
-function wrapLabel(label) {
-    const words = String(label ?? '').trim().split(/\s+/).filter(Boolean);
-    const lines = [];
-
-    words.forEach((word) => {
-        // Разрываем отдельное слово, которое никогда не поместится в одну строку.
-        while (word.length > MAX_CHARS) {
-            lines.push(word.slice(0, MAX_CHARS));
-            word = word.slice(MAX_CHARS);
-        }
-        const last = lines[lines.length - 1];
-        if (last && `${last} ${word}`.length <= MAX_CHARS) {
-            lines[lines.length - 1] = `${last} ${word}`;
-        }
-        else {
-            lines.push(word);
-        }
-    });
-
-    if (lines.length > MAX_LINES) {
-        const kept = lines.slice(0, MAX_LINES);
-        kept[MAX_LINES - 1] = `${kept[MAX_LINES - 1].slice(0, MAX_CHARS - 1)}…`;
-        return kept;
-    }
-    return lines;
-}
 
 const placed = computed(() => {
     const out = [];
@@ -298,84 +267,9 @@ function centerScroll() {
 watch(() => canvas.value.width, centerScroll);
 
 /* ------------------------------------------------------------------ *
- * Перетаскивание для панорамирования — только мышью; для касаний остаётся
- * нативная инерционная прокрутка. Перетаскивание за порог также поглощает
- * завершающий клик, чтобы панорамирование никогда не открывало попап узла.
+ * Перетаскивание для панорамирования — вынесено в composable useDragPan.
  * ------------------------------------------------------------------ */
-const PAN_THRESHOLD = 6;
-const isPanning = ref(false);
-let panActive = false;
-let panMoved = false;
-let panStartX = 0;
-let panStartY = 0;
-let panScrollLeft = 0;
-let panScrollTop = 0;
-
-function onPanStart(e) {
-    if (e.pointerType !== 'mouse' || e.button !== 0) {
-        return;
-    }
-    const el = container.value;
-    if (!el) {
-        return;
-    }
-    panActive = true;
-    panMoved = false;
-    panStartX = e.clientX;
-    panStartY = e.clientY;
-    panScrollLeft = el.scrollLeft;
-    panScrollTop = el.scrollTop;
-}
-
-function onPanMove(e) {
-    if (!panActive) {
-        return;
-    }
-    const dx = e.clientX - panStartX;
-    const dy = e.clientY - panStartY;
-    if (!panMoved && Math.hypot(dx, dy) < PAN_THRESHOLD) {
-        return;
-    }
-    const el = container.value;
-    // Контейнер мог размонтироваться, пока кнопка зажата (смена страницы и т.п.).
-    if (!el) {
-        return;
-    }
-    if (!panMoved) {
-        panMoved = true;
-        isPanning.value = true;
-        el.setPointerCapture?.(e.pointerId);
-    }
-    el.scrollLeft = panScrollLeft - dx;
-    el.scrollTop = panScrollTop - dy;
-}
-
-function onPanEnd(e) {
-    if (!panActive) {
-        return;
-    }
-    panActive = false;
-    isPanning.value = false;
-    const el = container.value;
-    if (el?.hasPointerCapture?.(e.pointerId)) {
-        el.releasePointerCapture(e.pointerId);
-    }
-    // pointerup оставляет panMoved выставленным, чтобы click-capture поглотил клик,
-    // завершающий жест. pointercancel завершающего клика не даёт, поэтому сбрасываем
-    // флаг сразу — иначе он повис бы и проглотил следующий настоящий клик.
-    if (e.type === 'pointercancel') {
-        panMoved = false;
-    }
-}
-
-// Выполняется в фазе перехвата раньше любого обработчика клика узла, поэтому клик,
-// который лишь завершает жест панорамирования, поглощается вместо открытия попапа узла.
-function onContainerClickCapture(e) {
-    if (panMoved) {
-        e.stopPropagation();
-        panMoved = false;
-    }
-}
+const { isPanning, onPanStart, onPanMove, onPanEnd, onContainerClickCapture } = useDragPan(container);
 
 onMounted(() => {
     centerScroll();
