@@ -13,6 +13,14 @@ function hasChanges(properties) {
     return properties && (properties.attributes || properties.old);
 }
 
+// Логи через трейт LogsActivity без своего текста получают description = само
+// событие («created»/«updated»/«deleted»). Оно уже показано таджикским чипом
+// события, поэтому такую дублирующую английскую строку не выводим — оставляем
+// только осмысленные ручные описания.
+function meaningfulDescription(description) {
+    return description && !['created', 'updated', 'deleted'].includes(description);
+}
+
 // Показываем заглушку для null/пустых значений полей в таблице различий.
 function displayValue(value) {
     return value !== null && value !== '' ? value : 'холӣ';
@@ -38,7 +46,7 @@ function initial(name) {
                 <span class="log-row__subject">{{ getSubjectText(log.subject_type) }}</span>
             </div>
 
-            <div class="log-row__desc">
+            <div v-if="meaningfulDescription(log.description)" class="log-row__desc">
                 {{ log.description }}
             </div>
 
