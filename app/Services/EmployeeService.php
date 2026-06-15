@@ -3,11 +3,9 @@
 namespace App\Services;
 
 use App\Models\BirthPlace;
-use App\Models\Branch;
 use App\Models\Education;
 use App\Models\Employee;
 use App\Models\Nationality;
-use App\Models\Position;
 use App\Models\Rotation;
 use App\Models\Specialty;
 use Illuminate\Support\Facades\DB;
@@ -97,13 +95,11 @@ class EmployeeService
 
     public function rotate(Employee $employee, array $data): Rotation
     {
-        // Названия исходного филиала/вазифы до перевода (для лога).
-        $oldBranchName = $employee->branch?->name ?? 'Филиали номаълум';
-        $oldPosition = $employee->position?->name ?? 'Вазифаи номаълум';
-
-        // Запись ротации, перевод корманда и аудит-лог должны быть атомарны —
-        // иначе сбой оставит осиротевшую ротацию или перевод без записи аудита.
-        return DB::transaction(function () use ($employee, $data, $oldBranchName, $oldPosition) {
+        // Запись ротации и перевод корманда должны быть атомарны — иначе сбой
+        // оставит осиротевшую ротацию или перевод. Детальный аудит (по полям
+        // перехода) даёт сама Rotation::create через трейт LogsActivity, поэтому
+        // дублирующий авто-лог на корманде отключаем.
+        return DB::transaction(function () use ($employee, $data) {
             $rotation = Rotation::create([
                 'employee_id' => $employee->id,
                 'old_branch_id' => $employee->branch_id,
@@ -116,20 +112,11 @@ class EmployeeService
                 'reason' => $data['reason'] ?? null,
             ]);
 
-            // Отключаем авто-лог; единственной записью служит текст о ротации ниже.
             $employee->disableLogging()->update([
                 'branch_id' => $data['branch_id'],
                 'position_id' => $data['position_id'],
                 'department_id' => $data['department_id'] ?? null,
             ]);
-
-            $newBranchName = Branch::find($data['branch_id'])?->name ?? 'Филиали номаълум';
-            $newPositionName = Position::find($data['position_id'])?->name ?? 'Вазифаи номаълум';
-
-            activity()
-                ->performedOn($employee)
-                ->event('updated')
-                ->log("Ротатсияи корманд {$employee->full_name} анҷом дода шуд. Аз {$oldBranchName} ({$oldPosition}) ба {$newBranchName} ({$newPositionName}) гузаронида шуд");
 
             return $rotation;
         });

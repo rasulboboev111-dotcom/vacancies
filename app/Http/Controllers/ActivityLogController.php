@@ -41,6 +41,14 @@ class ActivityLogController extends Controller
         'specialty_id' => [Specialty::class, 'name'],
         'birth_place_id' => [BirthPlace::class, 'name'],
         'created_by' => [User::class, 'name'],
+        // Rotation
+        'employee_id' => [Employee::class, 'full_name'],
+        'old_branch_id' => [Branch::class, 'name'],
+        'new_branch_id' => [Branch::class, 'name'],
+        'old_position_id' => [Position::class, 'name'],
+        'new_position_id' => [Position::class, 'name'],
+        'old_department_id' => [Department::class, 'name'],
+        'new_department_id' => [Department::class, 'name'],
     ];
 
     /**
@@ -114,6 +122,13 @@ class ActivityLogController extends Controller
         // Rotation
         'rotation_date' => 'Санаи ротатсия',
         'reason' => 'Сабаб',
+        'employee_id' => 'Корманд',
+        'old_branch_id' => 'Филиали қаблӣ',
+        'new_branch_id' => 'Филиали нав',
+        'old_position_id' => 'Вазифаи қаблӣ',
+        'new_position_id' => 'Вазифаи нав',
+        'old_department_id' => 'Шуъбаи қаблӣ',
+        'new_department_id' => 'Шуъбаи нав',
     ];
 
     /**

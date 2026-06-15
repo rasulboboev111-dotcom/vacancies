@@ -208,7 +208,7 @@ class Employee extends Model
 
     /**
      * Ограничивает запрос журнала активности субъектами, принадлежащими данному
-     * филиалу (его сотрудники, вакансии, отделы, заявки или сам филиал).
+     * филиалу (его сотрудники, вакансии, отделы, заявки, ротации или сам филиал).
      * Субъекты без привязки к филиалу (например, должности, пользователи) исключаются.
      * Внутренний помощник для restrictActivitiesTo().
      *
@@ -229,6 +229,13 @@ class Employee extends Model
             })->orWhere(function ($q) use ($branchId) {
                 $q->where('subject_type', Application::class)
                     ->whereIn('subject_id', Application::withTrashed()->where('branch_id', $branchId)->select('id'));
+            })->orWhere(function ($q) use ($branchId) {
+                // Ротации не имеют своего branch_id — привязываем через корманда.
+                $q->where('subject_type', Rotation::class)
+                    ->whereIn('subject_id', Rotation::whereIn(
+                        'employee_id',
+                        Employee::withTrashed()->where('branch_id', $branchId)->select('id')
+                    )->select('id'));
             })->orWhere(function ($q) use ($branchId) {
                 $q->where('subject_type', Branch::class)->where('subject_id', $branchId);
             });

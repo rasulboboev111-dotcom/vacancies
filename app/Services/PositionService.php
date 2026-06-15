@@ -10,25 +10,14 @@ class PositionService
 {
     public function create(array $data): Position
     {
-        $position = Position::create($data);
-
-        activity()
-            ->performedOn($position)
-            ->event('created')
-            ->log("Вазифаи нав эҷод шуд: {$position->name}");
-
-        return $position;
+        // Логирование create/update/delete — через трейт LogsActivity на модели
+        // Position (детально, по полям), как у остальных сущностей.
+        return Position::create($data);
     }
 
     public function update(Position $position, array $data): Position
     {
-        $oldName = $position->name;
         $position->update($data);
-
-        activity()
-            ->performedOn($position)
-            ->event('updated')
-            ->log("Номи вазифа навсозӣ шуд: аз '{$oldName}' ба '{$position->name}'");
 
         return $position;
     }
@@ -44,12 +33,6 @@ class PositionService
             throw new PositionInUseException("Вазифаи '{$position->name}'-ро нест кардан мумкин нест, зеро он ба кормандон таъин шудааст ({$employeeCount} нафар). Аввал онҳоро ба вазифаи дигар гузаронед.");
         }
 
-        $name = $position->name;
         $position->delete();
-
-        activity()
-            ->performedOn($position)
-            ->event('deleted')
-            ->log("Вазифа нест карда шуд: {$name}");
     }
 }

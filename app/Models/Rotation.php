@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Rotation extends Model
 {
     use HasFactory;
+    use LogsActivity;
 
     protected $fillable = [
         'employee_id',
@@ -25,6 +28,24 @@ class Rotation extends Model
     protected $casts = [
         'rotation_date' => 'date',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'employee_id',
+                'old_branch_id',
+                'new_branch_id',
+                'old_position_id',
+                'new_position_id',
+                'old_department_id',
+                'new_department_id',
+                'rotation_date',
+                'reason',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     public function employee(): BelongsTo
     {
