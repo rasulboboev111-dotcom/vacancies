@@ -7,7 +7,7 @@ const props = defineProps({
     canManage: { type: Function, required: true },
 });
 
-defineEmits(['edit', 'delete', 'change-page']);
+defineEmits(['view', 'edit', 'delete', 'change-page']);
 
 const { canManageInBranch } = usePermissions();
 
@@ -62,7 +62,7 @@ function hasSurvey(survey) {
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="app in applications.data" :key="app.id" class="app-row">
+                <tr v-for="app in applications.data" :key="app.id" class="app-row" @click="$emit('view', app)">
                     <td class="pa-3">
                         <span class="app-name">{{ app.name }}</span>
                     </td>
@@ -101,6 +101,7 @@ function hasSurvey(survey) {
                             target="_blank"
                             class="resume-download-btn hover-scale-btn act-btn act-accent"
                             title="Зеркашии резюме"
+                            @click.stop
                         >
                             <Download style="width: 16px; height: 16px;" />
                         </a>
@@ -116,7 +117,7 @@ function hasSurvey(survey) {
                             size="small"
                             class="mr-1 hover-scale-btn act-btn act-accent"
                             title="Таҳрир"
-                            @click="$emit('edit', app)"
+                            @click.stop="$emit('edit', app)"
                         >
                             <Pencil style="width: 16px; height: 16px;" />
                         </v-btn>
@@ -127,7 +128,7 @@ function hasSurvey(survey) {
                             size="small"
                             class="hover-scale-btn act-btn act-danger"
                             title="Нест кардан"
-                            @click="$emit('delete', app)"
+                            @click.stop="$emit('delete', app)"
                         >
                             <Trash2 style="width: 16px; height: 16px;" />
                         </v-btn>
@@ -186,6 +187,9 @@ function hasSurvey(survey) {
     color: #999999;
 }
 
+.table-modern tbody tr.app-row {
+    cursor: pointer;
+}
 .table-modern tbody tr.app-row:nth-child(even) {
     background: #fafafb;
 }

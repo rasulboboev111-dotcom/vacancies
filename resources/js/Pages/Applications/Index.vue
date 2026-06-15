@@ -3,11 +3,12 @@ import { Head, router } from '@inertiajs/vue3';
 import { ClipboardList, Plus, Search } from '@lucide/vue';
 import { watchDebounced } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
+import ConfirmDeleteDialog from '@/Components/ConfirmDeleteDialog.vue';
 import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import ConfirmDeleteDialog from '@/Components/ConfirmDeleteDialog.vue';
 import ApplicationFormDialog from '@/Pages/Applications/ApplicationFormDialog.vue';
 import ApplicationsTable from '@/Pages/Applications/ApplicationsTable.vue';
+import ApplicationViewDialog from '@/Pages/Applications/ApplicationViewDialog.vue';
 
 const props = defineProps({
     applications: { type: Object, required: true },
@@ -58,9 +59,16 @@ function changePage(p) {
 // Dialog controllers
 const formDialog = ref(false);
 const deleteDialog = ref(false);
+const viewDialog = ref(false);
 
 const editingApplication = ref(null);
 const applicationToDelete = ref(null);
+const viewingApplication = ref(null);
+
+function openViewDialog(application) {
+    viewingApplication.value = application;
+    viewDialog.value = true;
+}
 
 function openCreateDialog() {
     editingApplication.value = null;
@@ -174,9 +182,17 @@ const canManageApp = application => canManageInBranch('delete applications', app
         <ApplicationsTable
             :applications="applications"
             :can-manage="canManageApp"
+            @view="openViewDialog"
             @edit="openEditDialog"
             @delete="openDeleteDialog"
             @change-page="changePage"
+        />
+
+        <!-- View Dialog (read-only) -->
+        <ApplicationViewDialog
+            v-model="viewDialog"
+            :application="viewingApplication"
+            :is-admin="isAdmin"
         />
 
         <!-- Form Dialog (create / edit) -->
