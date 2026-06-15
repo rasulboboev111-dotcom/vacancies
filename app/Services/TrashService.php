@@ -36,9 +36,10 @@ class TrashService
 
         $conflictMessage = "Барқарорсозии корманд '{$employee->full_name}' имконнопазир: маълумоти беназири он аллакай аз ҷониби корманди фаъоли дигар истифода мешавад.";
 
-        if ($conflicts->isNotEmpty()) {
-            throw new TrashConflictException("Барқарорсозии корманд '{$employee->full_name}' имконнопазир: {$conflicts->implode(', ')} аллакай аз ҷониби корманди фаъоли дигар истифода мешавад.");
-        }
+        $this->guard(
+            $conflicts->isNotEmpty(),
+            "Барқарорсозии корманд '{$employee->full_name}' имконнопазир: {$conflicts->implode(', ')} аллакай аз ҷониби корманди фаъоли дигар истифода мешавад."
+        );
 
         $this->restore($employee, "Корманд аз сабад барқарор карда шуд: {$employee->full_name}", $conflictMessage);
     }
@@ -52,9 +53,10 @@ class TrashService
     {
         $conflictMessage = "Барқарорсозии филиал '{$branch->name}' имконнопазир: рамзи '{$branch->code}' аллакай аз ҷониби филиали фаъол истифода мешавад.";
 
-        if (Branch::where('code', $branch->code)->whereKeyNot($branch->id)->exists()) {
-            throw new TrashConflictException($conflictMessage);
-        }
+        $this->guard(
+            Branch::where('code', $branch->code)->whereKeyNot($branch->id)->exists(),
+            $conflictMessage
+        );
 
         $this->restore($branch, "Филиал аз сабад барқарор карда шуд: {$branch->name}", $conflictMessage);
     }
@@ -62,15 +64,17 @@ class TrashService
     public function forceDeleteBranch(Branch $branch): void
     {
         $employeeCount = Employee::withTrashed()->where('branch_id', $branch->id)->count();
-        if ($employeeCount > 0) {
-            throw new TrashConflictException("Филиали '{$branch->name}'-ро ба таври қатъӣ нест кардан мумкин нест, зеро ба он кормандон вобаста шудаанд ({$employeeCount} нафар). Аввал онҳоро интиқол диҳед ё нест кунед.");
-        }
+        $this->guard(
+            $employeeCount > 0,
+            "Филиали '{$branch->name}'-ро ба таври қатъӣ нест кардан мумкин нест, зеро ба он кормандон вобаста шудаанд ({$employeeCount} нафар). Аввал онҳоро интиқол диҳед ё нест кунед."
+        );
 
         $departmentCount = Department::withTrashed()->where('branch_id', $branch->id)->count();
         $vacancyCount = Vacancy::withTrashed()->where('branch_id', $branch->id)->count();
-        if ($departmentCount > 0 || $vacancyCount > 0) {
-            throw new TrashConflictException("Филиали '{$branch->name}'-ро ба таври қатъӣ нест кардан мумкин нест, зеро ба он шуъбаҳо ({$departmentCount}) ё вакансияҳо ({$vacancyCount}) вобаста шудаанд. Аввал онҳоро нест кунед.");
-        }
+        $this->guard(
+            $departmentCount > 0 || $vacancyCount > 0,
+            "Филиали '{$branch->name}'-ро ба таври қатъӣ нест кардан мумкин нест, зеро ба он шуъбаҳо ({$departmentCount}) ё вакансияҳо ({$vacancyCount}) вобаста шудаанд. Аввал онҳоро нест кунед."
+        );
 
         $this->purge($branch, "Филиал аз сабад тамоман нест карда шуд: {$branch->name}");
     }
@@ -92,18 +96,17 @@ class TrashService
 
         $conflictMessage = "Барқарорсозии шуъба '{$department->name}' имконнопазир: шуъбаи фаъол бо ҳамин ном аллакай вуҷуд дорад.";
 
-        if ($nameTaken || $externalTaken) {
-            throw new TrashConflictException($conflictMessage);
-        }
+        $this->guard($nameTaken || $externalTaken, $conflictMessage);
 
         $this->restore($department, "Шуъба аз сабад барқарор карда шуд: {$department->name}", $conflictMessage);
     }
 
     public function forceDeleteDepartment(Department $department): void
     {
-        if (Department::withTrashed()->where('parent_id', $department->id)->exists()) {
-            throw new TrashConflictException("Шуъбаи '{$department->name}'-ро ба таври қатъӣ нест кардан мумкин нест, зеро ба он зершуъбаҳо вобаста шудаанд.");
-        }
+        $this->guard(
+            Department::withTrashed()->where('parent_id', $department->id)->exists(),
+            "Шуъбаи '{$department->name}'-ро ба таври қатъӣ нест кардан мумкин нест, зеро ба он зершуъбаҳо вобаста шудаанд."
+        );
 
         $this->purge($department, "Шуъба аз сабад тамоман нест карда шуд: {$department->name}");
     }
@@ -116,9 +119,7 @@ class TrashService
 
         $conflictMessage = "Барқарорсозии корбар '{$user->name}' имконнопазир: почтаи '{$user->email}' аллакай аз ҷониби корбари фаъол истифода мешавад.";
 
-        if ($emailTaken) {
-            throw new TrashConflictException($conflictMessage);
-        }
+        $this->guard($emailTaken, $conflictMessage);
 
         $this->restore($user, "Корбар аз сабад барқарор карда шуд: {$user->name}", $conflictMessage);
     }
@@ -126,6 +127,17 @@ class TrashService
     public function forceDeleteUser(User $user): void
     {
         $this->purge($user, "Корбар аз сабад тамоман нест карда шуд: {$user->name}");
+    }
+
+    /**
+     * Бросает TrashConflictException с сообщением, если условие конфликта истинно.
+     * Убирает повторяющийся `if (...) throw` из методов восстановления/удаления.
+     */
+    private function guard(bool $hasConflict, string $message): void
+    {
+        if ($hasConflict) {
+            throw new TrashConflictException($message);
+        }
     }
 
     /**
