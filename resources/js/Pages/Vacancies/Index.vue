@@ -5,6 +5,7 @@ import { computed, ref, watch } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { firstError } from '@/lib/errors';
+import { VACANCY_STATUS_CLOSED, VACANCY_STATUS_OPEN } from '@/lib/vacancy';
 import VacancyDeleteDialog from '@/Pages/Vacancies/VacancyDeleteDialog.vue';
 import VacancyFormDialog from '@/Pages/Vacancies/VacancyFormDialog.vue';
 import VacancyTable from '@/Pages/Vacancies/VacancyTable.vue';
@@ -28,8 +29,8 @@ const toggleError = ref('');
 
 const statusOptions = [
     { value: null, title: 'Ҳамаи ҳолатҳо' },
-    { value: 'open', title: 'Вакансияҳои кушода' },
-    { value: 'closed', title: 'Вакансияҳои баста' },
+    { value: VACANCY_STATUS_OPEN, title: 'Вакансияҳои кушода' },
+    { value: VACANCY_STATUS_CLOSED, title: 'Вакансияҳои баста' },
 ];
 
 const branchOptions = computed(() =>
@@ -122,7 +123,7 @@ function toggleStatus(vacancy) {
     // Частичное обновление: отсутствующие поля не доходят до validated(), поэтому
     // переключение не затирает остальную часть формы.
     router.put(route('vacancies.update', { id: vacancy.id, ...filterParams.value }), {
-        status: vacancy.status === 'open' ? 'closed' : 'open',
+        status: vacancy.status === VACANCY_STATUS_OPEN ? VACANCY_STATUS_CLOSED : VACANCY_STATUS_OPEN,
     }, {
         preserveScroll: true,
         onError: (errors) => {

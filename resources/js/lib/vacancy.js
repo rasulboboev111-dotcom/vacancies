@@ -9,6 +9,16 @@
 export const SCHEDULE_OTHER = 'иной';
 export const PROBATION_OTHER = 'иное';
 
+// Статусы вакансии (копия App\Enums\VacancyStatus) — единый источник вместо
+// литералов 'open'/'closed', разбросанных по таблице/списку/форме.
+export const VACANCY_STATUS_OPEN = 'open';
+export const VACANCY_STATUS_CLOSED = 'closed';
+
+// Цвет чипа/иконки статуса в одном месте.
+export function statusColor(status) {
+    return status === VACANCY_STATUS_OPEN ? 'teal' : 'grey';
+}
+
 // Общая логика «иной»-группы: при выбранном «ином» варианте показываем свободный
 // текст (с откатом на подпись), иначе — подпись предустановленного варианта.
 function otherableText(value, otherValue, freeText, label) {
@@ -53,10 +63,10 @@ const STATUS_LABELS = {
 export function statusLabel(vacancy, locale = 'ru') {
     const labels = STATUS_LABELS[locale] ?? STATUS_LABELS.ru;
     // Только известные статусы; отсутствующий/неизвестный → null, а не «закрыта».
-    if (vacancy?.status === 'open') {
+    if (vacancy?.status === VACANCY_STATUS_OPEN) {
         return labels.open;
     }
-    if (vacancy?.status === 'closed') {
+    if (vacancy?.status === VACANCY_STATUS_CLOSED) {
         return labels.closed;
     }
     return null;

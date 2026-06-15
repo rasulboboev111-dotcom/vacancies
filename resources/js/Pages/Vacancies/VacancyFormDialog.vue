@@ -9,7 +9,7 @@ import DialogHeader from '@/Components/DialogHeader.vue';
 import FormField from '@/Components/FormField.vue';
 import { useBranchDepartments } from '@/composables/useBranchDepartments';
 import { vacancySchema } from '@/lib/schemas';
-import { mergeLanguages, PROBATION_OTHER, SCHEDULE_OTHER, splitLanguages } from '@/lib/vacancy';
+import { mergeLanguages, PROBATION_OTHER, SCHEDULE_OTHER, splitLanguages, VACANCY_STATUS_CLOSED, VACANCY_STATUS_OPEN } from '@/lib/vacancy';
 
 const props = defineProps({
     vacancy: { type: Object, default: null }, // null → создание
@@ -62,7 +62,7 @@ const EMPTY_VALUES = {
     priority: null,
     opened_at: null,
     deadline: null,
-    status: 'open',
+    status: VACANCY_STATUS_OPEN,
 };
 
 // Поля, проверяемые сервером; используются для проброса серверных ошибок обратно в форму.
@@ -513,7 +513,7 @@ const submit = handleSubmit((values) => {
                             <v-select
                                 v-model="status"
                                 v-bind="statusAttrs"
-                                :items="[{ value: 'open', title: 'Открыта' }, { value: 'closed', title: 'Закрыта' }]"
+                                :items="[{ value: VACANCY_STATUS_OPEN, title: 'Открыта' }, { value: VACANCY_STATUS_CLOSED, title: 'Закрыта' }]"
                                 item-title="title"
                                 item-value="value"
                                 variant="outlined"

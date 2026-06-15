@@ -1,6 +1,6 @@
 <script setup>
 import { DoorOpen, Lock, Pencil, Printer, Trash2, Unlock } from '@lucide/vue';
-import { salaryText, scheduleText, statusLabel } from '@/lib/vacancy';
+import { salaryText, scheduleText, statusColor, statusLabel, VACANCY_STATUS_OPEN } from '@/lib/vacancy';
 
 defineProps({
     vacancies: { type: Array, required: true },
@@ -77,7 +77,7 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
                     <td class="pa-3 text-center">
                         <v-chip
                             size="small"
-                            :color="vacancy.status === 'open' ? 'teal' : 'grey'"
+                            :color="statusColor(vacancy.status)"
                             variant="tonal"
                             class="font-weight-bold text-uppercase"
                         >
@@ -94,11 +94,11 @@ defineEmits(['view', 'edit', 'delete', 'toggle', 'print']);
                             variant="text"
                             size="small"
                             class="mr-1 hover-scale-btn act-btn"
-                            :class="vacancy.status === 'open' ? 'act-accent' : 'act-success'"
-                            :title="vacancy.status === 'open' ? 'Бастани вакансия' : 'Кушодани вакансия'"
+                            :class="vacancy.status === VACANCY_STATUS_OPEN ? 'act-accent' : 'act-success'"
+                            :title="vacancy.status === VACANCY_STATUS_OPEN ? 'Бастани вакансия' : 'Кушодани вакансия'"
                             @click.stop="$emit('toggle', vacancy)"
                         >
-                            <Lock v-if="vacancy.status === 'open'" style="width: 16px; height: 16px;" />
+                            <Lock v-if="vacancy.status === VACANCY_STATUS_OPEN" style="width: 16px; height: 16px;" />
                             <Unlock v-else style="width: 16px; height: 16px;" />
                         </v-btn>
 
