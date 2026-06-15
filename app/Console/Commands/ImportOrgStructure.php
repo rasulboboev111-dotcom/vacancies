@@ -7,7 +7,7 @@ use App\Jobs\SyncOrgStructure;
 use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Employee;
-use App\Models\Position;
+use App\Support\PositionResolver;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -21,12 +21,6 @@ class ImportOrgStructure extends Command
         {--sync : Run the import inline instead of dispatching it to the background queue}';
 
     protected $description = 'Import the Tojiktelecom org structure (company → departments → employees) from the API JSON dump, 1:1 with the source tree';
-
-    /** @var array<string,int> external_id должности (jobTitleId) => positions.id */
-    private array $positionByExternal = [];
-
-    /** @var array<string,int> имя должности (в нижнем регистре) => positions.id */
-    private array $positionByName = [];
 
     public function handle(): int
     {
@@ -70,9 +64,11 @@ class ImportOrgStructure extends Command
         $promoted = $this->normalizeBusinessUnits($nodes);
         $this->info('Companies: '.count($companies).' / Source nodes: '.count($nodes).' / Filial headers re-tagged: '.$promoted);
 
+        $positions = new PositionResolver;
+
         // Логирование активности подавлено, чтобы не плодить сотни записей лога.
-        activity()->withoutLogs(function () use ($companies, $nodes) {
-            DB::transaction(function () use ($companies, $nodes) {
+        activity()->withoutLogs(function () use ($companies, $nodes, $positions) {
+            DB::transaction(function () use ($companies, $nodes, $positions) {
                 if ($this->option('fresh')) {
                     $this->warn('--fresh: clearing employees, departments, vacancies, rotations and branches...');
                     DB::table('rotations')->delete();
@@ -197,7 +193,7 @@ class ImportOrgStructure extends Command
                                 'person_id' => $e['personId'] ?? null,
                                 'branch_id' => $branchId,
                                 'department_id' => $deptId,
-                                'position_id' => $this->resolvePosition($e['jobTitleId'] ?? null, $e['jobTitleName'] ?? null),
+                                'position_id' => $positions->resolve($e['jobTitleId'] ?? null, $e['jobTitleName'] ?? null),
                                 'full_name' => $e['name'] ?? 'Номаълум',
                                 'phone_number' => $e['phone'] ?? null,
                                 'email' => $email,
@@ -477,92 +473,5 @@ class ImportOrgStructure extends Command
         }
 
         return $promoted;
-    }
-
-    /**
-     * Сопоставляет должность с id Position. ИМЯ должности — локальная идентичность
-     * (positions требуют регистронезависимое уникальное имя), поэтому сначала
-     * матчим по имени и лишь записываем jobTitleId источника на эту строку. Это
-     * необходимо, потому что источник правомерно переиспользует один и тот же
-     * текст должности под несколькими разными jobTitleId (например, «Муҳандиси
-     * пешбар» = 193 и 196).
-     */
-    private function resolvePosition(?int $externalId, ?string $name): ?int
-    {
-        $name = trim((string) $name);
-
-        if ($name === '' && $externalId === null) {
-            return null;
-        }
-
-        // Именованные должности — первичная идентичность. Резолвим по имени,
-        // затем привязываем id источника, только если он свободен — у таблицы ДВА
-        // unique-ключа (регистронезависимое имя И external_id), а
-        // firstOrCreate/create защитили бы лишь тот, по которому делают запрос,
-        // оставляя второй бросить 23505, который прерывает всю транзакцию импорта.
-        if ($name !== '') {
-            $key = mb_strtolower($name);
-            if (isset($this->positionByName[$key])) {
-                return $this->positionByName[$key];
-            }
-
-            $position = $this->resolveOrCreatePosition($name, $externalId);
-
-            // Дописываем id источника на строку, где его нет — но никогда, если
-            // этим id уже владеет другая должность.
-            if ($externalId !== null
-                && $position->external_id === null
-                && ! $this->externalIdTaken($externalId, $position->id)
-            ) {
-                $position->update(['external_id' => $externalId]);
-            }
-
-            if ($position->external_id !== null) {
-                $this->positionByExternal[$position->external_id] = $position->id;
-            }
-
-            return $this->positionByName[$key] = $position->id;
-        }
-
-        // Без имени: идентифицируем чисто по id источника, со сгенерированной меткой.
-        if (isset($this->positionByExternal[$externalId])) {
-            return $this->positionByExternal[$externalId];
-        }
-
-        $position = Position::where('external_id', $externalId)->first()
-            ?? $this->resolveOrCreatePosition('Вазифа '.$externalId, $externalId);
-
-        $this->positionByName[mb_strtolower(trim($position->name))] = $position->id;
-
-        return $this->positionByExternal[$externalId] = $position->id;
-    }
-
-    /**
-     * Находит должность по её регистронезависимому имени либо создаёт. Сверяет оба
-     * unique-ключа: существующее имя переиспользуется как есть, а id источника
-     * привязывается к новой строке, только если он ещё не занят — так что ни
-     * unique-индекс имени, ни external_id не смогут бросить 23505.
-     */
-    private function resolveOrCreatePosition(string $name, ?int $externalId): Position
-    {
-        $existing = Position::whereRaw('LOWER(TRIM(name)) = LOWER(?)', [$name])->first();
-        if ($existing !== null) {
-            return $existing;
-        }
-
-        return Position::create([
-            'name' => $name,
-            'external_id' => $externalId !== null && ! $this->externalIdTaken($externalId) ? $externalId : null,
-        ]);
-    }
-
-    /**
-     * Владеет ли уже этим id источника другая должность (external_id уникален).
-     */
-    private function externalIdTaken(int $externalId, ?int $exceptId = null): bool
-    {
-        return Position::where('external_id', $externalId)
-            ->when($exceptId !== null, fn ($q) => $q->where('id', '!=', $exceptId))
-            ->exists();
     }
 }
