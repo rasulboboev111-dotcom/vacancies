@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { ArrowLeftRight } from '@lucide/vue';
 import { watch } from 'vue';
+import FormField from '@/Components/FormField.vue';
 import { useBranchDepartments } from '@/composables/useBranchDepartments';
 import { today } from '@/lib/date';
 
@@ -75,72 +76,75 @@ function submit() {
             </div>
 
             <v-card-text class="pa-6 overflow-y-auto" style="max-height: 60vh;">
-                <v-form @submit.prevent="submit">
-                    <v-select
-                        v-model="form.branch_id"
-                        :items="branches"
-                        item-title="name"
-                        item-value="id"
-                        label="Филиали нав"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        required
-                        :error-messages="form.errors.branch_id"
-                        class="mb-4"
-                        :disabled="!isAdmin"
-                    />
+                <v-form class="app-form" @submit.prevent="submit">
+                    <FormField label="Филиали нав" required>
+                        <v-select
+                            v-model="form.branch_id"
+                            :items="branches"
+                            item-title="name"
+                            item-value="id"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            hide-details="auto"
+                            :error-messages="form.errors.branch_id"
+                            :disabled="!isAdmin"
+                        />
+                    </FormField>
 
-                    <v-autocomplete
-                        v-model="form.position_id"
-                        :items="positions"
-                        item-title="name"
-                        item-value="id"
-                        label="Вазифаи нав"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        required
-                        :error-messages="form.errors.position_id"
-                        class="mb-4"
-                    />
+                    <FormField label="Вазифаи нав" required class="mt-4">
+                        <v-autocomplete
+                            v-model="form.position_id"
+                            :items="positions"
+                            item-title="name"
+                            item-value="id"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            hide-details="auto"
+                            :error-messages="form.errors.position_id"
+                        />
+                    </FormField>
 
-                    <v-autocomplete
-                        v-model="form.department_id"
-                        :items="branchDepartments"
-                        item-title="name"
-                        item-value="id"
-                        label="Шуъбаи нав"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        clearable
-                        :no-data-text="form.branch_id ? 'Шуъбаҳо ёфт нашуданд' : 'Аввал филиалро интихоб кунед'"
-                        :error-messages="form.errors.department_id"
-                        class="mb-4"
-                    />
+                    <FormField label="Шуъбаи нав" class="mt-4">
+                        <v-autocomplete
+                            v-model="form.department_id"
+                            :items="branchDepartments"
+                            item-title="name"
+                            item-value="id"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            hide-details="auto"
+                            clearable
+                            :no-data-text="form.branch_id ? 'Шуъбаҳо ёфт нашуданд' : 'Аввал филиалро интихоб кунед'"
+                            :error-messages="form.errors.department_id"
+                        />
+                    </FormField>
 
-                    <v-text-field
-                        v-model="form.rotation_date"
-                        label="Санаи ротатсия"
-                        type="date"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        required
-                        :error-messages="form.errors.rotation_date"
-                        class="mb-4"
-                    />
+                    <FormField label="Санаи ротатсия" required class="mt-4">
+                        <v-text-field
+                            v-model="form.rotation_date"
+                            type="date"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            hide-details="auto"
+                            :error-messages="form.errors.rotation_date"
+                        />
+                    </FormField>
 
-                    <v-textarea
-                        v-model="form.reason"
-                        label="Сабаб / Асоси ротатсия"
-                        variant="outlined"
-                        density="comfortable"
-                        rounded="lg"
-                        rows="3"
-                        :error-messages="form.errors.reason"
-                    />
+                    <FormField label="Сабаб / Асоси ротатсия" class="mt-4">
+                        <v-textarea
+                            v-model="form.reason"
+                            variant="outlined"
+                            density="comfortable"
+                            rounded="lg"
+                            rows="3"
+                            hide-details="auto"
+                            :error-messages="form.errors.reason"
+                        />
+                    </FormField>
                 </v-form>
             </v-card-text>
 
