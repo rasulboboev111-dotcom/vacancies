@@ -160,6 +160,7 @@ class ActivityLogController extends Controller
                     'id' => $log->id,
                     'description' => $log->description,
                     'subject_type' => class_basename($log->subject_type),
+                    'subject_label' => $this->subjectLabel($log),
                     'event' => $log->event,
                     'causer_name' => $log->causer ? $log->causer->name : 'Низом',
                     'properties' => $this->humanizeProperties($log->properties),
@@ -236,6 +237,41 @@ class ActivityLogController extends Controller
         }
 
         return ucfirst(str_replace('_', ' ', preg_replace('/_id$/', '', $key)));
+    }
+
+    /**
+     * Имя затронутой записи для строки журнала (чтобы было видно, ЧТО создано/
+     * изменено/удалено, в т.ч. когда сама запись уже удалена). Берём из сырых
+     * свойств: прямые «именные» поля, иначе — название по position_id/employee_id.
+     */
+    private function subjectLabel(Activity $log): ?string
+    {
+        $props = $log->properties instanceof Collection
+            ? $log->properties->toArray()
+            : (array) $log->properties;
+
+        $data = $props['attributes'] ?? $props['old'] ?? [];
+        if (! is_array($data)) {
+            return null;
+        }
+
+        foreach (['full_name', 'name', 'vacancy_title'] as $key) {
+            if (isset($data[$key]) && is_scalar($data[$key]) && $data[$key] !== '') {
+                return (string) $data[$key];
+            }
+        }
+
+        // Вакансия не хранит собственного имени — берём название должности.
+        if (! empty($data['position_id'])) {
+            return $this->lookupName(Position::class, 'name', $data['position_id']);
+        }
+
+        // Ротация — по сотруднику.
+        if (! empty($data['employee_id'])) {
+            return $this->lookupName(Employee::class, 'full_name', $data['employee_id']);
+        }
+
+        return null;
     }
 
     /**

@@ -13,6 +13,25 @@ function hasChanges(properties) {
     return properties && (properties.attributes || properties.old);
 }
 
+// Колонка «Буд» (старое) есть, если в логе сохранён old; «Шуд» (новое) — если
+// attributes. У создания только attributes, у удаления только old, у изменения —
+// оба. Так удаление показывает значения удалённой записи (раньше таблица была
+// пустой — строки строились только по attributes).
+function hasOld(properties) {
+    return !!(properties && properties.old && Object.keys(properties.old).length);
+}
+
+function hasNew(properties) {
+    return !!(properties && properties.attributes && Object.keys(properties.attributes).length);
+}
+
+function diffRows(properties) {
+    const attrs = properties?.attributes ?? {};
+    const old = properties?.old ?? {};
+    const keys = [...new Set([...Object.keys(old), ...Object.keys(attrs)])];
+    return keys.map(key => ({ key, old: old[key], next: attrs[key] }));
+}
+
 // Логи через трейт LogsActivity без своего текста получают description = само
 // событие («created»/«updated»/«deleted»). Оно уже показано таджикским чипом
 // события, поэтому такую дублирующую английскую строку не выводим — оставляем
@@ -44,6 +63,7 @@ function initial(name) {
                     {{ getEventText(log.event) }}
                 </span>
                 <span class="log-row__subject">{{ getSubjectText(log.subject_type) }}</span>
+                <span v-if="log.subject_label" class="log-row__subject-name">«{{ log.subject_label }}»</span>
             </div>
 
             <div v-if="meaningfulDescription(log.description)" class="log-row__desc">
@@ -73,24 +93,24 @@ function initial(name) {
                                 <th class="diff-head">
                                     Майдон
                                 </th>
-                                <th v-if="log.properties.old" class="diff-head text-error">
+                                <th v-if="hasOld(log.properties)" class="diff-head text-error">
                                     Буд
                                 </th>
-                                <th class="diff-head text-success">
+                                <th v-if="hasNew(log.properties)" class="diff-head text-success">
                                     Шуд
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(val, key) in log.properties.attributes" :key="key">
+                            <tr v-for="row in diffRows(log.properties)" :key="row.key">
                                 <td class="diff-key">
-                                    {{ key }}
+                                    {{ row.key }}
                                 </td>
-                                <td v-if="log.properties.old" class="diff-old">
-                                    {{ displayValue(log.properties.old[key]) }}
+                                <td v-if="hasOld(log.properties)" class="diff-old">
+                                    {{ displayValue(row.old) }}
                                 </td>
-                                <td class="diff-new">
-                                    {{ displayValue(val) }}
+                                <td v-if="hasNew(log.properties)" class="diff-new">
+                                    {{ displayValue(row.next) }}
                                 </td>
                             </tr>
                         </tbody>
@@ -187,6 +207,11 @@ function initial(name) {
     border: 1px solid #e2e8f0;
     padding: 1px 8px;
     border-radius: 999px;
+}
+.log-row__subject-name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #0f172a;
 }
 .log-row__desc {
     font-size: 0.875rem;
