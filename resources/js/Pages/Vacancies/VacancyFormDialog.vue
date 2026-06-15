@@ -8,6 +8,7 @@ import ChoiceBoxGroup from '@/Components/ChoiceBoxGroup.vue';
 import DialogHeader from '@/Components/DialogHeader.vue';
 import FormField from '@/Components/FormField.vue';
 import { useBranchDepartments } from '@/composables/useBranchDepartments';
+import { applyServerErrors } from '@/lib/errors';
 import { vacancySchema } from '@/lib/schemas';
 import { mergeLanguages, PROBATION_OTHER, SCHEDULE_OTHER, splitLanguages, VACANCY_STATUS_CLOSED, VACANCY_STATUS_OPEN } from '@/lib/vacancy';
 
@@ -171,10 +172,7 @@ const submit = handleSubmit((values) => {
         open.value = false;
     };
     const onError = (serverErrors) => {
-        for (const field of FIELDS) {
-            if (serverErrors[field])
-                setFieldError(field, serverErrors[field]);
-        }
+        applyServerErrors(serverErrors, FIELDS, setFieldError);
     };
 
     if (props.vacancy) {

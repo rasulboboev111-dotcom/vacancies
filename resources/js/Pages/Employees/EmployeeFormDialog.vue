@@ -7,6 +7,7 @@ import { useForm as useVeeForm } from 'vee-validate';
 import { ref, watch } from 'vue';
 import FormField from '@/Components/FormField.vue';
 import { useBranchDepartments } from '@/composables/useBranchDepartments';
+import { applyServerErrors } from '@/lib/errors';
 import { employeeSchema } from '@/lib/schemas';
 
 const props = defineProps({
@@ -309,10 +310,7 @@ const submit = handleSubmit(
                 open.value = false;
             },
             onError: (serverErrors) => {
-                for (const field of FIELDS) {
-                    if (serverErrors[field])
-                        setFieldError(field, serverErrors[field]);
-                }
+                applyServerErrors(serverErrors, FIELDS, setFieldError);
                 focusFirstErrorTab(serverErrors);
             },
         };
