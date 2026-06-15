@@ -44,15 +44,7 @@ class ApplicationIntakeService
             );
 
             if ($resume instanceof UploadedFile) {
-                $ext = $resume->getClientOriginalExtension() ?: 'bin';
-                $path = $resume->storeAs(
-                    'resumes',
-                    $application->external_id.'.'.$ext,
-                    config('intake.disk')
-                );
-                $application->resume_path = $path;
-                $application->resume_filename = $resume->getClientOriginalName();
-                $application->save();
+                $application->addMedia($resume)->toMediaCollection('resumes');
             }
 
             return $application;

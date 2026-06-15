@@ -72,7 +72,10 @@ class ApplicationIntakeTest extends TestCase
             'branch_id' => null,
         ]);
 
-        Storage::disk('local')->assertExists('resumes/123.pdf');
+        $app = Application::where('external_id', 123)->firstOrFail();
+        $media = $app->getFirstMedia('resumes');
+        $this->assertNotNull($media);
+        $this->assertSame('cv.pdf', $media->file_name);
     }
 
     public function test_resolves_branch_from_matching_vacancy(): void

@@ -10,12 +10,11 @@ use App\Models\Branch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ApplicationController extends Controller
 {
@@ -26,7 +25,7 @@ class ApplicationController extends Controller
         $user = $request->user();
 
         $base = Application::query()
-            ->with(['branch:id,name,code', 'vacancy:id,title'])
+            ->with(['branch:id,name,code', 'vacancy:id,title', 'media'])
             ->viewableBy($user)
             ->latest()
             ->latest('id');
@@ -76,20 +75,15 @@ class ApplicationController extends Controller
         return back()->with('success', 'Ариза нест карда шуд');
     }
 
-    public function downloadResume(int $id): StreamedResponse
+    public function downloadResume(int $id): BinaryFileResponse
     {
         $application = Application::findOrFail($id);
         Gate::authorize('view', $application);
 
-        abort_unless(
-            $application->resume_path && Storage::disk(config('intake.disk'))->exists($application->resume_path),
-            404
-        );
+        $media = $application->getFirstMedia('resumes');
+        abort_unless($media !== null, 404);
 
-        return Storage::disk(config('intake.disk'))->download(
-            $application->resume_path,
-            $application->resume_filename
-        );
+        return response()->download($media->getPath(), $media->file_name);
     }
 
     private function storeResume(Request $request, Application $application): void
@@ -98,13 +92,6 @@ class ApplicationController extends Controller
             return;
         }
 
-        $file = $request->file('resume');
-        $ext = $file->getClientOriginalExtension() ?: 'bin';
-        $path = $file->storeAs('resumes', 'app_'.$application->id.'.'.$ext, config('intake.disk'));
-
-        $application->update([
-            'resume_path' => $path,
-            'resume_filename' => $file->getClientOriginalName(),
-        ]);
+        $application->addMedia($request->file('resume'))->toMediaCollection('resumes');
     }
 }

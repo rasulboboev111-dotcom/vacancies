@@ -41,6 +41,8 @@ class ApplicationData extends Data
 
     public static function fromModel(Application $a): self
     {
+        $resume = $a->getFirstMedia('resumes');
+
         return new self(
             id: $a->id,
             external_id: $a->external_id,
@@ -55,9 +57,9 @@ class ApplicationData extends Data
             source: $a->source,
             summary: $a->summary,
             survey: $a->survey,
-            has_resume: (bool) $a->resume_path,
-            resume_filename: $a->resume_filename,
-            resume_download_url: $a->resume_path && Route::has('applications.resume')
+            has_resume: $resume !== null,
+            resume_filename: $resume?->file_name,
+            resume_download_url: $resume && Route::has('applications.resume')
                 ? route('applications.resume', $a->id)
                 : null,
             created_at: $a->created_at?->format('Y-m-d H:i'),

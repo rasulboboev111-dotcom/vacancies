@@ -129,8 +129,9 @@ class ApplicationWebTest extends TestCase
 
         $app = Application::where('name', 'New Applicant')->firstOrFail();
         $this->assertEquals($this->branch1->id, $app->branch_id);
-        $this->assertNotNull($app->resume_path);
-        Storage::disk(config('intake.disk'))->assertExists($app->resume_path);
+        $media = $app->getFirstMedia('resumes');
+        $this->assertNotNull($media);
+        $this->assertSame('cv.pdf', $media->file_name);
     }
 
     public function test_update_changes_contact_fields(): void
@@ -169,16 +170,13 @@ class ApplicationWebTest extends TestCase
         $branchBUser->assignRole('User');
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $resumePath = 'resumes/app_test.pdf';
-        Storage::disk(config('intake.disk'))->put($resumePath, 'fake-pdf-content');
-
         $appB = Application::create([
             'branch_id' => $this->branch2->id,
             'name' => 'Branch B Applicant',
             'source' => 'manual',
-            'resume_path' => $resumePath,
-            'resume_filename' => 'cv.pdf',
         ]);
+        $appB->addMedia(UploadedFile::fake()->create('cv.pdf', 100, 'application/pdf'))
+            ->toMediaCollection('resumes');
 
         // Branch A user cannot download branch B's resume → 403
         $this->actingAs($this->branchUser)
