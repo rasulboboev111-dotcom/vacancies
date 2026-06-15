@@ -19,6 +19,7 @@ export function getSubjectText(subjectType) {
         case 'Position': return 'Вазифа';
         case 'User': return 'Корбар';
         case 'Rotation': return 'Ротатсия';
+        case 'Application': return 'Ариза';
         default: return subjectType || 'Низом';
     }
 }

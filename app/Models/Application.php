@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -14,6 +16,7 @@ class Application extends Model implements HasMedia
 {
     use BranchScoped;
     use InteractsWithMedia;
+    use LogsActivity;
     use SoftDeletes;
 
     protected $fillable = [
@@ -28,6 +31,22 @@ class Application extends Model implements HasMedia
         'survey' => 'array',
         'source_created_at' => 'datetime',
     ];
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly([
+                'branch_id',
+                'name',
+                'email',
+                'phone',
+                'vacancy_title',
+                'source',
+                'summary',
+            ])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     public function registerMediaCollections(): void
     {

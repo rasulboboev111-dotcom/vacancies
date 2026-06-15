@@ -102,6 +102,11 @@ class ActivityLogController extends Controller
         'deadline' => 'Планируемая дата закрытия',
         'closed_at' => 'Санаи пӯшидашавӣ',
         'created_by' => 'Эҷодкунанда',
+        // Application
+        'phone' => 'Телефон',
+        'vacancy_title' => 'Вакансия',
+        'source' => 'Источник',
+        'summary' => 'Краткое описание',
         // Branch / Department
         'name' => 'Ном',
         'code' => 'Рамз',
