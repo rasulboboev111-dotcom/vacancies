@@ -58,9 +58,11 @@ class ProfileController extends Controller
 
         $user = $request->user();
 
-        Auth::logout();
-
+        // Удаляем до logout, чтобы запись об удалении аккаунта в журнале действий
+        // сохранила причинителя (после logout causer был бы null = «Низом»).
         $user->delete();
+
+        Auth::logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

@@ -229,7 +229,14 @@ class EmployeeController extends Controller
     {
         abort_unless($request->user()->isAdmin(), 403);
 
+        // Bulk-delete минует события модели, поэтому фиксируем это необратимое
+        // действие в журнале вручную (с числом стёртых записей).
+        $count = Rotation::query()->count();
         Rotation::query()->delete();
+
+        activity()
+            ->event('deleted')
+            ->log("Таърихи ҷобаҷогузорӣ пурра тоза карда шуд ({$count} сабт)");
 
         return back()->with('success', 'Таърихи ҷобаҷогузорӣ пурра тоза карда шуд.');
     }

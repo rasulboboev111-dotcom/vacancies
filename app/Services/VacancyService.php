@@ -187,5 +187,12 @@ class VacancyService
 
         $vacancy->languages()->delete();
         $vacancy->languages()->createMany(array_map(fn (string $name) => ['name' => $name], $languages));
+
+        // VacancyLanguage не логируется автоматически (нет LogsActivity) и не входит
+        // в logOnly вакансии, поэтому смену языков фиксируем отдельной аудит-записью.
+        activity()
+            ->performedOn($vacancy)
+            ->event('updated')
+            ->log('Забонҳои вакансия тағйир дода шуданд: '.(implode(', ', $target) ?: '—'));
     }
 }

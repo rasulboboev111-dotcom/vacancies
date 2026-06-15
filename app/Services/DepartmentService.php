@@ -60,35 +60,43 @@ class DepartmentService
         // Мягкое удаление не запускает ON DELETE SET NULL на уровне БД (срабатывает
         // только при жёстком удалении), поэтому ссылки отвязываются явно;
         // withTrashed() также очищает архивных кормандов/вакансии.
-        $deleted = DB::transaction(function () use ($department) {
+        $result = DB::transaction(function () use ($department) {
             // Учитываем мягко удалённые дочерние шуъбы: одна из них всё ещё
             // ссылается сюда через parent_id, поэтому блокировка предотвращает
             // повисший parent_id после её последующего восстановления.
             if (Department::withTrashed()->where('parent_id', $department->id)->exists()) {
-                return false;
+                return null;
             }
 
-            Employee::withTrashed()
+            // Массовое отвязывание идёт через query-builder и минует события
+            // модели, поэтому число затронутых записей берём из update() и
+            // добавляем в единственную аудит-запись об удалении шуъбы.
+            $detachedEmployees = Employee::withTrashed()
                 ->where('department_id', $department->id)
                 ->update(['department_id' => null]);
 
-            Vacancy::withTrashed()
+            $detachedVacancies = Vacancy::withTrashed()
                 ->where('department_id', $department->id)
                 ->update(['department_id' => null]);
 
             $department->disableLogging()->delete();
 
-            return true;
+            return ['employees' => $detachedEmployees, 'vacancies' => $detachedVacancies];
         });
 
-        if (! $deleted) {
+        if ($result === null) {
             return false;
+        }
+
+        $message = "Шуъба нест карда шуд: {$name}";
+        if ($result['employees'] > 0 || $result['vacancies'] > 0) {
+            $message .= " (ҷудо шуд: {$result['employees']} корманд, {$result['vacancies']} вакансия)";
         }
 
         activity()
             ->performedOn($department)
             ->event('deleted')
-            ->log("Шуъба нест карда шуд: {$name}");
+            ->log($message);
 
         return true;
     }
