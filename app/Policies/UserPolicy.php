@@ -25,13 +25,19 @@ class UserPolicy
         return $user->isAdmin();
     }
 
+    /**
+     * Редактирование — только суперадмин, и сам аккаунт суперадмина через
+     * управление пользователями неприкосновенен: иначе форма (где роли только
+     * Admin/User) понизила бы его и заблокировала все суперадмин-действия.
+     * Свой профиль суперадмин правит через страницу «Профил».
+     */
     public function update(User $user, User $model): bool
     {
-        return $user->isSuperAdmin();
+        return $user->isSuperAdmin() && ! $model->isSuperAdmin();
     }
 
     public function delete(User $user, User $model): bool
     {
-        return $user->isSuperAdmin();
+        return $user->isSuperAdmin() && ! $model->isSuperAdmin();
     }
 }

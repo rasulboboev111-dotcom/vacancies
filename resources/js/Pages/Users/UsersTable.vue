@@ -85,7 +85,8 @@ defineEmits(['edit', 'delete']);
                         {{ formatDate(user.created_at) }}
                     </td>
                     <td class="py-4 px-6 text-right">
-                        <v-menu v-if="canManage">
+                        <!-- Сам аккаунт суперадмина через UI не редактируется/удаляется. -->
+                        <v-menu v-if="canManage && !user.roles?.some((r) => r.name === 'Superadmin')">
                             <template #activator="{ props: menuProps }">
                                 <v-btn icon variant="text" size="small" class="hover-scale-btn" v-bind="menuProps">
                                     <MoreVertical style="width: 16px; height: 16px;" />
