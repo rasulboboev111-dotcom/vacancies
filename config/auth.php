@@ -114,4 +114,17 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Superadmin Account
+    |--------------------------------------------------------------------------
+    |
+    | Email единственного суперадмина: сидер выдаёт этому пользователю роль
+    | «Superadmin». Читается через config() (не env() в коде), чтобы значение
+    | переживало `php artisan config:cache`.
+    |
+    */
+
+    'superadmin_email' => env('SUPERADMIN_EMAIL', 'admin@hr.local'),
+
 ];

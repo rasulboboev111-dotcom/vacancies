@@ -16,13 +16,6 @@ class RoleAndPermissionSeeder extends Seeder
 
     public const ROLE_USER = 'User';
 
-    /**
-     * Email единственного суперадмина. Этому пользователю сидер выдаёт роль
-     * «Superadmin» (только он чистит логи ротации/аудита, видит корзину и
-     * редактирует/удаляет пользователей). Меняйте здесь или через .env.
-     */
-    private const SUPERADMIN_EMAIL = 'admin@hr.local';
-
     /** @var list<string> */
     private const ALLOWED_ROLES = [self::ROLE_SUPERADMIN, self::ROLE_ADMIN, self::ROLE_USER];
 
@@ -95,9 +88,9 @@ class RoleAndPermissionSeeder extends Seeder
         $this->removeLegacyRoles();
         $this->normalizeUserRoles();
 
-        // Назначаем единственного суперадмина по email (.env переопределяет).
-        $superadminEmail = env('SUPERADMIN_EMAIL', self::SUPERADMIN_EMAIL);
-        $superadmin = User::where('email', $superadminEmail)->first();
+        // Назначаем единственного суперадмина по email из config (config:cache-safe).
+        $superadminEmail = config('auth.superadmin_email');
+        $superadmin = $superadminEmail ? User::where('email', $superadminEmail)->first() : null;
         if ($superadmin) {
             $superadmin->syncRoles([self::ROLE_SUPERADMIN]);
         }
