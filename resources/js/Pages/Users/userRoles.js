@@ -1,11 +1,13 @@
 // Хелперы отображения ролей для страниц пользователей.
 
 const roleLabels = {
+    Superadmin: 'Суперадмин',
     Admin: 'Админ',
     User: 'Корбар',
 };
 
 const roleColors = {
+    Superadmin: 'deep-purple-darken-1',
     Admin: 'blue-darken-2',
     User: 'blue-grey-lighten-1',
 };
@@ -22,9 +24,9 @@ export function getRoleColor(roleName) {
     return roleColors[roleName] ?? 'grey';
 }
 
-// Admin — привилегированная роль, поэтому у неё сплошной заметный чип; остальные
-// остаются спокойными и приглушёнными (tonal). Так роль читается с первого
-// взгляда, без необходимости вчитываться в подпись.
+// Superadmin и Admin — привилегированные роли, поэтому у них сплошной заметный
+// чип; остальные остаются спокойными и приглушёнными (tonal). Так роль читается
+// с первого взгляда, без необходимости вчитываться в подпись.
 export function getRoleVariant(roleName) {
-    return roleName === 'Admin' ? 'flat' : 'tonal';
+    return roleName === 'Admin' || roleName === 'Superadmin' ? 'flat' : 'tonal';
 }
