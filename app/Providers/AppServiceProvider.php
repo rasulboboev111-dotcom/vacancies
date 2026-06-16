@@ -23,8 +23,11 @@ class AppServiceProvider extends ServiceProvider
 
         Vite::prefetch(concurrency: 3);
 
+        // checkPermissionTo (а не hasPermissionTo) не бросает PermissionDoesNotExist,
+        // если строки права нет в БД, — несидированная таблица прав не должна
+        // ронять страницы, дёргающие этот гейт, 500-ой.
         Gate::define('view-audit-logs', function ($user) {
-            return $user->hasPermissionTo('view audit logs') || $user->isAdmin();
+            return $user->checkPermissionTo('view audit logs') || $user->isAdmin();
         });
 
         // Ограничение по филиалу для агрегаций на сыром query-builder (например,

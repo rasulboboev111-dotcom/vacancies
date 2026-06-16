@@ -5,6 +5,11 @@ namespace App\Policies;
 use App\Models\Department;
 use App\Models\User;
 
+/**
+ * Использует Spatie checkPermissionTo (не hasPermissionTo): он не бросает
+ * PermissionDoesNotExist, а возвращает false, если строки права нет в БД —
+ * несидированная/частично смигрированная таблица прав не роняет страницы 500-ой.
+ */
 class DepartmentPolicy
 {
     public function viewAny(User $user): bool
@@ -13,7 +18,7 @@ class DepartmentPolicy
             return true;
         }
 
-        return $user->hasPermissionTo('view departments');
+        return $user->checkPermissionTo('view departments');
     }
 
     public function view(User $user, Department $department): bool
@@ -23,7 +28,7 @@ class DepartmentPolicy
         }
 
         return $user->branch_id !== null
-            && $user->hasPermissionTo('view departments')
+            && $user->checkPermissionTo('view departments')
             && $department->branch_id === $user->branch_id;
     }
 
@@ -33,7 +38,7 @@ class DepartmentPolicy
             return true;
         }
 
-        return $user->branch_id !== null && $user->hasPermissionTo('create departments');
+        return $user->branch_id !== null && $user->checkPermissionTo('create departments');
     }
 
     public function update(User $user, Department $department): bool
@@ -42,7 +47,7 @@ class DepartmentPolicy
             return true;
         }
 
-        if ($user->branch_id === null || ! $user->hasPermissionTo('edit departments')) {
+        if ($user->branch_id === null || ! $user->checkPermissionTo('edit departments')) {
             return false;
         }
 
@@ -55,7 +60,7 @@ class DepartmentPolicy
             return true;
         }
 
-        if ($user->branch_id === null || ! $user->hasPermissionTo('delete departments')) {
+        if ($user->branch_id === null || ! $user->checkPermissionTo('delete departments')) {
             return false;
         }
 

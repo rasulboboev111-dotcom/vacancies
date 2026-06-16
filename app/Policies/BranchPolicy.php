@@ -5,6 +5,11 @@ namespace App\Policies;
 use App\Models\Branch;
 use App\Models\User;
 
+/**
+ * Использует Spatie checkPermissionTo (не hasPermissionTo): он не бросает
+ * PermissionDoesNotExist, а возвращает false, если строки права нет в БД —
+ * несидированная/частично смигрированная таблица прав не роняет страницы 500-ой.
+ */
 class BranchPolicy
 {
     public function viewAny(User $user): bool
@@ -13,7 +18,7 @@ class BranchPolicy
             return true;
         }
 
-        return $user->branch_id !== null && $user->hasPermissionTo('view branches');
+        return $user->branch_id !== null && $user->checkPermissionTo('view branches');
     }
 
     public function view(User $user, Branch $branch): bool
@@ -22,7 +27,7 @@ class BranchPolicy
             return true;
         }
 
-        if ($user->branch_id === null || ! $user->hasPermissionTo('view branches')) {
+        if ($user->branch_id === null || ! $user->checkPermissionTo('view branches')) {
             return false;
         }
 
@@ -35,7 +40,7 @@ class BranchPolicy
             return true;
         }
 
-        return $user->branch_id !== null && $user->hasPermissionTo('create branches');
+        return $user->branch_id !== null && $user->checkPermissionTo('create branches');
     }
 
     public function update(User $user, Branch $branch): bool
@@ -44,7 +49,7 @@ class BranchPolicy
             return true;
         }
 
-        if ($user->branch_id === null || ! $user->hasPermissionTo('edit branches')) {
+        if ($user->branch_id === null || ! $user->checkPermissionTo('edit branches')) {
             return false;
         }
 
@@ -57,7 +62,7 @@ class BranchPolicy
             return true;
         }
 
-        if ($user->branch_id === null || ! $user->hasPermissionTo('delete branches')) {
+        if ($user->branch_id === null || ! $user->checkPermissionTo('delete branches')) {
             return false;
         }
 

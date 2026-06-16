@@ -5,6 +5,11 @@ namespace App\Policies;
 use App\Models\User;
 use App\Models\Vacancy;
 
+/**
+ * Использует Spatie checkPermissionTo (не hasPermissionTo): он не бросает
+ * PermissionDoesNotExist, а возвращает false, если строки права нет в БД —
+ * несидированная/частично смигрированная таблица прав не роняет страницы 500-ой.
+ */
 class VacancyPolicy
 {
     public function viewAny(User $user): bool
@@ -13,7 +18,7 @@ class VacancyPolicy
             return true;
         }
 
-        return $user->branch_id !== null && $user->hasPermissionTo('view vacancies');
+        return $user->branch_id !== null && $user->checkPermissionTo('view vacancies');
     }
 
     public function view(User $user, Vacancy $vacancy): bool
@@ -22,7 +27,7 @@ class VacancyPolicy
             return true;
         }
 
-        if (! $user->hasPermissionTo('view vacancies')) {
+        if (! $user->checkPermissionTo('view vacancies')) {
             return false;
         }
 
@@ -35,7 +40,7 @@ class VacancyPolicy
             return true;
         }
 
-        return $user->branch_id !== null && $user->hasPermissionTo('create vacancies');
+        return $user->branch_id !== null && $user->checkPermissionTo('create vacancies');
     }
 
     public function update(User $user, Vacancy $vacancy): bool
@@ -44,7 +49,7 @@ class VacancyPolicy
             return true;
         }
 
-        if ($user->branch_id === null || ! $user->hasPermissionTo('edit vacancies')) {
+        if ($user->branch_id === null || ! $user->checkPermissionTo('edit vacancies')) {
             return false;
         }
 
@@ -57,7 +62,7 @@ class VacancyPolicy
             return true;
         }
 
-        if ($user->branch_id === null || ! $user->hasPermissionTo('delete vacancies')) {
+        if ($user->branch_id === null || ! $user->checkPermissionTo('delete vacancies')) {
             return false;
         }
 

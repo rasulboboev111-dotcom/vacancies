@@ -5,6 +5,11 @@ namespace App\Policies;
 use App\Models\Application;
 use App\Models\User;
 
+/**
+ * Использует Spatie checkPermissionTo (не hasPermissionTo): он не бросает
+ * PermissionDoesNotExist, а возвращает false, если строки права нет в БД —
+ * несидированная/частично смигрированная таблица прав не роняет страницы 500-ой.
+ */
 class ApplicationPolicy
 {
     /**
@@ -16,7 +21,7 @@ class ApplicationPolicy
             return true;
         }
 
-        return $user->branch_id !== null && $user->hasPermissionTo('view applications');
+        return $user->branch_id !== null && $user->checkPermissionTo('view applications');
     }
 
     /**
@@ -29,7 +34,7 @@ class ApplicationPolicy
         }
 
         return $user->branch_id !== null
-            && $user->hasPermissionTo('view applications')
+            && $user->checkPermissionTo('view applications')
             && $application->branch_id === $user->branch_id;
     }
 
@@ -42,7 +47,7 @@ class ApplicationPolicy
             return true;
         }
 
-        return $user->branch_id !== null && $user->hasPermissionTo('create applications');
+        return $user->branch_id !== null && $user->checkPermissionTo('create applications');
     }
 
     /**
@@ -54,7 +59,7 @@ class ApplicationPolicy
             return true;
         }
 
-        if ($user->branch_id === null || ! $user->hasPermissionTo('edit applications')) {
+        if ($user->branch_id === null || ! $user->checkPermissionTo('edit applications')) {
             return false;
         }
 
@@ -70,7 +75,7 @@ class ApplicationPolicy
             return true;
         }
 
-        if ($user->branch_id === null || ! $user->hasPermissionTo('delete applications')) {
+        if ($user->branch_id === null || ! $user->checkPermissionTo('delete applications')) {
             return false;
         }
 
