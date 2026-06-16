@@ -12,6 +12,10 @@ const props = defineProps({
     deleteUrl: { type: String, default: null },
     confirmDisabled: { type: Boolean, default: false },
     preserveScroll: { type: Boolean, default: false },
+    // Сохранять состояние страницы при удалении — нужно, когда диалог открыт
+    // внутри страницы с локальным состоянием (например, активная вкладка на
+    // «Сохтор»), чтобы редирект back() не перемонтировал её.
+    preserveState: { type: Boolean, default: false },
 });
 
 const open = defineModel({ type: Boolean, default: false });
@@ -24,6 +28,7 @@ function confirm() {
     }
     form.delete(props.deleteUrl, {
         preserveScroll: props.preserveScroll,
+        preserveState: props.preserveState,
         onSuccess: () => {
             open.value = false;
         },

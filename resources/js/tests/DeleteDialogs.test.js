@@ -20,21 +20,24 @@ beforeEach(() => {
 });
 
 describe('migrated delete dialogs (ConfirmDeleteDialog wiring)', () => {
-    it('employeeDeleteDialog deletes the employee route', async () => {
+    it('employeeDeleteDialog deletes the employee route preserving page state', async () => {
         const w = mount(EmployeeDeleteDialog, {
             props: { modelValue: true, employee: { id: 7, full_name: 'Алӣ' } },
         });
         expect(w.text()).toContain('Алӣ');
         await deleteBtn(w).trigger('click');
-        expect(formMock.delete).toHaveBeenCalledWith('/employees.destroy/7', expect.any(Object));
+        // preserveState keeps the host page mounted so the embedded "Кормандон"
+        // tab on the structure page does not reset after the back() redirect.
+        expect(formMock.delete).toHaveBeenCalledWith('/employees.destroy/7', expect.objectContaining({ preserveState: true }));
     });
 
-    it('branchDeleteDialog deletes the branch route with preserveScroll', async () => {
+    it('branchDeleteDialog deletes the branch route with preserveScroll, without preserveState', async () => {
         const w = mount(BranchDeleteDialog, {
             props: { modelValue: true, branch: { id: 3, name: 'Филиал-3' } },
         });
         await deleteBtn(w).trigger('click');
-        expect(formMock.delete).toHaveBeenCalledWith('/branches.destroy/3', expect.objectContaining({ preserveScroll: true }));
+        // preserveState stays opt-in: non-employee deletes keep the default (false).
+        expect(formMock.delete).toHaveBeenCalledWith('/branches.destroy/3', expect.objectContaining({ preserveScroll: true, preserveState: false }));
     });
 
     it('departmentDeleteDialog blocks deletion when it has children', async () => {

@@ -306,6 +306,10 @@ const submit = handleSubmit(
         Object.assign(inertia, values);
 
         const options = {
+            // Сохраняем состояние страницы (back() после успеха не должен
+            // перемонтировать хост — например, сбрасывать активную вкладку на «Сохтор»).
+            preserveState: true,
+            preserveScroll: true,
             onSuccess: () => {
                 open.value = false;
             },

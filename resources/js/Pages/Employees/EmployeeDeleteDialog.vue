@@ -12,7 +12,7 @@ const deleteUrl = computed(() => (props.employee ? route('employees.destroy', pr
 </script>
 
 <template>
-    <ConfirmDeleteDialog v-model="open" title="Нест кардани корманд" :delete-url="deleteUrl">
+    <ConfirmDeleteDialog v-model="open" title="Нест кардани корманд" :delete-url="deleteUrl" preserve-state preserve-scroll>
         Шумо мутмаин ҳастед, ки мехоҳед корманди <strong class="text-red-darken-2">{{ employee?.full_name }}</strong>-ро нест кунед? Ин амал бебозгашт аст.
     </ConfirmDeleteDialog>
 </template>
