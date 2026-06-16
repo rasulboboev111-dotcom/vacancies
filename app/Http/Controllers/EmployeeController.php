@@ -165,6 +165,7 @@ class EmployeeController extends Controller
             ->allowedFilters([
                 AllowedFilter::scope('search'),
                 AllowedFilter::exact('branch_id'),
+                AllowedFilter::exact('dismissal_reason'),
             ])
             ->paginate(10)
             ->withQueryString();
@@ -173,9 +174,19 @@ class EmployeeController extends Controller
             ? Branch::orderBy('name')->get()
             : collect();
 
+        // Опции фильтра «сабаби озодшавӣ» — различные уже введённые причины среди
+        // видимых пользователю уволенных сотрудников (свободный текст, без enum).
+        $dismissalReasons = Employee::dismissed()
+            ->viewableBy($user)
+            ->whereNotNull('dismissal_reason')
+            ->distinct()
+            ->orderBy('dismissal_reason')
+            ->pluck('dismissal_reason');
+
         return Inertia::render('Employees/Archive', [
             'employees' => $employees,
             'branches' => $branches,
+            'dismissalReasons' => $dismissalReasons,
             'filters' => $request->input('filter', []),
         ]);
     }
