@@ -21,15 +21,26 @@ class UpdateApplicationRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $user = $this->user();
+        $current = $this->application();
 
         // Админ может перенести заявку в другой филиал; пользователь филиала —
         // нет (branch_id остаётся текущим). Это даёт vacancy_id валидироваться по
         // тому филиалу, который реально сохранится, а не по устаревшему.
         $branchId = $user->isAdmin()
-            ? ($this->filled('branch_id') ? (int) $this->input('branch_id') : $this->application()->branch_id)
-            : $this->application()->branch_id;
+            ? ($this->filled('branch_id') ? (int) $this->input('branch_id') : $current->branch_id)
+            : $current->branch_id;
 
-        $this->merge(['branch_id' => $branchId]);
+        $merge = ['branch_id' => $branchId];
+
+        // Форма редактирования не присылает vacancy_id, поэтому он сохраняется
+        // как есть. Но при смене филиала прежняя вакансия принадлежит другому
+        // филиалу — отвязываем её, иначе остаётся межфилиальная связь, которую
+        // VacancyInBranch должна предотвращать.
+        if ($branchId !== $current->branch_id && ! $this->has('vacancy_id')) {
+            $merge['vacancy_id'] = null;
+        }
+
+        $this->merge($merge);
 
         // Поле source трогаем только если оно прислано: пустое (очищенное) →
         // MANUAL, чтобы не записать null; отсутствующее — не меняем (иначе любой
