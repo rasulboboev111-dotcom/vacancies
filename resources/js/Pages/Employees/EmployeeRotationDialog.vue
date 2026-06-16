@@ -49,7 +49,6 @@ function submit() {
         // Сохраняем состояние страницы — back() после успеха не должен
         // перемонтировать хост (например, активную вкладку на «Сохтор»).
         preserveState: true,
-        preserveScroll: true,
         onSuccess: () => {
             open.value = false;
             form.reset();

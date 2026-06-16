@@ -46,7 +46,9 @@ describe('employeeRotationDialog', () => {
         // tab) mounted across the back() redirect after a successful rotation.
         expect(formMock.post).toHaveBeenCalledWith(
             '/employees.rotate/9',
-            expect.objectContaining({ preserveState: true, preserveScroll: true }),
+            expect.objectContaining({ preserveState: true }),
         );
+        // Scroll is not preserved — the list jumps to the (re-sorted) top.
+        expect(formMock.post.mock.calls[0][1].preserveScroll).toBeUndefined();
     });
 });
