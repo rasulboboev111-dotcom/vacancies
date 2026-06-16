@@ -10,12 +10,21 @@ use Spatie\Permission\PermissionRegistrar;
 
 class RoleAndPermissionSeeder extends Seeder
 {
+    public const ROLE_SUPERADMIN = 'Superadmin';
+
     public const ROLE_ADMIN = 'Admin';
 
     public const ROLE_USER = 'User';
 
+    /**
+     * Email единственного суперадмина. Этому пользователю сидер выдаёт роль
+     * «Superadmin» (только он чистит логи ротации/аудита, видит корзину и
+     * редактирует/удаляет пользователей). Меняйте здесь или через .env.
+     */
+    private const SUPERADMIN_EMAIL = 'admin@hr.local';
+
     /** @var list<string> */
-    private const ALLOWED_ROLES = [self::ROLE_ADMIN, self::ROLE_USER];
+    private const ALLOWED_ROLES = [self::ROLE_SUPERADMIN, self::ROLE_ADMIN, self::ROLE_USER];
 
     /**
      * Run the database seeds.
@@ -52,6 +61,11 @@ class RoleAndPermissionSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permission]);
         }
 
+        // Суперадмин — все права (плюс эксклюзивные разрушающие действия,
+        // которые гейтятся отдельно через isSuperAdmin(), а не через permission).
+        $superadminRole = Role::firstOrCreate(['name' => self::ROLE_SUPERADMIN]);
+        $superadminRole->syncPermissions(Permission::all());
+
         // Админ — доступ ко всей информации
         $adminRole = Role::firstOrCreate(['name' => self::ROLE_ADMIN]);
         $adminRole->syncPermissions(Permission::all());
@@ -81,16 +95,19 @@ class RoleAndPermissionSeeder extends Seeder
         $this->removeLegacyRoles();
         $this->normalizeUserRoles();
 
-        $adminUser = User::where('email', 'admin@hr.local')->first();
-        if ($adminUser) {
-            $adminUser->syncRoles([self::ROLE_ADMIN]);
+        // Назначаем единственного суперадмина по email (.env переопределяет).
+        $superadminEmail = env('SUPERADMIN_EMAIL', self::SUPERADMIN_EMAIL);
+        $superadmin = User::where('email', $superadminEmail)->first();
+        if ($superadmin) {
+            $superadmin->syncRoles([self::ROLE_SUPERADMIN]);
         }
 
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
 
     /**
-     * Удалить все роли, кроме Admin и User (HR Manager, Branch Manager, Viewer, Editor и др.).
+     * Удалить все роли, кроме Superadmin, Admin и User (HR Manager, Branch
+     * Manager, Viewer, Editor и др.).
      */
     private function removeLegacyRoles(): void
     {
@@ -98,11 +115,18 @@ class RoleAndPermissionSeeder extends Seeder
     }
 
     /**
-     * У каждого пользователя ровно одна роль: Admin или User.
+     * У каждого пользователя ровно одна роль: Superadmin, Admin или User.
+     * Существующий Superadmin сохраняется (повторный сидинг его не сбрасывает).
      */
     private function normalizeUserRoles(): void
     {
         foreach (User::all() as $user) {
+            if ($user->hasRole(self::ROLE_SUPERADMIN)) {
+                $user->syncRoles([self::ROLE_SUPERADMIN]);
+
+                continue;
+            }
+
             if ($user->hasRole(self::ROLE_ADMIN)) {
                 $user->syncRoles([self::ROLE_ADMIN]);
 

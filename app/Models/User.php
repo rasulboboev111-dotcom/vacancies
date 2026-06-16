@@ -14,6 +14,8 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
+    public const ROLE_SUPERADMIN = 'Superadmin';
+
     public const ROLE_ADMIN = 'Admin';
 
     public const ROLE_USER = 'User';
@@ -32,9 +34,18 @@ class User extends Authenticatable
             ->dontSubmitEmptyLogs();
     }
 
+    /**
+     * Суперадмин включает в себя все полномочия админа, поэтому isAdmin() для
+     * него тоже true — обычные админ-проверки по всему приложению не ломаются.
+     */
     public function isAdmin(): bool
     {
-        return $this->hasRole(self::ROLE_ADMIN);
+        return $this->hasRole([self::ROLE_SUPERADMIN, self::ROLE_ADMIN]);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole(self::ROLE_SUPERADMIN);
     }
 
     public function isBranchUser(): bool
