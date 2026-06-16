@@ -4,6 +4,7 @@ import { ClipboardList } from '@lucide/vue';
 import { toTypedSchema } from '@vee-validate/zod';
 import { useForm as useVeeForm } from 'vee-validate';
 import { ref, watch } from 'vue';
+import DialogHeader from '@/Components/DialogHeader.vue';
 import FormField from '@/Components/FormField.vue';
 import { applyServerErrors } from '@/lib/errors';
 import { applicationSchema } from '@/lib/schemas';
@@ -111,22 +112,14 @@ const submit = handleSubmit((values) => {
 <template>
     <v-dialog v-model="open" max-width="600px" persistent scrollable>
         <v-card class="rounded-xl overflow-hidden" elevation="8">
-            <!-- Premium Gradient Header -->
-            <div style="background: #009cf1; padding: 20px 28px;">
-                <div class="d-flex align-center">
-                    <v-avatar size="42" rounded="lg" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(4px);">
-                        <ClipboardList style="width: 22px; height: 22px; color: white;" />
-                    </v-avatar>
-                    <div class="ml-4">
-                        <div style="color: rgba(255,255,255,0.7); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em;">
-                            {{ application ? 'Таҳрир' : 'Аризаи нав' }}
-                        </div>
-                        <div style="color: white; font-size: 1.1rem; font-weight: 800;">
-                            {{ application ? name || 'Таҳрири ариза' : 'Илова кардани ариза' }}
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <DialogHeader
+                :kicker="application ? 'Таҳрир' : 'Аризаи нав'"
+                :title="application ? name || 'Таҳрири ариза' : 'Илова кардани ариза'"
+            >
+                <template #icon>
+                    <ClipboardList style="width: 22px; height: 22px; color: white;" />
+                </template>
+            </DialogHeader>
 
             <v-card-text class="px-6 pt-5 overflow-y-auto" style="max-height: 62vh;">
                 <v-alert
