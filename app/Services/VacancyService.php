@@ -68,7 +68,14 @@ class VacancyService
             // Сериализуем параллельные правки одной вакансии, чтобы delete+insert
             // языков в syncLanguages() не привёл две транзакции к гонке за
             // unique-нарушение (vacancy_id, name).
-            $vacancy->newQuery()->whereKey($vacancy->getKey())->lockForUpdate()->first();
+            $locked = $vacancy->newQuery()->whereKey($vacancy->getKey())->lockForUpdate()->first();
+
+            // Переносим атрибуты заблокированной строки в текущий экземпляр, чтобы
+            // аудит-дифф (старое→новое) сравнивал с зафиксированным состоянием, а
+            // не с устаревшим снимком в памяти.
+            if ($locked !== null) {
+                $vacancy->setRawAttributes($locked->getAttributes(), true);
+            }
 
             // Авто-лог трейта пишет изменённые поля (старое→новое) — детально, как у заявок.
             $vacancy->update($data);
