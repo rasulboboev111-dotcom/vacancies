@@ -11,11 +11,12 @@ use App\Models\Branch;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ApplicationController extends Controller
 {
@@ -76,7 +77,7 @@ class ApplicationController extends Controller
         return back()->with('success', 'Ариза нест карда шуд');
     }
 
-    public function downloadResume(int $id): BinaryFileResponse
+    public function downloadResume(int $id): StreamedResponse
     {
         $application = Application::findOrFail($id);
         Gate::authorize('view', $application);
@@ -84,7 +85,12 @@ class ApplicationController extends Controller
         $media = $application->getFirstMedia('resumes');
         abort_unless($media !== null, 404);
 
-        return response()->download($media->getPath(), $media->file_name);
+        // Через диск медиа, а не локальный getPath(), чтобы работало и на
+        // нелокальных дисках (например, s3 при INTAKE_DISK=s3).
+        return Storage::disk($media->disk)->download(
+            $media->getPathRelativeToRoot(),
+            $media->file_name,
+        );
     }
 
     private function storeResume(Request $request, Application $application): void
