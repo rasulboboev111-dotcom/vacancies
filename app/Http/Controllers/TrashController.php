@@ -21,36 +21,15 @@ class TrashController extends Controller
     /**
      * Отображает список мягко удалённых ресурсов.
      */
-    public function index(Request $request): Response
+    public function index(): Response
     {
-        $user = $request->user();
-
-        // Пользователи филиала видят только удалённых сотрудников своего филиала
-        // (viewableBy); удалённые филиалы и пользователи доступны только админам.
-        $employeesQuery = Employee::onlyTrashed()->with(['branch', 'position', 'manager'])->viewableBy($user);
-        $usersQuery = User::onlyTrashed()->with('branch');
-        $branchesQuery = Branch::onlyTrashed();
-
-        // Подразделения ограничены филиалом: руководитель филиала видит только
-        // удалённые подразделения своего филиала, как и сотрудников.
-        $departmentsQuery = Department::onlyTrashed()->with('branch');
-
-        if (! $user->isAdmin()) {
-            $usersQuery->whereRaw('1=0');
-            $branchesQuery->whereRaw('1=0');
-
-            if ($user->branch_id === null) {
-                $departmentsQuery->whereRaw('1=0');
-            } else {
-                $departmentsQuery->where('branch_id', $user->branch_id);
-            }
-        }
-
+        // Корзину открывает только суперадмин (can:access-trash), поэтому ничего
+        // не скоупим по филиалу — показываем все мягко удалённые ресурсы.
         return Inertia::render('Trash/Index', [
-            'employees' => $employeesQuery->latest('deleted_at')->get(),
-            'branches' => $branchesQuery->latest('deleted_at')->get(),
-            'users' => $usersQuery->latest('deleted_at')->get(),
-            'departments' => $departmentsQuery->latest('deleted_at')->get(),
+            'employees' => Employee::onlyTrashed()->with(['branch', 'position', 'manager'])->latest('deleted_at')->get(),
+            'branches' => Branch::onlyTrashed()->latest('deleted_at')->get(),
+            'users' => User::onlyTrashed()->with('branch')->latest('deleted_at')->get(),
+            'departments' => Department::onlyTrashed()->with('branch')->latest('deleted_at')->get(),
         ]);
     }
 
