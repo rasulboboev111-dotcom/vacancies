@@ -2,21 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\Category;
-use App\Enums\EmploymentType;
 use App\Http\Requests\Employee\RotateEmployeeRequest;
 use App\Http\Requests\Employee\StoreEmployeeRequest;
 use App\Http\Requests\Employee\UpdateEmployeeRequest;
-use App\Models\BirthPlace;
 use App\Models\Branch;
-use App\Models\Department;
-use App\Models\Education;
 use App\Models\Employee;
-use App\Models\Nationality;
-use App\Models\Position;
 use App\Models\Rotation;
-use App\Models\Specialty;
-use App\Models\User;
 use App\Services\EmployeeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -29,21 +20,6 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class EmployeeController extends Controller
 {
-    /**
-     * Связи, жадно загружаемые для экранов списка и архива сотрудников, со
-     * выборкой только тех столбцов, что читают таблица, диалоги просмотра и
-     * редактирования — чтобы сериализация страницы не гидрировала четыре полные
-     * связанные модели, а добавленные аксессоры
-     * nationality/education/specialty/birth_place не порождали четыре ленивых
-     * запроса на строку.
-     *
-     * @var list<string>
-     */
-    private const LIST_RELATIONS = [
-        'branch:id,name', 'department:id,name', 'position:id,name', 'manager:id,full_name',
-        'nationalityRef:id,name', 'educationRef:id,name', 'specialtyRef:id,name', 'birthPlaceRef:id,name',
-    ];
-
     public function __construct(private readonly EmployeeService $employees) {}
 
     /**
@@ -53,29 +29,7 @@ class EmployeeController extends Controller
     {
         Gate::authorize('viewAny', Employee::class);
 
-        $user = $request->user();
-
-        $base = Employee::with(self::LIST_RELATIONS)
-            ->active()
-            ->viewableBy($user)
-            ->latest()
-            ->latest('id');
-
-        $employees = QueryBuilder::for($base)
-            ->allowedFilters([
-                AllowedFilter::scope('search'),
-                AllowedFilter::exact('branch_id'),
-                AllowedFilter::exact('department_id'),
-                AllowedFilter::exact('type_id', 'employment_type'),
-            ])
-            ->paginate(10)
-            ->withQueryString();
-
-        return Inertia::render('Employees/Index', array_merge(
-            ['employees' => $employees],
-            $this->referenceData($user),
-            ['filters' => $request->input('filter', [])],
-        ));
+        return Inertia::render('Employees/Index', $this->employees->panelData($request->user(), $request));
     }
 
     /**
@@ -105,8 +59,7 @@ class EmployeeController extends Controller
     {
         $this->employees->create($request->validated());
 
-        return redirect()->route('employees.index')
-            ->with('success', 'Корманд бомуваффақият илова шуд.');
+        return back()->with('success', 'Корманд бомуваффақият илова шуд.');
     }
 
     public function update(UpdateEmployeeRequest $request, int $id): RedirectResponse
@@ -115,8 +68,7 @@ class EmployeeController extends Controller
 
         $this->employees->update($employee, $request->validated());
 
-        return redirect()->route('employees.index')
-            ->with('success', 'Корманд бомуваффақият навсозӣ шуд.');
+        return back()->with('success', 'Корманд бомуваффақият навсозӣ шуд.');
     }
 
     public function destroy(int $id): RedirectResponse
@@ -127,8 +79,7 @@ class EmployeeController extends Controller
 
         $this->employees->delete($employee);
 
-        return redirect()->route('employees.index')
-            ->with('success', 'Корманд бомуваффақият нест карда шуд.');
+        return back()->with('success', 'Корманд бомуваффақият нест карда шуд.');
     }
 
     /**
@@ -155,7 +106,7 @@ class EmployeeController extends Controller
 
         $user = $request->user();
 
-        $base = Employee::with(self::LIST_RELATIONS)
+        $base = Employee::with(EmployeeService::LIST_RELATIONS)
             ->dismissed()
             ->viewableBy($user)
             ->latest('dismissal_date')
@@ -250,51 +201,5 @@ class EmployeeController extends Controller
             ->log("Таърихи ҷобаҷогузорӣ пурра тоза карда шуд ({$count} сабт)");
 
         return back()->with('success', 'Таърихи ҷобаҷогузорӣ пурра тоза карда шуд.');
-    }
-
-    /**
-     * Справочные данные для экрана сотрудников.
-     *
-     * Для фильтров панели инструментов при первой отрисовке нужны только
-     * филиалы/подразделения/типы, поэтому они загружаются сразу. Всё остальное
-     * используется только диалогами создания/редактирования и ротации, поэтому
-     * откладывается (группа Inertia "form"): сначала рендерится список, а данные
-     * формы подгружаются после, и они пропускаются при частичных перезагрузках
-     * по фильтру/пагинации (`only`). Пользователь без филиала (и не админ) не
-     * может управлять сотрудниками → пустые списки.
-     *
-     * @return array<string, mixed>
-     */
-    private function referenceData(User $user): array
-    {
-        $isAdmin = $user->isAdmin();
-        $canManage = $isAdmin || $user->branch_id !== null;
-        $branchId = $user->branch_id;
-
-        return [
-            // Сразу — нужны фильтрам панели инструментов.
-            'branches' => $canManage ? Branch::orderBy('name')->get() : collect(),
-            'departments' => $canManage
-                ? Department::query()
-                    ->when(! $isAdmin, fn ($q) => $q->where('branch_id', $branchId))
-                    ->orderBy('name')
-                    ->get(['id', 'branch_id', 'name', 'code'])
-                : collect(),
-            'types' => collect(EmploymentType::cases())->map(fn (EmploymentType $t) => [
-                'id' => $t->value,
-                'name' => $t->label(),
-            ]),
-
-            // Отложено (группа "form") — используется только диалогами, поэтому
-            // не утяжеляет начальную загрузку списка и его частичные перезагрузки.
-            'categories' => Inertia::defer(fn () => Category::options(), 'form'),
-            'positions' => Inertia::defer(fn () => $canManage ? Position::orderBy('name')->get() : collect(), 'form'),
-            // руководители подгружаются по запросу через поисковый эндпоинт
-            // (employees.managers) — никогда не передаются полным списком.
-            'nationalities' => Inertia::defer(fn () => Nationality::orderBy('name')->pluck('name'), 'form'),
-            'educations' => Inertia::defer(fn () => Education::orderBy('name')->pluck('name'), 'form'),
-            'specialties' => Inertia::defer(fn () => Specialty::orderBy('name')->pluck('name'), 'form'),
-            'birthPlaces' => Inertia::defer(fn () => BirthPlace::orderBy('name')->pluck('name'), 'form'),
-        ];
     }
 }

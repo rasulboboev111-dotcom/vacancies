@@ -8,7 +8,9 @@ use App\Enums\VacancyStatus;
 use App\Models\Branch;
 use App\Models\Department;
 use App\Models\Employee;
+use App\Models\User;
 use App\Models\Vacancy;
+use App\Services\EmployeeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -17,13 +19,47 @@ use Inertia\Response;
 
 class StructureController extends Controller
 {
+    public function __construct(private readonly EmployeeService $employees) {}
+
     /**
-     * Отображает организационную структуру (филиалы + подразделения) в виде графа.
+     * Отображает организационную структуру (филиалы + подразделения) в виде графа,
+     * со встроенной вкладкой «Кормандон» (тот же набор пропсов, что и страница
+     * сотрудников).
      */
     public function index(Request $request): Response
     {
         $user = $request->user();
 
+        // Граф структуры собирается лениво и единожды (мемоизация), чтобы
+        // частичные перезагрузки фильтра вкладки сотрудников (only =
+        // employees/filters) не пересчитывали дерево.
+        $structure = null;
+        $build = function () use (&$structure, $user): array {
+            return $structure ??= $this->assembleStructure($user);
+        };
+
+        return Inertia::render('Structure/Index', array_merge(
+            // Список сотрудников, справочники фильтров и формы (включая
+            // отложенные группы) — переиспользуются вкладкой «Кормандон».
+            $this->employees->panelData($user, $request),
+            [
+                'structure' => fn () => $build()['structure'],
+                'organizationName' => fn () => $build()['organizationName'],
+                // Филиалы в более богатой форме (адрес, счётчики) перекрывают
+                // одноимённый проп из panelData — он служит и фильтру/форме вкладки.
+                'branches' => fn () => $build()['branches'],
+                'departmentsFlat' => fn () => $build()['departmentsFlat'],
+            ],
+        ));
+    }
+
+    /**
+     * Собирает пропсы оргструктуры для страницы «Сохтор».
+     *
+     * @return array{structure: Collection<int, mixed>, organizationName: ?string, branches: Collection<int, mixed>, departmentsFlat: mixed}
+     */
+    private function assembleStructure(User $user): array
+    {
         $branches = Branch::query()
             ->withCount(['employees' => fn ($q) => $q->whereNull('dismissal_date')])
             ->viewableBy($user)
@@ -73,7 +109,7 @@ class StructureController extends Controller
             ->orderBy('id')
             ->value('name');
 
-        return Inertia::render('Structure/Index', [
+        return [
             'structure' => $structure,
             'organizationName' => $organizationName,
             'branches' => $branches->map(fn (Branch $branch) => [
@@ -84,7 +120,7 @@ class StructureController extends Controller
                 'employees_count' => $branch->employees_count,
             ])->values(),
             'departmentsFlat' => DepartmentListItemData::collect($departments->values()),
-        ]);
+        ];
     }
 
     /**

@@ -1,9 +1,10 @@
 <script setup>
 import { Head } from '@inertiajs/vue3';
-import { Building2, Network, Plus, Workflow } from '@lucide/vue';
+import { Building2, Network, Plus, Users, Workflow } from '@lucide/vue';
 import { computed, ref, watch } from 'vue';
 import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import EmployeesPanel from '@/Pages/Employees/EmployeesPanel.vue';
 import BranchCard from '@/Pages/Structure/BranchCard.vue';
 import BranchDeleteDialog from '@/Pages/Structure/BranchDeleteDialog.vue';
 import BranchFormDialog from '@/Pages/Structure/BranchFormDialog.vue';
@@ -18,6 +19,17 @@ const props = defineProps({
     branches: { type: Array, default: () => [] },
     departmentsFlat: { type: Array, default: () => [] },
     organizationName: { type: String, default: null },
+    // Набор пропсов вкладки «Кормандон» (тот же, что и страница сотрудников).
+    employees: { type: Object, required: true },
+    types: { type: Array, default: () => [] },
+    departments: { type: Array, default: () => [] },
+    categories: { type: Array, default: () => [] },
+    positions: { type: Array, default: () => [] },
+    nationalities: { type: Array, default: () => [] },
+    educations: { type: Array, default: () => [] },
+    specialties: { type: Array, default: () => [] },
+    birthPlaces: { type: Array, default: () => [] },
+    filters: { type: Object, default: () => ({}) },
 });
 
 const { isAdmin, canManageInBranch, canCreateInBranch } = usePermissions();
@@ -217,6 +229,10 @@ function openDeleteBranch(branch) {
                     <Building2 style="width: 18px; height: 18px; margin-right: 8px;" />
                     Филиалҳо
                 </v-tab>
+                <v-tab value="employees" class="font-weight-bold text-none">
+                    <Users style="width: 18px; height: 18px; margin-right: 8px;" />
+                    Кормандон
+                </v-tab>
             </v-tabs>
 
             <v-window v-model="tab">
@@ -311,6 +327,27 @@ function openDeleteBranch(branch) {
                                 </div>
                             </v-col>
                         </v-row>
+                    </div>
+                </v-window-item>
+
+                <!-- Кормандон — встроенная панель сотрудников (фильтрация/CRUD
+                     остаётся на странице «Сохтор» через route-name structure.index) -->
+                <v-window-item value="employees">
+                    <div class="pa-4">
+                        <EmployeesPanel
+                            :employees="employees"
+                            :branches="branches"
+                            :types="types"
+                            :departments="departments"
+                            :categories="categories"
+                            :positions="positions"
+                            :nationalities="nationalities"
+                            :educations="educations"
+                            :specialties="specialties"
+                            :birth-places="birthPlaces"
+                            :filters="filters"
+                            route-name="structure.index"
+                        />
                     </div>
                 </v-window-item>
             </v-window>

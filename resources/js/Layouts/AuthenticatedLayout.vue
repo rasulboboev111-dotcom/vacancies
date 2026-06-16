@@ -13,7 +13,6 @@ import {
     Shield,
     Trash2,
     User,
-    Users,
     Workflow,
 } from '@lucide/vue';
 import { ref } from 'vue';
@@ -86,20 +85,6 @@ function prefetch(name) {
                 >
                     <template #prepend>
                         <Workflow class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
-                    </template>
-                </v-list-item>
-
-                <v-list-item
-                    title="Кормандон"
-                    :active="route().current('employees.index')"
-                    color="indigo"
-                    rounded="lg"
-                    class="mb-1"
-                    @mouseenter="prefetch('employees.index')"
-                    @click="router.visit(route('employees.index'))"
-                >
-                    <template #prepend>
-                        <Users class="mr-3 h-5 w-5 opacity-70 nav-icon-color" />
                     </template>
                 </v-list-item>
 

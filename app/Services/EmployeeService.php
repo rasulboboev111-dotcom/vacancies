@@ -2,17 +2,121 @@
 
 namespace App\Services;
 
+use App\Enums\Category;
+use App\Enums\EmploymentType;
 use App\Models\BirthPlace;
+use App\Models\Branch;
+use App\Models\Department;
 use App\Models\Education;
 use App\Models\Employee;
 use App\Models\Nationality;
+use App\Models\Position;
 use App\Models\Rotation;
 use App\Models\Specialty;
+use App\Models\User;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\QueryBuilder;
 
 class EmployeeService
 {
+    /**
+     * Связи, жадно загружаемые для экранов списка и архива сотрудников, с выборкой
+     * только тех столбцов, что читают таблица и диалоги, — чтобы сериализация
+     * страницы не гидрировала полные связанные модели, а аксессоры
+     * nationality/education/specialty/birth_place не порождали ленивые запросы.
+     *
+     * @var list<string>
+     */
+    public const LIST_RELATIONS = [
+        'branch:id,name', 'department:id,name', 'position:id,name', 'manager:id,full_name',
+        'nationalityRef:id,name', 'educationRef:id,name', 'specialtyRef:id,name', 'birthPlaceRef:id,name',
+    ];
+
     public function __construct(private readonly LookupResolver $lookups) {}
+
+    /**
+     * Полный набор пропсов панели управления активными сотрудниками (список +
+     * справочники + эхо фильтров), переиспользуемый страницей «Кормандон» и
+     * вкладкой сотрудников на странице «Сохтор».
+     *
+     * @return array<string, mixed>
+     */
+    public function panelData(User $user, Request $request): array
+    {
+        return array_merge(
+            ['employees' => $this->activeListing($user)],
+            $this->referenceData($user),
+            ['filters' => $request->input('filter', [])],
+        );
+    }
+
+    /**
+     * Отфильтрованный, постранично разбитый список активных сотрудников, видимых
+     * пользователю (через Spatie QueryBuilder по query-параметрам запроса).
+     *
+     * @return LengthAwarePaginator<int, Employee>
+     */
+    public function activeListing(User $user): LengthAwarePaginator
+    {
+        $base = Employee::with(self::LIST_RELATIONS)
+            ->active()
+            ->viewableBy($user)
+            ->latest()
+            ->latest('id');
+
+        return QueryBuilder::for($base)
+            ->allowedFilters([
+                AllowedFilter::scope('search'),
+                AllowedFilter::exact('branch_id'),
+                AllowedFilter::exact('department_id'),
+                AllowedFilter::exact('type_id', 'employment_type'),
+            ])
+            ->paginate(10)
+            ->withQueryString();
+    }
+
+    /**
+     * Справочные данные для фильтров панели и диалогов формы. Тяжёлые наборы,
+     * нужные только форме, откладываются (Inertia-группа "form").
+     *
+     * @return array<string, mixed>
+     */
+    public function referenceData(User $user): array
+    {
+        $isAdmin = $user->isAdmin();
+        $canManage = $isAdmin || $user->branch_id !== null;
+        $branchId = $user->branch_id;
+
+        return [
+            // Сразу — нужны фильтрам панели инструментов.
+            'branches' => $canManage ? Branch::orderBy('name')->get() : collect(),
+            'departments' => $canManage
+                ? Department::query()
+                    ->when(! $isAdmin, fn ($q) => $q->where('branch_id', $branchId))
+                    ->orderBy('name')
+                    ->get(['id', 'branch_id', 'name', 'code'])
+                : collect(),
+            'types' => collect(EmploymentType::cases())->map(fn (EmploymentType $t) => [
+                'id' => $t->value,
+                'name' => $t->label(),
+            ]),
+
+            // Отложено (группа "form") — используется только диалогами, поэтому
+            // не утяжеляет начальную загрузку списка и его частичные перезагрузки.
+            'categories' => Inertia::defer(fn () => Category::options(), 'form'),
+            'positions' => Inertia::defer(fn () => $canManage ? Position::orderBy('name')->get() : collect(), 'form'),
+            // руководители подгружаются по запросу через поисковый эндпоинт
+            // (employees.managers) — никогда не передаются полным списком.
+            'nationalities' => Inertia::defer(fn () => Nationality::orderBy('name')->pluck('name'), 'form'),
+            'educations' => Inertia::defer(fn () => Education::orderBy('name')->pluck('name'), 'form'),
+            'specialties' => Inertia::defer(fn () => Specialty::orderBy('name')->pluck('name'), 'form'),
+            'birthPlaces' => Inertia::defer(fn () => BirthPlace::orderBy('name')->pluck('name'), 'form'),
+        ];
+    }
 
     public function create(array $data): Employee
     {
