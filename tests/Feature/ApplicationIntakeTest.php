@@ -78,14 +78,15 @@ class ApplicationIntakeTest extends TestCase
         $this->assertSame('cv.pdf', $media->file_name);
     }
 
-    public function test_resolves_branch_from_matching_vacancy(): void
+    public function test_resolves_vacancy_within_default_branch(): void
     {
-        $branch = Branch::create(['name' => 'Головной офис', 'code' => 'HQ']);
+        // Филиал по умолчанию (ҶСК «Тоҷиктелеком», BU51) — к нему привязывается
+        // приём, и вакансия ищется в его пределах.
+        $branch = Branch::create(['name' => 'ҶСК "Тоҷиктелеком"', 'code' => 'BU51']);
         $position = Position::firstOrCreate(['name' => 'QA инженер']);
         $vacancy = Vacancy::create([
             'branch_id' => $branch->id,
             'position_id' => $position->id,
-            'title' => 'QA инженер',
             'status' => 'open',
             'opened_at' => now()->toDateString(),
         ]);
@@ -102,6 +103,35 @@ class ApplicationIntakeTest extends TestCase
             'branch_id' => $branch->id,
             'vacancy_id' => $vacancy->id,
         ]);
+    }
+
+    public function test_reintake_re_resolves_vacancy_id_and_clears_a_stale_match(): void
+    {
+        $branch = Branch::create(['name' => 'ҶСК "Тоҷиктелеком"', 'code' => 'BU51']);
+        $position = Position::firstOrCreate(['name' => 'QA инженер']);
+        $vacancy = Vacancy::create([
+            'branch_id' => $branch->id,
+            'position_id' => $position->id,
+            'status' => 'open',
+            'opened_at' => now()->toDateString(),
+        ]);
+
+        // Приём №1 — название совпадает с вакансией.
+        $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->postJson('/api/applications', ['payload' => $this->payload(['vacancy' => 'QA инженер'])])
+            ->assertStatus(200);
+
+        $this->assertSame($vacancy->id, Application::where('external_id', 123)->value('vacancy_id'));
+
+        // Приём №2 (тот же external_id) — название больше не матчит ни одну вакансию.
+        $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->postJson('/api/applications', ['payload' => $this->payload(['vacancy' => 'Несуществующая вакансия'])])
+            ->assertStatus(200);
+
+        // vacancy_id согласован с новым vacancy_title (null), а не висит устаревшим.
+        $app = Application::where('external_id', 123)->firstOrFail();
+        $this->assertNull($app->vacancy_id);
+        $this->assertSame('Несуществующая вакансия', $app->vacancy_title);
     }
 
     public function test_second_push_updates_same_row_with_survey(): void
@@ -152,5 +182,45 @@ class ApplicationIntakeTest extends TestCase
             ->assertStatus(422);
 
         $this->assertDatabaseCount('applications', 0);
+    }
+
+    public function test_reintake_after_soft_delete_does_not_collide(): void
+    {
+        // Первый приём.
+        $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->postJson('/api/applications', ['payload' => $this->payload(['external_id' => 555])])
+            ->assertStatus(200);
+
+        Application::where('external_id', 555)->firstOrFail()->delete(); // soft delete
+
+        // Повторный приём того же external_id не должен падать на unique-индексе.
+        $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->postJson('/api/applications', ['payload' => $this->payload(['external_id' => 555, 'name' => 'Дубликат'])])
+            ->assertStatus(200);
+
+        $this->assertSame(1, Application::where('external_id', 555)->count()); // активная
+        $this->assertSame(2, Application::withTrashed()->where('external_id', 555)->count());
+    }
+
+    public function test_intake_always_attaches_to_default_branch(): void
+    {
+        $tjk = Branch::create(['name' => 'ҶСК "Тоҷиктелеком"', 'code' => 'BU51']);
+        $other = Branch::create(['name' => 'Регион', 'code' => 'BU99']);
+        $position = Position::firstOrCreate(['name' => 'Инженер']);
+        // Вакансия с тем же названием, но в ЧУЖОМ филиале — не должна привязаться.
+        Vacancy::create([
+            'branch_id' => $other->id,
+            'position_id' => $position->id,
+            'status' => 'open',
+            'opened_at' => now()->toDateString(),
+        ]);
+
+        $this->withHeaders(['X-Api-Key' => $this->apiKey])
+            ->postJson('/api/applications', ['payload' => $this->payload(['external_id' => 777, 'vacancy' => 'Инженер'])])
+            ->assertStatus(200);
+
+        $app = Application::where('external_id', 777)->firstOrFail();
+        $this->assertSame($tjk->id, $app->branch_id);   // всегда Тоҷиктелеком
+        $this->assertNull($app->vacancy_id);            // вакансия чужого филиала не привязывается
     }
 }

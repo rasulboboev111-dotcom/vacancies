@@ -37,11 +37,13 @@ class ApplicationIntakeService
                 'survey' => $data['survey'] ?? null,
                 'source_created_at' => $data['created_at'] ?? null,
             ];
-            // Only set branch/vacancy when resolved — never clobber an existing value with null.
+            // Филиал не определён → не затираем существующие branch/vacancy
+            // (временная недоступность дефолтного филиала не должна стирать
+            // ранее сматченные значения). Если же филиал известен — пишем
+            // vacancy_id по текущему совпадению названия (в т.ч. null), чтобы он
+            // оставался согласован с vacancy_title и не висел устаревшим.
             if ($branchId !== null) {
                 $attrs['branch_id'] = $branchId;
-            }
-            if ($vacancyId !== null) {
                 $attrs['vacancy_id'] = $vacancyId;
             }
 
