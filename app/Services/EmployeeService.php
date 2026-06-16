@@ -223,11 +223,20 @@ class EmployeeService
                 'reason' => $data['reason'] ?? null,
             ]);
 
-            $employee->disableLogging()->update([
+            $attributes = [
                 'branch_id' => $data['branch_id'],
                 'position_id' => $data['position_id'],
                 'department_id' => $data['department_id'] ?? null,
-            ]);
+            ];
+
+            // Руководитель обязан быть из того же филиала (это форсят формы).
+            // При переводе в другой филиал прежний руководитель невалиден —
+            // обнуляем, чтобы не оставить ссылку на чужой филиал.
+            if ((int) $employee->branch_id !== (int) $data['branch_id']) {
+                $attributes['manager_id'] = null;
+            }
+
+            $employee->disableLogging()->update($attributes);
 
             return $rotation;
         });

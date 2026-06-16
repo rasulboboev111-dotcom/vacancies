@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Employee;
 
 use App\Models\Employee;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
@@ -47,5 +48,20 @@ class RotateEmployeeRequest extends FormRequest
             'rotation_date' => 'required|date',
             'reason' => 'nullable|string|max:1000',
         ];
+    }
+
+    /**
+     * Уволенного (архивного) сотрудника ротировать нельзя — иначе создаётся
+     * фантомная запись Rotation, а архивная строка молча меняет филиал/должность.
+     */
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function (Validator $validator): void {
+            $employee = Employee::find($this->route('id'));
+
+            if ($employee !== null && $employee->dismissal_date !== null) {
+                $validator->errors()->add('id', 'Корманди аз кор озодшударо ҷобаҷо кардан мумкин нест.');
+            }
+        });
     }
 }
