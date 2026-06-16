@@ -6,17 +6,17 @@ import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import RotationTimelineItem from '@/Pages/Rotations/RotationTimelineItem.vue';
 
-const props = defineProps({
+defineProps({
     rotations: { type: Object, required: true },
 });
 
-const { isAdmin } = usePermissions();
+const { isSuperAdmin } = usePermissions();
 
 function changePage(page) {
     router.get(route('rotations.index'), { page }, { preserveState: true });
 }
 
-// Подтверждение полной очистки (только админ, необратимо).
+// Подтверждение полной очистки (только суперадмин, необратимо).
 const clearDialog = ref(false);
 const clearing = ref(false);
 
@@ -72,7 +72,7 @@ function clearRotations() {
             </span>
 
             <button
-                v-if="isAdmin && rotations.total"
+                v-if="isSuperAdmin && rotations.total"
                 type="button"
                 class="rot-clear"
                 @click="clearDialog = true"

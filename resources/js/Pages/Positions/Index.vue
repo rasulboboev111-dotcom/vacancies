@@ -1,9 +1,10 @@
 <script setup>
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head } from '@inertiajs/vue3';
 import { Briefcase, Plus, Search } from '@lucide/vue';
 import { refDebounced } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
 import { useCrudDialogs } from '@/composables/useCrudDialogs';
+import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import PositionCard from '@/Pages/Positions/PositionCard.vue';
 import PositionDeleteDialog from '@/Pages/Positions/PositionDeleteDialog.vue';
@@ -14,8 +15,7 @@ const props = defineProps({
     positions: { type: Array, required: true },
 });
 
-const page = usePage();
-const isAdmin = computed(() => page.props.auth.user.roles.includes('Admin'));
+const { isAdmin } = usePermissions();
 
 const search = ref('');
 // Debounce локального фильтра, чтобы он не пересчитывался на каждое нажатие клавиши (@vueuse/core).

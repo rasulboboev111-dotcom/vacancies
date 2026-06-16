@@ -16,6 +16,9 @@ import {
     Workflow,
 } from '@lucide/vue';
 import { ref } from 'vue';
+import { usePermissions } from '@/composables/usePermissions';
+
+const { isAdmin, isSuperAdmin } = usePermissions();
 
 const drawer = ref(true);
 
@@ -160,7 +163,7 @@ function prefetch(name) {
                 </v-list-item>
 
                 <v-list-item
-                    v-if="$page.props.auth.user.roles.includes('Admin')"
+                    v-if="isAdmin"
                     title="Корбарон"
                     :active="route().current('users.*')"
                     color="indigo"
@@ -175,7 +178,7 @@ function prefetch(name) {
                 </v-list-item>
 
                 <v-list-item
-                    v-if="$page.props.auth.user.roles.includes('Admin')"
+                    v-if="isAdmin"
                     title="Сабти амалҳо"
                     :active="route().current('activity-logs.*')"
                     color="indigo"
@@ -190,7 +193,7 @@ function prefetch(name) {
                 </v-list-item>
 
                 <v-list-item
-                    v-if="$page.props.auth.user.permissions.includes('delete employees')"
+                    v-if="isSuperAdmin"
                     title="Сабад"
                     :active="route().current('trash.*')"
                     color="red"

@@ -9,7 +9,14 @@ import { computed } from 'vue';
 export function usePermissions() {
     const page = usePage();
     const user = computed(() => page.props.auth.user);
-    const isAdmin = computed(() => user.value?.roles?.includes('Admin') ?? false);
+    // Суперадмин включает все полномочия админа, поэтому isAdmin для него тоже
+    // true (повторяет серверный User::isAdmin()). isSuperAdmin гейтит
+    // эксклюзивные действия: чистка логов, корзина, правка/удаление юзеров.
+    const isSuperAdmin = computed(() => user.value?.roles?.includes('Superadmin') ?? false);
+    const isAdmin = computed(() => {
+        const roles = user.value?.roles ?? [];
+        return roles.includes('Admin') || roles.includes('Superadmin');
+    });
 
     const hasPermission = permission => user.value?.permissions?.includes(permission) ?? false;
 
@@ -27,5 +34,5 @@ export function usePermissions() {
         return hasPermission(permission) && user.value?.branch_id != null;
     }
 
-    return { user, isAdmin, hasPermission, canManageInBranch, canCreateInBranch };
+    return { user, isAdmin, isSuperAdmin, hasPermission, canManageInBranch, canCreateInBranch };
 }

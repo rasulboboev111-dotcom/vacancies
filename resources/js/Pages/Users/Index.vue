@@ -3,6 +3,7 @@ import { Head, router, usePage } from '@inertiajs/vue3';
 import { Plus, Search, Shield } from '@lucide/vue';
 import { watchDebounced } from '@vueuse/core';
 import { computed, ref } from 'vue';
+import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import UserDeleteDialog from '@/Pages/Users/UserDeleteDialog.vue';
 import UserFormDialog from '@/Pages/Users/UserFormDialog.vue';
@@ -17,6 +18,9 @@ const props = defineProps({
 
 const page = usePage();
 const currentUserId = computed(() => page.props.auth.user.id);
+
+// Правка/удаление юзеров — только суперадмин; обычный админ только добавляет.
+const { isSuperAdmin } = usePermissions();
 
 const search = ref(props.filters.search || '');
 const dialog = ref(false);
@@ -110,6 +114,7 @@ function openDeleteDialog(user) {
         <UsersTable
             :users="users.data"
             :current-user-id="currentUserId"
+            :can-manage="isSuperAdmin"
             @edit="openEditDialog"
             @delete="openDeleteDialog"
         />

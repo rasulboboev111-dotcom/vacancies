@@ -6,6 +6,9 @@ import { getRoleColor, getRoleLabel, getRoleVariant } from '@/Pages/Users/userRo
 defineProps({
     users: { type: Array, required: true },
     currentUserId: { type: Number, default: null },
+    // Правка/удаление пользователей — только суперадмин; обычный админ лишь
+    // добавляет, поэтому меню действий ему не показывается.
+    canManage: { type: Boolean, default: false },
 });
 
 defineEmits(['edit', 'delete']);
@@ -82,7 +85,7 @@ defineEmits(['edit', 'delete']);
                         {{ formatDate(user.created_at) }}
                     </td>
                     <td class="py-4 px-6 text-right">
-                        <v-menu>
+                        <v-menu v-if="canManage">
                             <template #activator="{ props: menuProps }">
                                 <v-btn icon variant="text" size="small" class="hover-scale-btn" v-bind="menuProps">
                                     <MoreVertical style="width: 16px; height: 16px;" />

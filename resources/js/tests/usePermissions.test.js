@@ -14,13 +14,23 @@ describe('usePermissions', () => {
         state.user = null;
     });
 
-    it('grants everything to an admin', () => {
+    it('grants everything to an admin but is not superadmin', () => {
         state.user = { roles: ['Admin'], permissions: [], branch_id: null };
         const p = usePermissions();
 
         expect(p.isAdmin.value).toBe(true);
+        expect(p.isSuperAdmin.value).toBe(false);
         expect(p.canManageInBranch('edit employees', 999)).toBe(true);
         expect(p.canCreateInBranch('create employees')).toBe(true);
+    });
+
+    it('treats a superadmin as admin and superadmin', () => {
+        state.user = { roles: ['Superadmin'], permissions: [], branch_id: null };
+        const p = usePermissions();
+
+        expect(p.isAdmin.value).toBe(true);
+        expect(p.isSuperAdmin.value).toBe(true);
+        expect(p.canManageInBranch('edit employees', 999)).toBe(true);
     });
 
     it('limits a branch user to their own branch and granted permission', () => {
@@ -28,6 +38,7 @@ describe('usePermissions', () => {
         const p = usePermissions();
 
         expect(p.isAdmin.value).toBe(false);
+        expect(p.isSuperAdmin.value).toBe(false);
         expect(p.canManageInBranch('edit employees', 5)).toBe(true); // own branch
         expect(p.canManageInBranch('edit employees', 6)).toBe(false); // other branch
         expect(p.canManageInBranch('delete employees', 5)).toBe(false); // missing permission

@@ -3,14 +3,17 @@ import { Head, router } from '@inertiajs/vue3';
 import { FilterX, History, Search, Trash2, TriangleAlert } from '@lucide/vue';
 import { watchDebounced } from '@vueuse/core';
 import { ref, watch } from 'vue';
+import { usePermissions } from '@/composables/usePermissions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import ActivityLogItem from '@/Pages/ActivityLogs/ActivityLogItem.vue';
 
 const props = defineProps({
     logs: { type: Object, required: true },
     filters: { type: Object, required: true },
-    isAdmin: { type: Boolean, default: false },
 });
+
+// Очистка журнала — только суперадмин (просмотр доступен админам/филиалам).
+const { isSuperAdmin } = usePermissions();
 
 const search = ref(props.filters.search || '');
 const eventFilter = ref(props.filters.event || null);
@@ -135,7 +138,7 @@ function clearLogs() {
                     </v-btn>
                 </v-col>
 
-                <v-col v-if="isAdmin" cols="6" sm="3" md="2">
+                <v-col v-if="isSuperAdmin" cols="6" sm="3" md="2">
                     <v-btn
                         variant="tonal"
                         color="error"
