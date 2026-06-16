@@ -12,6 +12,7 @@ import ArchiveTable from '@/Pages/Employees/ArchiveTable.vue';
 const props = defineProps({
     employees: { type: Object, required: true },
     branches: { type: Array, required: true },
+    dismissalReasons: { type: Array, default: () => [] },
     filters: { type: Object, required: true },
 });
 
@@ -25,6 +26,7 @@ const canRestore = computed(() => hasPermission('edit employees'));
 
 const search = ref(props.filters.search || '');
 const branchId = ref(props.filters.branch_id || null);
+const dismissalReason = ref(props.filters.dismissal_reason || null);
 
 const viewDialog = ref(false);
 const selectedEmployee = ref(null);
@@ -34,7 +36,7 @@ const employeeToRestore = ref(null);
 const restoring = ref(false);
 const restoreError = ref('');
 
-watch([branchId], () => {
+watch([branchId, dismissalReason], () => {
     applyFilters();
 });
 
@@ -47,6 +49,7 @@ function filterQuery() {
         filter: {
             search: search.value || undefined,
             branch_id: branchId.value || undefined,
+            dismissal_reason: dismissalReason.value || undefined,
         },
     };
 }
@@ -61,6 +64,7 @@ function applyFilters() {
 function resetFilters() {
     search.value = '';
     branchId.value = null;
+    dismissalReason.value = null;
     router.get(route('employees.archive'));
 }
 
@@ -115,7 +119,7 @@ function changePage(page) {
 
         <v-card elevation="0" class="rounded-xl border pa-6 bg-surface-glass mb-6">
             <v-row class="mb-6 align-end">
-                <v-col cols="12" md="6">
+                <v-col cols="12" md="4">
                     <label class="filter-label">Ҷустуҷӯ</label>
                     <v-text-field
                         v-model="search"
@@ -130,7 +134,7 @@ function changePage(page) {
                         class="search-field"
                     />
                 </v-col>
-                <v-col v-if="isAdmin" cols="12" md="4">
+                <v-col v-if="isAdmin" cols="12" md="3">
                     <label class="filter-label">Филиали пешина</label>
                     <v-select
                         v-model="branchId"
@@ -138,6 +142,20 @@ function changePage(page) {
                         item-title="name"
                         item-value="id"
                         placeholder="Ҳамаи филиалҳо"
+                        variant="outlined"
+                        density="comfortable"
+                        rounded="lg"
+                        hide-details
+                        clearable
+                        color="indigo"
+                    />
+                </v-col>
+                <v-col cols="12" md="3">
+                    <label class="filter-label">Сабаби озодшавӣ</label>
+                    <v-select
+                        v-model="dismissalReason"
+                        :items="dismissalReasons"
+                        placeholder="Ҳамаи сабабҳо"
                         variant="outlined"
                         density="comfortable"
                         rounded="lg"
