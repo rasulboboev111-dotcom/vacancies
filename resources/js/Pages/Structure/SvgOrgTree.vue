@@ -50,14 +50,16 @@ const c = {
 };
 
 /* ------------------------------------------------------------------ *
- * Дерево + состояние раскрытия. По умолчанию раскрывает три верхних уровня
- * и сбрасывается к ним при каждой перезагрузке структуры (Inertia/CRUD).
+ * Дерево + состояние раскрытия. По умолчанию раскрыт только корень, поэтому
+ * на старте видны головная компания и её филиалы, а содержимое филиалов
+ * свёрнуто. Состояние сбрасывается к этому при каждой перезагрузке структуры
+ * (Inertia/CRUD).
  * ------------------------------------------------------------------ */
 const tree = computed(() => buildOrgTree(props.structure, props.organizationName));
-const expanded = ref(expandedToDepth(tree.value));
+const expanded = ref(expandedToDepth(tree.value, 1));
 
 watch(tree, (next) => {
-    expanded.value = expandedToDepth(next);
+    expanded.value = expandedToDepth(next, 1);
 });
 
 const isOpen = id => expanded.value.has(id);
