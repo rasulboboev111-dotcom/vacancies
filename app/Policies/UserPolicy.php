@@ -7,7 +7,8 @@ use App\Models\User;
 class UserPolicy
 {
     /**
-     * Управление пользователями целиком доступно только администраторам.
+     * Просмотр списка и создание пользователей доступны админам; редактирование
+     * и удаление (и вся корзина) — только суперадмину.
      */
     public function viewAny(User $user): bool
     {
@@ -26,11 +27,11 @@ class UserPolicy
 
     public function update(User $user, User $model): bool
     {
-        return $user->isAdmin();
+        return $user->isSuperAdmin();
     }
 
     public function delete(User $user, User $model): bool
     {
-        return $user->isAdmin();
+        return $user->isSuperAdmin();
     }
 }

@@ -30,6 +30,9 @@ class AppServiceProvider extends ServiceProvider
             return $user->checkPermissionTo('view audit logs') || $user->isAdmin();
         });
 
+        // Корзина (восстановление и окончательное удаление) — только суперадмин.
+        Gate::define('access-trash', fn (User $user) => $user->isSuperAdmin());
+
         // Ограничение по филиалу для агрегаций на сыром query-builder (например,
         // статистика дашборда работает через DB::table, минуя касты/appends
         // Eloquent). Модели Eloquent вместо этого используют скоуп viewableBy()

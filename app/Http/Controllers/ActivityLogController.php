@@ -39,18 +39,17 @@ class ActivityLogController extends Controller
         return Inertia::render('ActivityLogs/Index', [
             'logs' => $logs,
             'filters' => $request->input('filter', []),
-            'isAdmin' => $user->isAdmin(),
         ]);
     }
 
     /**
-     * Полностью очищает журнал аудита. Только для админов: очистка журнала —
+     * Полностью очищает журнал аудита. Только для суперадмина: очистка журнала —
      * разрушительное, необратимое действие, поэтому ограничено строже, чем
-     * простой просмотр журнала (доступный пользователям филиала с правом).
+     * просмотр журнала (доступный админам и пользователям филиала с правом).
      */
     public function clear(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->isSuperAdmin(), 403);
 
         Activity::query()->delete();
 

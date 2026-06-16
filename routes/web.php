@@ -54,15 +54,18 @@ Route::middleware(['auth', 'verified', 'throttle:120,1'])->group(function () {
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     Route::delete('/activity-logs', [ActivityLogController::class, 'clear'])->name('activity-logs.clear');
 
-    Route::get('/trash', [TrashController::class, 'index'])->name('trash.index');
-    Route::post('/trash/employees/{id}/restore', [TrashController::class, 'restoreEmployee'])->name('trash.employees.restore')->whereNumber('id');
-    Route::delete('/trash/employees/{id}/force', [TrashController::class, 'forceDeleteEmployee'])->name('trash.employees.force')->whereNumber('id');
-    Route::post('/trash/branches/{id}/restore', [TrashController::class, 'restoreBranch'])->name('trash.branches.restore')->whereNumber('id');
-    Route::delete('/trash/branches/{id}/force', [TrashController::class, 'forceDeleteBranch'])->name('trash.branches.force')->whereNumber('id');
-    Route::post('/trash/departments/{id}/restore', [TrashController::class, 'restoreDepartment'])->name('trash.departments.restore')->whereNumber('id');
-    Route::delete('/trash/departments/{id}/force', [TrashController::class, 'forceDeleteDepartment'])->name('trash.departments.force')->whereNumber('id');
-    Route::post('/trash/users/{id}/restore', [TrashController::class, 'restoreUser'])->name('trash.users.restore')->whereNumber('id');
-    Route::delete('/trash/users/{id}/force', [TrashController::class, 'forceDeleteUser'])->name('trash.users.force')->whereNumber('id');
+    // Корзина целиком — только суперадмин (can:access-trash).
+    Route::middleware('can:access-trash')->group(function () {
+        Route::get('/trash', [TrashController::class, 'index'])->name('trash.index');
+        Route::post('/trash/employees/{id}/restore', [TrashController::class, 'restoreEmployee'])->name('trash.employees.restore')->whereNumber('id');
+        Route::delete('/trash/employees/{id}/force', [TrashController::class, 'forceDeleteEmployee'])->name('trash.employees.force')->whereNumber('id');
+        Route::post('/trash/branches/{id}/restore', [TrashController::class, 'restoreBranch'])->name('trash.branches.restore')->whereNumber('id');
+        Route::delete('/trash/branches/{id}/force', [TrashController::class, 'forceDeleteBranch'])->name('trash.branches.force')->whereNumber('id');
+        Route::post('/trash/departments/{id}/restore', [TrashController::class, 'restoreDepartment'])->name('trash.departments.restore')->whereNumber('id');
+        Route::delete('/trash/departments/{id}/force', [TrashController::class, 'forceDeleteDepartment'])->name('trash.departments.force')->whereNumber('id');
+        Route::post('/trash/users/{id}/restore', [TrashController::class, 'restoreUser'])->name('trash.users.restore')->whereNumber('id');
+        Route::delete('/trash/users/{id}/force', [TrashController::class, 'forceDeleteUser'])->name('trash.users.force')->whereNumber('id');
+    });
 });
 
 Route::middleware(['auth', 'throttle:120,1'])->group(function () {

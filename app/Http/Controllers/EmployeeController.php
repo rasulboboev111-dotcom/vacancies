@@ -184,12 +184,12 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Полностью стирает историю ротаций. Только для админов и необратимо —
+     * Полностью стирает историю ротаций. Только для суперадмина и необратимо —
      * аналогично очистке журнала действий.
      */
     public function clearRotations(Request $request): RedirectResponse
     {
-        abort_unless($request->user()->isAdmin(), 403);
+        abort_unless($request->user()->isSuperAdmin(), 403);
 
         // Bulk-delete минует события модели, поэтому фиксируем это необратимое
         // действие в журнале вручную (с числом стёртых записей).
