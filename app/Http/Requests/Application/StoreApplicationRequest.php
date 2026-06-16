@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Application;
 
 use App\Enums\ApplicationSource;
+use App\Http\Requests\Concerns\ResumeRules;
 use App\Models\Application;
 use App\Rules\VacancyInBranch;
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,6 +12,8 @@ use Illuminate\Validation\Rule;
 
 class StoreApplicationRequest extends FormRequest
 {
+    use ResumeRules;
+
     public function authorize(): bool
     {
         if (! Gate::allows('create', Application::class)) {
@@ -57,12 +60,7 @@ class StoreApplicationRequest extends FormRequest
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:64'],
             'source' => ['nullable', Rule::in(ApplicationSource::values())],
-            'resume' => [
-                'nullable',
-                'file',
-                'mimes:'.implode(',', config('intake.resume_mimes')),
-                'max:'.config('intake.resume_max_kb'),
-            ],
+            'resume' => $this->resumeRules(),
         ];
     }
 }

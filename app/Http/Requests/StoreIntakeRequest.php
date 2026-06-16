@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\ResumeRules;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreIntakeRequest extends FormRequest
 {
+    use ResumeRules;
+
     public function authorize(): bool
     {
         return true; // auth handled by the api.key middleware
@@ -45,7 +48,7 @@ class StoreIntakeRequest extends FormRequest
             'summary' => ['nullable', 'string'],
             'survey' => ['nullable', 'array'],
             'created_at' => ['nullable', 'date'],
-            'resume' => ['nullable', 'file', 'mimes:'.implode(',', config('intake.resume_mimes')), 'max:'.config('intake.resume_max_kb')],
+            'resume' => $this->resumeRules(),
         ];
     }
 }

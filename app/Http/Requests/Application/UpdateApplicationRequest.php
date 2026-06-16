@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Application;
 
 use App\Enums\ApplicationSource;
+use App\Http\Requests\Concerns\ResumeRules;
 use App\Models\Application;
 use App\Rules\VacancyInBranch;
 use Illuminate\Foundation\Http\FormRequest;
@@ -11,6 +12,8 @@ use Illuminate\Validation\Rule;
 
 class UpdateApplicationRequest extends FormRequest
 {
+    use ResumeRules;
+
     private ?Application $application = null;
 
     public function authorize(): bool
@@ -68,12 +71,7 @@ class UpdateApplicationRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:64'],
             'vacancy_id' => ['nullable', 'integer', new VacancyInBranch($branchId !== null ? (int) $branchId : null)],
             'source' => ['nullable', Rule::in(ApplicationSource::values())],
-            'resume' => [
-                'nullable',
-                'file',
-                'mimes:'.implode(',', config('intake.resume_mimes')),
-                'max:'.config('intake.resume_max_kb'),
-            ],
+            'resume' => $this->resumeRules(),
         ];
     }
 
