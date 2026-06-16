@@ -14,6 +14,7 @@ use App\Services\EmployeeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -38,11 +39,15 @@ class StructureController extends Controller
             return $structure ??= $this->assembleStructure($user);
         };
 
+        // Данные вкладки «Кормандон» отдаются только тем, кому разрешён просмотр
+        // сотрудников (как и на отдельной странице). Дерево структуры остаётся
+        // доступным всем, поэтому гейтим именно набор пропсов панели, а не страницу.
+        $canViewEmployees = Gate::allows('viewAny', Employee::class);
+
         return Inertia::render('Structure/Index', array_merge(
-            // Список сотрудников, справочники фильтров и формы (включая
-            // отложенные группы) — переиспользуются вкладкой «Кормандон».
-            $this->employees->panelData($user, $request),
+            $canViewEmployees ? $this->employees->panelData($user, $request) : [],
             [
+                'canViewEmployees' => $canViewEmployees,
                 'structure' => fn () => $build()['structure'],
                 'organizationName' => fn () => $build()['organizationName'],
                 // Филиалы в более богатой форме (адрес, счётчики) перекрывают

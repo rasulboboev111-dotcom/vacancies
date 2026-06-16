@@ -19,8 +19,10 @@ const props = defineProps({
     branches: { type: Array, default: () => [] },
     departmentsFlat: { type: Array, default: () => [] },
     organizationName: { type: String, default: null },
-    // Набор пропсов вкладки «Кормандон» (тот же, что и страница сотрудников).
-    employees: { type: Object, required: true },
+    // Набор пропсов вкладки «Кормандон» (тот же, что и страница сотрудников);
+    // присутствует только при наличии прав на просмотр сотрудников.
+    canViewEmployees: { type: Boolean, default: false },
+    employees: { type: Object, default: null },
     types: { type: Array, default: () => [] },
     departments: { type: Array, default: () => [] },
     categories: { type: Array, default: () => [] },
@@ -229,7 +231,7 @@ function openDeleteBranch(branch) {
                     <Building2 style="width: 18px; height: 18px; margin-right: 8px;" />
                     Филиалҳо
                 </v-tab>
-                <v-tab value="employees" class="font-weight-bold text-none">
+                <v-tab v-if="canViewEmployees" value="employees" class="font-weight-bold text-none">
                     <Users style="width: 18px; height: 18px; margin-right: 8px;" />
                     Кормандон
                 </v-tab>
@@ -332,7 +334,7 @@ function openDeleteBranch(branch) {
 
                 <!-- Кормандон — встроенная панель сотрудников (фильтрация/CRUD
                      остаётся на странице «Сохтор» через route-name structure.index) -->
-                <v-window-item value="employees">
+                <v-window-item v-if="canViewEmployees && employees" value="employees">
                     <div class="pa-4">
                         <EmployeesPanel
                             :employees="employees"

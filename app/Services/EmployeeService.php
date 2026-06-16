@@ -48,7 +48,11 @@ class EmployeeService
     public function panelData(User $user, Request $request): array
     {
         return array_merge(
-            ['employees' => $this->activeListing($user)],
+            // Ленивые пропсы (замыкания): на частичных перезагрузках Inertia
+            // невостребованные пропсы не вычисляются (фильтр/пагинация →
+            // only=employees,filters; отложенная группа "form"), а на странице
+            // «Сохтор» перекрытый ключ branches не порождает лишний запрос.
+            ['employees' => fn () => $this->activeListing($user)],
             $this->referenceData($user),
             ['filters' => $request->input('filter', [])],
         );
@@ -92,15 +96,18 @@ class EmployeeService
         $branchId = $user->branch_id;
 
         return [
-            // Сразу — нужны фильтрам панели инструментов.
-            'branches' => $canManage ? Branch::orderBy('name')->get() : collect(),
-            'departments' => $canManage
+            // Нужны фильтрам панели инструментов сразу, но как замыкания —
+            // чтобы на частичных перезагрузках (only=employees,filters) не
+            // выполнялись лишние запросы, а перекрытый на «Сохтор» branches
+            // вовсе не запускался.
+            'branches' => fn () => $canManage ? Branch::orderBy('name')->get() : collect(),
+            'departments' => fn () => $canManage
                 ? Department::query()
                     ->when(! $isAdmin, fn ($q) => $q->where('branch_id', $branchId))
                     ->orderBy('name')
                     ->get(['id', 'branch_id', 'name', 'code'])
                 : collect(),
-            'types' => collect(EmploymentType::cases())->map(fn (EmploymentType $t) => [
+            'types' => fn () => collect(EmploymentType::cases())->map(fn (EmploymentType $t) => [
                 'id' => $t->value,
                 'name' => $t->label(),
             ]),
