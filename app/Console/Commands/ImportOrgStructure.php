@@ -110,7 +110,11 @@ class ImportOrgStructure extends Command
                 $branchMap = [];
                 foreach ($buNames as $buId => $buName) {
                     $meta = $companyMeta[$buId] ?? null;
-                    $branch = Branch::updateOrCreate(
+                    // withTrashed: источник авторитетен («1:1 с деревом»), а
+                    // updateOrCreate через обычный скоуп не видит мягко удалённую
+                    // строку и вставил бы дубль с тем же external_id. Находим её
+                    // с учётом trashed и восстанавливаем.
+                    $branch = Branch::withTrashed()->updateOrCreate(
                         ['external_id' => $buId],
                         [
                             'name' => $meta['name'] ?? $buName,
@@ -122,6 +126,9 @@ class ImportOrgStructure extends Command
                             'code' => 'BU'.$buId,
                         ],
                     );
+                    if ($branch->trashed()) {
+                        $branch->restore();
+                    }
                     $branchMap[$buId] = $branch->id;
                 }
                 $this->info('Branches: '.count($branchMap));
@@ -144,7 +151,7 @@ class ImportOrgStructure extends Command
 
                     $code = $n['code'] !== null && $n['code'] !== '' ? mb_substr((string) $n['code'], 0, 20) : null;
 
-                    $dept = Department::updateOrCreate(
+                    $dept = Department::withTrashed()->updateOrCreate(
                         ['external_id' => $n['id']],
                         [
                             'branch_id' => $branchMap[$bu],
@@ -156,6 +163,9 @@ class ImportOrgStructure extends Command
                             'sort_order' => $n['sortOrder'],
                         ],
                     );
+                    if ($dept->trashed()) {
+                        $dept->restore();
+                    }
                     $deptMap[$n['id']] = $dept->id;
                 }
                 $this->info('Departments: '.count($deptMap));
@@ -187,7 +197,7 @@ class ImportOrgStructure extends Command
                             }
                         }
 
-                        $emp = Employee::updateOrCreate(
+                        $emp = Employee::withTrashed()->updateOrCreate(
                             ['external_id' => $e['id']],
                             [
                                 'person_id' => $e['personId'] ?? null,
@@ -203,6 +213,9 @@ class ImportOrgStructure extends Command
                                 'hire_date' => null,
                             ],
                         );
+                        if ($emp->trashed()) {
+                            $emp->restore();
+                        }
                         if (! empty($e['personId'])) {
                             $personMap[$e['personId']] = $emp->id;
                         }
@@ -218,30 +231,44 @@ class ImportOrgStructure extends Command
                 //    его каждому участнику.
                 $deptLinked = 0;
                 $empLinked = 0;
+                $danglingManagers = 0;
                 foreach ($nodes as $n) {
-                    if ($n['managerId'] === null) {
-                        continue;
-                    }
-                    $managerEmpId = $empById[$n['managerId']] ?? $personMap[$n['managerId']] ?? null;
-                    if ($managerEmpId === null) {
-                        continue;
+                    // Руководитель из источника (или null, если его нет/не
+                    // нашёлся). Пишем manager_id всегда — в т.ч. null, чтобы при
+                    // повторном импорте устаревшая связь очищалась, а не висела.
+                    $managerEmpId = $n['managerId'] !== null
+                        ? ($empById[$n['managerId']] ?? $personMap[$n['managerId']] ?? null)
+                        : null;
+
+                    if ($n['managerId'] !== null && $managerEmpId === null) {
+                        $danglingManagers++;
                     }
 
                     if (isset($deptMap[$n['id']])) {
                         DB::table('departments')->where('id', $deptMap[$n['id']])
                             ->update(['manager_id' => $managerEmpId]);
-                        $deptLinked++;
+                        if ($managerEmpId !== null) {
+                            $deptLinked++;
+                        }
                     }
 
                     foreach ($n['employees'] as $e) {
                         $empId = $empById[$e['id']] ?? null;
-                        if ($empId !== null && $empId !== $managerEmpId) {
-                            DB::table('employees')->where('id', $empId)->update(['manager_id' => $managerEmpId]);
+                        if ($empId === null) {
+                            continue;
+                        }
+                        // Сотрудник не может быть руководителем сам себе.
+                        $managerForEmp = $empId === $managerEmpId ? null : $managerEmpId;
+                        DB::table('employees')->where('id', $empId)->update(['manager_id' => $managerForEmp]);
+                        if ($managerForEmp !== null) {
                             $empLinked++;
                         }
                     }
                 }
                 $this->info("Manager links: departments={$deptLinked}, employees={$empLinked}");
+                if ($danglingManagers > 0) {
+                    $this->warn("Висячих managerId (руководитель не найден в источнике): {$danglingManagers}");
+                }
             });
         });
 
