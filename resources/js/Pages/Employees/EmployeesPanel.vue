@@ -81,6 +81,9 @@ function filterQuery() {
 function applyFilters() {
     router.get(route(props.routeName), filterQuery(), {
         preserveState: true,
+        // Сохраняем прокрутку: на странице «Сохтор» панель сотрудников ниже
+        // оргдерева, и без этого каждый ввод в поиск прыгал бы наверх.
+        preserveScroll: true,
         replace: true,
         // Перезапрашиваем только список (+ эхо фильтров); справочные данные
         // панели/формы (и оргструктура на странице «Сохтор») не меняются,
@@ -92,6 +95,7 @@ function applyFilters() {
 function changePage(p) {
     router.get(route(props.routeName), { page: p, ...filterQuery() }, {
         preserveState: true,
+        preserveScroll: true,
         only: ['employees', 'filters'],
     });
 }
