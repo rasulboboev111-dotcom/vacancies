@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Enums\ApplicationSource;
+use App\Enums\VacancyStatus;
 use App\Models\Application;
 use App\Models\Branch;
 use App\Models\Vacancy;
@@ -32,7 +34,10 @@ class ApplicationIntakeService
                 'email' => $data['email'] ?? null,
                 'phone' => $data['phone'] ?? null,
                 'vacancy_title' => $data['vacancy'] ?? null,
-                'source' => $data['source'] ?? null,
+                // Источник всегда задан: отклики из бота приходят из Telegram, а
+                // отсутствие канала нарушило бы инвариант «source не NULL»,
+                // который держат ручные пути Store/Update.
+                'source' => $data['source'] ?? ApplicationSource::TELEGRAM->value,
                 'summary' => $data['summary'] ?? null,
                 'survey' => $data['survey'] ?? null,
                 'source_created_at' => $data['created_at'] ?? null,
@@ -86,7 +91,9 @@ class ApplicationIntakeService
             return null;
         }
 
+        // Только открытые вакансии — кандидата нельзя привязывать к уже закрытой.
         $id = Vacancy::where('branch_id', $branchId)
+            ->where('status', VacancyStatus::OPEN)
             ->whereHas('position', fn ($q) => $q->whereRaw('LOWER(TRIM(name)) = LOWER(?)', [$title]))
             ->value('id');
 
