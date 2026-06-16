@@ -2,6 +2,7 @@
 
 namespace App\Data;
 
+use App\Enums\ApplicationSource;
 use App\Models\Application;
 use Illuminate\Support\Facades\Route;
 use Spatie\LaravelData\Data;
@@ -29,6 +30,7 @@ class ApplicationData extends Data
         public ?string $phone,
         public ?string $vacancy_title,
         public ?string $source,
+        public ?string $source_label,
         public ?string $summary,
         public ?array $survey,
         public bool $has_resume,
@@ -53,6 +55,7 @@ class ApplicationData extends Data
             phone: $a->phone,
             vacancy_title: $a->vacancy_title,
             source: $a->source,
+            source_label: $a->source ? (ApplicationSource::tryFrom($a->source)?->label() ?? $a->source) : null,
             summary: $a->summary,
             survey: $a->survey,
             has_resume: $resume !== null,

@@ -84,7 +84,7 @@ function hasSurvey(survey) {
                     </td>
                     <td class="pa-3 text-center">
                         <v-chip v-if="app.source" size="small" color="indigo" variant="tonal" class="font-weight-bold">
-                            {{ app.source }}
+                            {{ app.source_label || app.source }}
                         </v-chip>
                         <span v-else class="app-dim">—</span>
                     </td>

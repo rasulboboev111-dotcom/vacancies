@@ -81,7 +81,7 @@ const vacancyTitle = computed(
                             <DataField label="Вакансия" :value="vacancyTitle" />
                         </v-col>
                         <v-col cols="12" sm="6" class="py-2">
-                            <DataField label="Манбаъ" :value="application.source" />
+                            <DataField label="Манбаъ" :value="application.source_label || application.source" />
                         </v-col>
                         <v-col v-if="isAdmin" cols="12" sm="6" class="py-2">
                             <DataField label="Филиал" :value="application.branch?.name" />

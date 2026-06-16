@@ -46,7 +46,7 @@ class ApplicationController extends Controller
             'applications' => $applications,
             'filters' => $request->input('filter', []),
             'branches' => $user->isAdmin() ? Branch::orderBy('name')->get(['id', 'name']) : [],
-            'sources' => ApplicationSource::values(),
+            'sources' => ApplicationSource::options(),
         ]);
     }
 

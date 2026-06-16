@@ -112,7 +112,7 @@ const canManageApp = application => canManageInBranch('delete applications', app
                     <label class="filter-label">Манбаъ</label>
                     <v-select
                         v-model="sourceFilter"
-                        :items="[{ title: 'Ҳамаи манбаъҳо', value: null }, ...sources.map(s => ({ title: s, value: s }))]"
+                        :items="[{ title: 'Ҳамаи манбаъҳо', value: null }, ...sources.map(s => ({ title: s.label, value: s.value }))]"
                         item-title="title"
                         item-value="value"
                         placeholder="Ҳамаи манбаъҳо"

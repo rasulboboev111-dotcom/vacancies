@@ -192,8 +192,8 @@ const submit = handleSubmit((values) => {
                                 <v-select
                                     v-model="source"
                                     v-bind="sourceAttrs"
-                                    :items="sources.map(s => ({ title: s, value: s }))"
-                                    item-title="title"
+                                    :items="sources"
+                                    item-title="label"
                                     item-value="value"
                                     variant="outlined"
                                     density="comfortable"
