@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Enums\EmploymentType;
 use App\Enums\Gender;
 use App\Enums\OrgStatus;
+use App\Enums\VacancyEmploymentType;
 use App\Enums\VacancyStatus;
 use App\Models\BirthPlace;
 use App\Models\Branch;
@@ -15,6 +16,7 @@ use App\Models\Nationality;
 use App\Models\Position;
 use App\Models\Specialty;
 use App\Models\User;
+use App\Models\Vacancy;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
@@ -153,7 +155,7 @@ class ActivityLogPresenter
             'subject_label' => $this->subjectLabel($log),
             'event' => $log->event,
             'causer_name' => $log->causer instanceof User ? $log->causer->name : 'Низом',
-            'properties' => $this->humanizeProperties($log->properties),
+            'properties' => $this->humanizeProperties($log->properties, $log->subject_type),
             'created_at' => $log->created_at?->format('d.m.Y H:i:s'),
         ];
     }
@@ -162,9 +164,10 @@ class ActivityLogPresenter
      * Заменяет сырые id внешних ключей и коды enum внутри записанных свойств
      * человекочитаемыми значениями, сохраняя структуру { attributes, old }.
      *
+     * @param  class-string|null  $subjectType
      * @return array<string, mixed>
      */
-    private function humanizeProperties($properties): array
+    private function humanizeProperties($properties, ?string $subjectType = null): array
     {
         $props = $properties instanceof Collection
             ? $properties->toArray()
@@ -183,7 +186,7 @@ class ActivityLogPresenter
                 if (array_key_exists($label, $relabeled)) {
                     $label = "{$label} ({$key})";
                 }
-                $relabeled[$label] = $this->humanizeValue($key, $value);
+                $relabeled[$label] = $this->humanizeValue($key, $value, $subjectType);
             }
             $props[$section] = $relabeled;
         }
@@ -237,8 +240,10 @@ class ActivityLogPresenter
 
     /**
      * Приводит одно записанное значение к человекочитаемому виду.
+     *
+     * @param  class-string|null  $subjectType
      */
-    private function humanizeValue(string $key, $value)
+    private function humanizeValue(string $key, $value, ?string $subjectType = null)
     {
         if ($value === null || $value === '') {
             return $value;
@@ -257,7 +262,13 @@ class ActivityLogPresenter
         }
 
         if ($key === 'employment_type') {
-            return EmploymentType::tryFrom((string) $value)?->label() ?? $value;
+            // У вакансии и сотрудника разные наборы типов занятости — выбираем
+            // enum по типу затронутой записи, иначе метка не разрешится.
+            $enum = is_a($subjectType, Vacancy::class, true)
+                ? VacancyEmploymentType::class
+                : EmploymentType::class;
+
+            return $enum::tryFrom((string) $value)?->label() ?? $value;
         }
 
         if ($key === 'gender') {
