@@ -18,18 +18,44 @@ class UpdateApplicationRequest extends FormRequest
         return Gate::allows('update', $this->application());
     }
 
+    protected function prepareForValidation(): void
+    {
+        $user = $this->user();
+
+        // Админ может перенести заявку в другой филиал; пользователь филиала —
+        // нет (branch_id остаётся текущим). Это даёт vacancy_id валидироваться по
+        // тому филиалу, который реально сохранится, а не по устаревшему.
+        $branchId = $user->isAdmin()
+            ? ($this->filled('branch_id') ? (int) $this->input('branch_id') : $this->application()->branch_id)
+            : $this->application()->branch_id;
+
+        $this->merge(['branch_id' => $branchId]);
+
+        // Поле source трогаем только если оно прислано: пустое (очищенное) →
+        // MANUAL, чтобы не записать null; отсутствующее — не меняем (иначе любой
+        // правки контактов сбросил бы исходный канал, например hrbot).
+        if ($this->has('source')) {
+            $this->merge([
+                'source' => $this->filled('source') ? $this->input('source') : ApplicationSource::MANUAL->value,
+            ]);
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */
     public function rules(): array
     {
+        $branchId = $this->input('branch_id');
+
         // Вакансия должна принадлежать филиалу заявки — иначе можно привязать
         // вакансию чужого филиала.
         return [
+            'branch_id' => ['required', 'integer', 'exists:branches,id'],
             'name' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'phone' => ['nullable', 'string', 'max:64'],
-            'vacancy_id' => ['nullable', 'integer', new VacancyInBranch($this->application()->branch_id)],
+            'vacancy_id' => ['nullable', 'integer', new VacancyInBranch($branchId !== null ? (int) $branchId : null)],
             'source' => ['nullable', Rule::in(ApplicationSource::values())],
             'resume' => [
                 'nullable',

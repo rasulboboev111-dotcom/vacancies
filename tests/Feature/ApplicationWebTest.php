@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Application;
 use App\Models\Branch;
+use App\Models\Position;
 use App\Models\User;
+use App\Models\Vacancy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -152,6 +154,62 @@ class ApplicationWebTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_move_application_to_another_branch_with_a_matching_vacancy(): void
+    {
+        $application = $this->makeApplication(['branch_id' => $this->branch1->id]);
+        $position = Position::create(['name' => 'Инженер']);
+        $vacancy = Vacancy::create([
+            'branch_id' => $this->branch2->id,
+            'position_id' => $position->id,
+            'status' => 'open',
+            'opened_at' => now()->toDateString(),
+        ]);
+
+        // Move to branch2 and attach a branch2 vacancy: the vacancy must validate
+        // against the SUBMITTED branch, and the branch change must persist.
+        $this->actingAs($this->admin)
+            ->put(route('applications.update', $application->id), [
+                'name' => 'Moved',
+                'branch_id' => $this->branch2->id,
+                'vacancy_id' => $vacancy->id,
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('applications', [
+            'id' => $application->id,
+            'branch_id' => $this->branch2->id,
+            'vacancy_id' => $vacancy->id,
+        ]);
+    }
+
+    public function test_branch_user_cannot_move_application_to_another_branch(): void
+    {
+        $application = $this->makeApplication(['branch_id' => $this->branch1->id]);
+
+        $this->actingAs($this->branchUser)
+            ->put(route('applications.update', $application->id), [
+                'name' => 'Stay',
+                'branch_id' => $this->branch2->id, // ignored — forced to current branch
+            ])
+            ->assertRedirect();
+
+        $this->assertSame($this->branch1->id, $application->fresh()->branch_id);
+    }
+
+    public function test_clearing_source_on_update_defaults_to_manual_not_null(): void
+    {
+        $application = $this->makeApplication(['source' => 'hrbot']);
+
+        $this->actingAs($this->admin)
+            ->put(route('applications.update', $application->id), [
+                'name' => 'Kept',
+                'source' => '', // explicitly cleared
+            ])
+            ->assertRedirect();
+
+        $this->assertSame('manual', $application->fresh()->source);
+    }
+
     public function test_destroy_soft_deletes(): void
     {
         $application = $this->makeApplication();
@@ -192,5 +250,35 @@ class ApplicationWebTest extends TestCase
         $this->actingAs($this->admin)
             ->get(route('applications.resume', $appB->id))
             ->assertOk();
+    }
+
+    public function test_cannot_attach_vacancy_from_another_branch(): void
+    {
+        $position = Position::create(['name' => 'Engineer']);
+        $foreignVacancy = Vacancy::create([
+            'branch_id' => $this->branch2->id,
+            'position_id' => $position->id,
+            'status' => 'open',
+            'opened_at' => now()->toDateString(),
+        ]);
+
+        // Создание: пользователь филиала 1 пытается привязать вакансию филиала 2.
+        $this->actingAs($this->branchUser)
+            ->from(route('applications.index'))
+            ->post(route('applications.store'), [
+                'name' => 'Cross Branch',
+                'vacancy_id' => $foreignVacancy->id,
+            ])
+            ->assertSessionHasErrors('vacancy_id');
+
+        // Редактирование своей заявки с чужой вакансией — тоже отклоняется.
+        $application = $this->makeApplication(['branch_id' => $this->branch1->id]);
+        $this->actingAs($this->branchUser)
+            ->from(route('applications.index'))
+            ->put(route('applications.update', $application->id), [
+                'name' => 'Cross Branch',
+                'vacancy_id' => $foreignVacancy->id,
+            ])
+            ->assertSessionHasErrors('vacancy_id');
     }
 }
