@@ -48,4 +48,10 @@ describe('formatDateTime', () => {
     it('includes a time component', () => {
         expect(formatDateTime('2024-01-15T09:30:00')).toMatch(/\d{2}:\d{2}/);
     });
+
+    it('renders a UTC (Z) timestamp in the app timezone, independent of the browser tz', () => {
+        // 18:30Z == 23:30 in Asia/Dushanbe (UTC+5) — raw Eloquent models serialize
+        // as UTC, so this must not drift with the runner/browser timezone.
+        expect(formatDateTime('2026-06-15T18:30:00.000000Z')).toBe('15.06.2026 23:30');
+    });
 });
