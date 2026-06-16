@@ -5,6 +5,12 @@ namespace App\Policies;
 use App\Models\Employee;
 use App\Models\User;
 
+/**
+ * Использует Spatie checkPermissionTo (не hasPermissionTo): он не бросает
+ * PermissionDoesNotExist, а возвращает false, если строки права нет в БД. Это
+ * не даёт несидированной/частично смигрированной таблице прав ронять страницы
+ * 500-ой (например, structure.index, который теперь вызывает viewAny).
+ */
 class EmployeePolicy
 {
     public function viewAny(User $user): bool
@@ -13,7 +19,7 @@ class EmployeePolicy
             return true;
         }
 
-        return $user->branch_id !== null && $user->hasPermissionTo('view employees');
+        return $user->branch_id !== null && $user->checkPermissionTo('view employees');
     }
 
     public function view(User $user, Employee $employee): bool
@@ -23,7 +29,7 @@ class EmployeePolicy
         }
 
         return $user->branch_id !== null
-            && $user->hasPermissionTo('view employees')
+            && $user->checkPermissionTo('view employees')
             && $employee->branch_id === $user->branch_id;
     }
 
@@ -33,7 +39,7 @@ class EmployeePolicy
             return true;
         }
 
-        return $user->branch_id !== null && $user->hasPermissionTo('create employees');
+        return $user->branch_id !== null && $user->checkPermissionTo('create employees');
     }
 
     public function update(User $user, Employee $employee): bool
@@ -42,7 +48,7 @@ class EmployeePolicy
             return true;
         }
 
-        if ($user->branch_id === null || ! $user->hasPermissionTo('edit employees')) {
+        if ($user->branch_id === null || ! $user->checkPermissionTo('edit employees')) {
             return false;
         }
 
@@ -55,7 +61,7 @@ class EmployeePolicy
             return true;
         }
 
-        if ($user->branch_id === null || ! $user->hasPermissionTo('delete employees')) {
+        if ($user->branch_id === null || ! $user->checkPermissionTo('delete employees')) {
             return false;
         }
 
