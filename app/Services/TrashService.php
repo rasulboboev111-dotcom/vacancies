@@ -94,7 +94,9 @@ class TrashService
         $externalTaken = $department->external_id !== null
             && Department::where('external_id', $department->external_id)->whereKeyNot($department->id)->exists();
 
-        $conflictMessage = "Барқарорсозии шуъба '{$department->name}' имконнопазир: шуъбаи фаъол бо ҳамин ном аллакай вуҷуд дорад.";
+        $conflictMessage = $externalTaken && ! $nameTaken
+            ? "Барқарорсозии шуъба '{$department->name}' имконнопазир: шуъбаи фаъол бо ҳамин рамзи берунӣ (external_id) аллакай вуҷуд дорад."
+            : "Барқарорсозии шуъба '{$department->name}' имконнопазир: шуъбаи фаъол бо ҳамин ном аллакай вуҷуд дорад.";
 
         $this->guard($nameTaken || $externalTaken, $conflictMessage);
 
